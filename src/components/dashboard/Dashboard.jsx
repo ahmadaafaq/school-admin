@@ -8,10 +8,9 @@
 
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
+import Diversity3Icon from '@mui/icons-material/Diversity3';
 
 import { tokens, themeSettings } from "../../theme";
 import StatBox from "../common/StatBox";
@@ -49,77 +48,48 @@ const Dashboard = () => {
             }}
           >
             This Page Is Being Built By Our Team
-            {/* <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button> */}
           </Typography>
         </Box>
       </Box>
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="140px"
-        gap="20px"
+        gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+        gap="30px"
+        margin="20px"
+        flexWrap="wrap"
       >
         {/* ROW 1 */}
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          padding="15px"
+          borderRadius="6px"
         >
           <StatBox
             title="12,361"
-            subtitle="Emails Sent"
+            subtitle="Students"
             progress="0.75"
             increase="+14%"
             icon={
-              <EmailIcon
+              <PeopleOutlinedIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
           />
         </Box>
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
-        >
-          <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
-            icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box>
-        <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+          borderRadius="6px"
         >
           <StatBox
             title="32,441"
-            subtitle="New Clients"
+            subtitle="New Students"
             progress="0.30"
             increase="+5%"
             icon={
@@ -130,19 +100,19 @@ const Dashboard = () => {
           />
         </Box>
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          borderRadius="6px"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
+            title="1,325"
+            subtitle="Teachers"
             progress="0.80"
             increase="+43%"
             icon={
-              <TrafficIcon
+              <Diversity3Icon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }

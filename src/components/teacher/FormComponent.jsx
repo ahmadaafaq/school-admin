@@ -11,23 +11,23 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
+import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import UserFormComponent from "./UserFormComponent";
+import TeacherFormComponent from "./TeacherFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
-import { useUser } from "../hooks/users";
 import { Utility } from "../utility";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        userData: { values: null, validated: false },
+        teacherData: { values: null, validated: false },
         addressData: { values: null, validated: false },
     });
     const [updatedValues, setUpdatedValues] = useState(null);
@@ -35,7 +35,7 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const userFormRef = useRef();
+    const teacherFormRef = useRef();
     const addressFormRef = useRef();
 
     const navigateTo = useNavigate();
@@ -48,9 +48,9 @@ const FormComponent = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { getQueryParam } = useUser();
     const { toastAndNavigate, getLocalStorage } = Utility();
-    //after page refresh the id in router state becomes undefined, so getting user id from url params
+
+    //after page refresh the id in router state becomes undefined, so getting teacher id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -58,17 +58,14 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateUserAndAddress = useCallback(formData => {
+    const updateTeacherAndAddress = useCallback(formData => {
         const dataFields = [
-            { ...formData.userData.values },
+            { ...formData.teacherData.values },
             { ...formData.addressData.values }
         ];
-        const paths = ["/update-user", "/update-address"];
+        const paths = ["/update-teacher", "/update-address"];
         setLoading(true);
 
-        if (!formData.userData.password) {
-            delete formData.userData.password;
-        };
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
                 let status = true;
@@ -90,15 +87,19 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateUserData = (id) => {
+    const populateTeacherData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/users/${id}`, `/get-address/user/${id}`];
+        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
+                if (responses[0].data.data) {
+                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
+                }
                 const dataObj = {
-                    userData: responses[0].data.data,
+                    teacherData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
                 };
+                console.log(dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -109,16 +110,15 @@ const FormComponent = () => {
             });
     };
 
-    const registerUser = () => {
+    const createTeacher = () => {
         setLoading(true);
-        const userType = getQueryParam();
-        API.UserAPI.register({ ...formData.userData.values, type: userType })
-            .then(({ data: user }) => {
-                if (user?.status === 'Success') {
+        API.TeacherAPI.createTeacher({ ...formData.teacherData.values })
+            .then(({ data: teacher }) => {
+                if (teacher?.status === 'Success') {
                     API.AddressAPI.createAddress({
                         ...formData.addressData.values,
-                        parent_id: user.data.id,
-                        parent: 'user',
+                        parent_id: teacher.data.id,
+                        parent: 'teacher',
                     })
                         .then(address => {
                             setLoading(false);
@@ -138,28 +138,46 @@ const FormComponent = () => {
             });
     };
 
-    //Create/Update/Populate user
+    //Create/Update/Populate teacher
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateUserData(id);
+            populateTeacherData(id);
         }
-        if (formData.userData.validated && formData.addressData.validated) {
-            formData.userData.values?.id ? updateUserAndAddress(formData) : registerUser();
+        if (formData.teacherData.validated && formData.addressData.validated) {
+            formData.teacherData.values?.id ? updateTeacherAndAddress(formData) : createTeacher();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await userFormRef.current.Submit();
+        await teacherFormRef.current.Submit();
         await addressFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'user' ? setFormData({ ...formData, userData: data }) :
+        form === 'teacher' ? setFormData({ ...formData, teacherData: data }) :
             setFormData({ ...formData, addressData: data });
+    };
+
+    const convertToRoman = (word) => {
+        const wordMap = {
+            first: 'I',
+            second: 'II',
+            third: 'III',
+            fourth: 'IV',
+            fifth: 'V',
+            sixth: 'VI',
+            seventh: 'VII',
+            eight: 'VIII',
+            nineth: 'IX',
+            tenth: 'X',
+            eleventh: 'XI',
+            twelth: 'XII'
+        };
+        return wordMap[word] || 'Invalid word';
     };
 
     return (
@@ -174,16 +192,16 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <UserFormComponent
+            <TeacherFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'user');
+                    handleFormChange(data, 'teacher');
                 }}
-                refId={userFormRef}
+                refId={teacherFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                updatedValues={updatedValues?.userData}
+                updatedValues={updatedValues?.teacherData}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -198,7 +216,7 @@ const FormComponent = () => {
             />
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on user update
+                {   //hide reset button on teacher update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}

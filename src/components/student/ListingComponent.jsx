@@ -17,12 +17,11 @@ import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
-import { datagridColumns } from "./UserConfig";
+import { datagridColumns } from "./StudentConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setUsers } from "../../redux/actions/UserAction";
+import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
-import { useUser } from "../hooks/users";
 import { Utility } from "../utility";
 
 const pageSizeOptions = [5, 10, 20];
@@ -35,23 +34,16 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allUsers);
+    const { listData } = useSelector(state => state.allStudents);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
 
     const { getPaginatedData } = useCommon();
-    const { getQueryParam } = useUser();
-
-    const colors = tokens(theme.palette.mode);
     const { getLocalStorage } = Utility();
+    const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-
-    let condition = getQueryParam() ? {
-        key: 'type',
-        value: getQueryParam()
-    } : false;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -82,7 +74,6 @@ const ListingComponent = () => {
                     flexDirection={isMobile ? "column" : "row"}
                     justifyContent={"space-between"}
                     alignItems={isMobile ? "center" : "normal"}
-
                 >
                     <Typography
                         component="h2"
@@ -93,9 +84,8 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setUsers}
-                        api={API.UserAPI}
-                        condition={condition}
+                        action={setStudents}
+                        api={API.StudentAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
                         reloadBtn={reloadBtn}
@@ -105,7 +95,7 @@ const ListingComponent = () => {
                         type="submit"
                         color="success"
                         variant="contained"
-                        onClick={() => { navigateTo(`/${selected}/create`) }}
+                        onClick={() => { navigateTo(`/${selected.toLowerCase()}/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
                         Create New {selected}
@@ -131,9 +121,8 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setUsers}
-                api={API.UserAPI}
-                condition={condition}
+                action={setStudents}
+                api={API.StudentAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns()}
                 rows={listData.rows}

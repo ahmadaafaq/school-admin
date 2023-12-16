@@ -11,6 +11,8 @@ import { CityAPI } from "./CityAPI";
 import { CommonAPI } from "./CommonAPI";
 import { CountryAPI } from "./CountryAPI";
 import { StateAPI } from "./StateAPI";
+import { StudentAPI } from "./StudentAPI";
+import { TeacherAPI } from "./TeacherAPI";
 import { UserAPI } from "./UserAPI";
 
 export default {
@@ -19,5 +21,7 @@ export default {
     CommonAPI,
     CountryAPI,
     StateAPI,
+    StudentAPI,
+    TeacherAPI,
     UserAPI
 };

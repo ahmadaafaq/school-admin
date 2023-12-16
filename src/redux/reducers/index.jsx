@@ -11,10 +11,14 @@ import { combineReducers } from "redux";
 import { authReducer } from "./AuthReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
+import { setStudentReducer } from "./StudentReducer";
+import { setTeacherReducer } from "./TeacherReducer";
 import { setUserReducer } from "./UserReducer";
 
 const reducers = combineReducers({
     auth: authReducer,
+    allStudents: setStudentReducer,
+    allTeachers: setTeacherReducer,
     allUsers: setUserReducer,
     menuItems: menuItemReducer,
     toastInfo: displayToastReducer

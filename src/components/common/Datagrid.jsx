@@ -35,6 +35,8 @@ export default function ServerPaginationGrid({
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
+    const studentLoading = useSelector(state => state.allStudents.loading);
+    const teacherLoading = useSelector(state => state.allTeachers.loading);
     const userLoading = useSelector(state => state.allUsers.loading);
     const selected = useSelector(state => state.menuItems.selected);
 
@@ -119,7 +121,7 @@ export default function ServerPaginationGrid({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={userLoading}
+                loading={selected === "Student" ? studentLoading : selected === "Teacher" ? teacherLoading : userLoading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,

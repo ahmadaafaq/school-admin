@@ -24,13 +24,15 @@ import SignInLoader from "../common/SignInLoader";
 import { themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
-import bgImg from "../assets/backimg.jpg";
-import bg from "../assets/signin.svg";
+import bgImg from "../assets/school_children.jpeg";
+import bg from "../assets/school_stuff.png";
 
 const initialValues = {
   email: "",
   password: ""
 };
+
+const ENV = import.meta.env;
 
 const Login = () => {
   const [formData, setFormData] = useState(initialValues);
@@ -49,13 +51,13 @@ const Login = () => {
 
   const boxstyle = {
     position: "absolute",
-    top: isMobile ? "35%" : "42%",
-    left: "50%",
+    top: isMobile ? "35%" : "38%",
+    right: isMobile ? "-25%" : "-8%",
     boxShadow: 24,
     borderRadius: 6,
     bgcolor: "background.paper",
-    width: isMobile ? "78%" : isTab ? "48%" : "62%",
-    height: isMobile ? "38vh" : isTab ? "58vh" : "62vh",
+    width: isMobile ? "78%" : isTab ? "48%" : "30%",
+    height: isMobile ? "38vh" : isTab ? "58vh" : "96vh",
     transform: "translate(-50%, -50%)",
     padding: "10px"
   };
@@ -109,26 +111,25 @@ const Login = () => {
         message={toastInfo.toastMessage}
       />
       <Box sx={boxstyle}>
-        <Grid container sx={{ height: "59vh" }}>
-          {!isMobile && <Grid item xs={6} sm={12} lg={6}>
+        <Grid container sx={{ flexDirection: 'column' }}>
+          {!isMobile &&
+            <Grid item xs={12} sm={12} lg={12}>
+              <Box
+                style={{
+                  backgroundImage: `url(${bg})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center center",
+                  backgroundRepeat: "no-repeat",
+                  height: isMobile ? "40vh" : isTab ? "22vh" : "45vh",
+                  color: "#f5f5f5"
+                }}
+              ></Box>
+            </Grid>}
+          <Grid item xs={12} sm={12} lg={12} md={12}>
             <Box
               style={{
-                backgroundImage: `url(${bg})`,
-                backgroundSize: "contain",
-                backgroundRepeat: "no-repeat",
-                marginTop: "40px",
-                marginLeft: isTab ? "10%" : "15px",
-                marginRight: "15px",
-                height: isMobile ? "40vh" : isTab ? "22vh" : "56vh",
-                color: "#f5f5f5",
-              }}
-            ></Box>
-          </Grid>}
-          <Grid item xs={6} sm={12} lg={6}>
-            <Box
-              style={{
-                width: isMobile ? "73vw" : "auto",
-                height: isMobile ? "36vh" : isTab ? "26vh" : "58vh",
+                width: isMobile ? "73vw" : "100%",
+                height: isMobile ? "36vh" : isTab ? "26vh" : "48vh",
                 backgroundColor: "#3b33d5",
                 borderRadius: 26,
                 display: "flex",
@@ -142,18 +143,16 @@ const Login = () => {
                 <LockOutlinedIcon />
               </Avatar>
               <Typography component="h2" sx={{
-                marginLeft: "-18px",
                 fontFamily: typography.fontFamily,
                 fontSize: typography.h2.fontSize
               }}>
-                School CRM
+                {ENV.VITE_COMPANY_NAME}
               </Typography>
               <Formik
                 onSubmit={values => {
                   setFormData(values);
                 }}
                 initialValues={initialValues}
-              // validationSchema={UserValidation}
               >
                 {({
                   values,
@@ -164,7 +163,7 @@ const Login = () => {
                   handleChange,
                   handleSubmit
                 }) => (
-                  <form onSubmit={handleSubmit} style={{ width: isMobile ? "40vw" : isTab ? "28vw" : "20vw" }}>
+                  <form onSubmit={handleSubmit} style={{ width: isMobile ? "40vw" : isTab ? "28vw" : "21vw" }}>
                     <TextField
                       required
                       fullWidth
@@ -178,7 +177,7 @@ const Login = () => {
                       value={values.email}
                       error={!!touched.email && !!errors.email}
                       helperText={touched.email && errors.email}
-                      sx={{ margin: "4px" }}
+                      sx={{ margin: "5px" }}
                     />
                     <TextField
                       required
@@ -193,7 +192,7 @@ const Login = () => {
                       value={values.password}
                       error={!!touched.contact_no && !!errors.contact_no}
                       helperText={touched.contact_no && errors.contact_no}
-                      sx={{ margin: "4px" }}
+                      sx={{ margin: "5px" }}
                       InputProps={{ // <-- This is where the toggle button is added
                         endAdornment: (
                           <InputAdornment position="end">
@@ -230,18 +229,18 @@ const Login = () => {
                             </Stack>
                           </Grid> */}
                     <Button
-                      // fullWidth
                       disabled={!dirty || loading}
                       type="submit"
                       variant="contained"
                       size="large"
                       sx={{
-                        mt: "10px",
                         color: "#ffffff",
+                        display: "block",
+                        margin: "auto",
+                        mt: "10px",
                         minWidth: isMobile ? "170px" : isTab ? "200px" : "200px",
                         backgroundColor: "#FF9A01",
-                        borderRadius: 28,
-                        left: isMobile ? "0" : isTab ? "6%" : "10%"
+                        borderRadius: 28
                       }}
                     >
                       {loading === true ? <SignInLoader /> : "Sign In"}

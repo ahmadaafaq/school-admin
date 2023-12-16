@@ -15,6 +15,14 @@ import { Box, IconButton, Typography, useTheme, useMediaQuery } from "@mui/mater
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
+import BorderColorIcon from '@mui/icons-material/BorderColor';
+import Diversity3Icon from '@mui/icons-material/Diversity3';
+import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
+
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -111,14 +119,6 @@ const Sidebar = ({ role }) => {
                 icon={<HomeOutlinedIcon />}
                 selected={selected}
               />
-
-              <Typography
-                variant="h6"
-                color={colors.grey[300]}
-                sx={{ m: "15px 0 5px 10px" }}
-              >
-                Users
-              </Typography>
               <SidebarItem
                 title="Student"
                 to="/student/listing"
@@ -128,13 +128,55 @@ const Sidebar = ({ role }) => {
               <SidebarItem
                 title="Teacher"
                 to="/teacher/listing"
-                icon={<PeopleOutlinedIcon />}
+                icon={<Diversity3Icon />}
                 selected={selected}
               />
               <SidebarItem
                 title="Employee"
                 to="/employee/listing"
-                icon={<PeopleOutlinedIcon />}
+                icon={<PregnantWomanIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Time Table"
+                to="/employee/listing"
+                icon={<ReceiptLongIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Class Subjects"
+                to="/employee/listing"
+                icon={<BorderColorIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Attendance"
+                to="/employee/listing"
+                icon={<CalendarMonthIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Holiday"
+                to="/employee/listing"
+                icon={<AirplaneTicketIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Leave"
+                to="/employee/listing"
+                icon={<ExitToAppIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Bus"
+                to="/employee/listing"
+                icon={<DirectionsBusIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Marksheet"
+                to="/employee/listing"
+                icon={<FormatListBulletedIcon />}
                 selected={selected}
               />
             </Box>

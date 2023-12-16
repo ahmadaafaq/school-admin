@@ -12,16 +12,13 @@ const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -
 const emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 const checkoutSchema = yup.object().shape({
-    username: yup.string()
-        .min(2, 'Username is Too Short!')
-        .max(50, 'Username is Too Long!')
+    firstname: yup.string()
+        .min(2, 'Firstname is Too Short!')
+        .max(20, 'Firstname is Too Long!')
         .required("This Field is Required"),
-    password: yup.string()
-        .min(8, 'Password Must Be 8 Characters Long')
-        .matches(/[A-Z]/, 'Password Must Contain At Least 1 Uppercase Letter')
-        .matches(/[a-z]/, 'Password Must Contain At Least 1 Lowercase Letter')
-        .matches(/[0-9]/, 'Password Must Contain At Least 1 Number')
-        .matches(/[^\w]/, 'Password Must Contain At Least 1 Special Character')
+    lastname: yup.string()
+        .min(2, 'Lastname is Too Short!')
+        .max(20, 'Lastname is Too Long!')
         .required("This Field is Required"),
     email: yup.string()
         .matches(emailRegExp, "Email Address is Not Valid"),

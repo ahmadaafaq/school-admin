@@ -21,34 +21,36 @@ export const datagridColumns = () => {
     const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
-        //the selected user will be 1 amoung 3- employee, salon or freelancer
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
     };
 
     const columns = [
         {
-            field: "username",
-            headerName: "USERNAME",
+            field: "fullname",
+            headerName: "NAME",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120
+            minWidth: 120,
+            // this function combines the values of firstname and lastname into one string
+            valueGetter: (params) => `${params.row.firstname} ${params.row.lastname}`
         },
         {
-            field: "contact_no",
-            headerName: "CONTACT",
+            field: "class",
+            headerName: "CLASS",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100,
+            valueGetter: (params) => `${params.row.class} ${params.row.section}`
+        },
+        {
+            field: "blood_group",
+            headerName: "Blood Group",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
-        },
-        {
-            field: "email",
-            headerName: "EMAIL",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 200
         },
         {
             field: "updated_at",
