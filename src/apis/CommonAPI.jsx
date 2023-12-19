@@ -26,6 +26,7 @@ export const CommonAPI = {
         }
         return commonConfig;
     },
+
     /** Verify the authenticity of the provided token
      */
     verifyToken: async (cancel = false) => {
@@ -40,6 +41,7 @@ export const CommonAPI = {
         });
         return response;
     },
+
     /** Get the user from the specific table
     */
     getByPk: async (id, table, cancel = false) => {
@@ -50,6 +52,7 @@ export const CommonAPI = {
         });
         return response;
     },
+
     /** provide paths for multiple API calls & this function will make the request object 
      */
     multipleAPICall: async (method, paths, dataFields = [], cancel = false) => {

@@ -33,7 +33,11 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname} ${params.row.lastname}`
+            renderCell: (params) => (
+                <div>
+                    {params.row.gender === 'female' ? `Mrs. ${params.row.firstname}` : `Mr. ${params.row.firstname}`} {params.row.lastname}
+                </div>
+            )
         },
         {
             field: "class",

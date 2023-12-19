@@ -26,6 +26,7 @@ export const AddressAPI = {
     });
     return response;
   },
+
   /** Create address in the database 
   */
   createAddress: async (address, cancel = false) => {
@@ -39,6 +40,7 @@ export const AddressAPI = {
       signal: cancel ? cancelApiObject[this.createAddress.name].handleRequestCancellation().signal : undefined,
     });
   },
+
   /** Update address in the database
    */
   updateAddress: async (fields, cancel = false) => {

@@ -23,6 +23,7 @@ export const UserAPI = {
       signal: cancel ? cancelApiObject[this.login.name].handleRequestCancellation().signal : undefined,
     });
   },
+
   /** Get user profile from the database
    */
   profile: async (cancel = false) => {
@@ -36,6 +37,7 @@ export const UserAPI = {
       signal: cancel ? cancelApiObject[this.profile.name].handleRequestCancellation().signal : undefined,
     });
   },
+
   /** Get users from the database that meets the specified query parameters
    */
   getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
@@ -51,6 +53,7 @@ export const UserAPI = {
     });
     return response;
   },
+
   /** Register user in the database
    */
   register: async (user, cancel = false) => {
@@ -64,6 +67,7 @@ export const UserAPI = {
       signal: cancel ? cancelApiObject[this.register.name].handleRequestCancellation().signal : undefined,
     });
   },
+
   /** Update user in the database
    */
   update: async (fields, cancel = false) => {

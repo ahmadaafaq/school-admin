@@ -2,13 +2,15 @@
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
 
 import { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
+import API from "../../../apis";
+import { setClasses } from "../../../redux/actions/ClassAction";
 import { Utility } from "../../utility";
 
 export const useCommon = () => {
@@ -23,6 +25,20 @@ export const useCommon = () => {
         api.getAll(condition, page, size, search, authInfo)
             .then(res => {
                 if (res.status === 'Success') {
+                    console.log('paginated', res.data.rows[0].class)
+                    if (res.data.rows[0].class) {
+                        API.ClassAPI.getClasses()
+                            .then(data => {
+                                if (data.status === 'Success') {
+                                    dispatch(setClasses({ data: data.data }));
+                                } else {
+                                    console.log("Error, Please Try Again");
+                                }
+                            })
+                            .catch(err => {
+                                throw err;
+                            });
+                    }
                     dispatch(action({ listData: res.data, loading: false }));
                 } else if (res.status === 'Error') {
                     dispatch(action({ listData: [], loading: false }));

@@ -28,6 +28,7 @@ export const StudentAPI = {
     });
     return response;
   },
+
   /** Create student in the database
    */
   createStudent: async (student, cancel = false) => {
@@ -41,6 +42,7 @@ export const StudentAPI = {
       signal: cancel ? cancelApiObject[this.createStudent.name].handleRequestCancellation().signal : undefined,
     });
   },
+
   /** Update student in the database
    */
   updateStudent: async (fields, cancel = false) => {

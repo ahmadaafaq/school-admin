@@ -11,12 +11,16 @@ import { combineReducers } from "redux";
 import { authReducer } from "./AuthReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
+import { setClassReducer } from "./ClassReducer";
+import { setSchoolReducer } from "./SchoolReducer";
 import { setStudentReducer } from "./StudentReducer";
 import { setTeacherReducer } from "./TeacherReducer";
 import { setUserReducer } from "./UserReducer";
 
 const reducers = combineReducers({
     auth: authReducer,
+    allClasses: setClassReducer,
+    allSchools: setSchoolReducer,
     allStudents: setStudentReducer,
     allTeachers: setTeacherReducer,
     allUsers: setUserReducer,

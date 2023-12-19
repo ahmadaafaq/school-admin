@@ -20,6 +20,7 @@ import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
+import { setClasses } from "../../redux/actions/ClassAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -87,18 +88,21 @@ const FormComponent = () => {
             });
     }, [formData]);
 
+
     const populateStudentData = (id) => {
         setLoading(true);
         const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
+                    // responses[0].data.data.class = findClassById(responses[0].data.data.class);
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                 }
                 const dataObj = {
                     studentData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
                 };
+                console.log('form component', dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -137,6 +141,21 @@ const FormComponent = () => {
             });
     };
 
+    useEffect(() => {
+        API.ClassAPI.getClasses()
+            .then(data => {
+                if (data.status === 'Success') {
+                    dispatch(setClasses({ data: data.data }));
+                } else {
+                    dispatch(setClasses({ data: [] }));
+                    console.log("Error, Please Try Again");
+                }
+            })
+            .catch(err => {
+                throw err;
+            });
+    }, []);
+
     //Create/Update/Populate student
     useEffect(() => {
         if (id && !submitted) {
@@ -159,24 +178,6 @@ const FormComponent = () => {
     const handleFormChange = (data, form) => {
         form === 'student' ? setFormData({ ...formData, studentData: data }) :
             setFormData({ ...formData, addressData: data });
-    };
-
-    const convertToRoman = (word) => {
-        const wordMap = {
-            first: 'I',
-            second: 'II',
-            third: 'III',
-            fourth: 'IV',
-            fifth: 'V',
-            sixth: 'VI',
-            seventh: 'VII',
-            eight: 'VIII',
-            nineth: 'IX',
-            tenth: 'X',
-            eleventh: 'XI',
-            twelth: 'XII'
-        };
-        return wordMap[word] || 'Invalid word';
     };
 
     return (

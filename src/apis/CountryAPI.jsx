@@ -25,8 +25,8 @@ export const CountryAPI = {
             signal: cancel ? cancelApiObject[this.getCountries.name].handleRequestCancellation().signal : undefined,
         });
         return response;
-    },
-}
+    }
+};
 
 // defining the cancel API object for CountryAPI
 const cancelApiObject = defineCancelApiObject(CountryAPI);

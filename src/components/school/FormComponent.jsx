@@ -17,7 +17,7 @@ import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import TeacherFormComponent from "./TeacherFormComponent";
+import SchoolFormComponent from "./SchoolFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
@@ -27,7 +27,7 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        teacherData: { values: null, validated: false },
+        schoolData: { values: null, validated: false },
         addressData: { values: null, validated: false },
     });
     const [updatedValues, setUpdatedValues] = useState(null);
@@ -35,7 +35,7 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const teacherFormRef = useRef();
+    const schoolFormRef = useRef();
     const addressFormRef = useRef();
 
     const navigateTo = useNavigate();
@@ -50,7 +50,7 @@ const FormComponent = () => {
     const { state } = useLocation();
     const { toastAndNavigate, getLocalStorage } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting teacher id from url params
+    //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -58,12 +58,12 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateTeacherAndAddress = useCallback(formData => {
+    const updateSchoolAndAddress = useCallback(formData => {
         const dataFields = [
-            { ...formData.teacherData.values },
+            { ...formData.schoolData.values },
             { ...formData.addressData.values }
         ];
-        const paths = ["/update-teacher", "/update-address"];
+        const paths = ["/update-school", "/update-address"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -87,19 +87,17 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateTeacherData = (id) => {
+
+    const populateSchoolData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`];
+        const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                if (responses[0].data.data) {
-                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
-                }
                 const dataObj = {
-                    teacherData: responses[0].data.data,
+                    schoolData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
                 };
-                console.log(dataObj)
+                console.log('form component', dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -110,15 +108,15 @@ const FormComponent = () => {
             });
     };
 
-    const createTeacher = () => {
+    const createSchool = () => {
         setLoading(true);
-        API.TeacherAPI.createTeacher({ ...formData.teacherData.values })
-            .then(({ data: teacher }) => {
-                if (teacher?.status === 'Success') {
+        API.SchoolAPI.createSchool({ ...formData.schoolData.values })
+            .then(({ data: school }) => {
+                if (school?.status === 'Success') {
                     API.AddressAPI.createAddress({
                         ...formData.addressData.values,
-                        parent_id: teacher.data.id,
-                        parent: 'teacher',
+                        parent_id: school.data.id,
+                        parent: 'school',
                     })
                         .then(address => {
                             setLoading(false);
@@ -138,30 +136,29 @@ const FormComponent = () => {
             });
     };
 
-    //Create/Update/Populate teacher
+    //Create/Update/Populate School
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateTeacherData(id);
+            populateSchoolData(id);
         }
-        if (formData.teacherData.validated && formData.addressData.validated) {
-            formData.teacherData.values?.id ? updateTeacherAndAddress(formData) : createTeacher();
+        if (formData.schoolData.validated && formData.addressData.validated) {
+            formData.schoolData.values?.id ? updateSchoolAndAddress(formData) : createSchool();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await teacherFormRef.current.Submit();
+        await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'teacher' ? setFormData({ ...formData, teacherData: data }) :
+        form === 'school' ? setFormData({ ...formData, schoolData: data }) :
             setFormData({ ...formData, addressData: data });
     };
-
 
     return (
         <Box m="10px">
@@ -175,16 +172,16 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <TeacherFormComponent
+            <SchoolFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'teacher');
+                    handleFormChange(data, 'school');
                 }}
-                refId={teacherFormRef}
+                refId={schoolFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                updatedValues={updatedValues?.teacherData}
+                updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -199,7 +196,7 @@ const FormComponent = () => {
             />
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on teacher update
+                {   //hide reset button on school update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}

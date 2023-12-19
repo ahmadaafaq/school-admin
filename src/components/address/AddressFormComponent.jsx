@@ -65,7 +65,7 @@ const AddressFormComponent = ({
                     : false
             });
         };
-    }
+    };
 
     useEffect(() => {
         if (reset) {
@@ -280,6 +280,6 @@ const AddressFormComponent = ({
             </form>
         </Box>
     );
-}
+};
 
 export default AddressFormComponent;

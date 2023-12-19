@@ -8,8 +8,10 @@
 
 import { AddressAPI } from "./AddressAPI";
 import { CityAPI } from "./CityAPI";
+import { ClassAPI } from "./ClassAPI";
 import { CommonAPI } from "./CommonAPI";
 import { CountryAPI } from "./CountryAPI";
+import { SchoolAPI } from "./SchoolAPI";
 import { StateAPI } from "./StateAPI";
 import { StudentAPI } from "./StudentAPI";
 import { TeacherAPI } from "./TeacherAPI";
@@ -18,8 +20,10 @@ import { UserAPI } from "./UserAPI";
 export default {
     AddressAPI,
     CityAPI,
+    ClassAPI,
     CommonAPI,
     CountryAPI,
+    SchoolAPI,
     StateAPI,
     StudentAPI,
     TeacherAPI,

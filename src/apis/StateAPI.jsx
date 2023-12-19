@@ -13,7 +13,7 @@ import { Utility } from "../components/utility";
 const { getLocalStorage } = Utility();
 
 export const StateAPI = {
-    /** Get states from the database
+    /** Get states from the database based on city_id
      */
     getStates: async (parent_id, cancel = false) => {
         const { data: response } = await api.request({
@@ -25,8 +25,8 @@ export const StateAPI = {
             signal: cancel ? cancelApiObject[this.getStates.name].handleRequestCancellation().signal : undefined,
         });
         return response;
-    },
-}
+    }
+};
 
 // defining the cancel API object for StateAPI
 const cancelApiObject = defineCancelApiObject(StateAPI);

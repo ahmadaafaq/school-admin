@@ -12,14 +12,14 @@ import { Utility } from "../components/utility";
 
 const { getLocalStorage } = Utility();
 
-export const TeacherAPI = {
-  /** Get teachers from the database that meets the specified query parameters
+export const SchoolAPI = {
+  /** Get schools from the database that meets the specified query parameters
    */
   getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
     const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
     const searchParam = search ? `&search=${search}` : '';
     const { data: response } = await api.request({
-      url: `/get-teachers?page=${page}&size=${size}${queryParam}${searchParam}`,
+      url: `/get-schools?page=${page}&size=${size}${queryParam}${searchParam}`,
       headers: {
         "x-access-token": getLocalStorage("auth")?.token
       },
@@ -29,34 +29,34 @@ export const TeacherAPI = {
     return response;
   },
 
-  /** Create teacher in the database
+  /** Create school in the database
    */
-  createTeacher: async (teacher, cancel = false) => {
+  createSchool: async (school, cancel = false) => {
     return await api.request({
-      url: `/create-teacher`,
+      url: `/create-school`,
       headers: {
         "x-access-token": getLocalStorage("auth").token
       },
       method: "POST",
-      data: teacher,
-      signal: cancel ? cancelApiObject[this.createTeacher.name].handleRequestCancellation().signal : undefined,
+      data: school,
+      signal: cancel ? cancelApiObject[this.createSchool.name].handleRequestCancellation().signal : undefined,
     });
   },
 
-  /** Update teacher in the database
+  /** Update school in the database
    */
-  updateTeacher: async (fields, cancel = false) => {
+  updateSchool: async (fields, cancel = false) => {
     return await api.request({
-      url: `/update-teacher`,
+      url: `/update-school`,
       headers: {
         "x-access-token": getLocalStorage("auth").token
       },
       method: "PATCH",
       data: fields,
-      signal: cancel ? cancelApiObject[this.updateTeacher.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.updateSchool.name].handleRequestCancellation().signal : undefined,
     });
   }
 };
 
-// defining the cancel API object for TeacherAPI
-const cancelApiObject = defineCancelApiObject(TeacherAPI);
+// defining the cancel API object for SchoolAPI
+const cancelApiObject = defineCancelApiObject(SchoolAPI);

@@ -35,7 +35,7 @@ export function defineCancelApiObject(apiObject) {
                 cancellationControllerObject.controller = new AbortController();
 
                 return cancellationControllerObject.controller;
-            },
+            }
         };
     });
     return cancelApiObject;

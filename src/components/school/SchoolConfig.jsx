@@ -20,9 +20,7 @@ export const datagridColumns = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const selected = useSelector(state => state.menuItems.selected);
-    const { data } = useSelector(state => state.allClasses);
     const navigateTo = useNavigate();
-    const { convertToRoman, findClassById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
@@ -30,46 +28,32 @@ export const datagridColumns = () => {
 
     const columns = [
         {
-            field: "fullname",
+            field: "name",
             headerName: "NAME",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
-            // this function combines the values of firstname and lastname into one string
-            renderCell: (params) => (
-                <div>
-                    {params.row.gender === 'female' ? `Mrs. ${params.row.firstname}` : `Mr. ${params.row.firstname}`} {params.row.lastname}
-                </div>
-            )
+            minWidth: 120
         },
         {
-            field: "class",
-            headerName: "CLASS",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100,
-            renderCell: (params) => {
-                let className = findClassById(params?.row?.class, data);
-                return (
-                    <div>
-                        {className ? convertToRoman(className) : null} {params.row.section}
-                    </div>
-                );
-            }
-        },
-        {
-            field: "blood_group",
-            headerName: "Blood Group",
+            field: "board",
+            headerName: "BOARD",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "dob",
-            headerName: "DATE OF BIRTH",
+            field: "Type",
+            headerName: "TYPE",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "founding_year",
+            headerName: "Founding Year",
             headerAlign: "center",
             align: "center",
             flex: 1,

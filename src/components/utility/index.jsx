@@ -2,7 +2,7 @@
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
 
@@ -26,6 +26,7 @@ export const Utility = () => {
         };
         return `${firstNameInitial} ${lastNameInitial}`;
     };
+
     /** Get the formatted name and type of the logged in user
      */
     const getNameAndType = () => {
@@ -50,16 +51,25 @@ export const Utility = () => {
             type: formattedType
         };
     };
+
+    /** Create School Code from first & last letter of school name with 3 digit random number
+     */
+    const createSchoolCode = (name) => {
+        return `${name.charAt(0).toUpperCase()}${name.charAt(name.length - 1).toUpperCase()}${Math.floor(Math.random() * 1000)}`;
+    };
+
     /** Set local storage with specified key value pair
      */
     const setLocalStorage = (key, value) => {
         localStorage.setItem(key, JSON.stringify(value));
     };
+
     /** Get the specified key from browser's local storage
      */
     const getLocalStorage = (key) => {
         return JSON.parse(localStorage.getItem(key));
     };
+
     /** Verifying the token authenticity by making API call
      */
     const verifyToken = async () => {
@@ -72,6 +82,7 @@ export const Utility = () => {
                 throw err;
             });
     };
+
     /** Display toast message and navigate to the path if provided 
      */
     const toastAndNavigate = (dispatch, display, severity, msg, navigateTo, path = null) => {
@@ -84,13 +95,31 @@ export const Utility = () => {
             }
         }, 2000);
     };
+
     /** Get user role from localStorage 
     */
     const getRole = () => {
         return getLocalStorage("auth")?.role;
     };
 
+    /** Converts a given number to its Roman numeral representation
+     */
+    const convertToRoman = (num) => {
+        const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+        return isNaN(num) ? num : romanNumerals[num - 1];
+    };
+
+    /** Finds and returns the name of a class based on its ID from an array of class objects
+     */
+    const findClassById = (classId, classData) => {
+        const found = classData?.find(cls => cls.id === classId);
+        return found ? found.name : null;
+    };
+
     return {
+        convertToRoman,
+        createSchoolCode,
+        findClassById,
         getInitials,
         getNameAndType,
         getLocalStorage,

@@ -22,6 +22,7 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
+import SchoolIcon from '@mui/icons-material/School';
 
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
@@ -42,9 +43,17 @@ import schoolImg from "../assets/school.jpg";
 const Sidebar = ({ role }) => {
   const theme = useTheme();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showClass, setShowClass] = useState(false);
+  const [selectedClass, setSelectedClass] = useState(null);
   const selected = useSelector(state => state.menuItems.selected);
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
+
+  const handleClassClick = (classNumber) => {
+    // Handle the click for a specific class (e.g., navigate to Class page)
+    console.log(`Clicked on Class ${classNumber}`);
+    setSelectedClass(classNumber);
+  };
 
   useEffect(() => {
     setIsCollapsed(isMobile);
@@ -120,11 +129,30 @@ const Sidebar = ({ role }) => {
                 selected={selected}
               />
               <SidebarItem
+                title="School"
+                to="/school/listing"
+                icon={<SchoolIcon />}
+                selected={selected}
+              />
+              <SidebarItem
                 title="Student"
                 to="/student/listing"
                 icon={<PeopleOutlinedIcon />}
                 selected={selected}
+                onClick={() => setShowClass(!showClass)}
               />
+
+              {/* Submenu for Classes */}
+              {/* {showClass && [...Array(12).keys()].map((classNumber) => (
+                <SidebarItem
+                  key={classNumber + 1}
+                  title={`Class ${classNumber + 1}`}
+                  to={`/student/class/${classNumber + 1}`}
+                  icon={<BorderColorIcon />}
+                  selected={selectedClass === classNumber + 1}
+                />
+              ))} */}
+
               <SidebarItem
                 title="Teacher"
                 to="/teacher/listing"

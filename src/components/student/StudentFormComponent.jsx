@@ -14,7 +14,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
+import API from "../../apis";
 import studentValidation from "./Validation";
+import { useSelector } from "react-redux";
 
 const initialValues = {
     firstname: "",
@@ -41,8 +43,9 @@ const UserFormComponent = ({
     userId,
     updatedValues = null
 }) => {
-    const [initialState, setInitialState] = useState(initialValues);
 
+    const [initialState, setInitialState] = useState(initialValues);
+    const { data } = useSelector(state => state.allClasses);
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
 
@@ -68,7 +71,8 @@ const UserFormComponent = ({
                     : false
             });
         };
-    }
+    };
+
 
     useEffect(() => {
         if (reset) {
@@ -88,7 +92,7 @@ const UserFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-
+    console.log('formdata', data)
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -168,9 +172,14 @@ const UserFormComponent = ({
                             name="class"
                             autoComplete="new-class"
                             value={formik.values.class}
-                            onChange={formik.handleChange}
+                            onChange={event => formik.setFieldValue("class", event.target.value)}
                         >
-                            <MenuItem value={"pre-nursery"}>Pre-Nursery</MenuItem>
+                            {data?.map(item => (
+                                <MenuItem value={item.id} name={item.name} key={item.name}>
+                                    {item.name}
+                                </MenuItem>
+                            ))}
+                            {/* <MenuItem value={"pre-nursery"}>Pre-Nursery</MenuItem>
                             <MenuItem value={"nursery"}>Nursery</MenuItem>
                             <MenuItem value={"kg"}>KG</MenuItem>
                             <MenuItem value={"first"}>I</MenuItem>
@@ -184,7 +193,7 @@ const UserFormComponent = ({
                             <MenuItem value={"nineth"}>IX</MenuItem>
                             <MenuItem value={"tenth"}>X</MenuItem>
                             <MenuItem value={"eleventh"}>XI</MenuItem>
-                            <MenuItem value={"twelth"}>XII</MenuItem>
+                            <MenuItem value={"twelth"}>XII</MenuItem> */}
                         </Select>
                         <FormHelperText>{formik.touched.class && formik.errors.class}</FormHelperText>
                     </FormControl>
@@ -262,7 +271,6 @@ const UserFormComponent = ({
                             }}
                         />
                     </LocalizationProvider>
-
                     <TextField
                         fullWidth
                         variant="filled"
@@ -307,8 +315,8 @@ const UserFormComponent = ({
                         </Select>
                     </FormControl>
                 </Box>
-            </form>
-        </Box>
+            </form >
+        </Box >
     );
 }
 

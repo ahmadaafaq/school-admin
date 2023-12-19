@@ -17,9 +17,13 @@ const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-export default function Toast(props) {
+const Toast = ({
+    alerting,
+    message,
+    severity
+}) => {
     const [state, setState] = React.useState({
-        open: props.alerting,
+        open: alerting,
         Transition: Slide
     });
 
@@ -46,18 +50,20 @@ export default function Toast(props) {
 
     return (
         <div>
-            {props.alerting && <Snackbar
+            {alerting && <Snackbar
                 anchorOrigin={{ vertical: "top", horizontal: "center" }}
-                open={props.alerting}
+                open={alerting}
                 onClose={handleClose}
                 autoHideDuration={2000}
                 TransitionComponent={state.Transition}
                 key={state.Transition.name}
             >
-                <Alert severity={props.severity} sx={{ width: '100%' }} onClose={handleClose}>
-                    {props.message}
+                <Alert severity={severity} sx={{ width: '100%' }} onClose={handleClose}>
+                    {message}
                 </Alert>
             </Snackbar>}
         </div>
     );
 };
+
+export default Toast;

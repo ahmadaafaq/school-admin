@@ -24,6 +24,9 @@ const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 const EmployeeFormComponent = lazy(() => import("./components/employee/FormComponent"));
 const EmployeeListingComponent = lazy(() => import("./components/employee/ListingComponent"));
 
+const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"));
+const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"));
+
 const StudentFormComponent = lazy(() => import("./components/student/FormComponent"));
 const StudentListingComponent = lazy(() => import("./components/student/ListingComponent"));
 
@@ -88,6 +91,10 @@ function App() {
                       <Route exact path="/employee/create" element={<EmployeeFormComponent />} />
                       <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
                       <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
+
+                      <Route exact path="/school/create" element={<SchoolFormComponent />} />
+                      <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
+                      <Route exact path="/school/listing" element={<SchoolListingComponent />} />
 
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />

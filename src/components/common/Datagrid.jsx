@@ -16,7 +16,7 @@ import EmptyOverlayGrid from "./EmptyOverlayGrid";
 import { multipleSkeletons } from "./LoadingSkeleton";
 import { tokens } from "../../theme";
 
-export default function ServerPaginationGrid({
+const ServerPaginationGrid = ({
     action,
     api,
     getQuery,
@@ -27,7 +27,7 @@ export default function ServerPaginationGrid({
     pageSizeOptions,
     searchFlag,
     setOldPagination
-}) {
+}) => {
     const initialState = {
         page: 0,
         pageSize: 5 || 10 || 20
@@ -35,6 +35,7 @@ export default function ServerPaginationGrid({
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
+    const schoolLoading = useSelector(state => state.allSchools.loading);
     const studentLoading = useSelector(state => state.allStudents.loading);
     const teacherLoading = useSelector(state => state.allTeachers.loading);
     const userLoading = useSelector(state => state.allUsers.loading);
@@ -121,7 +122,8 @@ export default function ServerPaginationGrid({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={selected === "Student" ? studentLoading : selected === "Teacher" ? teacherLoading : userLoading}
+                loading={selected === "School" ? schoolLoading : selected === "Student" ? studentLoading :
+                    selected === "Teacher" ? teacherLoading : userLoading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,
@@ -138,4 +140,6 @@ export default function ServerPaginationGrid({
             />
         </Box>
     );
-}
+};
+
+export default ServerPaginationGrid;
