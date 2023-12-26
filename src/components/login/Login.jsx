@@ -168,7 +168,7 @@ const Login = () => {
                       required
                       fullWidth
                       id="email"
-                      label="Username"
+                      placeholder="Username"
                       name="email"
                       type="email"
                       autoComplete="new-email"
@@ -177,13 +177,13 @@ const Login = () => {
                       value={values.email}
                       error={!!touched.email && !!errors.email}
                       helperText={touched.email && errors.email}
-                      sx={{ margin: "5px" }}
+                      sx={{ margin: "5px",backgroundColor:"white" }}
                     />
                     <TextField
                       required
                       fullWidth
                       id="password"
-                      label="Password"
+                      placeholder="Password"
                       name="password"
                       type={showPassword ? "text" : "password"} // <-- This is where the pw toggle happens
                       autoComplete="off"
@@ -192,7 +192,7 @@ const Login = () => {
                       value={values.password}
                       error={!!touched.contact_no && !!errors.contact_no}
                       helperText={touched.contact_no && errors.contact_no}
-                      sx={{ margin: "5px" }}
+                      sx={{ margin: "5px",backgroundColor:"white" }}
                       InputProps={{ // <-- This is where the toggle button is added
                         endAdornment: (
                           <InputAdornment position="end">

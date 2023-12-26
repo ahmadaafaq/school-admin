@@ -6,6 +6,9 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
+
+
+
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
 
 html,
@@ -16,7 +19,10 @@ body,
   font-family: 'Source Sans Pro', sans-serif;
   height: 130vh;
   margin: 0;
-  padding: 0
+  padding: 0;
+  /* background-image: url(./components/assets/bg2.webp);
+  background-repeat: no-repeat;
+  background-size: cover; */
 }
 
 .app {
