@@ -15,13 +15,16 @@ import { useFormik } from "formik";
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
+import API from "../../apis";
 import userValidation from "./Validation";
 
 const initialValues = {
+    school_id: '',
     username: "",
     password: "",
     email: "",
     contact_no: "",
+    role: "",
     gender: "",
     status: "inactive"
 };
@@ -41,6 +44,7 @@ const UserFormComponent = ({
         password: null
     });
     const [initialState, setInitialState] = useState(initialValues);
+    const [schools, setSchools] = useState([]);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
@@ -71,7 +75,7 @@ const UserFormComponent = ({
                     : false
             });
         };
-    }
+    };
 
     useEffect(() => {
         if (reset) {
@@ -96,6 +100,23 @@ const UserFormComponent = ({
             });
         }
     }, [updatedValues]);
+
+    useEffect(() => {
+        const getSchools = () => {
+            API.SchoolAPI.getAllSchools()
+                .then(school => {
+                    if (school?.status === 'Success') {
+                        setSchools(school.data.list);
+                    } else {
+                        console.log("An Error Occurred, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+        };
+        getSchools();
+    }, []);
 
     const handleUpdatePassword = () => {
         if (updatePassword.clicked) {
@@ -209,7 +230,9 @@ const UserFormComponent = ({
                         helperText={formik.touched.contact_no && formik.errors.contact_no}
                         sx={{ gridColumn: "span 2" }}
                     />
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.gender && !!formik.errors.gender}
+                    >
                         <InputLabel id="genderField">Gender</InputLabel>
                         <Select
                             variant="filled"
@@ -219,14 +242,55 @@ const UserFormComponent = ({
                             autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
-                            error={!!formik.touched.gender && !!formik.errors.gender}
                         >
                             <MenuItem value={"male"}>Male</MenuItem>
                             <MenuItem value={"female"}>Female</MenuItem>
                             <MenuItem value={"other"}>Other</MenuItem>
                         </Select>
                     </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.school_id && !!formik.errors.school_id}
+                    >
+                        <InputLabel id="school_idField">School</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="school_idField"
+                            label="School"
+                            name="school_id"
+                            autoComplete="new-school_id"
+                            value={formik.values.school_id}
+                            onChange={formik.handleChange}
+                        >
+                            {schools.map(item => (
+                                <MenuItem value={item.id} name={item.name} key={item.name}>
+                                    {item.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.role && !!formik.errors.role}
+                    >
+                        <InputLabel id="roleField">Role</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="roleField"
+                            label="role"
+                            name="role"
+                            autoComplete="new-role"
+                            value={formik.values.role}
+                            onChange={formik.handleChange}
+                        >
+                            <MenuItem value={"admin"}>Admin</MenuItem>
+                            <MenuItem value={"sub-admin"}>Sub-Admin</MenuItem>
+                            <MenuItem value={"staff"}>Staff</MenuItem>
+                            <MenuItem value={"teacher"}>Teacher</MenuItem>
+                            <MenuItem value={"parent"}>Parent</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.status && !!formik.errors.status}
+                    >
                         <InputLabel id="statusField">Status</InputLabel>
                         <Select
                             variant="filled"
@@ -236,7 +300,6 @@ const UserFormComponent = ({
                             autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
-                            error={!!formik.touched.status && !!formik.errors.status}
                         >
                             <MenuItem value={"active"}>Active</MenuItem>
                             <MenuItem value={"inactive"}>Inactive</MenuItem>

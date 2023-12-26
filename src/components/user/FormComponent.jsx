@@ -112,13 +112,13 @@ const FormComponent = () => {
     const registerUser = () => {
         setLoading(true);
         const userType = getQueryParam();
-        API.UserAPI.register({ ...formData.userData.values, type: userType })
+        API.UserAPI.register({ ...formData.userData.values })
             .then(({ data: user }) => {
                 if (user?.status === 'Success') {
                     API.AddressAPI.createAddress({
                         ...formData.addressData.values,
                         parent_id: user.data.id,
-                        parent: 'user',
+                        parent: 'user'
                     })
                         .then(address => {
                             setLoading(false);

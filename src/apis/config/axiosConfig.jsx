@@ -7,8 +7,10 @@
  */
 
 import axios from "axios";
+import { Utility } from "../../components/utility";
 
 const ENV = import.meta.env;
+const { getLocalStorage } = Utility();
 
 export const api = axios.create({
   withCredentials: true,
@@ -34,8 +36,10 @@ api.interceptors.response.use(undefined, (error) => {
   return errorHandler(error);
 });
 
-//ask for token on every request made from edensign website
+//ask for token on every request made
 api.interceptors.request.use(req => {
-  req.headers.Type = "admin";
+  req.headers['Type'] = "school-admin";
+  getLocalStorage("schoolInfo") ? req.headers['School_info'] = JSON.stringify(getLocalStorage("schoolInfo")) : null;
+
   return req;
 });

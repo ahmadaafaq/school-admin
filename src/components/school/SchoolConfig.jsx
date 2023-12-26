@@ -44,12 +44,13 @@ export const datagridColumns = () => {
             minWidth: 100
         },
         {
-            field: "Type",
-            headerName: "TYPE",
+            field: "sub_type",
+            headerName: "SUB TYPE",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueGetter: params => params.row.sub_type.charAt(0).toUpperCase() + params.row.sub_type.slice(1)
         },
         {
             field: "founding_year",

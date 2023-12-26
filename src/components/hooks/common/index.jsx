@@ -25,12 +25,12 @@ export const useCommon = () => {
         api.getAll(condition, page, size, search, authInfo)
             .then(res => {
                 if (res.status === 'Success') {
-                    console.log('paginated', res.data.rows[0].class)
                     if (res.data.rows[0].class) {
-                        API.ClassAPI.getClasses()
+                        API.ClassAPI.getAll(false, 0, 30)
                             .then(data => {
+                                console.log('classs', data)
                                 if (data.status === 'Success') {
-                                    dispatch(setClasses({ data: data.data }));
+                                    dispatch(setClasses({ listData: data.data, loading: false }));
                                 } else {
                                     console.log("Error, Please Try Again");
                                 }

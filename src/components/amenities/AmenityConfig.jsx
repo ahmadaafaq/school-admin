@@ -7,74 +7,47 @@
  */
 
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
 
-export const datagridColumns = () => {
-
+export const datagridColumns = (handleDialogOpen) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const selected = useSelector(state => state.menuItems.selected);
-    const { data } = useSelector(state => state.allClasses);
     const navigateTo = useNavigate();
-    const { convertToRoman, findClassById } = Utility();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
+        handleDialogOpen();
+        navigateTo("#", { state: { id: id } });
     };
 
     const columns = [
         {
-            field: "fullname",
+            field: "name",
             headerName: "NAME",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
-            // this function combines the values of firstname and lastname into one string
-            renderCell: (params) => (
-                <div>
-                    {params.row.gender === 'female' ? `Mrs. ${params.row.firstname}` : `Mr. ${params.row.firstname}`} {params.row.lastname}
-                </div>
-            )
+            minWidth: 120
         },
         {
-            field: "class",
-            headerName: "CLASS",
+            field: "description",
+            headerName: "DESCRIPTION",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 280
+        },
+        {
+            field: "updated_at",
+            headerName: "UPDATED AT",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100,
-            renderCell: (params) => {
-                let className = findClassById(params?.row?.class, data);
-                console.log('coonfig', className)
-                return (
-                    <div>
-                        {className ? convertToRoman(className) : null} {params.row.section}
-                    </div>
-                );
-            }
-        },
-        {
-            field: "blood_group",
-            headerName: "Blood Group",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
-        {
-            field: "dob",
-            headerName: "DATE OF BIRTH",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
+            valueFormatter: params => params?.value.substring(0, 10)
         },
         {
             field: "status",

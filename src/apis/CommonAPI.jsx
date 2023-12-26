@@ -35,11 +35,27 @@ export const CommonAPI = {
             return false;
         }
         const commonConfig = CommonAPI.commonConfig("GET", true, cancel);
-        const { data: response } = await api.request({
-            url: `/verify-token`,
-            ...commonConfig
-        });
-        return response;
+        try {
+            const { data: response } = await api.request({
+                url: `/verify-token`,
+                ...commonConfig
+            });
+            // Check for error conditions in the response
+            if (response.status === 401) {
+                throw new Error('Unauthorized: Token verification failed');
+            } else if (response.status === 500) {
+                throw new Error('Internal Server Error: Token verification failed');
+            }
+            return response;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                console.error('Unauthorized: Token verification failed');
+            } else if (error.response && error.response.status === 500) {
+                console.error('Internal Server Error: Token verification failed');
+            } else {
+                console.error('Unexpected error in verifyToken:', error);
+            }
+        }
     },
 
     /** Get the user from the specific table

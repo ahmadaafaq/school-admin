@@ -95,8 +95,8 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    // responses[0].data.data.class = findClassById(responses[0].data.data.class);
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
+                    responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
                 const dataObj = {
                     studentData: responses[0].data.data,
@@ -142,12 +142,12 @@ const FormComponent = () => {
     };
 
     useEffect(() => {
-        API.ClassAPI.getClasses()
+        API.ClassAPI.getAll(false, 0, 30)
             .then(data => {
                 if (data.status === 'Success') {
-                    dispatch(setClasses({ data: data.data }));
+                    dispatch(setClasses({ listData: data.data, loading: false }));
                 } else {
-                    dispatch(setClasses({ data: [] }));
+                    dispatch(setClasses({ listData: [], loading: false }));
                     console.log("Error, Please Try Again");
                 }
             })

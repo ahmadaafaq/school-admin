@@ -21,8 +21,9 @@ import { Utility } from "./components/utility";
 
 const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 
-const EmployeeFormComponent = lazy(() => import("./components/employee/FormComponent"));
-const EmployeeListingComponent = lazy(() => import("./components/employee/ListingComponent"));
+const AmenityListingComponent = lazy(() => import("./components/amenities/ListingComponent"));
+
+const ClassListingComponent = lazy(() => import("./components/class/ListingComponent"));
 
 const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"));
 const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"));
@@ -32,6 +33,9 @@ const StudentListingComponent = lazy(() => import("./components/student/ListingC
 
 const TeacherFormComponent = lazy(() => import("./components/teacher/FormComponent"));
 const TeacherListingComponent = lazy(() => import("./components/teacher/ListingComponent"));
+
+const UserFormComponent = lazy(() => import("./components/user/FormComponent"));
+const UserListingComponent = lazy(() => import("./components/user/ListingComponent"));
 
 function App() {
   const [role, setRole] = useState(null);
@@ -45,6 +49,10 @@ function App() {
   const switchRole = (userRole) => {
     switch (userRole) {
       case 'admin':
+      case 'sub-admin':
+      case 'staff':
+      case 'teacher':
+      case 'parent':
         navigateTo(pathname);
         break;
       default:
@@ -54,10 +62,11 @@ function App() {
   };
 
   useEffect(() => {
-    const roleType = getRole();
-    setRole(roleType);
-    switchRole(roleType);
-  }, [getLocalStorage("auth")?.role]);
+    setRole(getRole());
+    // switchRole(getRole());
+    console.log('useeffect1')
+
+  }, [getLocalStorage("auth")?.role])
 
   const onIdle = () => {
     localStorage.clear();
@@ -69,9 +78,16 @@ function App() {
     timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER)    //30 minute idle timeout stored in environment variable file
   });
 
-  if (!verifyToken() && pathname !== '/login') {
-    return <Navigate to="/login" replace />
-  }
+  useEffect(() => {
+    verifyToken()
+      .then(result => {
+        console.log('useeffect2', !result)
+        if (!result && pathname !== '/login') {
+          localStorage.clear();
+          navigateTo('../login', { replace: true });
+        }
+      })
+  }, []);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -87,14 +103,48 @@ function App() {
                   {role === 'admin' &&
                     <>
                       <Route exact path="/" element={<Dashboard />} />
-
-                      <Route exact path="/employee/create" element={<EmployeeFormComponent />} />
-                      <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
-                      <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
+                      <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
+                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
 
                       <Route exact path="/school/create" element={<SchoolFormComponent />} />
                       <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
                       <Route exact path="/school/listing" element={<SchoolListingComponent />} />
+
+                      <Route exact path="/student/create" element={<StudentFormComponent />} />
+                      <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
+                      <Route exact path="/student/listing" element={<StudentListingComponent />} />
+
+                      <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
+                      <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
+                      <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
+
+                      <Route exact path="/user/create" element={<UserFormComponent />} />
+                      <Route exact path="/user/update/:id" element={<UserFormComponent />} />
+                      <Route exact path="/user/listing" element={<UserListingComponent />} />
+                    </>}
+                  {role === 'sub-admin' &&
+                    <>
+                      <Route exact path="/" element={<Dashboard />} />
+                      <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
+                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
+
+                      <Route exact path="/student/create" element={<StudentFormComponent />} />
+                      <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
+                      <Route exact path="/student/listing" element={<StudentListingComponent />} />
+
+                      <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
+                      <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
+                      <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
+
+                      <Route exact path="/user/create" element={<UserFormComponent />} />
+                      <Route exact path="/user/update/:id" element={<UserFormComponent />} />
+                      <Route exact path="/user/listing" element={<UserListingComponent />} />
+                    </>}
+                  {role === 'staff' &&
+                    <>
+                      <Route exact path="/" element={<Dashboard />} />
+                      <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
+                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
 
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />

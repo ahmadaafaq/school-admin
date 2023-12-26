@@ -208,7 +208,7 @@ const AddressFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.country && !!formik.errors.country}
                     >
-                        <InputLabel id="stateField">--Select Country*--</InputLabel>
+                        <InputLabel id="countryField">--Select Country*--</InputLabel>
                         <Select
                             autoComplete="new-country"
                             name="country"

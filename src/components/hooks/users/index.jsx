@@ -9,22 +9,27 @@
 import { Utility } from "../../utility";
 
 export const useUser = () => {
-    const { getLocalStorage } = Utility();
-    const selected = getLocalStorage("menu")?.selected;
+    const { getRole } = Utility();
 
-    /** Get query parameter according to user selection
+    /** Get query parameter according to user role
      */
     const getQueryParam = () => {
         let query = '';
-        switch (selected) {
-            case "Employee":
-                query = `admin`;
+        switch (getRole()) {
+            case "admin":
+                query = "admin";
                 break;
-            case "Salon":
-                query = "salon";
+            case "sub-admin":
+                query = "sub-admin";
                 break;
-            case "Freelancer":
-                query = "freelancer";
+            case "staff":
+                query = "staff";
+                break;
+            case "teacher":
+                query = "teacher";
+                break;
+            case "parent":
+                query = "parent";
                 break;
             default:
                 query;
