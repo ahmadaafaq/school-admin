@@ -18,8 +18,7 @@ import HighchartsReact from 'highcharts-react-official';
 
 import { tokens, themeSettings } from "../../theme";
 import StatBox from "../common/StatBox";
-import ProgressCircle from "../common/ProgressCircle";
-import { studentData , lineData } from "../common/CustomCharts";
+import { studentData, lineData } from "../common/CustomCharts";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -29,14 +28,14 @@ const Dashboard = () => {
   const options1 = {
     chart: {
       type: 'spline',
-      backgroundColor: '',
+      backgroundColor: colors.blueAccent[500],
       borderRadius: 6,
       width: null,
     },
     title: {
       text: 'Student Data',
       style: {
-        color: colors.grey[100],
+        color: colors.blueAccent[100],
         fontSize: `${typography.h3.fontSize}px`,
         fontWeight: 'bold',
       },
@@ -111,7 +110,7 @@ const Dashboard = () => {
       data: lineData.map(entry => [Date.parse(entry.date), entry.attendance]),
       color: colors.blueAccent[600],
     }],
-  };  
+  };
 
   return (
     <Box m="10px"  >
@@ -127,20 +126,6 @@ const Dashboard = () => {
           Dashboard
         </Typography>
 
-        <Box>
-          <Typography
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 15px",
-              borderRadius: "6px"
-            }}
-          >
-            This Page Is Being Built By Our Team
-          </Typography>
-        </Box>
       </Box>
       {/* GRID & CHARTS */}
       <Box
@@ -164,6 +149,7 @@ const Dashboard = () => {
             subtitle="Students"
             progress="0.75"
             increase="+14%"
+            yellowColor={colors.primary[100]}
             icon={
               <Groups3Icon
                 sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
@@ -183,12 +169,13 @@ const Dashboard = () => {
             subtitle="New Students"
             progress="0.30"
             increase="+5%"
+            yellowColor={colors.primary[900]}
             icon={
               <PersonAddIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
-          />  
+          />
         </Box>
         <Box
           backgroundColor={colors.primary[800]}
@@ -202,6 +189,7 @@ const Dashboard = () => {
             subtitle="Teachers"
             progress="0.80"
             increase="+43%"
+            yellowColor={colors.primary[800]}
             icon={
               <Diversity3Icon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -217,11 +205,12 @@ const Dashboard = () => {
           borderRadius="6px"
         >
           <StatBox
-           
+
             title="50"
             subtitle="employees"
             progress="0.80"
             increase="+5%"
+            yellowColor={colors.primary[700]}
             icon={
               <EngineeringSharpIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -229,12 +218,12 @@ const Dashboard = () => {
             }
           />
         </Box>
-        
-        <Box sx={{  width: "105vh" }}>
+
+        <Box sx={{ width: "105vh" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
-          <Box sx={{ width: "60vh",marginLeft:"65vh" }}>
+        <Box sx={{ width: "60vh", marginLeft: "65vh" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
-      
+
       </Box>
     </Box>
   );
