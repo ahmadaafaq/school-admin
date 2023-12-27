@@ -50,6 +50,7 @@ const Topbar = () => {
     <>
       {/* ICONS */}
       <Box display="flex" textAlign="center" justifyContent="flex-end" p={2}>
+        {/* <h1>delhi public</h1> */}
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (
             <Tooltip title="Dark Mode">

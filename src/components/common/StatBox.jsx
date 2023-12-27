@@ -7,11 +7,14 @@
  */
 
 import { Box, Typography, useTheme } from "@mui/material";
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
+
 
 import ProgressCircle from "./ProgressCircle";
 import { tokens } from "../../theme";
 
-const StatBox = ({ title, subtitle, icon, progress, increase }) => {
+const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
@@ -29,7 +32,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase }) => {
                     </Typography>
                 </Box>
                 <Box>
-                    <ProgressCircle progress={progress} />
+                    <ProgressCircle progress={progress} yellowColor={yellowColor} />
                 </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">

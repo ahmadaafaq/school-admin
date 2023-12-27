@@ -13,7 +13,6 @@ import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextFie
 
 import API from "../../apis";
 import addressValidation from "./Validation";
-
 const initialValues = {
     street: "",
     landmark: "",
