@@ -28,6 +28,7 @@ import bgImg from "../assets/school_children.jpeg";
 import bg from "../assets/school_stuff.png";
 
 const initialValues = {
+  school_code: "",
   email: "",
   password: ""
 };
@@ -51,7 +52,7 @@ const Login = () => {
 
   const boxstyle = {
     position: "absolute",
-    top: isMobile ? "35%" : "38%",
+    top: isMobile ? "37%" : "39%",
     right: isMobile ? "-25%" : "-8%",
     boxShadow: 24,
     borderRadius: 6,
@@ -64,14 +65,14 @@ const Login = () => {
 
   //make the POST API call when submit button is clicked
   useEffect(() => {
-    if (formData.email && formData.password) {
+    if (formData.school_code || (formData.email && formData.password)) {
       setLoading(true);
       API.UserAPI.login(formData)
         .then(({ data: response }) => {
           setLoading(false);
-
           if (response.status === 'Success' &&
-            (response.data === "User does not exist" || response.data === "Username and Password do not match")) {
+            (response.data === "School Code must be specified" || response.data === "User does not exist" ||
+              response.data === "Username and Password do not match")) {
             toastAndNavigate(dispatch, true, "info", response?.data);
           }
           else {
@@ -82,6 +83,7 @@ const Login = () => {
               username: response.data.username
             };
             setLocalStorage("auth", authInfo);
+            response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;
             navigateTo("/");
           }
         })
@@ -120,7 +122,7 @@ const Login = () => {
                   backgroundSize: "cover",
                   backgroundPosition: "center center",
                   backgroundRepeat: "no-repeat",
-                  height: isMobile ? "40vh" : isTab ? "22vh" : "45vh",
+                  height: isMobile ? "39vh" : isTab ? "21vh" : "44vh",
                   color: "#f5f5f5"
                 }}
               ></Box>
@@ -129,7 +131,7 @@ const Login = () => {
             <Box
               style={{
                 width: isMobile ? "73vw" : "100%",
-                height: isMobile ? "36vh" : isTab ? "26vh" : "48vh",
+                height: isMobile ? "37vh" : isTab ? "27vh" : "49vh",
                 backgroundColor: "#3b33d5",
                 borderRadius: 26,
                 display: "flex",
@@ -149,9 +151,7 @@ const Login = () => {
                 {ENV.VITE_COMPANY_NAME}
               </Typography>
               <Formik
-                onSubmit={values => {
-                  setFormData(values);
-                }}
+                onSubmit={values => setFormData(values)}
                 initialValues={initialValues}
               >
                 {({
@@ -165,11 +165,26 @@ const Login = () => {
                 }) => (
                   <form onSubmit={handleSubmit} style={{ width: isMobile ? "40vw" : isTab ? "28vw" : "21vw" }}>
                     <TextField
+                      fullWidth
+                      name="school_code"
+                      label="School Code"
+                      variant="filled"
+                      type="text"
+                      autoComplete="new-school_code"
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.school_code}
+                      error={!!touched.school_code && !!errors.school_code}
+                      helperText={touched.school_code && errors.school_code}
+                      sx={{ margin: "5px" }}
+                    />
+                    <TextField
                       required
                       fullWidth
                       id="email"
                       placeholder="Username"
                       name="email"
+                      variant="filled"
                       type="email"
                       autoComplete="new-email"
                       onBlur={handleBlur}
@@ -185,6 +200,7 @@ const Login = () => {
                       id="password"
                       placeholder="Password"
                       name="password"
+                      variant="filled"
                       type={showPassword ? "text" : "password"} // <-- This is where the pw toggle happens
                       autoComplete="off"
                       onBlur={handleBlur}

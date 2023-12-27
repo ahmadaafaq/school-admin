@@ -34,6 +34,7 @@ const FormComponent = () => {
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
+    const [amenities, setAmenities] = useState([]);     //for amenities table data from db
 
     const schoolFormRef = useRef();
     const addressFormRef = useRef();
@@ -48,7 +49,7 @@ const FormComponent = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { createSchoolCode, getLocalStorage, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -59,12 +60,16 @@ const FormComponent = () => {
     }, []);
 
     const updateSchoolAndAddress = useCallback(formData => {
+        setLoading(true);
+
+        const paths = ["/update-school", "/update-address"];
         const dataFields = [
-            { ...formData.schoolData.values },
+            {
+                ...formData.schoolData.values,
+                amenities: getSelectedAmenities(formData.schoolData.values.amenities)
+            },
             { ...formData.addressData.values }
         ];
-        const paths = ["/update-school", "/update-address"];
-        setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -87,12 +92,14 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-
     const populateSchoolData = (id) => {
         setLoading(true);
         const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
+                if (responses[0].data.data) {
+                    responses[0].data.data.amenities = getSelectedAmenitiesByName(responses[0].data.data?.amenities);
+                }
                 const dataObj = {
                     schoolData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
@@ -110,11 +117,19 @@ const FormComponent = () => {
 
     const createSchool = () => {
         setLoading(true);
+
+        formData.schoolData.values = {
+            ...formData.schoolData.values,
+            school_code: createSchoolCode(formData.schoolData.values.name),
+            amenities: getSelectedAmenities(formData.schoolData.values?.amenities)
+        };
+
         API.SchoolAPI.createSchool({ ...formData.schoolData.values })
             .then(({ data: school }) => {
                 if (school?.status === 'Success') {
                     API.AddressAPI.createAddress({
                         ...formData.addressData.values,
+                        school_id: school.data.id,
                         parent_id: school.data.id,
                         parent: 'school',
                     })
@@ -136,9 +151,43 @@ const FormComponent = () => {
             });
     };
 
+    //taking out only the id from amenities object from formData.salonData.values.amenities
+    function getSelectedAmenities(amenities) {
+        let amenityId = [];         //using traditional function statement for hoisting
+        amenities?.forEach(amenity => {
+            amenityId.push(amenity.id);
+        });
+        return amenityId.toString();
+    };
+
+    const getSelectedAmenitiesByName = (dataObj) => {
+        const objId = dataObj?.split(",");
+        if (objId) {
+            return amenities.filter(amenity => objId.includes(amenity.id.toString()));
+        }
+    };
+
+    //get all amenities from amenity table stored in the db before populating data
+    useEffect(() => {
+        const getAmenities = () => {
+            API.AmenityAPI.getAll(false, 0, 30)
+                .then(amenities => {
+                    if (amenities.status === 'Success') {
+                        setAmenities(amenities.data.rows);
+                    } else {
+                        console.log("Error, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+        };
+        getAmenities();
+    }, []);
+
     //Create/Update/Populate School
     useEffect(() => {
-        if (id && !submitted) {
+        if (id && !submitted && amenities) {
             setTitle("Update");
             populateSchoolData(id);
         }
@@ -147,7 +196,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [id, submitted, amenities]);
 
     const handleSubmit = async () => {
         await schoolFormRef.current.Submit();
@@ -181,6 +230,7 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 userId={id}
+                amenities={amenities}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent

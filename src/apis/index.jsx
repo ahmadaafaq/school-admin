@@ -7,6 +7,7 @@
  */
 
 import { AddressAPI } from "./AddressAPI";
+import { AmenityAPI } from "./AmenityAPI";
 import { CityAPI } from "./CityAPI";
 import { ClassAPI } from "./ClassAPI";
 import { CommonAPI } from "./CommonAPI";
@@ -16,9 +17,11 @@ import { StateAPI } from "./StateAPI";
 import { StudentAPI } from "./StudentAPI";
 import { TeacherAPI } from "./TeacherAPI";
 import { UserAPI } from "./UserAPI";
+import { UserRoleAPI } from "./UserRoleAPI";
 
 export default {
     AddressAPI,
+    AmenityAPI,
     CityAPI,
     ClassAPI,
     CommonAPI,
@@ -27,5 +30,6 @@ export default {
     StateAPI,
     StudentAPI,
     TeacherAPI,
-    UserAPI
+    UserAPI,
+    UserRoleAPI
 };

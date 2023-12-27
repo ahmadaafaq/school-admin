@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { CommonAPI } from "../../apis/CommonAPI";
+import API from "../../apis";
 import { displayToast } from "../../redux/actions/ToastAction";
 
 export const Utility = () => {
@@ -27,35 +27,33 @@ export const Utility = () => {
         return `${firstNameInitial} ${lastNameInitial}`;
     };
 
-    /** Get the formatted name and type of the logged in user
+    /** Get the formatted name and type(role) of the logged in user
      */
     const getNameAndType = () => {
-        let firstName = '';
-        let lastName = '';
-        let formattedType = '';
         const authInfo = getLocalStorage("auth");
+        const fullName = (authInfo?.username || '').split(" ");
+        const firstName = fullName[0]?.charAt(0).toUpperCase() + fullName[0]?.slice(1) || '';
+        const lastName = fullName[1]?.charAt(0).toUpperCase() + fullName[1]?.slice(1) || '';
+        // const formattedRole = (authInfo?.role || '').charAt(0).toUpperCase() + (authInfo?.role || '').slice(1);
 
-        let fullName = authInfo?.username?.split(" ");
-        let type = authInfo?.type;
-        if (fullName?.length) {
-            firstName = fullName[0][0].toUpperCase() + fullName[0].slice(1);
-            if (fullName[1]?.[0] !== undefined) {
-                lastName = fullName[1][0].toUpperCase() + fullName[1].slice(1);
-            };
-        };
-        if (type?.length) {
-            formattedType = type.charAt(0).toUpperCase() + type.slice(1);
-        };
         return {
-            username: `${firstName} ${lastName}`,
-            type: formattedType
+            username: `${firstName} ${lastName}`.trim(),
+            // type: formattedRole,
         };
     };
 
-    /** Create School Code from first & last letter of school name with 3 digit random number
+    /** Generates unique School Code by taking the initial letters of each word in the school name (excluding the word "school") and
+     *  appending a random three-digit number
      */
     const createSchoolCode = (name) => {
-        return `${name.charAt(0).toUpperCase()}${name.charAt(name.length - 1).toUpperCase()}${Math.floor(Math.random() * 1000)}`;
+        let school = name.toLowerCase().split(" ");
+        let code = '';
+
+        for (let name of school) {
+            if (name !== 'school')
+                code += name.charAt(0).toUpperCase();
+        }
+        return `${code}S${Math.floor(Math.random() * 1000)}`;
     };
 
     /** Set local storage with specified key value pair
@@ -64,21 +62,28 @@ export const Utility = () => {
         localStorage.setItem(key, JSON.stringify(value));
     };
 
-    /** Get the specified key from browser's local storage
+    /** Get the specified key from browser's local storage if it is present
      */
     const getLocalStorage = (key) => {
-        return JSON.parse(localStorage.getItem(key));
+        const storedValue = localStorage.getItem(key);
+        if (typeof storedValue !== 'undefined' && storedValue !== null && storedValue !== 'undefined') {
+            return JSON.parse(storedValue);
+        }
+        // handling the absence of the key in localStorage
+        return null;
     };
 
     /** Verifying the token authenticity by making API call
      */
     const verifyToken = async () => {
-        return CommonAPI.verifyToken()
+        return API.CommonAPI.verifyToken()
             .then(verified => {
-                console.log('verererfffiieed', verified, verified.data === "Verfified");
-                return verified.data === "Verfified";
+                if (verified) {
+                    return verified.data === "Verified";
+                }
             })
             .catch(err => {
+                // return err;
                 throw err;
             });
     };
@@ -99,21 +104,44 @@ export const Utility = () => {
     /** Get user role from localStorage 
     */
     const getRole = () => {
-        return getLocalStorage("auth")?.role;
+        const authData = getLocalStorage("auth");
+        if (authData && authData.role !== undefined) {
+            return authData.role;
+        }
+        return null;
     };
 
     /** Converts a given number to its Roman numeral representation
      */
     const convertToRoman = (num) => {
-        const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+        const romanNumerals = ["Ist", "IInd", "IIIrd", "IVth", "Vth", "VIth", "VIIth", "VIIIth", "IXth", "Xth", "XIth", "XIIth"];
         return isNaN(num) ? num : romanNumerals[num - 1];
     };
 
     /** Finds and returns the name of a class based on its ID from an array of class objects
      */
     const findClassById = (classId, classData) => {
-        const found = classData?.find(cls => cls.id === classId);
+        let found = '';
+        console.log(classData, classId, 'found')
+        if (classData) {
+            found = classData.find(cls => cls.id === classId);
+        }
         return found ? found.name : null;
+    };
+
+    const getRoleAndPriorityById = async () => {
+        return API.UserRoleAPI.getRoleById({ id: getRole() })
+            .then(res => {
+                if (res.status === 'Success') {
+                    console.log(res.data, 'api');
+                    return res.data;
+                } else if (res.status === 'Error') {
+                    console.log('error')
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching user role and priority:', err);
+            })
     };
 
     return {
@@ -124,6 +152,7 @@ export const Utility = () => {
         getNameAndType,
         getLocalStorage,
         getRole,
+        getRoleAndPriorityById,
         setLocalStorage,
         toastAndNavigate,
         verifyToken

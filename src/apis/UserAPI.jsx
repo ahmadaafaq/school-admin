@@ -20,7 +20,7 @@ export const UserAPI = {
       url: `/login`,
       method: "POST",
       data: loginInfo,
-      signal: cancel ? cancelApiObject[this.login.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.login.name].handleRequestCancellation().signal : undefined
     });
   },
 
@@ -34,7 +34,7 @@ export const UserAPI = {
       },
       method: "GET",
       data: token,
-      signal: cancel ? cancelApiObject[this.profile.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.profile.name].handleRequestCancellation().signal : undefined
     });
   },
 
@@ -49,7 +49,7 @@ export const UserAPI = {
         "x-access-token": getLocalStorage("auth")?.token
       },
       method: "GET",
-      signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined
     });
     return response;
   },
@@ -64,7 +64,7 @@ export const UserAPI = {
       },
       method: "POST",
       data: user,
-      signal: cancel ? cancelApiObject[this.register.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.register.name].handleRequestCancellation().signal : undefined
     });
   },
 
@@ -78,7 +78,7 @@ export const UserAPI = {
       },
       method: "PATCH",
       data: fields,
-      signal: cancel ? cancelApiObject[this.update.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.update.name].handleRequestCancellation().signal : undefined
     });
   }
 };

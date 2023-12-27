@@ -12,14 +12,14 @@ import { Utility } from "../components/utility";
 
 const { getLocalStorage } = Utility();
 
-export const ClassAPI = {
-    /** Get classes from the database that meets the specified query parameters
+export const AmenityAPI = {
+    /** Get amenities from the database that meets the specified query parameters
      */
     getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
         const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
-            url: `/get-classes?page=${page}&size=${size}${queryParam}${searchParam}`,
+            url: `/get-amenities?page=${page}&size=${size}${queryParam}${searchParam}`,
             headers: {
                 "x-access-token": getLocalStorage("auth")?.token
             },
@@ -29,34 +29,34 @@ export const ClassAPI = {
         return response;
     },
 
-    /** Create class in the database
+    /** Create amenity in the database
      */
-    createClass: async (classs, cancel = false) => {
+    createAmenity: async (amenity, cancel = false) => {
         return await api.request({
-            url: `/create-class`,
+            url: `/create-amenity`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "POST",
-            data: classs,
-            signal: cancel ? cancelApiObject[this.createClass.name].handleRequestCancellation().signal : undefined,
+            data: amenity,
+            signal: cancel ? cancelApiObject[this.createAmenity.name].handleRequestCancellation().signal : undefined,
         });
     },
 
-    /** Update class in the database
+    /** Update amenity in the database
      */
-    updateClass: async (fields, cancel = false) => {
+    updateAmenity: async (fields, cancel = false) => {
         return await api.request({
-            url: `/update-class`,
+            url: `/update-amenity`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "PATCH",
             data: fields,
-            signal: cancel ? cancelApiObject[this.updateClass.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.updateAmenity.name].handleRequestCancellation().signal : undefined,
         });
     }
 }
 
-// defining the cancel API object for ClassAPI
-const cancelApiObject = defineCancelApiObject(ClassAPI);
+// defining the cancel API object for AmenityAPI
+const cancelApiObject = defineCancelApiObject(AmenityAPI);

@@ -13,9 +13,9 @@ const initialState = {
     loading: true
 };
 
-export const setClassReducer = (state = initialState, action) => {
+export const setAmenityReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_CLASSES:
+        case ActionTypes.SET_AMENITIES:
             return {
                 ...state,
                 listData: action.payload.listData,

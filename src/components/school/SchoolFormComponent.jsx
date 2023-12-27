@@ -9,12 +9,10 @@
 import React, { useState, useEffect } from "react";
 
 import { Box, Checkbox, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
-import { Select, TextField, useMediaQuery } from "@mui/material";
+import { Autocomplete, Select, TextField, useMediaQuery } from "@mui/material";
 import { useFormik } from "formik";
 
-import API from "../../apis";
 import schoolValidation from "./Validation";
-import { useSelector } from "react-redux";
 
 const initialValues = {
     name: "",
@@ -43,6 +41,7 @@ const UserFormComponent = ({
     reset,
     setReset,
     userId,
+    amenities,
     updatedValues = null
 }) => {
 
@@ -118,7 +117,7 @@ const UserFormComponent = ({
                         value={formik.values.name}
                         error={!!formik.touched.name && !!formik.errors.name}
                         helperText={formik.touched.name && formik.errors.name}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
+                        sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
                         fullWidth
@@ -172,7 +171,6 @@ const UserFormComponent = ({
                         value={formik.values.director}
                         error={!!formik.touched.director && !!formik.errors.director}
                         helperText={formik.touched.director && formik.errors.director}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
                     />
                     <TextField
                         fullWidth
@@ -186,7 +184,6 @@ const UserFormComponent = ({
                         value={formik.values.principal}
                         error={!!formik.touched.principal && !!formik.errors.principal}
                         helperText={formik.touched.principal && formik.errors.principal}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
                     />
                     <TextField
                         fullWidth
@@ -214,7 +211,7 @@ const UserFormComponent = ({
                         error={!!formik.touched.area && !!formik.errors.area}
                         helperText={formik.touched.area && formik.errors.area}
                     />
-                    {/* <Autocomplete
+                    <Autocomplete
                         multiple
                         options={amenities}
                         getOptionLabel={option => option.name}
@@ -233,31 +230,7 @@ const UserFormComponent = ({
                                 helperText={formik.touched.amenities && formik.errors.amenities}
                             />
                         )}
-                    /> */}
-                    <FormControlLabel label="Is Boarding" sx={{ gridColumn: isMobile ? "span 2" : "" }}
-                        control={
-                            <Checkbox {...checkboxLabel} color="default"
-                                checked={formik.values.is_boarding ? true : false}
-                                name="is_boarding"
-                                onChange={(event, value) => formik.setFieldValue("is_boarding", value)}
-                                value={formik.values.is_boarding}
-                            />
-                        } />
-                    {formik.values.is_boarding &&
-                        <TextField
-                            fullWidth
-                            variant="filled"
-                            type="text"
-                            name="boarding_capacity"
-                            label="Boarding Capacity"
-                            autoComplete="new-boarding_capacity"
-                            onBlur={formik.handleBlur}
-                            onChange={formik.handleChange}
-                            value={formik.values.boarding_capacity}
-                            error={!!formik.touched.boarding_capacity && !!formik.errors.boarding_capacity}
-                            helperText={formik.touched.boarding_capacity && formik.errors.boarding_capacity}
-                            sx={{ gridColumn: "span 2" }}
-                        />}
+                    />
                     <TextField
                         fullWidth
                         variant="filled"
@@ -355,6 +328,29 @@ const UserFormComponent = ({
                             <MenuItem value={"inactive"}>Inactive</MenuItem>
                         </Select>
                     </FormControl>
+                    <FormControlLabel label="Is Boarding" sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                        control={
+                            <Checkbox {...checkboxLabel} color="default"
+                                checked={formik.values.is_boarding ? true : false}
+                                name="is_boarding"
+                                onChange={(event, value) => formik.setFieldValue("is_boarding", value)}
+                                value={formik.values.is_boarding}
+                            />
+                        } />
+                    {formik.values.is_boarding &&
+                        <TextField
+                            fullWidth
+                            variant="filled"
+                            type="text"
+                            name="boarding_capacity"
+                            label="Specify Boarding Capacity"
+                            autoComplete="new-boarding_capacity"
+                            onBlur={formik.handleBlur}
+                            onChange={formik.handleChange}
+                            value={formik.values.boarding_capacity}
+                            error={!!formik.touched.boarding_capacity && !!formik.errors.boarding_capacity}
+                            helperText={formik.touched.boarding_capacity && formik.errors.boarding_capacity}
+                        />}
                 </Box>
             </form>
         </Box>

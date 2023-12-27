@@ -8,8 +8,8 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
-import { Select, TextField, useMediaQuery } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
+import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
@@ -23,14 +23,21 @@ const initialValues = {
     lastname: "",
     mother_name: "",
     father_name: "",
-    class: "",
-    section: "",
+    guardian: "",
     contact_no: "",
     email: "",
-    gender: "",
+    class: "",
+    section: "",
+    admission_date: null,
     dob: null,
-    admission_date: "",
+    is_specially_abled: false,
     blood_group: "",
+    birth_mark: "",
+    religion: "",
+    nationality: "",
+    age: "",
+    caste_group: "",
+    gender: "",
     status: "inactive"
 };
 
@@ -45,7 +52,8 @@ const UserFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const { data } = useSelector(state => state.allClasses);
+    const { listData } = useSelector(state => state.allClasses);
+    const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
 
@@ -92,7 +100,8 @@ const UserFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-    console.log('formdata', data)
+    console.log('formlistData', listData)
+
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -116,7 +125,6 @@ const UserFormComponent = ({
                         value={formik.values.firstname}
                         error={!!formik.touched.firstname && !!formik.errors.firstname}
                         helperText={formik.touched.firstname && formik.errors.firstname}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
                     />
                     <TextField
                         fullWidth
@@ -130,7 +138,6 @@ const UserFormComponent = ({
                         value={formik.values.lastname}
                         error={!!formik.touched.lastname && !!formik.errors.lastname}
                         helperText={formik.touched.lastname && formik.errors.lastname}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
                     />
                     <TextField
                         fullWidth
@@ -144,7 +151,6 @@ const UserFormComponent = ({
                         value={formik.values.mother_name}
                         error={!!formik.touched.mother_name && !!formik.errors.mother_name}
                         helperText={formik.touched.mother_name && formik.errors.mother_name}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
                     />
                     <TextField
                         fullWidth
@@ -158,78 +164,20 @@ const UserFormComponent = ({
                         value={formik.values.father_name}
                         error={!!formik.touched.father_name && !!formik.errors.father_name}
                         helperText={formik.touched.father_name && formik.errors.father_name}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
                     />
-
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.class && !!formik.errors.class}
-                    >
-                        <InputLabel id="classField">Class</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="classField"
-                            label="class"
-                            name="class"
-                            autoComplete="new-class"
-                            value={formik.values.class}
-                            onChange={event => formik.setFieldValue("class", event.target.value)}
-                        >
-                            {data?.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                            {/* <MenuItem value={"pre-nursery"}>Pre-Nursery</MenuItem>
-                            <MenuItem value={"nursery"}>Nursery</MenuItem>
-                            <MenuItem value={"kg"}>KG</MenuItem>
-                            <MenuItem value={"first"}>I</MenuItem>
-                            <MenuItem value={"second"}>II</MenuItem>
-                            <MenuItem value={"third"}>III</MenuItem>
-                            <MenuItem value={"fourth"}>IV</MenuItem>
-                            <MenuItem value={"fifth"}>V</MenuItem>
-                            <MenuItem value={"sixth"}>VI</MenuItem>
-                            <MenuItem value={"seventh"}>VII</MenuItem>
-                            <MenuItem value={"eight"}>VIII</MenuItem>
-                            <MenuItem value={"nineth"}>IX</MenuItem>
-                            <MenuItem value={"tenth"}>X</MenuItem>
-                            <MenuItem value={"eleventh"}>XI</MenuItem>
-                            <MenuItem value={"twelth"}>XII</MenuItem> */}
-                        </Select>
-                        <FormHelperText>{formik.touched.class && formik.errors.class}</FormHelperText>
-                    </FormControl>
-
                     <TextField
                         fullWidth
                         variant="filled"
                         type="text"
-                        name="section"
-                        label="Section"
-                        autoComplete="new-section"
+                        name="guardian"
+                        label="Guardian If Any"
+                        autoComplete="new-guardian"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-                        value={formik.values.section}
-                        error={!!formik.touched.section && !!formik.errors.section}
-                        helperText={formik.touched.section && formik.errors.section}
+                        value={formik.values.guardian}
+                        error={!!formik.touched.guardian && !!formik.errors.guardian}
+                        helperText={formik.touched.guardian && formik.errors.guardian}
                     />
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.gender && !!formik.errors.gender}
-                    >
-                        <InputLabel id="genderField">Gender</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="genderField"
-                            label="Gender"
-                            name="gender"
-                            autoComplete="new-gender"
-                            value={formik.values.gender}
-                            onChange={formik.handleChange}
-                        >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
-                        </Select>
-                        <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
-                    </FormControl>
                     <TextField
                         fullWidth
                         variant="filled"
@@ -257,6 +205,68 @@ const UserFormComponent = ({
                         helperText={formik.touched.email && formik.errors.email}
                         sx={{ gridColumn: "span 2" }}
                     />
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.gender && !!formik.errors.gender}
+                    >
+                        <InputLabel id="genderField">Gender</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="genderField"
+                            label="Gender"
+                            name="gender"
+                            autoComplete="new-gender"
+                            value={formik.values.gender}
+                            onChange={formik.handleChange}
+                        >
+                            <MenuItem value={"male"}>Male</MenuItem>
+                            <MenuItem value={"female"}>Female</MenuItem>
+                            <MenuItem value={"other"}>Other</MenuItem>
+                        </Select>
+                        <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.class && !!formik.errors.class}
+                    >
+                        <InputLabel id="classField">Class</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="classField"
+                            label="class"
+                            name="class"
+                            autoComplete="new-class"
+                            value={formik.values.class}
+                            onChange={event => formik.setFieldValue("class", event.target.value)}
+                        >
+                            {listData?.rows?.map(item => (
+                                <MenuItem value={item.id} name={item.name} key={item.name}>
+                                    {item.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.class && formik.errors.class}</FormHelperText>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="section"
+                        label="Section"
+                        autoComplete="new-section"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.section}
+                        error={!!formik.touched.section && !!formik.errors.section}
+                        helperText={formik.touched.section && formik.errors.section}
+                    />
+                    <FormControlLabel label="Is Specially Abled" sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                        control={
+                            <Checkbox {...checkboxLabel} color="default"
+                                checked={formik.values.is_specially_abled ? true : false}
+                                name="is_specially_abled"
+                                onChange={(event, value) => formik.setFieldValue("is_specially_abled", value)}
+                                value={formik.values.is_specially_abled}
+                            />
+                        } />
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             format="DD MMMM YYYY"            //ex - 25 July 2023
@@ -270,21 +280,19 @@ const UserFormComponent = ({
                                 formik.setFieldValue("dob", newDob);
                             }}
                         />
+                        <DatePicker
+                            format="DD MMMM YYYY"            //ex - 25 July 2023
+                            views={['day', "month", "year"]}
+                            label="Select Admission Date"
+                            name="admission_date"
+                            required
+                            value={formik.values.admission_date}
+                            onChange={new_admission_date => {
+                                console.log("admission_date=>", new_admission_date);
+                                formik.setFieldValue("admission_date", new_admission_date);
+                            }}
+                        />
                     </LocalizationProvider>
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="admission_date"
-                        label="Admission Date"
-                        autoComplete="new-admission_date"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.admission_date}
-                        error={!!formik.touched.admission_date && !!formik.errors.admission_date}
-                        helperText={formik.touched.admission_date && formik.errors.admission_date}
-                        sx={{ gridColumn: "span 2" }}
-                    />
                     <TextField
                         fullWidth
                         variant="filled"
@@ -298,7 +306,81 @@ const UserFormComponent = ({
                         error={!!formik.touched.blood_group && !!formik.errors.blood_group}
                         helperText={formik.touched.blood_group && formik.errors.blood_group}
                     />
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}>
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="birth_mark"
+                        label="Birth Mark"
+                        autoComplete="new-birth_mark"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.birth_mark}
+                        error={!!formik.touched.birth_mark && !!formik.errors.birth_mark}
+                        helperText={formik.touched.birth_mark && formik.errors.birth_mark}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="religion"
+                        label="Religion"
+                        autoComplete="new-religion"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.religion}
+                        error={!!formik.touched.religion && !!formik.errors.religion}
+                        helperText={formik.touched.religion && formik.errors.religion}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="nationality"
+                        label="Nationality"
+                        autoComplete="new-nationality"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.nationality}
+                        error={!!formik.touched.nationality && !!formik.errors.nationality}
+                        helperText={formik.touched.nationality && formik.errors.nationality}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="age"
+                        label="Age"
+                        autoComplete="new-age"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.age}
+                        error={!!formik.touched.age && !!formik.errors.age}
+                        helperText={formik.touched.age && formik.errors.age}
+                    />
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.caste_group && !!formik.errors.caste_group}
+                    >
+                        <InputLabel id="castGroupField">Caste Group</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="castGroupField"
+                            name="caste_group"
+                            label="Caste Group"
+                            autoComplete="new-caste_group"
+                            value={formik.values.caste_group}
+                            onChange={formik.handleChange}
+                        >
+                            <MenuItem value={"general"}>General</MenuItem>
+                            <MenuItem value={"obc"}>OBC</MenuItem>
+                            <MenuItem value={"sc"}>SC</MenuItem>
+                            <MenuItem value={"st"}>ST</MenuItem>
+                        </Select>
+                        <FormHelperText>{formik.touched.caste_group && formik.errors.caste_group}</FormHelperText>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.status && !!formik.errors.status}
+                    >
                         <InputLabel id="statusField">Status</InputLabel>
                         <Select
                             variant="filled"
@@ -308,11 +390,11 @@ const UserFormComponent = ({
                             autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
-                            error={!!formik.touched.status && !!formik.errors.status}
                         >
                             <MenuItem value={"active"}>Active</MenuItem>
                             <MenuItem value={"inactive"}>Inactive</MenuItem>
                         </Select>
+                        <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
             </form >

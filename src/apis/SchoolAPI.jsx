@@ -2,7 +2,7 @@
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
 
@@ -55,6 +55,20 @@ export const SchoolAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateSchool.name].handleRequestCancellation().signal : undefined,
     });
+  },
+
+  /** Get all the schools from the database
+   */
+  getAllSchools: async (cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-all-schools`,
+      method: "GET",
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      signal: cancel ? cancelApiObject[this.getAllSchools.name].handleRequestCancellation().signal : undefined,
+    });
+    return response;
   }
 };
 
