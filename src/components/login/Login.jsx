@@ -52,7 +52,7 @@ const Login = () => {
 
   const boxstyle = {
     position: "absolute",
-    top: isMobile ? "37%" : "39%",
+    top: isMobile ? "46%" : "39%",
     right: isMobile ? "-25%" : "-8%",
     boxShadow: 24,
     borderRadius: 6,
@@ -176,7 +176,7 @@ const Login = () => {
                       value={values.school_code}
                       error={!!touched.school_code && !!errors.school_code}
                       helperText={touched.school_code && errors.school_code}
-                      sx={{ margin: "5px" }}
+                      sx={{ margin: "5px",backgroundColor:"white" }}
                     />
                     <TextField
                       required

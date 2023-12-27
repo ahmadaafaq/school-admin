@@ -137,7 +137,7 @@ const Dashboard = () => {
       >
         {/* ROW 1 */}
         <Box
-          backgroundColor={colors.primary[100]}
+          backgroundColor={colors.yellowAccent[100]}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -149,7 +149,7 @@ const Dashboard = () => {
             subtitle="Students"
             progress="0.75"
             increase="+14%"
-            yellowColor={colors.primary[100]}
+            yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
                 sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
@@ -172,7 +172,7 @@ const Dashboard = () => {
             yellowColor={colors.primary[900]}
             icon={
               <PersonAddIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
               />
             }
           />
@@ -192,7 +192,7 @@ const Dashboard = () => {
             yellowColor={colors.primary[800]}
             icon={
               <Diversity3Icon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
               />
             }
           />
@@ -213,7 +213,7 @@ const Dashboard = () => {
             yellowColor={colors.primary[700]}
             icon={
               <EngineeringSharpIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
               />
             }
           />

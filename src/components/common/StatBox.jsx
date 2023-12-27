@@ -42,7 +42,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => 
                 <Typography
                     variant="h5"
                     fontStyle="italic"
-                    sx={{ color: colors.greenAccent[600] }}
+                    sx={{ color: colors.primary[100] }}
                 >
                     {increase}
                 </Typography>
