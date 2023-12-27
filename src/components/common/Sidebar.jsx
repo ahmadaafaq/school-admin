@@ -42,7 +42,7 @@ import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
 import { Link } from "react-router-dom";
 
-const Sidebar = ({ roleName, rolePriority }) => {
+const Sidebar = ({ roleName, rolePriority  }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showClass, setShowClass] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -150,6 +150,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={1}
+              
             />
             <SidebarItem
               title="User"
@@ -193,22 +194,23 @@ const Sidebar = ({ roleName, rolePriority }) => {
                   icon={<PeopleOutlinedIcon />}
                   selected={selected}
                 >
-                  <Link to="/class/pn"> <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem></Link>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>NS </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>LKG </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-20px" }}>UKG</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>I</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>II </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>III </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IV</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>V</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VI </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VII</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VIII </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IX </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>X </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XI </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XII </MenuItem>
+                  
+                  <MenuItem  style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>NS </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>LKG </MenuItem>
+                     <MenuItem style={{ marginLeft: "-15px", marginRight: "-20px" }}>UKG</MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>I</MenuItem>
+                      <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>II </MenuItem>
+                      <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>III </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IV</MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>V</MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VI </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VII</MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VIII </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IX </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>X </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XI </MenuItem>
+                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XII </MenuItem>
 
                 </SubMenu>
 

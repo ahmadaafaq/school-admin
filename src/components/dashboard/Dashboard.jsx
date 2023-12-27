@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Button, IconButton, Typography, useTheme , useMediaQuery } from "@mui/material";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -22,6 +22,7 @@ import { studentData, lineData } from "../common/CustomCharts";
 
 const Dashboard = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width:480px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
 
@@ -107,7 +108,20 @@ const Dashboard = () => {
     },
     series: [{
       name: 'Attendance Percentage',
-      data: lineData.map(entry => [Date.parse(entry.date), entry.attendance]),
+      colorByPoint: true,
+      data: [
+        { name: 'Class 1', y: 30, color: colors.blueAccent[600] },
+        { name: 'Class 2', y: 40, color: colors.greenAccent[600] },
+        { name: 'Class 3', y: 30, color: colors.redAccent[100] },
+        { name: 'Class 4', y: 60, color: colors.blueAccent[100] },
+        { name: 'Class 5', y: 50, color: colors.blueAccent[700] },
+        { name: 'Class 6', y: 70, color: colors.orangeAccent[100] },
+        { name: 'Class 7', y: 30, color: colors.redAccent[200] },
+        { name: 'Class 8', y: 70, color: colors.blueAccent[200] },
+        { name: 'Class 9', y: 60, color: colors.primary[800] },
+        { name: 'Class 10', y: 50, color: colors.primary[500] },
+        { name: 'Class 11', y: 80, color: colors.primary[600] },
+      ],
       color: colors.blueAccent[600],
     }],
   };
@@ -130,7 +144,7 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+        gridTemplateColumns= {isMobile?"repeat(1, minmax(0, 1fr))":"repeat(4, minmax(0, 1fr))"}
         gap="30px"
         margin="20px"
         flexWrap="wrap"
