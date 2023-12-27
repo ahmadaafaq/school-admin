@@ -16,7 +16,7 @@ import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-export const SidebarItem = ({ title, to, icon, selected, rolePriority, menuVisibility }) => {
+export const SidebarItem = ({ title, to, icon, selected, rolePriority, menuVisibility , onClick }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
 
@@ -26,6 +26,13 @@ export const SidebarItem = ({ title, to, icon, selected, rolePriority, menuVisib
     if (rolePriority > menuVisibility) { // 2 > 2
         return false;
     }
+    const handleItemClick = (event) => {
+        event.preventDefault();
+        if (onClick) {
+          onClick();
+        }
+      
+      };
 
     return (
         <MenuItem
@@ -33,11 +40,7 @@ export const SidebarItem = ({ title, to, icon, selected, rolePriority, menuVisib
             style={{
                 color: colors.grey[100],
             }}
-            onClick={() => {
-                dispatch(setMenuItem(title));
-                setLocalStorage("menu", { selected: title });
-            }
-            }
+            onClick={handleItemClick}
             icon={icon}
         >
             <Typography>{title}</Typography>

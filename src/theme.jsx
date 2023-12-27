@@ -71,7 +71,10 @@ export const tokens = (mode) => ({
             },
             yellowAccent:{
                 100:"#f8b114",
-            }
+            },
+            orangeAccent:{
+                100:"#ff991c"
+            },
 
         } : {
             grey: {
@@ -132,7 +135,10 @@ export const tokens = (mode) => ({
             },
             yellowAccent:{
                 100:"#f8b114",
-            }
+            },
+            orangeAccent:{
+                100:"#ff991c"
+            },
         })
 });
 
