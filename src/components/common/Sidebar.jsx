@@ -23,6 +23,7 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import Person2Icon from '@mui/icons-material/Person2';
+import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -37,8 +38,9 @@ import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import "../common/index.css";
-import schoolImg from "../assets/school.jpg";
+import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
+import { Link } from "react-router-dom";
 
 const Sidebar = ({ roleName, rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -83,7 +85,10 @@ const Sidebar = ({ roleName, rolePriority }) => {
         },
         "& .pro-arrow-wrapper": {
           marginRight: "50px"
-        }
+        },
+        "& .pro-menu-item.pro-sub-menu": {
+          color: `${colors.primary[100]}`
+        },
 
       }}
     >
@@ -121,7 +126,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
               <Box display="flex" justifyContent="center" alignItems="center">
                 <img
                   alt="profile-user"
-                  src={rolePriority > 1 ? dpsImg : schoolImg}
+                  src={rolePriority > 1 ? dpsImg : companyImg}
                   style={{ cursor: "pointer", borderRadius: "10%", width: "60%" }}
                 />
               </Box>
@@ -184,10 +189,11 @@ const Sidebar = ({ roleName, rolePriority }) => {
               <>
                 <SubMenu
                   title="Students"
+                  to="/student/listing"
                   icon={<PeopleOutlinedIcon />}
                   selected={selected}
                 >
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem>
+                  <Link to="/class/pn"> <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem></Link>
                   <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>NS </MenuItem>
                   <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>LKG </MenuItem>
                   <MenuItem style={{ marginLeft: "-15px", marginRight: "-20px" }}>UKG</MenuItem>
@@ -234,18 +240,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 </SubMenu>
               )
             }
-
-            {/* Submenu for Classes */}
-            {/* {showClass && [...Array(12).keys()].map((classNumber) => (
-              <SidebarItem
-              key={classNumber + 1}
-              title={`Class ${classNumber + 1}`}
-              to={`/student/class/${classNumber + 1}`}
-              icon={<BorderColorIcon />}
-              selected={selectedClass === classNumber + 1}
-              />
-            ))} */}
-
             <SidebarItem
               title="Teacher"
               to="/teacher/listing"
@@ -254,48 +248,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
-            {/* <SidebarItem
-                title="Time Table"
-                to="/employee/listing"
-                icon={<ReceiptLongIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class Subjects"
-                to="/employee/listing"
-                icon={<BorderColorIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Attendance"
-                to="/employee/listing"
-                icon={<CalendarMonthIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Holiday"
-                to="/employee/listing"
-                icon={<AirplaneTicketIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Leave"
-                to="/employee/listing"
-                icon={<ExitToAppIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Bus"
-                to="/employee/listing"
-                icon={<DirectionsBusIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Marksheet"
-                to="/employee/listing"
-                icon={<FormatListBulletedIcon />}
-                selected={selected}
-              /> */}
           </Box>
         </Menu>
       </ProSidebar>
