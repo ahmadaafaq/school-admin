@@ -17,6 +17,7 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 
 import API from "../../apis";
 import userValidation from "./Validation";
+import { Utility } from "../utility";
 
 const initialValues = {
     school_id: '',
@@ -45,10 +46,13 @@ const UserFormComponent = ({
     });
     const [initialState, setInitialState] = useState(initialValues);
     const [schools, setSchools] = useState([]);
+    const [schoolId, setSchoolId] = useState(null);
+    const [userRole, setUserRole] = useState({ name: '', priority: null });
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const pwField = document.getElementById("pwField");
+    const { getRoleAndPriorityById } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -117,6 +121,21 @@ const UserFormComponent = ({
         };
         getSchools();
     }, []);
+
+    // useEffect(async () => {
+    //     return API.UserRoleAPI.getRoleById({ id: schoolId })
+    //         .then(res => {
+    //             if (res.status === 'Success') {
+    //                 console.log(res.data, 'user');
+    //                 return res.data;
+    //             } else if (res.status === 'Error') {
+    //                 console.log('error')
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error('Error fetching user role and priority:', err);
+    //         })
+    // }, [schools, schoolId])
 
     const handleUpdatePassword = () => {
         if (updatePassword.clicked) {
@@ -251,15 +270,19 @@ const UserFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.school_id && !!formik.errors.school_id}
                     >
-                        <InputLabel id="school_idField">School</InputLabel>
+                        <InputLabel id="schoolField">School</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="school_idField"
+                            labelId="schoolField"
                             label="School"
                             name="school_id"
                             autoComplete="new-school_id"
                             value={formik.values.school_id}
-                            onChange={formik.handleChange}
+                            onChange={event => {
+                                const getSchoolId = event.target.value;
+                                setSchoolId(getSchoolId);
+                                formik.setFieldValue("school_id", event.target.value);
+                            }}
                         >
                             {schools.map(item => (
                                 <MenuItem value={item.id} name={item.name} key={item.name}>

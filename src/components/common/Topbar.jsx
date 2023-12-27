@@ -22,7 +22,7 @@ import Logout from '@mui/icons-material/Logout';
 import { ColorModeContext, tokens } from "../../theme";
 import { Utility } from "../utility";
 
-const Topbar = () => {
+const Topbar = ({ roleName }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -31,7 +31,7 @@ const Topbar = () => {
   const colorMode = useContext(ColorModeContext);
 
   const { getInitials, getNameAndType } = Utility();
-  const { username, type } = getNameAndType();
+  const { username, role } = getNameAndType(roleName);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -123,7 +123,7 @@ const Topbar = () => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleClose} sx={{ flexDirection: 'column' }}>
           <Box textAlign="center">
             <Typography
               variant="h3"
@@ -133,7 +133,7 @@ const Topbar = () => {
             >
               {username}
             </Typography>
-            <Typography variant="h5" color={colors.greenAccent[500]}> {type} </Typography>
+            <Typography variant="h5" color={colors.primary[900]}> {role} </Typography>
           </Box>
 
         </MenuItem>
