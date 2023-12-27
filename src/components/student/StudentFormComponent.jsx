@@ -52,7 +52,7 @@ const UserFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const { data } = useSelector(state => state.allClasses);
+    const { listData } = useSelector(state => state.allClasses);
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
@@ -100,7 +100,7 @@ const UserFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-    console.log('formdata', data)
+    console.log('formlistData', listData)
 
     return (
         <Box m="20px">
@@ -237,7 +237,7 @@ const UserFormComponent = ({
                             value={formik.values.class}
                             onChange={event => formik.setFieldValue("class", event.target.value)}
                         >
-                            {data?.map(item => (
+                            {listData?.rows?.map(item => (
                                 <MenuItem value={item.id} name={item.name} key={item.name}>
                                     {item.name}
                                 </MenuItem>

@@ -38,12 +38,12 @@ const UserFormComponent = lazy(() => import("./components/user/FormComponent"));
 const UserListingComponent = lazy(() => import("./components/user/ListingComponent"));
 
 function App() {
-  const [role, setRole] = useState(null);
+  const [userRole, setUserRole] = useState({ name: '', priority: null });
   const [theme, colorMode] = useMode();
   const navigateTo = useNavigate();
 
   const { pathname } = useLocation();
-  const { getLocalStorage, getRole, verifyToken } = Utility();
+  const { getLocalStorage, getRoleAndPriorityById, verifyToken } = Utility();
 
 
   const switchRole = (userRole) => {
@@ -62,10 +62,16 @@ function App() {
   };
 
   useEffect(() => {
-    setRole(getRole());
-    // switchRole(getRole());
-    console.log('useeffect1')
-
+    getRoleAndPriorityById()
+      .then(result => {
+        console.log(result, 'useeffect 1')
+        if (result) {
+          setUserRole({
+            name: result.name,
+            priority: result.priority
+          });
+        }
+      });
   }, [getLocalStorage("auth")?.role])
 
   const onIdle = () => {
@@ -96,11 +102,11 @@ function App() {
         <div className="app">
           {getLocalStorage("auth")?.token &&
             <Suspense fallback={<Loader />}>
-              <Sidebar role={role} />
+              <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
                 <Topbar />
                 <Routes>
-                  {role === 'admin' &&
+                  {userRole.priority === 1 &&
                     <>
                       <Route exact path="/" element={<Dashboard />} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
@@ -122,7 +128,7 @@ function App() {
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
                     </>}
-                  {role === 'sub-admin' &&
+                  {userRole.priority === 2 &&
                     <>
                       <Route exact path="/" element={<Dashboard />} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
@@ -140,7 +146,7 @@ function App() {
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
                     </>}
-                  {role === 'staff' &&
+                  {userRole.priority === 3 &&
                     <>
                       <Route exact path="/" element={<Dashboard />} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
@@ -153,6 +159,10 @@ function App() {
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
+
+                      <Route exact path="/user/create" element={<UserFormComponent />} />
+                      <Route exact path="/user/update/:id" element={<UserFormComponent />} />
+                      <Route exact path="/user/listing" element={<UserListingComponent />} />
                     </>}
                 </Routes>
               </main>

@@ -7,26 +7,45 @@
  */
 
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
+import API from "../../apis";
+import { setClasses } from "../../redux/actions/ClassAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
+import { useEffect } from "react";
 
 export const datagridColumns = () => {
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const selected = useSelector(state => state.menuItems.selected);
-    const { data } = useSelector(state => state.allClasses);
+    const { listData } = useSelector(state => state.allClasses);
+    const dispatch = useDispatch();
     const navigateTo = useNavigate();
     const { convertToRoman, findClassById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
     };
+
+    useEffect(() => {
+        API.ClassAPI.getAll(false, 0, 20)
+            .then(data => {
+                console.log('classs', data.data, data.status)
+                if (data.status === 'Success') {
+                    dispatch(setClasses({ listData: data.data.rows, loading: false }));
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
 
     const columns = [
         {
@@ -51,8 +70,9 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findClassById(params?.row?.class, data);
-                console.log('coonfig', className)
+                // let className = findClassById(params?.row?.class, listData);
+                let className = 2;
+                console.log('coonfig', className, listData)
                 return (
                     <div>
                         {className ? convertToRoman(className) : null} {params.row.section}

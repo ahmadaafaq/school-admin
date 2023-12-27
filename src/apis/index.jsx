@@ -17,6 +17,7 @@ import { StateAPI } from "./StateAPI";
 import { StudentAPI } from "./StudentAPI";
 import { TeacherAPI } from "./TeacherAPI";
 import { UserAPI } from "./UserAPI";
+import { UserRoleAPI } from "./UserRoleAPI";
 
 export default {
     AddressAPI,
@@ -29,5 +30,6 @@ export default {
     StateAPI,
     StudentAPI,
     TeacherAPI,
-    UserAPI
+    UserAPI,
+    UserRoleAPI
 };

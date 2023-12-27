@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { CommonAPI } from "../../apis/CommonAPI";
+import API from "../../apis";
 import { displayToast } from "../../redux/actions/ToastAction";
 
 export const Utility = () => {
@@ -34,11 +34,11 @@ export const Utility = () => {
         const fullName = (authInfo?.username || '').split(" ");
         const firstName = fullName[0]?.charAt(0).toUpperCase() + fullName[0]?.slice(1) || '';
         const lastName = fullName[1]?.charAt(0).toUpperCase() + fullName[1]?.slice(1) || '';
-        const formattedRole = (authInfo?.role || '').charAt(0).toUpperCase() + (authInfo?.role || '').slice(1);
+        // const formattedRole = (authInfo?.role || '').charAt(0).toUpperCase() + (authInfo?.role || '').slice(1);
 
         return {
             username: `${firstName} ${lastName}`.trim(),
-            type: formattedRole,
+            // type: formattedRole,
         };
     };
 
@@ -76,7 +76,7 @@ export const Utility = () => {
     /** Verifying the token authenticity by making API call
      */
     const verifyToken = async () => {
-        return CommonAPI.verifyToken()
+        return API.CommonAPI.verifyToken()
             .then(verified => {
                 if (verified) {
                     return verified.data === "Verified";
@@ -121,9 +121,27 @@ export const Utility = () => {
     /** Finds and returns the name of a class based on its ID from an array of class objects
      */
     const findClassById = (classId, classData) => {
-        const found = classData?.find(cls => cls.id === classId);
-        console.log(found, 'found')
+        let found = '';
+        console.log(classData, classId, 'found')
+        if (classData) {
+            found = classData.find(cls => cls.id === classId);
+        }
         return found ? found.name : null;
+    };
+
+    const getRoleAndPriorityById = async () => {
+        return API.UserRoleAPI.getRoleById({ id: getRole() })
+            .then(res => {
+                if (res.status === 'Success') {
+                    console.log(res.data, 'api');
+                    return res.data;
+                } else if (res.status === 'Error') {
+                    console.log('error')
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching user role and priority:', err);
+            })
     };
 
     return {
@@ -134,6 +152,7 @@ export const Utility = () => {
         getNameAndType,
         getLocalStorage,
         getRole,
+        getRoleAndPriorityById,
         setLocalStorage,
         toastAndNavigate,
         verifyToken

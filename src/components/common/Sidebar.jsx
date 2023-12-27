@@ -34,21 +34,23 @@ import AssistantIcon from '@mui/icons-material/Assistant';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import { Api, TuneOutlined } from '@mui/icons-material';
 
-import { tokens } from "../../theme";
 import { SidebarItem } from "./SidebarItem";
+import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
 import schoolImg from "../assets/school.jpg";
 import dpsImg from "../assets/dps.png";
 
-const Sidebar = ({ role }) => {
-  const theme = useTheme();
+const Sidebar = ({ roleName, rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showClass, setShowClass] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
   const selected = useSelector(state => state.menuItems.selected);
+
+  const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
+  const { getRoleAndPriorityById } = Utility();
 
   const handleClassClick = (classNumber) => {
     // Handle the click for a specific class (e.g., navigate to Class page)
@@ -81,105 +83,118 @@ const Sidebar = ({ role }) => {
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
-        {role === 'admin' && (
-          <Menu iconShape="square">
-            {/* LOGO AND MENU ICON */}
-            <MenuItem
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-              style={{
-                color: colors.grey[100],
-                margin: isMobile ? `10px 0px 10px 0` : `10px 0px 10px 20px !important`
-              }}
-            >
-              {!isCollapsed && (
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  ml="5px"
-                >
-                  <Typography variant="h3" color={colors.grey[100]}>
-                    {import.meta.env.VITE_COMPANY_NAME}
-                  </Typography>
-                  <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                    <MenuOutlinedIcon />
-                  </IconButton>
-                </Box>
-              )}
-            </MenuItem>
-
-            {/* USER */}
+        <Menu iconShape="square">
+          {/* LOGO AND MENU ICON */}
+          <MenuItem
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
+            style={{
+              color: colors.grey[100],
+              margin: isMobile ? `10px 0px 10px 0` : `10px 0px 10px 20px !important`
+            }}
+          >
             {!isCollapsed && (
-              <Box mb="15px">
-                <Box display="flex" justifyContent="center" alignItems="center">
-                  <img
-                    alt="profile-user"
-                    src={schoolImg}
-                    style={{ cursor: "pointer", borderRadius: "10%", width: "60%" }}
-                  />
-                </Box>
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                ml="5px"
+              >
+                <Typography variant="h3" color={colors.grey[100]}>
+                  {import.meta.env.VITE_COMPANY_NAME}
+                </Typography>
+                <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+                  <MenuOutlinedIcon />
+                </IconButton>
               </Box>
             )}
+          </MenuItem>
 
-            {/* MENU ITEMS */}
-            <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-              <SidebarItem
-                title="Dashboard"
-                to="/"
-                icon={<HomeOutlinedIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="School"
-                to="/school/listing"
-                icon={<SchoolIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="User"
-                to="/user/listing"
-                icon={<PregnantWomanIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Amenity"
-                to="/amenity/listing"
-                icon={<ApiIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class"
-                to="/class/listing"
-                icon={<BorderColorIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Student"
-                to="/student/listing"
-                icon={<PeopleOutlinedIcon />}
-                selected={selected}
-                onClick={() => setShowClass(!showClass)}
-              />
-
-              {/* Submenu for Classes */}
-              {/* {showClass && [...Array(12).keys()].map((classNumber) => (
-                <SidebarItem
-                  key={classNumber + 1}
-                  title={`Class ${classNumber + 1}`}
-                  to={`/student/class/${classNumber + 1}`}
-                  icon={<BorderColorIcon />}
-                  selected={selectedClass === classNumber + 1}
+          {/* USER */}
+          {!isCollapsed && (
+            <Box mb="15px">
+              <Box display="flex" justifyContent="center" alignItems="center">
+                <img
+                  alt="profile-user"
+                  src={rolePriority > 1 ? dpsImg : schoolImg}
+                  style={{ cursor: "pointer", borderRadius: "10%", width: "60%" }}
                 />
-              ))} */}
+              </Box>
+            </Box>
+          )}
 
+          {/* MENU ITEMS */}
+          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+            <SidebarItem
+              title="Dashboard"
+              to="/"
+              icon={<HomeOutlinedIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={2}
+            />
+            <SidebarItem
+              title="School"
+              to="/school/listing"
+              icon={<SchoolIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={1}
+            />
+            <SidebarItem
+              title="User"
+              to="/user/listing"
+              icon={<PregnantWomanIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <SidebarItem
+              title="Amenity"
+              to="/amenity/listing"
+              icon={<ApiIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={1}
+            />
+            <SidebarItem
+              title="Class"
+              to="/class/listing"
+              icon={<BorderColorIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={1}
+            />
+            <SidebarItem
+              title="Student"
+              to="/student/listing"
+              icon={<PeopleOutlinedIcon />}
+              selected={selected}
+              onClick={() => setShowClass(!showClass)}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
+
+            {/* Submenu for Classes */}
+            {/* {showClass && [...Array(12).keys()].map((classNumber) => (
               <SidebarItem
-                title="Teacher"
-                to="/teacher/listing"
-                icon={<Diversity3Icon />}
-                selected={selected}
+              key={classNumber + 1}
+              title={`Class ${classNumber + 1}`}
+              to={`/student/class/${classNumber + 1}`}
+              icon={<BorderColorIcon />}
+              selected={selectedClass === classNumber + 1}
               />
-              {/* <SidebarItem
+            ))} */}
+
+            <SidebarItem
+              title="Teacher"
+              to="/teacher/listing"
+              icon={<Diversity3Icon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            {/* <SidebarItem
                 title="Time Table"
                 to="/employee/listing"
                 icon={<ReceiptLongIcon />}
@@ -221,279 +236,8 @@ const Sidebar = ({ role }) => {
                 icon={<FormatListBulletedIcon />}
                 selected={selected}
               /> */}
-            </Box>
-          </Menu>
-        )}
-
-        {role === 'sub-admin' && (
-          <Menu iconShape="square">
-            {/* LOGO AND MENU ICON */}
-            <MenuItem
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-              style={{
-                color: colors.grey[100],
-                margin: isMobile ? `10px 0px 10px 0` : `10px 0px 10px 20px !important`
-              }}
-            >
-              {!isCollapsed && (
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  ml="5px"
-                >
-                  <Typography variant="h3" color={colors.grey[100]}>
-                    Sub Admin
-                  </Typography>
-                  <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                    <MenuOutlinedIcon />
-                  </IconButton>
-                </Box>
-              )}
-            </MenuItem>
-
-            {/* USER */}
-            {!isCollapsed && (
-              <Box mb="15px">
-                <Box display="flex" justifyContent="center" alignItems="center">
-                  <img
-                    alt="profile-user"
-                    src={dpsImg}
-                    style={{ cursor: "pointer", borderRadius: "10%", width: "60%", height: "60%" }}
-                  />
-                </Box>
-              </Box>
-            )}
-
-            {/* MENU ITEMS */}
-            <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-              <SidebarItem
-                title="Dashboard"
-                to="/"
-                icon={<HomeOutlinedIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="User"
-                to="/user/listing"
-                icon={<PregnantWomanIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Amenity"
-                to="/amenity/listing"
-                icon={<ApiIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class"
-                to="/class/listing"
-                icon={<BorderColorIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Student"
-                to="/student/listing"
-                icon={<PeopleOutlinedIcon />}
-                selected={selected}
-                onClick={() => setShowClass(!showClass)}
-              />
-
-              {/* Submenu for Classes */}
-              {/* {showClass && [...Array(12).keys()].map((classNumber) => (
-                <SidebarItem
-                  key={classNumber + 1}
-                  title={`Class ${classNumber + 1}`}
-                  to={`/student/class/${classNumber + 1}`}
-                  icon={<BorderColorIcon />}
-                  selected={selectedClass === classNumber + 1}
-                />
-              ))} */}
-
-              <SidebarItem
-                title="Teacher"
-                to="/teacher/listing"
-                icon={<Diversity3Icon />}
-                selected={selected}
-              />
-              {/* <SidebarItem
-                title="Time Table"
-                to="/employee/listing"
-                icon={<ReceiptLongIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class Subjects"
-                to="/employee/listing"
-                icon={<BorderColorIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Attendance"
-                to="/employee/listing"
-                icon={<CalendarMonthIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Holiday"
-                to="/employee/listing"
-                icon={<AirplaneTicketIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Leave"
-                to="/employee/listing"
-                icon={<ExitToAppIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Bus"
-                to="/employee/listing"
-                icon={<DirectionsBusIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Marksheet"
-                to="/employee/listing"
-                icon={<FormatListBulletedIcon />}
-                selected={selected}
-              /> */}
-            </Box>
-          </Menu>
-        )}
-
-        {role === 'staff' && (
-          <Menu iconShape="square">
-            {/* LOGO AND MENU ICON */}
-            <MenuItem
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-              style={{
-                color: colors.grey[100],
-                margin: isMobile ? `10px 0px 10px 0` : `10px 0px 10px 20px !important`
-              }}
-            >
-              {!isCollapsed && (
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  ml="5px"
-                >
-                  <Typography variant="h3" color={colors.grey[100]}>
-                    Sub Admin
-                  </Typography>
-                  <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                    <MenuOutlinedIcon />
-                  </IconButton>
-                </Box>
-              )}
-            </MenuItem>
-
-            {/* USER */}
-            {!isCollapsed && (
-              <Box mb="15px">
-                <Box display="flex" justifyContent="center" alignItems="center">
-                  <img
-                    alt="profile-user"
-                    src={dpsImg}
-                    style={{ cursor: "pointer", borderRadius: "10%", width: "60%", height: "60%" }}
-                  />
-                </Box>
-              </Box>
-            )}
-
-            {/* MENU ITEMS */}
-            <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-              <SidebarItem
-                title="Dashboard"
-                to="/"
-                icon={<HomeOutlinedIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Amenity"
-                to="/amenity/listing"
-                icon={<ApiIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class"
-                to="/class/listing"
-                icon={<BorderColorIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Student"
-                to="/student/listing"
-                icon={<PeopleOutlinedIcon />}
-                selected={selected}
-                onClick={() => setShowClass(!showClass)}
-              />
-
-              {/* Submenu for Classes */}
-              {/* {showClass && [...Array(12).keys()].map((classNumber) => (
-                <SidebarItem
-                  key={classNumber + 1}
-                  title={`Class ${classNumber + 1}`}
-                  to={`/student/class/${classNumber + 1}`}
-                  icon={<BorderColorIcon />}
-                  selected={selectedClass === classNumber + 1}
-                />
-              ))} */}
-
-              <SidebarItem
-                title="Teacher"
-                to="/teacher/listing"
-                icon={<Diversity3Icon />}
-                selected={selected}
-              />
-              {/* <SidebarItem
-                title="Time Table"
-                to="/employee/listing"
-                icon={<ReceiptLongIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class Subjects"
-                to="/employee/listing"
-                icon={<BorderColorIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Attendance"
-                to="/employee/listing"
-                icon={<CalendarMonthIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Holiday"
-                to="/employee/listing"
-                icon={<AirplaneTicketIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Leave"
-                to="/employee/listing"
-                icon={<ExitToAppIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Bus"
-                to="/employee/listing"
-                icon={<DirectionsBusIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Marksheet"
-                to="/employee/listing"
-                icon={<FormatListBulletedIcon />}
-                selected={selected}
-              /> */}
-            </Box>
-          </Menu>
-        )}
+          </Box>
+        </Menu>
       </ProSidebar>
     </Box>
   );

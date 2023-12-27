@@ -9,8 +9,6 @@
 import { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import API from "../../../apis";
-import { setClasses } from "../../../redux/actions/ClassAction";
 import { Utility } from "../../utility";
 
 export const useCommon = () => {
@@ -22,33 +20,20 @@ export const useCommon = () => {
      */
     const getPaginatedData = useCallback((page = 0, size, action, api, condition = false, search = false) => {
         const authInfo = getLocalStorage("auth");
+
         api.getAll(condition, page, size, search, authInfo)
             .then(res => {
                 if (res.status === 'Success') {
-                    if (res.data.rows[0].class) {
-                        API.ClassAPI.getAll(false, 0, 30)
-                            .then(data => {
-                                console.log('classs', data)
-                                if (data.status === 'Success') {
-                                    dispatch(setClasses({ listData: data.data, loading: false }));
-                                } else {
-                                    console.log("Error, Please Try Again");
-                                }
-                            })
-                            .catch(err => {
-                                throw err;
-                            });
-                    }
                     dispatch(action({ listData: res.data, loading: false }));
                 } else if (res.status === 'Error') {
                     dispatch(action({ listData: [], loading: false }));
                 }
             })
             .catch(err => {
+                console.error("An error occurred: ", err);
                 dispatch(action({ listData: [], loading: false }));
-                throw err;
             });
-    }, [selected]);
+    }, [selected, getLocalStorage]);
 
     return {
         getPaginatedData
