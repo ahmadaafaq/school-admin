@@ -52,13 +52,13 @@ const Login = () => {
 
   const boxstyle = {
     position: "absolute",
-    top: isMobile ? "46%" : "39%",
+    top: isMobile ? "49%" : "45%",
     right: isMobile ? "-25%" : "-8%",
     boxShadow: 24,
     borderRadius: 6,
     bgcolor: "background.paper",
     width: isMobile ? "78%" : isTab ? "48%" : "30%",
-    height: isMobile ? "38vh" : isTab ? "58vh" : "96vh",
+    height: isMobile ? "40vh" : isTab ? "58vh" : "96vh",
     transform: "translate(-50%, -50%)",
     padding: "10px"
   };
@@ -131,7 +131,7 @@ const Login = () => {
             <Box
               style={{
                 width: isMobile ? "73vw" : "100%",
-                height: isMobile ? "37vh" : isTab ? "27vh" : "49vh",
+                height: isMobile ? "38vh" : isTab ? "27vh" : "49vh",
                 backgroundColor: "#3b33d5",
                 borderRadius: 26,
                 display: "flex",
@@ -176,14 +176,13 @@ const Login = () => {
                       value={values.school_code}
                       error={!!touched.school_code && !!errors.school_code}
                       helperText={touched.school_code && errors.school_code}
-                      sx={{ margin: "5px",backgroundColor:"white" }}
+                      sx={{ margin: "5px", backgroundColor: "#E9F1FA" }}
                     />
                     <TextField
                       required
                       fullWidth
-                      id="email"
-                      placeholder="Username"
                       name="email"
+                      label="Username"
                       variant="filled"
                       type="email"
                       autoComplete="new-email"
@@ -192,14 +191,13 @@ const Login = () => {
                       value={values.email}
                       error={!!touched.email && !!errors.email}
                       helperText={touched.email && errors.email}
-                      sx={{ margin: "5px",backgroundColor:"white" }}
+                      sx={{ margin: "5px", backgroundColor: "#E9F1FA" }}
                     />
                     <TextField
                       required
                       fullWidth
-                      id="password"
-                      placeholder="Password"
                       name="password"
+                      label="Password"
                       variant="filled"
                       type={showPassword ? "text" : "password"} // <-- This is where the pw toggle happens
                       autoComplete="off"
@@ -208,7 +206,7 @@ const Login = () => {
                       value={values.password}
                       error={!!touched.contact_no && !!errors.contact_no}
                       helperText={touched.contact_no && errors.contact_no}
-                      sx={{ margin: "5px",backgroundColor:"white" }}
+                      sx={{ margin: "5px", backgroundColor: "white" }}
                       InputProps={{ // <-- This is where the toggle button is added
                         endAdornment: (
                           <InputAdornment position="end">
@@ -250,7 +248,7 @@ const Login = () => {
                       variant="contained"
                       size="large"
                       sx={{
-                        color: "#ffffff",
+                        color: "#F6F6F2",
                         display: "block",
                         margin: "auto",
                         mt: "10px",

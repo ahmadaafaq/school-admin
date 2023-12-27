@@ -27,18 +27,18 @@ export const Utility = () => {
         return `${firstNameInitial} ${lastNameInitial}`;
     };
 
-    /** Get the formatted name and type(role) of the logged in user
+    /** Get the formatted name and role of the logged in user
      */
-    const getNameAndType = () => {
+    const getNameAndType = (roleName) => {
         const authInfo = getLocalStorage("auth");
         const fullName = (authInfo?.username || '').split(" ");
         const firstName = fullName[0]?.charAt(0).toUpperCase() + fullName[0]?.slice(1) || '';
         const lastName = fullName[1]?.charAt(0).toUpperCase() + fullName[1]?.slice(1) || '';
-        // const formattedRole = (authInfo?.role || '').charAt(0).toUpperCase() + (authInfo?.role || '').slice(1);
+        const formattedRole = (roleName || '').charAt(0).toUpperCase() + (roleName || '').slice(1);
 
         return {
             username: `${firstName} ${lastName}`.trim(),
-            // type: formattedRole,
+            role: formattedRole,
         };
     };
 

@@ -37,10 +37,10 @@ import { Api, TuneOutlined } from '@mui/icons-material';
 import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
+
 import "../common/index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
-import { Link } from "react-router-dom";
 
 const Sidebar = ({ roleName, rolePriority  }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -61,9 +61,52 @@ const Sidebar = ({ roleName, rolePriority  }) => {
   };
 
   useEffect(() => {
+    API.ClassAPI.getAll(false, 0, 20)
+      .then(data => {
+        if (data.status === 'Success') {
+          dispatch(setClasses({ listData: data.data.rows, loading: false }));
+        } else {
+          dispatch(setClasses({ listData: [], loading: false }));
+          console.log("Error fetching classes, Please Try Again");
+        }
+      })
+      .catch(err => {
+        throw err;
+      });
+  }, []);
+
+  useEffect(() => {
     setIsCollapsed(isMobile);
     setStudentSubMenuOpen(false);
   }, [isMobile, selected]);
+
+
+  const renderNotCollapsedStudents = () => {
+    const classNames = ["Pre Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "Kindergarten", "Ist", "IInd", "IIIrd",
+      "IVth", "Vth", "VIth", "VIIth", "VIIIth", "IXth", "Xth", "XIth", "XIIth"];
+
+    return classNames.map((className, index) => (
+      <MenuItem key={index}>
+        <SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> {className}
+      </MenuItem>
+    ));
+  };
+
+  const renderCollapsedStudents = () => {
+    const classNames = ["PN", "NS", "LKG", "UKG", "KG", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+
+    return classNames.map((className, index) => (
+      <SidebarItem
+        key={index}
+        title={`Class ${className}`}
+        to={`/student/class/${className.toLowerCase()}`}
+        icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
+        selected={selected}
+        rolePriority={rolePriority}
+        menuVisibility={4}
+      />
+    ));
+  };
 
   return (
     <Box
@@ -111,7 +154,7 @@ const Sidebar = ({ roleName, rolePriority  }) => {
                 ml="5px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  {import.meta.env.VITE_COMPANY_NAME}
+                  {rolePriority > 1 ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : import.meta.env.VITE_COMPANY_NAME}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -194,23 +237,22 @@ const Sidebar = ({ roleName, rolePriority  }) => {
                   icon={<PeopleOutlinedIcon />}
                   selected={selected}
                 >
-                  
-                  <MenuItem  style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>NS </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>LKG </MenuItem>
-                     <MenuItem style={{ marginLeft: "-15px", marginRight: "-20px" }}>UKG</MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>I</MenuItem>
-                      <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>II </MenuItem>
-                      <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>III </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IV</MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>V</MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VI </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VII</MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VIII </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IX </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>X </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XI </MenuItem>
-                    <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XII </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>NS </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>LKG </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-20px" }}>UKG</MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>I</MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>II </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>III </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IV</MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>V</MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VI </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VII</MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VIII </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IX </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>X </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XI </MenuItem>
+                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XII </MenuItem>
 
                 </SubMenu>
 
@@ -242,6 +284,17 @@ const Sidebar = ({ roleName, rolePriority  }) => {
                 </SubMenu>
               )
             }
+            {/* Submenu for Classes */}
+            {/* {showClass && [...Array(12).keys()].map((classNumber) => (
+              <SidebarItem
+              key={classNumber + 1}
+              title={`Class ${classNumber + 1}`}
+              to={`/student/class/${classNumber + 1}`}
+              icon={<BorderColorIcon />}
+              selected={selectedClass === classNumber + 1}
+              />
+            ))} */}
+
             <SidebarItem
               title="Teacher"
               to="/teacher/listing"
@@ -250,6 +303,48 @@ const Sidebar = ({ roleName, rolePriority  }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
+            {/* <SidebarItem
+                title="Time Table"
+                to="/employee/listing"
+                icon={<ReceiptLongIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Class Subjects"
+                to="/employee/listing"
+                icon={<BorderColorIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Attendance"
+                to="/employee/listing"
+                icon={<CalendarMonthIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Holiday"
+                to="/employee/listing"
+                icon={<AirplaneTicketIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Leave"
+                to="/employee/listing"
+                icon={<ExitToAppIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Bus"
+                to="/employee/listing"
+                icon={<DirectionsBusIcon />}
+                selected={selected}
+              />
+              <SidebarItem
+                title="Marksheet"
+                to="/employee/listing"
+                icon={<FormatListBulletedIcon />}
+                selected={selected}
+              /> */}
           </Box>
         </Menu>
       </ProSidebar>

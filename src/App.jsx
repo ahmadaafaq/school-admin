@@ -104,7 +104,7 @@ function App() {
             <Suspense fallback={<Loader />}>
               <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
-                <Topbar />
+                <Topbar roleName={userRole.name} />
                 <Routes>
                   {userRole.priority === 1 &&
                     <>
@@ -148,10 +148,6 @@ function App() {
                     </>}
                   {userRole.priority === 3 &&
                     <>
-                      <Route exact path="/" element={<Dashboard />} />
-                      <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
-                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
-
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
