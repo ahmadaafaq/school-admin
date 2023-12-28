@@ -12,6 +12,8 @@ const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -
 
 
 const checkoutSchema = yup.object().shape({
+    bus_reg_no: yup.string()
+    .required("This Field is Required"),
     driver: yup.string()
         .required("This Field is Required"),
     contact_no: yup.string()

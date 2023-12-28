@@ -9,6 +9,7 @@
 import { combineReducers } from "redux";
 
 import { authReducer } from "./AuthReducer";
+import { setBusReducer } from "./BusReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
 import { setClassReducer } from "./ClassReducer";
@@ -21,6 +22,7 @@ import { setUserReducer } from "./UserReducer";
 const reducers = combineReducers({
     auth: authReducer,
     allAmenities: setAmenityReducer,
+    allBuses:  setBusReducer,
     allClasses: setClassReducer,
     allSchools: setSchoolReducer,
     allStudents: setStudentReducer,

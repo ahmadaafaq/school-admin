@@ -14,10 +14,9 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 
 import API from "../../apis";
-import AddressFormComponent from "../address/AddressFormComponent";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import TeacherFormComponent from "./BusFormComponent";
+import BusFormComponent from "./BusFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
@@ -27,16 +26,14 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        teacherData: { values: null, validated: false },
-        addressData: { values: null, validated: false },
+        busData: { values: null, validated: false },
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const teacherFormRef = useRef();
-    const addressFormRef = useRef();
+    const busFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -50,7 +47,7 @@ const FormComponent = () => {
     const { state } = useLocation();
     const { toastAndNavigate, getLocalStorage } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting teacher id from url params
+    //after page refresh the id in router state becomes undefined, so getting bus id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -58,12 +55,11 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateTeacherAndAddress = useCallback(formData => {
+    const updateBus = useCallback(formData => {
         const dataFields = [
-            { ...formData.teacherData.values },
-            { ...formData.addressData.values }
+            { ...formData.busData.values },
         ];
-        const paths = ["/update-teacher", "/update-address"];
+        const paths = ["/update-bus"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -87,17 +83,16 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateTeacherData = (id) => {
+    const populateBusData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`];
+        const paths = [`/get-bus/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                 }
                 const dataObj = {
-                    teacherData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
+                    busData: responses[0].data.data,
                 };
                 console.log(dataObj)
                 setUpdatedValues(dataObj);
@@ -110,17 +105,17 @@ const FormComponent = () => {
             });
     };
 
-    const createTeacher = () => {
+    const createBus = () => {
         setLoading(true);
-        API.TeacherAPI.createTeacher({ ...formData.teacherData.values })
-            .then(({ data: teacher }) => {
-                if (teacher?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: teacher.data.id,
-                        parent: 'teacher',
+        API.BusAPI.createBus({ ...formData.busData.values })
+            .then(({ data: bus }) => {
+                if (bus?.status === 'Success') {
+                    API.BusAPI.createBus({
+                        ...formData.values,
+                        parent_id: bus.data.id,
+                        parent: 'bus',
                     })
-                        .then(address => {
+                        .then(bus => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
                         })
@@ -138,28 +133,27 @@ const FormComponent = () => {
             });
     };
 
-    //Create/Update/Populate teacher
+    //Create/Update/Populate bus
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateTeacherData(id);
+            populateBusData(id);
         }
-        if (formData.teacherData.validated && formData.addressData.validated) {
-            formData.teacherData.values?.id ? updateTeacherAndAddress(formData) : createTeacher();
+        if (formData.busData.validated) {
+            formData.busData.values?.id ? updateBus(formData) : createBus();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await teacherFormRef.current.Submit();
-        await addressFormRef.current.Submit();
+        await busFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'teacher' ? setFormData({ ...formData, teacherData: data }) :
-            setFormData({ ...formData, addressData: data });
+        form === 'bus' ? setFormData({ ...formData, busData: data }) :
+            setFormData({ ...formData, data });
     };
 
 
@@ -175,31 +169,20 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <TeacherFormComponent
+            <BusFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'teacher');
+                    handleFormChange(data, 'bus');
                 }}
-                refId={teacherFormRef}
+                refId={busFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                updatedValues={updatedValues?.teacherData}
-            />
-            <AddressFormComponent
-                onChange={(data) => {
-                    handleFormChange(data, 'address');
-                }}
-                refId={addressFormRef}
-                update={id ? true : false}
-                setDirty={setDirty}
-                reset={reset}
-                setReset={setReset}
-                updatedValues={updatedValues?.addressData}
+                updatedValues={updatedValues?.busData}
             />
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on teacher update
+                {   //hide reset button on bus update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}

@@ -21,7 +21,7 @@ export const BusAPI = {
         const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
-            url: `/get-classes?page=${page}&size=${size}${queryParam}${searchParam}`,
+            url: `/get-buses?page=${page}&size=${size}${queryParam}${searchParam}`,
             headers: {
                 "x-access-token": getLocalStorage("auth")?.token
             },

@@ -16,6 +16,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
+
 import { datagridColumns } from "./BusConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setBus } from "../../redux/actions/BusAction";
@@ -33,7 +34,7 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allTeachers);
+    const { listData } = useSelector(state => state.allBuses);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });

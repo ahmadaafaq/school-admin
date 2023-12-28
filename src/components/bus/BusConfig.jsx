@@ -26,26 +26,20 @@ export const datagridColumns = () => {
 
     const columns = [
         {
-            field: "fullname",
-            headerName: "NAME",
+            field: "bus_reg_no",
+            headerName: "Bus Registration no",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
-            // this function combines the values of firstname and lastname into one string
-            renderCell: (params) => (
-                <div>
-                    {params.row.gender === 'female' ? `Mrs. ${params.row.firstname}` : `Mr. ${params.row.firstname}`} {params.row.lastname}
-                </div>
-            )
         },
         {
-            field: "class",
-            headerName: "CLASS",
+            field: "driver",
+            headerName: "Driver",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 120,
         },
         {
             field: "contact_no",
@@ -56,14 +50,22 @@ export const datagridColumns = () => {
             minWidth: 100
         },
         {
-            field: "updated_at",
-            headerName: "UPDATED AT",
+            field: "license_no",
+            headerName: "LICENSE",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            valueFormatter: params => params?.value.substring(0, 10)
+            minWidth: 100
         },
+        // {
+        //     field: "updated_at",
+        //     headerName: "UPDATED AT",
+        //     headerAlign: "center",
+        //     align: "center",
+        //     flex: 1,
+        //     minWidth: 100,
+        //     valueFormatter: params => params?.value.substring(0, 10)
+        // },
         {
             field: "status",
             headerName: "STATUS",
