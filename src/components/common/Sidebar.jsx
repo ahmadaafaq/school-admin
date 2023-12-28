@@ -249,6 +249,13 @@ const Sidebar = ({ roleName, rolePriority }) => {
               menuVisibility={3}
             />
             <Divider />
+            <SidebarItem
+              title="Bus"
+              to="/bus/listing"
+              icon={<DirectionsBusIcon />}
+              selected={selected}
+            />
+            <Divider />
             {rolePriority < 2 && <>
               < Typography
                 variant="h6"
@@ -269,6 +276,15 @@ const Sidebar = ({ roleName, rolePriority }) => {
               <SidebarItem
                 title="Class"
                 to="/class/listing"
+                icon={<BorderColorIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+              <Divider />
+              <SidebarItem
+                title="Section"
+                to="/section/listing"
                 icon={<BorderColorIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
@@ -315,12 +331,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 icon={<ExitToAppIcon />}
                 selected={selected}
               />
-              <SidebarItem
-                title="Bus"
-                to="/employee/listing"
-                icon={<DirectionsBusIcon />}
-                selected={selected}
-              />
+            
               <SidebarItem
                 title="Marksheet"
                 to="/employee/listing"

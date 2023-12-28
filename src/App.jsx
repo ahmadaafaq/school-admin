@@ -23,10 +23,14 @@ const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 
 const AmenityListingComponent = lazy(() => import("./components/amenities/ListingComponent"));
 
+const BusListingComponent = lazy(() => import("./components/bus/ListingComponent"));
+
 const ClassListingComponent = lazy(() => import("./components/class/ListingComponent"));
 
 const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"));
 const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"));
+
+const SectionListingComponent = lazy(() => import("./components/section/ListingComponent"));
 
 const StudentFormComponent = lazy(() => import("./components/student/FormComponent"));
 const StudentListingComponent = lazy(() => import("./components/student/ListingComponent"));
@@ -112,11 +116,14 @@ function App() {
                     <>
                       <Route exact path="/" element={<Dashboard />} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
+                      <Route exact path="/bus/listing" element={<BusListingComponent />} />
                       <Route exact path="/class/listing" element={<ClassListingComponent />} />
 
                       <Route exact path="/school/create" element={<SchoolFormComponent />} />
                       <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
                       <Route exact path="/school/listing" element={<SchoolListingComponent />} />
+
+                      <Route exact path="/section/listing" element={<SectionListingComponent />} />
 
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />

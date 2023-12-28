@@ -22,7 +22,7 @@ import Toast from "../common/Toast";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
-import classValidation from "./Validation";
+import sectionValidation from "./Validation";
 
 const initialValues = {
     name: "",
@@ -55,7 +55,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const { toastAndNavigate, getLocalStorage } = Utility();
 
     let id = state?.id;
-    console.log("state.id=>", id)
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -69,16 +68,16 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         }
     }, [id]);
 
-    const updateClass = (values) => {
+    const updateSection = (values) => {
         setLoading(true);
-        API.ClassAPI.updateClass(values)
-            .then(({ data: classs }) => {
-                if (classs.status === 'Success') {
+        API.SectionAPI.updateSection(values)
+            .then(({ data: section }) => {
+                if (section.status === 'Success') {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "info", "Successfully Updated");
                     setTimeout(() => {
                         handleDialogClose();
-                        location.href = "/class/listing";     //same as location.reload()
+                        location.href = "/section/listing";     //same as location.reload()
                     }, 2000);
                 } else {          //without settimeout, the page is reloaded immediately, which
                     setLoading(false);      //we do when there is error in updating, not when success
@@ -94,7 +93,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     const populateData = (id) => {
         setLoading(true);
-        const path = [`/get-by-pk/class/${id}`];
+        const path = [`/get-by-pk/section/${id}`];
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 if (response[0].data.status === "Success") {
@@ -112,11 +111,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             });
     };
 
-    const createClass = (values) => {
+    const createSection = (values) => {
         setLoading(true);
-        API.ClassAPI.createClass(values)
-            .then(({ data: classs }) => {
-                if (classs?.status === 'Success') {
+        API.SectionAPI.createSection(values)
+            .then(({ data: section }) => {
+                if (section.status === 'Success') {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "success", "Successfully Created");
                     setTimeout(() => {
@@ -162,9 +161,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 <Formik
                     initialValues={initialState}
                     enableReinitialize          //to reinitialize the form when it gets stored values from backend
-                    validationSchema={classValidation}
+                    validationSchema={sectionValidation}
                     onSubmit={values => {
-                        values.id ? updateClass(values) : createClass(values);
+                        values.id ? updateSection(values) : createSection(values);
                     }}
                 >
                     {({
@@ -212,7 +211,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                             </Box>
                             <Divider />
                             <Box display="flex" justifyContent="end" p="20px">
-                                {   //hide reset button on class update
+                                {   //hide reset button on section update
                                     title === "Update" ? null :
                                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                                             disabled={!dirty || isSubmitting}
