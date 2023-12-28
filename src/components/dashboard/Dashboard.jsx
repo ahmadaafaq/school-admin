@@ -5,8 +5,9 @@
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
 */
-
-import { Box, Button, IconButton, Typography, useTheme , useMediaQuery } from "@mui/material";
+import { useState, useEffect } from "react";
+import { Box, Button, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -15,16 +16,22 @@ import EngineeringSharpIcon from '@mui/icons-material/EngineeringSharp';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
-
+import API from "../../apis";
 import { tokens, themeSettings } from "../../theme";
 import StatBox from "../common/StatBox";
 import { studentData, lineData } from "../common/CustomCharts";
+
 
 const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
+
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
+  const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
 
   const options1 = {
     chart: {
@@ -59,12 +66,12 @@ const Dashboard = () => {
       {
         name: 'Total Students',
         data: studentData.map(dataPoint => dataPoint.students),
-        color: colors.greenAccent[400],
+        color: colors.greenAccent[800],
       },
       {
         name: 'New Students',
         data: studentData.map(dataPoint => dataPoint.newStudents),
-        color: colors.primary[700],
+        color: colors.redAccent[900],
       },
     ],
   };
@@ -125,7 +132,30 @@ const Dashboard = () => {
       color: colors.blueAccent[600],
     }],
   };
+  useEffect(() => {
+    // Fetch classes from the backend
+    API.ClassAPI.getAll(undefined, 0, 17)
+      .then((data) => {
+        setClasses(data.data.rows);
+      })
+      .catch((error) => console.error("Error fetching classes:", error));
+  }, []);
 
+  useEffect(() => {
+  }, [classes]);
+
+  useEffect(() => {
+    // Fetch sections based on the selected class
+    if (classes) {
+      API.SectionAPI.getAll()
+        .then((data) => {
+          console.log("SECTIONS",data)
+          setSections(data.data.list);
+          console.log("SECTIONS",data)
+        })
+        .catch((error) => console.error("Error fetching sections:", error));
+    }
+  }, [classes]);
   return (
     <Box m="10px"  >
       {/* HEADER */}
@@ -139,12 +169,49 @@ const Dashboard = () => {
         >
           Dashboard
         </Typography>
-
+        <Box sx={{display:"flex", marginRight: "24px" }}>
+          <FormControl variant="filled" sx={{ minWidth: 120, marginRight: "24px" }}
+          // error={!!school_id && !!errors.school_id}
+          >
+            <InputLabel id="schoolField">Select Classes</InputLabel>
+            <Select
+              variant="filled"
+              labelId="classfield"
+              label="class"
+              name="school_id"
+              autoComplete="new-school_id"
+            >
+              {classes.map(item => (
+                <MenuItem value={item.id} name={item.name} key={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl variant="filled" sx={{ minWidth: 120 }}
+          // error={!!school_id && !!errors.school_id}
+          >
+            <InputLabel id="schoolField">Select Section</InputLabel>
+            <Select
+              variant="filled"
+              labelId="sectionfield"
+              label="section"
+              name="school_id"
+              autoComplete="new-school_id"
+            >
+              {sections?.map(item => (
+                <MenuItem value={item.id} name={item.name} key={item.name}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       </Box>
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns= {isMobile?"repeat(1, minmax(0, 1fr))":"repeat(4, minmax(0, 1fr))"}
+        gridTemplateColumns={isMobile ? "repeat(1, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))"}
         gap="30px"
         margin="20px"
         flexWrap="wrap"
@@ -172,7 +239,7 @@ const Dashboard = () => {
           />
         </Box>
         <Box
-          backgroundColor={colors.primary[900]}
+          backgroundColor={colors.greenAccent[700]}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -183,7 +250,7 @@ const Dashboard = () => {
             subtitle="New Students"
             progress="0.30"
             increase="+5%"
-            yellowColor={colors.primary[900]}
+            yellowColor={colors.greenAccent[700]}
             icon={
               <PersonAddIcon
                 sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
@@ -192,7 +259,7 @@ const Dashboard = () => {
           />
         </Box>
         <Box
-          backgroundColor={colors.primary[800]}
+          backgroundColor={colors.blueAccent[700]}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -203,7 +270,7 @@ const Dashboard = () => {
             subtitle="Teachers"
             progress="0.80"
             increase="+43%"
-            yellowColor={colors.primary[800]}
+            yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
                 sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
@@ -212,7 +279,7 @@ const Dashboard = () => {
           />
         </Box>
         <Box
-          backgroundColor={colors.primary[700]}
+          backgroundColor={colors.redAccent[700]}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -224,7 +291,7 @@ const Dashboard = () => {
             subtitle="employees"
             progress="0.80"
             increase="+5%"
-            yellowColor={colors.primary[700]}
+            yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon
                 sx={{ color: colors.greenAccent[100], fontSize: "26px" }}

@@ -294,6 +294,12 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 menuVisibility={1}
               />
               <Divider />
+              <SidebarItem
+                title="Bus"
+                to="/bus/listing"
+                icon={<DirectionsBusIcon />}
+                selected={selected}
+              />
             </>}
             {/* <SidebarItem
                 title="Time Table"
@@ -325,12 +331,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 icon={<ExitToAppIcon />}
                 selected={selected}
               />
-              <SidebarItem
-                title="Bus"
-                to="/employee/listing"
-                icon={<DirectionsBusIcon />}
-                selected={selected}
-              />
+            
               <SidebarItem
                 title="Marksheet"
                 to="/employee/listing"

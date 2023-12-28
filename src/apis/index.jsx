@@ -8,11 +8,13 @@
 
 import { AddressAPI } from "./AddressAPI";
 import { AmenityAPI } from "./AmenityAPI";
+import { BusAPI } from "./BusAPI";
 import { CityAPI } from "./CityAPI";
 import { ClassAPI } from "./ClassAPI";
 import { CommonAPI } from "./CommonAPI";
 import { CountryAPI } from "./CountryAPI";
 import { SchoolAPI } from "./SchoolAPI";
+import  {SectionAPI} from "./SectionAPI";
 import { StateAPI } from "./StateAPI";
 import { StudentAPI } from "./StudentAPI";
 import { TeacherAPI } from "./TeacherAPI";
@@ -22,11 +24,13 @@ import { UserRoleAPI } from "./UserRoleAPI";
 export default {
     AddressAPI,
     AmenityAPI,
+    BusAPI,
     CityAPI,
     ClassAPI,
     CommonAPI,
     CountryAPI,
     SchoolAPI,
+    SectionAPI,
     StateAPI,
     StudentAPI,
     TeacherAPI,
