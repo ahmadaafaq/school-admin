@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -39,12 +39,12 @@ const Login = () => {
   const [formData, setFormData] = useState(initialValues);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const navigateTo = useNavigate();
-  const theme = useTheme();
   const dispatch = useDispatch();
   const toastInfo = useSelector(state => state.toastInfo);
 
+  const inputRef = useRef(null);
+  const navigateTo = useNavigate();
+  const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   const { typography } = themeSettings(theme.palette.mode);
@@ -74,17 +74,20 @@ const Login = () => {
             (response.data === "School Code must be specified" || response.data === "User does not exist" ||
               response.data === "Username and Password do not match")) {
             toastAndNavigate(dispatch, true, "info", response?.data);
+            inputRef.current.focus();
           }
           else {
             const authInfo = {
               id: response.data.id,
               token: response.data.token,
               role: response.data.role,
+              designation: response.data.designation,
               username: response.data.username
             };
             setLocalStorage("auth", authInfo);
             response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;
             navigateTo("/");
+            // authInfo?.role > 2 ? navigateTo("/user/listing") : navigateTo("/");
           }
         })
         .catch(err => {
@@ -170,6 +173,7 @@ const Login = () => {
                       label="School Code"
                       variant="filled"
                       type="text"
+                      inputRef={inputRef}
                       autoComplete="new-school_code"
                       onBlur={handleBlur}
                       onChange={handleChange}

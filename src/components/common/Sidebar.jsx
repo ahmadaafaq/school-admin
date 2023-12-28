@@ -1,17 +1,17 @@
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
- *
- * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
- * restrictions set forth in your license agreement with School CRM.
- */
+*
+* This software is the confidential information of School CRM Inc., and is licensed as
+* restricted rights software. The use,reproduction, or disclosure of this software is subject to
+* restrictions set forth in your license agreement with School CRM.
+*/
 
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar/dist";
 import "react-pro-sidebar/dist/css/styles.css";
 
-import { Box, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { Box, IconButton, Typography, useTheme, useMediaQuery, Divider } from "@mui/material";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SchoolIcon from '@mui/icons-material/School';
@@ -34,7 +34,9 @@ import AssistantIcon from '@mui/icons-material/Assistant';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import { Api, TuneOutlined } from '@mui/icons-material';
 
+import API from "../../apis";
 import { SidebarItem } from "./SidebarItem";
+import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
@@ -42,31 +44,26 @@ import "../common/index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
 
-const Sidebar = ({ roleName, rolePriority  }) => {
+const Sidebar = ({ roleName, rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [showClass, setShowClass] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [studentSubMenuOpen, setStudentSubMenuOpen] = useState(false);
+  const [allClasses, setAllClasses] = useState([]);
+  const dispatch = useDispatch();
   const selected = useSelector(state => state.menuItems.selected);
+  const { listData } = useSelector(state => state.allStudents);
+  const subMenuRef = useRef(null);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
-  const { getRoleAndPriorityById } = Utility();
-
-  const handleClassClick = (classNumber) => {
-    // Handle the click for a specific class (e.g., navigate to Class page)
-    console.log(`Clicked on Class ${classNumber}`);
-    setSelectedClass(classNumber);
-  };
+  const { getLocalStorage } = Utility();
 
   useEffect(() => {
     API.ClassAPI.getAll(false, 0, 20)
       .then(data => {
         if (data.status === 'Success') {
-          dispatch(setClasses({ listData: data.data.rows, loading: false }));
+          setAllClasses(data.data.rows);
         } else {
-          dispatch(setClasses({ listData: [], loading: false }));
           console.log("Error fetching classes, Please Try Again");
         }
       })
@@ -75,20 +72,40 @@ const Sidebar = ({ roleName, rolePriority  }) => {
       });
   }, []);
 
+  const handleClassClick = (classId) => {
+    API.StudentAPI.getStudentsByClassId({ id: classId })
+      .then(({ data: data }) => {
+        if (data.status === 'Success') {
+          console.log(data.data)
+          dispatch(setStudents({ listData: data.data, loading: false }));
+        } else {
+          // dispatch(setStudents({ listData: [], loading: false }));
+          console.log("Error fetching students, Please Try Again");
+        }
+      })
+      .catch(err => {
+        throw err;
+      });
+  }
+  console.log('students', listData)
+
   useEffect(() => {
     setIsCollapsed(isMobile);
-    setStudentSubMenuOpen(false);
-  }, [isMobile, selected]);
-
+  }, [isMobile]);
 
   const renderNotCollapsedStudents = () => {
-    const classNames = ["Pre Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "Kindergarten", "Ist", "IInd", "IIIrd",
-      "IVth", "Vth", "VIth", "VIIth", "VIIIth", "IXth", "Xth", "XIth", "XIIth"];
 
-    return classNames.map((className, index) => (
-      <MenuItem key={index}>
-        <SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> {className}
-      </MenuItem>
+    return allClasses?.map(classs => (
+      <SidebarItem
+        key={classs.id}
+        title={`${classs.name}`}
+        to={`/student/listing/${classs.id}`}
+        handleClassClick={() => handleClassClick(classs.id)}
+        icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
+        selected={selected}
+        rolePriority={rolePriority}
+        menuVisibility={4}
+      />
     ));
   };
 
@@ -98,12 +115,11 @@ const Sidebar = ({ roleName, rolePriority  }) => {
     return classNames.map((className, index) => (
       <SidebarItem
         key={index}
-        title={`Class ${className}`}
-        to={`/student/class/${className.toLowerCase()}`}
-        icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
+        title={`${className}`}
         selected={selected}
         rolePriority={rolePriority}
         menuVisibility={4}
+        className={className}
       />
     ));
   };
@@ -154,7 +170,8 @@ const Sidebar = ({ roleName, rolePriority  }) => {
                 ml="5px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  {rolePriority > 1 ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : import.meta.env.VITE_COMPANY_NAME}
+                  {rolePriority > 1 ? getLocalStorage("auth")?.designation.charAt(0).toUpperCase() + getLocalStorage("auth")?.designation.slice(1) :
+                    'Company Name'}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -186,6 +203,7 @@ const Sidebar = ({ roleName, rolePriority  }) => {
               rolePriority={rolePriority}
               menuVisibility={2}
             />
+            <Divider />
             <SidebarItem
               title="School"
               to="/school/listing"
@@ -193,107 +211,44 @@ const Sidebar = ({ roleName, rolePriority  }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={1}
-              
             />
-            <SidebarItem
-              title="User"
-              to="/user/listing"
-              icon={<PregnantWomanIcon />}
-              selected={selected}
-              rolePriority={rolePriority}
-              menuVisibility={3}
-            />
-            <SidebarItem
-              title="Amenity"
-              to="/amenity/listing"
-              icon={<ApiIcon />}
-              selected={selected}
-              rolePriority={rolePriority}
-              menuVisibility={1}
-            />
-            <SidebarItem
-              title="Class"
-              to="/class/listing"
-              icon={<BorderColorIcon />}
-              selected={selected}
-              rolePriority={rolePriority}
-              menuVisibility={1}
-            />
-            <SidebarItem
-              title="Student"
-              to="/student/listing"
-              icon={<PeopleOutlinedIcon />}
-              selected={selected}
-              onClick={() => setShowClass(!showClass)}
-              rolePriority={rolePriority}
-              menuVisibility={4}
-            />
+            <Divider />
 
             {isCollapsed ? (
-              <>
-                <SubMenu
-                  title="Students"
+              <SubMenu
+                title="Student"
+                icon={<PeopleOutlinedIcon />}
+              >
+                <SidebarItem
+                  title="All"
                   to="/student/listing"
-                  icon={<PeopleOutlinedIcon />}
                   selected={selected}
-                >
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>PN</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>NS </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>LKG </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-20px" }}>UKG</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>I</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>II </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>III </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IV</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>V</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VI </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VII</MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>VIII </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>IX </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>X </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XI </MenuItem>
-                  <MenuItem style={{ marginLeft: "-15px", marginRight: "-15px" }}>XII </MenuItem>
-
-                </SubMenu>
-
-              </>
+                  rolePriority={rolePriority}
+                  menuVisibility={4}
+                  className="All"
+                />
+                {renderCollapsedStudents()}
+              </SubMenu>
             ) :
               (
                 <SubMenu
-                  title="Students"
+                  title="Student"
                   icon={<PeopleOutlinedIcon />}
-                  selected={selected}
                 >
-                  <MenuItem><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Pre Nursery</MenuItem>
-                  <MenuItem><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Nursery</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Lower Kindergarden</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Upper Kindergarden</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class I</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class II</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class III</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class IV</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class V</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class VI</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class VII</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class VIII</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class IX</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class X</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class XI</MenuItem>
-                  <MenuItem ><SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} /> Class XII</MenuItem>
-
+                  <SidebarItem
+                    title="Student"
+                    to="/student/listing"
+                    icon={<PeopleOutlinedIcon />}
+                    selected={selected}
+                    rolePriority={rolePriority}
+                    menuVisibility={4}
+                    ref={subMenuRef}
+                  />
+                  {renderNotCollapsedStudents()}
                 </SubMenu>
               )
             }
-            {/* Submenu for Classes */}
-            {/* {showClass && [...Array(12).keys()].map((classNumber) => (
-              <SidebarItem
-              key={classNumber + 1}
-              title={`Class ${classNumber + 1}`}
-              to={`/student/class/${classNumber + 1}`}
-              icon={<BorderColorIcon />}
-              selected={selectedClass === classNumber + 1}
-              />
-            ))} */}
+            <Divider />
 
             <SidebarItem
               title="Teacher"
@@ -303,6 +258,43 @@ const Sidebar = ({ roleName, rolePriority  }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
+            <Divider />
+            <SidebarItem
+              title="User"
+              to="/user/listing"
+              icon={<PregnantWomanIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <Divider />
+            {rolePriority < 2 && <>
+              < Typography
+                variant="h6"
+                color={colors.grey[500]}
+                sx={{ m: "15px 0 5px 10px" }}
+              >
+                Configurations
+              </Typography>
+              <SidebarItem
+                title="Amenity"
+                to="/amenity/listing"
+                icon={<ApiIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+              <Divider />
+              <SidebarItem
+                title="Class"
+                to="/class/listing"
+                icon={<BorderColorIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+              <Divider />
+            </>}
             {/* <SidebarItem
                 title="Time Table"
                 to="/employee/listing"
@@ -348,7 +340,7 @@ const Sidebar = ({ roleName, rolePriority  }) => {
           </Box>
         </Menu>
       </ProSidebar>
-    </Box>
+    </Box >
   );
 };
 

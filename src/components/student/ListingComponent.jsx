@@ -44,6 +44,8 @@ const ListingComponent = () => {
     const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
+    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
+        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -98,7 +100,7 @@ const ListingComponent = () => {
                         onClick={() => { navigateTo(`/${selected.toLowerCase()}/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
-                        Create New {selected}
+                        {classNames.includes(selected) ? 'Admission' : `Create New ${selected}`}
                     </Button>
                 </Box>
             </Box>

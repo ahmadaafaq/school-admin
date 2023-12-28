@@ -32,20 +32,20 @@ export const datagridColumns = () => {
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
     };
 
-    useEffect(() => {
-        API.ClassAPI.getAll(false, 0, 20)
-            .then(data => {
-                console.log('classs', data.data, data.status)
-                if (data.status === 'Success') {
-                    dispatch(setClasses({ listData: data.data.rows, loading: false }));
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+    // useEffect(() => {
+    //     API.ClassAPI.getAll(false, 0, 20)
+    //         .then(data => {
+    //             console.log('classs', data.data, data.status)
+    //             if (data.status === 'Success') {
+    //                 dispatch(setClasses({ listData: data.data.rows, loading: false }));
+    //             } else {
+    //                 console.error("Error fetching classes. Please Try Again");
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error("Error fetching classes:", err);
+    //         });
+    // }, []);
 
     const columns = [
         {

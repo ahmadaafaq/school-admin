@@ -119,6 +119,7 @@ function App() {
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:id" element={<StudentListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
@@ -137,6 +138,7 @@ function App() {
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:id" element={<StudentListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
@@ -151,6 +153,7 @@ function App() {
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:id" element={<StudentListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
