@@ -23,7 +23,7 @@ import { tokens, themeSettings } from "../../theme";
 import { useUser } from "../hooks/users";
 import { Utility } from "../utility";
 
-const FormComponent = () => {
+const FormComponent = ({ rolePriority }) => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -92,7 +92,7 @@ const FormComponent = () => {
 
     const populateUserData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/users/${id}`, `/get-address/user/${id}`];
+        const paths = [`/get-by-pk/user/${id}`, `/get-address/user/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 const dataObj = {
@@ -183,6 +183,7 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 userId={id}
+                rolePriority={rolePriority}
                 updatedValues={updatedValues?.userData}
             />
             <AddressFormComponent

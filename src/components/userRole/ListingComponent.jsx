@@ -7,19 +7,20 @@
 */
 
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
+import FormComponent from "./FormInModalComponent";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
-import { datagridColumns } from "./StudentConfig";
+import { datagridColumns } from "./UserRoleConfig";
+import { setUserRoles } from "../../redux/actions/UserRoleAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -27,32 +28,24 @@ import { Utility } from "../utility";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = () => {
-    const theme = useTheme();
-    const navigateTo = useNavigate();
-    const dispatch = useDispatch();
-    const URLParams = useParams();
-    const isMobile = useMediaQuery("(max-width:480px)");
-    const isTab = useMediaQuery("(max-width:920px)");
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allStudents);
-
+    const [openDialog, setOpenDialog] = useState(false);
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
 
+    const navigateTo = useNavigate();
+    const dispatch = useDispatch();
+    const selected = useSelector(state => state.menuItems.selected);
+    const { listData } = useSelector(state => state.allUserRoles);
+
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
+    const isMobile = useMediaQuery("(max-width:480px)");
+    const isTab = useMediaQuery("(max-width:920px)");
+    const reloadBtn = document.getElementById("reload-btn");
+
     const { getPaginatedData } = useCommon();
     const { getLocalStorage } = Utility();
-    const colors = tokens(theme.palette.mode);
-    const reloadBtn = document.getElementById("reload-btn");
-    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
-        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-    const classId = URLParams ? URLParams.classId : null; // from url
-
-    let classConditionObj = classId ? {
-        key: 'classId',
-        value: classId
-    } : null;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -69,6 +62,11 @@ const ListingComponent = () => {
         });
     };
 
+    //For form modal to open
+    const handleDialogOpen = () => {
+        setOpenDialog(true);
+    };
+
     return (
         <Box m="10px" position="relative">
             <Box
@@ -83,6 +81,7 @@ const ListingComponent = () => {
                     flexDirection={isMobile ? "column" : "row"}
                     justifyContent={"space-between"}
                     alignItems={isMobile ? "center" : "normal"}
+
                 >
                     <Typography
                         component="h2"
@@ -93,8 +92,8 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setStudents}
-                        api={API.StudentAPI}
+                        action={setUserRoles}
+                        api={API.UserRoleAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
                         reloadBtn={reloadBtn}
@@ -104,10 +103,13 @@ const ListingComponent = () => {
                         type="submit"
                         color="success"
                         variant="contained"
-                        onClick={() => { navigateTo(`/${selected.toLowerCase()}/create`) }}
+                        onClick={() => {
+                            navigateTo("#", { state: { id: undefined } });
+                            handleDialogOpen();
+                        }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
-                        {classNames.includes(selected) ? 'Admission' : `Create New ${selected}`}
+                        Create New {selected}
                     </Button>
                 </Box>
             </Box>
@@ -130,11 +132,10 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setStudents}
-                api={API.StudentAPI}
+                action={setUserRoles}
+                api={API.UserRoleAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
-                condition={classConditionObj}
+                columns={datagridColumns(handleDialogOpen)}
                 rows={listData.rows}
                 count={listData.count}
                 selected={selected}
@@ -143,6 +144,7 @@ const ListingComponent = () => {
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
             />
+            <FormComponent openDialog={openDialog} setOpenDialog={setOpenDialog} />
         </Box>
     );
 };

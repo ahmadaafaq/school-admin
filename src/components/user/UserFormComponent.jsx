@@ -38,6 +38,7 @@ const UserFormComponent = ({
     reset,
     setReset,
     userId,
+    rolePriority,
     updatedValues = null
 }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -128,7 +129,6 @@ const UserFormComponent = ({
         const getRoles = () => {
             API.UserRoleAPI.getAll()
                 .then(roles => {
-                    console.log(roles)
                     if (roles.status === 'Success') {
                         setAllRoles(roles.data.rows);
                     } else {
@@ -141,7 +141,7 @@ const UserFormComponent = ({
         };
         getRoles();
     }, []);
-    console.log(allRoles)
+    // console.log(allRoles)
 
     const handleUpdatePassword = () => {
         if (updatePassword.clicked) {
@@ -300,7 +300,6 @@ const UserFormComponent = ({
                                 const selectedSchoolId = event.target.value;
                                 setSchoolId(selectedSchoolId);
                                 formik.setFieldValue("school_id", selectedSchoolId);
-                                formik.setFieldValue("role", "");
                             }}
                         >
                             {schools.map(item => (
@@ -323,15 +322,11 @@ const UserFormComponent = ({
                             value={formik.values.role}
                             onChange={formik.handleChange}
                         >
-                            {formik.values.school_id > 0
-                                ? allRoles.filter(item => item.name !== 'admin').map(item => (
-                                    <MenuItem value={item.id} name={item.name} key={item.name}>
-                                        {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
-                                    </MenuItem>
-                                ))
-                                : allRoles.map(item => (
-                                    <MenuItem value={item.id} name={item.name} key={item.name}>
-                                        {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                            {allRoles.length && allRoles
+                                .filter(role => role.id > rolePriority)
+                                .map(role => (
+                                    <MenuItem value={role.id} name={role.name} key={role.name}>
+                                        {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
                                     </MenuItem>
                                 ))}
                         </Select>

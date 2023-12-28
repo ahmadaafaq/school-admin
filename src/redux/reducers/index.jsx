@@ -17,6 +17,7 @@ import { setSchoolReducer } from "./SchoolReducer";
 import { setStudentReducer } from "./StudentReducer";
 import { setTeacherReducer } from "./TeacherReducer";
 import { setUserReducer } from "./UserReducer";
+import { setUserRoleReducer } from "./UserRoleReducer";
 
 const reducers = combineReducers({
     auth: authReducer,
@@ -26,6 +27,7 @@ const reducers = combineReducers({
     allStudents: setStudentReducer,
     allTeachers: setTeacherReducer,
     allUsers: setUserReducer,
+    allUserRoles: setUserRoleReducer,
     menuItems: menuItemReducer,
     toastInfo: displayToastReducer
 });

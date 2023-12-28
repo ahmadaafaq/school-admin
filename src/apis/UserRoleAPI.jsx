@@ -45,7 +45,7 @@ export const UserRoleAPI = {
 
     /** Update user role in the database
      */
-    updateuserRole: async (fields, cancel = false) => {
+    updateUserRole: async (fields, cancel = false) => {
         return await api.request({
             url: `/update-user-role`,
             headers: {

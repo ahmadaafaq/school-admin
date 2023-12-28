@@ -46,7 +46,6 @@ import dpsImg from "../assets/dps.png";
 
 const Sidebar = ({ roleName, rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [selectedClass, setSelectedClass] = useState(null);
   const [allClasses, setAllClasses] = useState([]);
   const dispatch = useDispatch();
   const selected = useSelector(state => state.menuItems.selected);
@@ -72,23 +71,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
       });
   }, []);
 
-  const handleClassClick = (classId) => {
-    API.StudentAPI.getStudentsByClassId({ id: classId })
-      .then(({ data: data }) => {
-        if (data.status === 'Success') {
-          console.log(data.data)
-          dispatch(setStudents({ listData: data.data, loading: false }));
-        } else {
-          // dispatch(setStudents({ listData: [], loading: false }));
-          console.log("Error fetching students, Please Try Again");
-        }
-      })
-      .catch(err => {
-        throw err;
-      });
-  }
-  console.log('students', listData)
-
   useEffect(() => {
     setIsCollapsed(isMobile);
   }, [isMobile]);
@@ -100,7 +82,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
         key={classs.id}
         title={`${classs.name}`}
         to={`/student/listing/${classs.id}`}
-        handleClassClick={() => handleClassClick(classs.id)}
         icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
         selected={selected}
         rolePriority={rolePriority}
@@ -288,6 +269,15 @@ const Sidebar = ({ roleName, rolePriority }) => {
               <SidebarItem
                 title="Class"
                 to="/class/listing"
+                icon={<BorderColorIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+              <Divider />
+              <SidebarItem
+                title="Role"
+                to="/role/listing"
                 icon={<BorderColorIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
