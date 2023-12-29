@@ -36,12 +36,15 @@ const ServerPaginationGrid = ({
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
     const amenityLoading = useSelector(state => state.allAmenities.loading);
+    const busLoading = useSelector(state => state.allBuses.loading);
     const classLoading = useSelector(state => state.allClasses.loading);
     const schoolLoading = useSelector(state => state.allSchools.loading);
     const studentLoading = useSelector(state => state.allStudents.loading);
     const teacherLoading = useSelector(state => state.allTeachers.loading);
     const userLoading = useSelector(state => state.allUsers.loading);
     const selected = useSelector(state => state.menuItems.selected);
+    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
+        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
     useEffect(() => {
         //TO BE REFACTORED
@@ -124,8 +127,10 @@ const ServerPaginationGrid = ({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={selected === "Amenity" ? amenityLoading : selected === "School" ? schoolLoading : selected === "Student" ? studentLoading :
-                    selected === "Class" ? classLoading : selected === "Teacher" ? teacherLoading : userLoading}
+                loading={selected === "Amenity" ? amenityLoading : selected === "School" ? schoolLoading :
+                    classNames.includes(selected) ? studentLoading : selected === "Class" ? classLoading :
+                        selected === "Teacher" ? teacherLoading : selected === "Bus" ? busLoading :
+                            userLoading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,

@@ -17,9 +17,9 @@ import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
-import { datagridColumns } from "./StudentConfig";
+import { datagridColumns } from "./BusConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setStudents } from "../../redux/actions/StudentAction";
+import { setBuses } from "../../redux/actions/BusAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -34,7 +34,7 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allStudents);
+    const { listData } = useSelector(state => state.allBuses);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -44,8 +44,6 @@ const ListingComponent = () => {
     const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
-        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -86,8 +84,8 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setStudents}
-                        api={API.StudentAPI}
+                        action={setBuses}
+                        api={API.BusAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
                         reloadBtn={reloadBtn}
@@ -100,7 +98,7 @@ const ListingComponent = () => {
                         onClick={() => { navigateTo(`/${selected.toLowerCase()}/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
-                        {classNames.includes(selected) ? 'Admission' : `Create New ${selected}`}
+                        Create New {selected}
                     </Button>
                 </Box>
             </Box>
@@ -123,8 +121,8 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setStudents}
-                api={API.StudentAPI}
+                action={setBuses}
+                api={API.BusAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns()}
                 rows={listData.rows}

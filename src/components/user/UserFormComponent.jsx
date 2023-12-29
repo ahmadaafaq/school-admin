@@ -25,6 +25,7 @@ const initialValues = {
     password: "",
     email: "",
     contact_no: "",
+    designation: "",
     role: "",
     gender: "",
     status: "inactive"
@@ -47,7 +48,8 @@ const UserFormComponent = ({
     const [initialState, setInitialState] = useState(initialValues);
     const [schools, setSchools] = useState([]);
     const [schoolId, setSchoolId] = useState(null);
-    const [userRole, setUserRole] = useState({ name: '', priority: null });
+    const [allRoles, setAllRoles] = useState([]);
+    const [currentRole, setCurrentRole] = useState({ name: '', priority: null });
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
@@ -122,20 +124,24 @@ const UserFormComponent = ({
         getSchools();
     }, []);
 
-    // useEffect(async () => {
-    //     return API.UserRoleAPI.getRoleById({ id: schoolId })
-    //         .then(res => {
-    //             if (res.status === 'Success') {
-    //                 console.log(res.data, 'user');
-    //                 return res.data;
-    //             } else if (res.status === 'Error') {
-    //                 console.log('error')
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.error('Error fetching user role and priority:', err);
-    //         })
-    // }, [schools, schoolId])
+    useEffect(() => {
+        const getRoles = () => {
+            API.UserRoleAPI.getAll()
+                .then(roles => {
+                    console.log(roles)
+                    if (roles.status === 'Success') {
+                        setAllRoles(roles.data.rows);
+                    } else {
+                        console.log("An Error Occurred, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+        };
+        getRoles();
+    }, []);
+    console.log(allRoles)
 
     const handleUpdatePassword = () => {
         if (updatePassword.clicked) {
@@ -247,7 +253,19 @@ const UserFormComponent = ({
                         value={formik.values.contact_no}
                         error={!!formik.touched.contact_no && !!formik.errors.contact_no}
                         helperText={formik.touched.contact_no && formik.errors.contact_no}
-                        sx={{ gridColumn: "span 2" }}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Designation"
+                        name="designation"
+                        autoComplete="new-contact"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.designation}
+                        error={!!formik.touched.designation && !!formik.errors.designation}
+                        helperText={formik.touched.designation && formik.errors.designation}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
@@ -279,9 +297,10 @@ const UserFormComponent = ({
                             autoComplete="new-school_id"
                             value={formik.values.school_id}
                             onChange={event => {
-                                const getSchoolId = event.target.value;
-                                setSchoolId(getSchoolId);
-                                formik.setFieldValue("school_id", event.target.value);
+                                const selectedSchoolId = event.target.value;
+                                setSchoolId(selectedSchoolId);
+                                formik.setFieldValue("school_id", selectedSchoolId);
+                                formik.setFieldValue("role", "");
                             }}
                         >
                             {schools.map(item => (
@@ -304,11 +323,17 @@ const UserFormComponent = ({
                             value={formik.values.role}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"admin"}>Admin</MenuItem>
-                            <MenuItem value={"sub-admin"}>Sub-Admin</MenuItem>
-                            <MenuItem value={"staff"}>Staff</MenuItem>
-                            <MenuItem value={"teacher"}>Teacher</MenuItem>
-                            <MenuItem value={"parent"}>Parent</MenuItem>
+                            {formik.values.school_id > 0
+                                ? allRoles.filter(item => item.name !== 'admin').map(item => (
+                                    <MenuItem value={item.id} name={item.name} key={item.name}>
+                                        {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                                    </MenuItem>
+                                ))
+                                : allRoles.map(item => (
+                                    <MenuItem value={item.id} name={item.name} key={item.name}>
+                                        {item.name.charAt(0).toUpperCase() + item.name.slice(1)}
+                                    </MenuItem>
+                                ))}
                         </Select>
                     </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
