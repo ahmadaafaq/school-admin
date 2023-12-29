@@ -40,6 +40,7 @@ const ServerPaginationGrid = ({
     const sectionLoading = useSelector(state => state.allSections.loading);
     const schoolLoading = useSelector(state => state.allSchools.loading);
     const studentLoading = useSelector(state => state.allStudents.loading);
+    const subjectLoading = useSelector(state => state.allSubjects.loading);
     const teacherLoading = useSelector(state => state.allTeachers.loading);
     const userLoading = useSelector(state => state.allUsers.loading);
     const userRoleLoading = useSelector(state => state.allUserRoles.loading);
@@ -130,7 +131,8 @@ const ServerPaginationGrid = ({
                 columns={columns}
                 loading={selected === "Amenity" ? amenityLoading : selected === "Class" ? classLoading : selected === "Section" ?
                     sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ? studentLoading
-                        : selected === "Teacher" ? teacherLoading : selected === "Role" ? userRoleLoading : userLoading}
+                        : selected === "Teacher" ? teacherLoading : selected === "Role" ? userRoleLoading :
+                            selected === "Subject" ? subjectLoading : userLoading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,

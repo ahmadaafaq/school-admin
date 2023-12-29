@@ -17,6 +17,7 @@ import { SchoolAPI } from "./SchoolAPI";
 import { SectionAPI } from "./SectionAPI";
 import { StateAPI } from "./StateAPI";
 import { StudentAPI } from "./StudentAPI";
+import { SubjectAPI } from "./SubjectAPI";
 import { TeacherAPI } from "./TeacherAPI";
 import { UserAPI } from "./UserAPI";
 import { UserRoleAPI } from "./UserRoleAPI";
@@ -33,6 +34,7 @@ export default {
     SectionAPI,
     StateAPI,
     StudentAPI,
+    SubjectAPI,
     TeacherAPI,
     UserAPI,
     UserRoleAPI

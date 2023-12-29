@@ -16,6 +16,7 @@ import { setSectionReducer } from "./SectionReducer";
 import { setAmenityReducer } from "./AmenityReducer";
 import { setSchoolReducer } from "./SchoolReducer";
 import { setStudentReducer } from "./StudentReducer";
+import { setSubjectsReducer } from "./SubjectReducer";
 import { setTeacherReducer } from "./TeacherReducer";
 import { setUserReducer } from "./UserReducer";
 import { setUserRoleReducer } from "./UserRoleReducer";
@@ -27,6 +28,7 @@ const reducers = combineReducers({
     allSections: setSectionReducer,
     allSchools: setSchoolReducer,
     allStudents: setStudentReducer,
+    allSubjects: setSubjectsReducer,
     allTeachers: setTeacherReducer,
     allUsers: setUserReducer,
     allUserRoles: setUserRoleReducer,

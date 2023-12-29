@@ -141,21 +141,6 @@ const FormComponent = () => {
             });
     };
 
-    // useEffect(() => {
-    //     API.ClassAPI.getAll(false, 0, 20)
-    //         .then(data => {
-    //             if (data.status === 'Success') {
-    //                 dispatch(setClasses({ listData: data.data.rows, loading: false }));
-    //             } else {
-    //                 dispatch(setClasses({ listData: [], loading: false }));
-    //                 console.log("Error fetching classes, Please Try Again");
-    //             }
-    //         })
-    //         .catch(err => {
-    //             throw err;
-    //         });
-    // }, []);
-
     //Create/Update/Populate student
     useEffect(() => {
         if (id && !submitted) {

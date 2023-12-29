@@ -7,7 +7,7 @@
 */
 
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { useIdleTimer } from 'react-idle-timer';
@@ -35,6 +35,8 @@ const SectionListingComponent = lazy(() => import("./components/section/ListingC
 const StudentFormComponent = lazy(() => import("./components/student/FormComponent"));
 const StudentListingComponent = lazy(() => import("./components/student/ListingComponent"));
 
+const SubjectListingComponent = lazy(() => import("./components/subject/ListingComponent"));
+
 const TeacherFormComponent = lazy(() => import("./components/teacher/FormComponent"));
 const TeacherListingComponent = lazy(() => import("./components/teacher/ListingComponent"));
 
@@ -51,21 +53,15 @@ function App() {
   const { pathname } = useLocation();
   const { getLocalStorage, getRoleAndPriorityById, verifyToken } = Utility();
 
-
-  const switchRole = (userRole) => {
-    switch (userRole) {
-      case 'admin':
-      case 'sub-admin':
-      case 'staff':
-      case 'teacher':
-      case 'parent':
-        navigateTo(pathname);
-        break;
-      default:
-        navigateTo('/login');
-        break;
-    }
+  const onIdle = () => {
+    localStorage.clear();
+    location.reload();
   };
+
+  useIdleTimer({    //Automatically SignOut when a user is inactive for 30 minutes
+    onIdle,
+    timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER)    //30 minute idle timeout stored in environment variable file
+  });
 
   useEffect(() => {
     getRoleAndPriorityById()
@@ -79,16 +75,6 @@ function App() {
         }
       });
   }, [getLocalStorage("auth")?.role])
-
-  const onIdle = () => {
-    localStorage.clear();
-    location.reload();
-  };
-
-  useIdleTimer({    //Automatically SignOut when a user is inactive for 30 minutes
-    onIdle,
-    timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER)    //30 minute idle timeout stored in environment variable file
-  });
 
   useEffect(() => {
     verifyToken()
@@ -124,8 +110,10 @@ function App() {
                       <Route exact path="/school/listing" element={<SchoolListingComponent />} />
 
                       <Route exact path="/section/listing" element={<SectionListingComponent />} />
+                      <Route exact path="/subject/listing" element={<SubjectListingComponent />} />
 
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
+                      <Route exact path="/student/create/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
                       <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />

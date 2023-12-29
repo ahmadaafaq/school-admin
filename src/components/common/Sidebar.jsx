@@ -292,6 +292,15 @@ const Sidebar = ({ roleName, rolePriority }) => {
               />
               <Divider />
               <SidebarItem
+                title="Subject"
+                to="/subject/listing"
+                icon={<BorderColorIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+              <Divider />
+              <SidebarItem
                 title="Role"
                 to="/role/listing"
                 icon={<BorderColorIcon />}
@@ -305,12 +314,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 title="Time Table"
                 to="/employee/listing"
                 icon={<ReceiptLongIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Class Subjects"
-                to="/employee/listing"
-                icon={<BorderColorIcon />}
                 selected={selected}
               />
               <SidebarItem
