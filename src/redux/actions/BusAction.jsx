@@ -8,9 +8,9 @@
 
 import { ActionTypes } from "../constants/action-types";
 
-export const setBus = (bus) => {
+export const setBuses = (buses) => {
     return {
-        type: ActionTypes.SET_BUS,
-        payload: bus
+        type: ActionTypes.SET_BUSES,
+        payload: buses
     };
 };

@@ -32,6 +32,7 @@ const Dashboard = () => {
   const [selectedSection, setSelectedSection] = useState("");
   const [classes, setClasses] = useState([]);
   const [sections, setSections] = useState([]);
+  console.log("CLASS AND SECTION",selectedClass , selectedSection )
 
   const options1 = {
     chart: {
@@ -132,6 +133,13 @@ const Dashboard = () => {
       color: colors.blueAccent[600],
     }],
   };
+  const handleClassChange = (event) => {
+    setSelectedClass(event.target.value);
+  };
+  
+  const handleSectionChange = (event) => {
+    setSelectedSection(event.target.value);
+  };
   useEffect(() => {
     // Fetch classes from the backend
     API.ClassAPI.getAll(undefined, 0, 17)
@@ -149,9 +157,7 @@ const Dashboard = () => {
     if (classes) {
       API.SectionAPI.getAll()
         .then((data) => {
-          console.log("SECTIONS",data)
           setSections(data.data.list);
-          console.log("SECTIONS",data)
         })
         .catch((error) => console.error("Error fetching sections:", error));
     }
@@ -180,6 +186,7 @@ const Dashboard = () => {
               label="class"
               name="school_id"
               autoComplete="new-school_id"
+              onChange={handleClassChange}
             >
               {classes.map(item => (
                 <MenuItem value={item.id} name={item.name} key={item.name}>
@@ -198,6 +205,7 @@ const Dashboard = () => {
               label="section"
               name="school_id"
               autoComplete="new-school_id"
+              onChange={handleSectionChange}
             >
               {sections?.map(item => (
                 <MenuItem value={item.id} name={item.name} key={item.name}>
@@ -233,7 +241,7 @@ const Dashboard = () => {
             yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
-                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize: "26px" }}
               />
             }
           />
@@ -253,7 +261,7 @@ const Dashboard = () => {
             yellowColor={colors.greenAccent[700]}
             icon={
               <PersonAddIcon
-                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize: "26px" }}
               />
             }
           />
@@ -273,7 +281,7 @@ const Dashboard = () => {
             yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
-                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize: "26px" }}
               />
             }
           />
@@ -294,7 +302,7 @@ const Dashboard = () => {
             yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon
-                sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize: "26px" }}
               />
             }
           />
