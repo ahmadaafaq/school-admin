@@ -13,13 +13,13 @@ import { Utility } from "../components/utility";
 const { getLocalStorage } = Utility();
 
 export const SectionAPI = {
-  /** Get section from the database that meets the specified query parameters
+  /** Get sections from the database that meets the specified query parameters
    */
-  getAll: async (conditionObj = false, page = 0,search = false, authInfo, cancel = false) => {
+  getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
     const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
     const searchParam = search ? `&search=${search}` : '';
     const { data: response } = await api.request({
-      url: `/get-sections`,
+      url: `/get-sections?page=${page}&size=${size}${queryParam}${searchParam}`,
       headers: {
         "x-access-token": getLocalStorage("auth")?.token
       },

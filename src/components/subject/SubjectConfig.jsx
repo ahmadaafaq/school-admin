@@ -7,56 +7,30 @@
  */
 
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
 
-export const datagridColumns = () => {
+export const datagridColumns = (handleDialogOpen) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const selected = useSelector(state => state.menuItems.selected);
     const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
+        handleDialogOpen();
+        navigateTo("#", { state: { id: id } });
     };
 
     const columns = [
         {
-            field: "username",
-            headerName: "USERNAME",
+            field: "name",
+            headerName: "NAME",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120
-        },
-        {
-            field: "contact_no",
-            headerName: "CONTACT",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
-        {
-            field: "email",
-            headerName: "EMAIL",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 200
-        },
-        {
-            field: "updated_at",
-            headerName: "UPDATED AT",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100,
-            valueFormatter: params => params?.value.substring(0, 10)
         },
         {
             field: "status",
@@ -88,6 +62,15 @@ export const datagridColumns = () => {
                     </Box>
                 );
             },
+        },
+        {
+            field: "updated_at",
+            headerName: "UPDATED AT",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100,
+            valueFormatter: params => params?.value.substring(0, 10)
         },
         {
             field: "action",

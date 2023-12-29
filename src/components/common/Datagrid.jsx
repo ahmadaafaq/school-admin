@@ -38,10 +38,13 @@ const ServerPaginationGrid = ({
     const amenityLoading = useSelector(state => state.allAmenities.loading);
     const busLoading = useSelector(state => state.allBuses.loading);
     const classLoading = useSelector(state => state.allClasses.loading);
+    const sectionLoading = useSelector(state => state.allSections.loading);
     const schoolLoading = useSelector(state => state.allSchools.loading);
     const studentLoading = useSelector(state => state.allStudents.loading);
+    const subjectLoading = useSelector(state => state.allSubjects.loading);
     const teacherLoading = useSelector(state => state.allTeachers.loading);
     const userLoading = useSelector(state => state.allUsers.loading);
+    const userRoleLoading = useSelector(state => state.allUserRoles.loading);
     const selected = useSelector(state => state.menuItems.selected);
     const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
         "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -127,10 +130,10 @@ const ServerPaginationGrid = ({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={selected === "Amenity" ? amenityLoading : selected === "School" ? schoolLoading :
-                    classNames.includes(selected) ? studentLoading : selected === "Class" ? classLoading :
-                        selected === "Teacher" ? teacherLoading : selected === "Bus" ? busLoading :
-                            userLoading}
+                loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading : selected === "Class" ? classLoading
+                    : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ?
+                        studentLoading : selected === "Teacher" ? teacherLoading : selected === "Subject" ? subjectLoading
+                            : selected === "Role" ? userRoleLoading : userLoading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,

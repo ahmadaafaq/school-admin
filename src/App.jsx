@@ -7,7 +7,7 @@
 */
 
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Routes, Route, useLocation, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { useIdleTimer } from 'react-idle-timer';
@@ -31,14 +31,20 @@ const ClassListingComponent = lazy(() => import("./components/class/ListingCompo
 const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"));
 const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"));
 
+const SectionListingComponent = lazy(() => import("./components/section/ListingComponent"));
+
 const StudentFormComponent = lazy(() => import("./components/student/FormComponent"));
 const StudentListingComponent = lazy(() => import("./components/student/ListingComponent"));
+
+const SubjectListingComponent = lazy(() => import("./components/subject/ListingComponent"));
 
 const TeacherFormComponent = lazy(() => import("./components/teacher/FormComponent"));
 const TeacherListingComponent = lazy(() => import("./components/teacher/ListingComponent"));
 
 const UserFormComponent = lazy(() => import("./components/user/FormComponent"));
 const UserListingComponent = lazy(() => import("./components/user/ListingComponent"));
+
+const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"));
 
 function App() {
   const [userRole, setUserRole] = useState({ name: '', priority: null });
@@ -48,21 +54,15 @@ function App() {
   const { pathname } = useLocation();
   const { getLocalStorage, getRoleAndPriorityById, verifyToken } = Utility();
 
-
-  const switchRole = (userRole) => {
-    switch (userRole) {
-      case 'admin':
-      case 'sub-admin':
-      case 'staff':
-      case 'teacher':
-      case 'parent':
-        navigateTo(pathname);
-        break;
-      default:
-        navigateTo('/login');
-        break;
-    }
+  const onIdle = () => {
+    localStorage.clear();
+    location.reload();
   };
+
+  useIdleTimer({    //Automatically SignOut when a user is inactive for 30 minutes
+    onIdle,
+    timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER)    //30 minute idle timeout stored in environment variable file
+  });
 
   useEffect(() => {
     getRoleAndPriorityById()
@@ -76,16 +76,6 @@ function App() {
         }
       });
   }, [getLocalStorage("auth")?.role])
-
-  const onIdle = () => {
-    localStorage.clear();
-    location.reload();
-  };
-
-  useIdleTimer({    //Automatically SignOut when a user is inactive for 30 minutes
-    onIdle,
-    timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER)    //30 minute idle timeout stored in environment variable file
-  });
 
   useEffect(() => {
     verifyToken()
@@ -123,18 +113,24 @@ function App() {
                       <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
                       <Route exact path="/school/listing" element={<SchoolListingComponent />} />
 
+                      <Route exact path="/section/listing" element={<SectionListingComponent />} />
+                      <Route exact path="/subject/listing" element={<SubjectListingComponent />} />
+
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
+                      <Route exact path="/student/create/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
-                      <Route exact path="/student/listing/:id" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
 
-                      <Route exact path="/user/create" element={<UserFormComponent />} />
+                      <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
+
+                      <Route exact path="/role/listing" element={<UserRoleListingComponent />} />
                     </>}
                   {userRole.priority === 2 &&
                     <>
@@ -145,13 +141,13 @@ function App() {
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
-                      <Route exact path="/student/listing/:id" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
 
-                      <Route exact path="/user/create" element={<UserFormComponent />} />
+                      <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
                     </>}
@@ -160,13 +156,13 @@ function App() {
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
-                      <Route exact path="/student/listing/:id" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
 
-                      <Route exact path="/user/create" element={<UserFormComponent />} />
+                      <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
                     </>}

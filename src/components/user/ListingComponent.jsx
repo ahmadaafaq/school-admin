@@ -104,7 +104,7 @@ const ListingComponent = () => {
                         type="submit"
                         color="success"
                         variant="contained"
-                        onClick={() => { navigateTo(`/${selected}/create`) }}
+                        onClick={() => { navigateTo(`/${selected.toLowerCase()}/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
                         Create New {selected}

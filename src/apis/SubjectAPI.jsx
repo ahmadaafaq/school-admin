@@ -12,14 +12,14 @@ import { Utility } from "../components/utility";
 
 const { getLocalStorage } = Utility();
 
-export const UserRoleAPI = {
-    /** Get user roles from the database that meets the specified query parameters
+export const SubjectAPI = {
+    /** Get subjects from the database that meets the specified query parameters
      */
     getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
         const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
-            url: `/get-user-roles?page=${page}&size=${size}${queryParam}${searchParam}`,
+            url: `/get-subjects?page=${page}&size=${size}${queryParam}${searchParam}`,
             headers: {
                 "x-access-token": getLocalStorage("auth")?.token
             },
@@ -29,49 +29,34 @@ export const UserRoleAPI = {
         return response;
     },
 
-    /** Create user role in the database
+    /** Create subject in the database
      */
-    createUserRole: async (userRole, cancel = false) => {
+    createSubject: async (subject, cancel = false) => {
         return await api.request({
-            url: `/create-user-role`,
+            url: `/create-subject`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "POST",
-            data: userRole,
-            signal: cancel ? cancelApiObject[this.createUserRole.name].handleRequestCancellation().signal : undefined,
+            data: subject,
+            signal: cancel ? cancelApiObject[this.createSubject.name].handleRequestCancellation().signal : undefined,
         });
     },
 
-    /** Update user role in the database
+    /** Update subject in the database
      */
-    updateUserRole: async (fields, cancel = false) => {
+    updateSubject: async (fields, cancel = false) => {
         return await api.request({
-            url: `/update-user-role`,
+            url: `/update-subject`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "PATCH",
             data: fields,
-            signal: cancel ? cancelApiObject[this.updateuserRole.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.updateSubject.name].handleRequestCancellation().signal : undefined,
         });
-    },
-
-    /** Get role name and priority by role id from the database
-     */
-    getRoleById: async (id, cancel = false) => {
-        const { data: response } = await api.request({
-            url: `/get-role-by-id`,
-            headers: {
-                "x-access-token": getLocalStorage("auth").token
-            },
-            method: "POST",
-            data: id,
-            signal: cancel ? cancelApiObject[this.getRoleById.name].handleRequestCancellation().signal : undefined,
-        });
-        return response;
     }
 }
 
-// defining the cancel API object for UserRoleAPI
-const cancelApiObject = defineCancelApiObject(UserRoleAPI);
+// defining the cancel API object for SubjectAPI
+const cancelApiObject = defineCancelApiObject(SubjectAPI);

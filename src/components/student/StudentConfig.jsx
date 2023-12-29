@@ -29,7 +29,7 @@ export const datagridColumns = () => {
     const { convertToRoman, findClassById } = Utility();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
+        navigateTo(`/student/update/${id}`, { state: { id: id } });
     };
 
     // useEffect(() => {
@@ -72,10 +72,10 @@ export const datagridColumns = () => {
             renderCell: (params) => {
                 // let className = findClassById(params?.row?.class, listData);
                 let className = 2;
-                console.log('coonfig', className, listData)
+                // console.log('coonfig', className, listData)
                 return (
                     <div>
-                        {className ? convertToRoman(className) : null} {params.row.section}
+                        {params.row.class} {params.row.section}
                     </div>
                 );
             }

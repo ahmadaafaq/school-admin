@@ -22,10 +22,11 @@ import Toast from "../common/Toast";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
-import classValidation from "./Validation";
+import userRoleValidation from "./Validation";
 
 const initialValues = {
     name: "",
+    priority: 0,
     status: "inactive"
 };
 
@@ -55,7 +56,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const { toastAndNavigate, getLocalStorage } = Utility();
 
     let id = state?.id;
-    console.log("state.id=>", id)
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -69,16 +69,16 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         }
     }, [id]);
 
-    const updateClass = (values) => {
+    const updateUserRole = (values) => {
         setLoading(true);
-        API.ClassAPI.updateClass(values)
-            .then(({ data: classs }) => {
-                if (classs.status === 'Success') {
+        API.UserRoleAPI.updateUserRole(values)
+            .then(({ data: role }) => {
+                if (role.status === 'Success') {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "info", "Successfully Updated");
                     setTimeout(() => {
                         handleDialogClose();
-                        location.href = "/class/listing";     //same as location.reload()
+                        location.href = "/role/listing";     //same as location.reload()
                     }, 2000);
                 } else {          //without settimeout, the page is reloaded immediately, which
                     setLoading(false);      //we do when there is error in updating, not when success
@@ -94,7 +94,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     const populateData = (id) => {
         setLoading(true);
-        const path = [`/get-by-pk/class/${id}`];
+        const path = [`/get-by-pk/role/${id}`];
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 if (response[0].data.status === "Success") {
@@ -112,11 +112,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             });
     };
 
-    const createClass = (values) => {
+    const createUserRole = (values) => {
         setLoading(true);
-        API.ClassAPI.createClass(values)
-            .then(({ data: classs }) => {
-                if (classs?.status === 'Success') {
+        API.UserRoleAPI.createUserRole(values)
+            .then(({ data: role }) => {
+                if (role.status === 'Success') {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "success", "Successfully Created");
                     setTimeout(() => {
@@ -162,9 +162,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 <Formik
                     initialValues={initialState}
                     enableReinitialize          //to reinitialize the form when it gets stored values from backend
-                    validationSchema={classValidation}
+                    validationSchema={userRoleValidation}
                     onSubmit={values => {
-                        values.id ? updateClass(values) : createClass(values);
+                        values.id ? updateUserRole(values) : createUserRole(values);
                     }}
                 >
                     {({
@@ -192,6 +192,18 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                     error={!!touched.name && !!errors.name}
                                     helperText={touched.name && errors.name}
                                 />
+                                <TextField
+                                    variant="filled"
+                                    type="text"
+                                    label="Priority"
+                                    name="priority"
+                                    autoComplete="new-priority"
+                                    onBlur={handleBlur}
+                                    onChange={handleChange}
+                                    value={values.priority}
+                                    error={!!touched.priority && !!errors.priority}
+                                    helperText={touched.priority && errors.priority}
+                                />
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
                                     error={!!touched.status && !!errors.status}
                                 >
@@ -212,7 +224,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                             </Box>
                             <Divider />
                             <Box display="flex" justifyContent="end" p="20px">
-                                {   //hide reset button on class update
+                                {   //hide reset button on userRole update
                                     title === "Update" ? null :
                                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                                             disabled={!dirty || isSubmitting}
@@ -239,6 +251,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                     message={toastInfo.toastMessage}
                                 />
                             </Box>
+
                         </form>
                     )}
                 </Formik>
