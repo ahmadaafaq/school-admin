@@ -127,20 +127,20 @@ const Topbar = ({ roleName }) => {
           <Box textAlign="center">
             <Typography
               variant="h3"
-              color={colors.blueAccent[600]}
+              color={colors.blueAccent[300]}
               fontWeight="bold"
               sx={{ m: "10px 0 4px 0" }}
             >
               {username}
             </Typography>
-            <Typography variant="h5" color={colors.primary[900]}> {role} </Typography>
+            <Typography variant="h5" color={colors.greenAccent[1000]}> {role} </Typography>
           </Box>
 
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[600], justifyContent: "center" }}>
+        <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[300], justifyContent: "center" }}>
           <ListItemIcon >
-            <Logout fontSize="medium" sx={{ color: colors.blueAccent[600] }} />
+            <Logout fontSize="medium" sx={{ color: colors.blueAccent[300] }} />
           </ListItemIcon>
           <Typography variant="h5"> Logout </Typography>
         </MenuItem>
