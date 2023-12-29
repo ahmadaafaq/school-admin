@@ -11,9 +11,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
-import dayjs from "dayjs";
 
 import API from "../../apis";
+import AddressFormComponent from "../address/AddressFormComponent";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import BusFormComponent from "./BusFormComponent";
@@ -27,6 +27,7 @@ const FormComponent = () => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         busData: { values: null, validated: false },
+        addressData: { values: null, validated: false },
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [dirty, setDirty] = useState(false);
@@ -34,6 +35,7 @@ const FormComponent = () => {
     const [reset, setReset] = useState(false);
 
     const busFormRef = useRef();
+    const addressFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -45,7 +47,7 @@ const FormComponent = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { createSchoolCode, getLocalStorage, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting bus id from url params
     let id = state?.id || userParams?.id;
@@ -55,12 +57,14 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateBus = useCallback(formData => {
+    const updateBusAndAddress = useCallback(formData => {
+        setLoading(true);
+
+        const paths = ["/update-bus", "/update-address"];
         const dataFields = [
             { ...formData.busData.values },
+            { ...formData.addressData.values }
         ];
-        const paths = ["/update-bus"];
-        setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -83,18 +87,15 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateBusData = (id) => {
+    const populateData = (id) => {
         setLoading(true);
-        const paths = [`/get-bus/${id}`];
+        const paths = [`/get-by-pk/bus/${id}`, `/get-address/bus/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                if (responses[0].data.data) {
-                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
-                }
                 const dataObj = {
                     busData: responses[0].data.data,
+                    addressData: responses[1]?.data?.data
                 };
-                console.log(dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -107,15 +108,16 @@ const FormComponent = () => {
 
     const createBus = () => {
         setLoading(true);
+
         API.BusAPI.createBus({ ...formData.busData.values })
             .then(({ data: bus }) => {
                 if (bus?.status === 'Success') {
-                    API.BusAPI.createBus({
-                        ...formData.values,
+                    API.AddressAPI.createAddress({
+                        ...formData.addressData.values,
                         parent_id: bus.data.id,
                         parent: 'bus',
                     })
-                        .then(bus => {
+                        .then(address => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
                         })
@@ -133,14 +135,14 @@ const FormComponent = () => {
             });
     };
 
-    //Create/Update/Populate bus
+    //Create/Update/Populate Bus
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateBusData(id);
+            populateData(id);
         }
-        if (formData.busData.validated) {
-            formData.busData.values?.id ? updateBus(formData) : createBus();
+        if (formData.busData.validated && formData.addressData.validated) {
+            formData.busData.values?.id ? updateBusAndAddress(formData) : createBus();
         } else {
             setSubmitted(false);
         }
@@ -148,14 +150,14 @@ const FormComponent = () => {
 
     const handleSubmit = async () => {
         await busFormRef.current.Submit();
+        await addressFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
         form === 'bus' ? setFormData({ ...formData, busData: data }) :
-            setFormData({ ...formData, data });
+            setFormData({ ...formData, addressData: data });
     };
-
 
     return (
         <Box m="10px">
@@ -179,6 +181,17 @@ const FormComponent = () => {
                 setReset={setReset}
                 userId={id}
                 updatedValues={updatedValues?.busData}
+            />
+            <AddressFormComponent
+                onChange={(data) => {
+                    handleFormChange(data, 'address');
+                }}
+                refId={addressFormRef}
+                update={id ? true : false}
+                setDirty={setDirty}
+                reset={reset}
+                setReset={setReset}
+                updatedValues={updatedValues?.addressData}
             />
 
             <Box display="flex" justifyContent="end" m="20px">

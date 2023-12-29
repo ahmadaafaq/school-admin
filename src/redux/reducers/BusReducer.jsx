@@ -15,7 +15,7 @@ const initialState = {
 
 export const setBusReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_BUS:
+        case ActionTypes.SET_BUSES:
             return {
                 ...state,
                 listData: action.payload.listData,

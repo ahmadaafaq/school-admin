@@ -26,8 +26,8 @@ export const datagridColumns = () => {
 
     const columns = [
         {
-            field: "bus_reg_no",
-            headerName: "Bus Registration no",
+            field: "registration_no",
+            headerName: "Registration Number",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -57,15 +57,6 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100
         },
-        // {
-        //     field: "updated_at",
-        //     headerName: "UPDATED AT",
-        //     headerAlign: "center",
-        //     align: "center",
-        //     flex: 1,
-        //     minWidth: 100,
-        //     valueFormatter: params => params?.value.substring(0, 10)
-        // },
         {
             field: "status",
             headerName: "STATUS",

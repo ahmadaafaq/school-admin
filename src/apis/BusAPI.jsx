@@ -12,10 +12,8 @@ import { Utility } from "../components/utility";
 
 const { getLocalStorage } = Utility();
 
-
 export const BusAPI = {
     /** Get buses from the database that meets the specified query parameters
-     * 
      */
     getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
         const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
@@ -30,21 +28,22 @@ export const BusAPI = {
         });
         return response;
     },
+
     /** Create bus in the database
      */
-    createBus: async (buses, cancel = false) => {
+    createBus: async (bus, cancel = false) => {
         return await api.request({
             url: `/create-bus`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "POST",
-            data: buses,
+            data: bus,
             signal: cancel ? cancelApiObject[this.createBus.name].handleRequestCancellation().signal : undefined,
         });
     },
 
-    /** Update Bus in the database
+    /** Update bus in the database
      */
     updateBus: async (fields, cancel = false) => {
         return await api.request({
@@ -58,6 +57,6 @@ export const BusAPI = {
         });
     }
 }
+
 // defining the cancel API object for BusAPI
 const cancelApiObject = defineCancelApiObject(BusAPI);
-

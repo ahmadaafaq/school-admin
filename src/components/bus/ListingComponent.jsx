@@ -19,7 +19,7 @@ import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./BusConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setBus } from "../../redux/actions/BusAction";
+import { setBuses } from "../../redux/actions/BusAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -84,7 +84,7 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setBus}
+                        action={setBuses}
                         api={API.BusAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
@@ -121,7 +121,7 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setBus}
+                action={setBuses}
                 api={API.BusAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns()}
