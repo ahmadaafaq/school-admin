@@ -6,23 +6,58 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
+import API from "../../apis";
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
 
 export const datagridColumns = () => {
+    const [classes, setClasses] = useState([]);
+    const [sections, setSections] = useState([]);
+
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const selected = useSelector(state => state.menuItems.selected);
     const navigateTo = useNavigate();
+    const { appendSuffix, findClassById, findSectionById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
     };
+
+    useEffect(() => {
+        API.ClassAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setClasses(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
+
+    useEffect(() => {
+        API.SectionAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setSections(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
 
     const columns = [
         {
@@ -33,11 +68,7 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            renderCell: (params) => (
-                <div>
-                    {params.row.gender === 'female' ? `Mrs. ${params.row.firstname}` : `Mr. ${params.row.firstname}`} {params.row.lastname}
-                </div>
-            )
+            valueGetter: (params) => `${params.row.firstname || ''} ${params.row.lastname || ''}`
         },
         {
             field: "class",
@@ -45,7 +76,16 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            renderCell: (params) => {
+                let className = findClassById(params?.row?.class, classes);
+                let sectionName = findSectionById(params?.row?.section, sections);
+                return (
+                    <div>
+                        {appendSuffix(className)} {sectionName}
+                    </div>
+                );
+            }
         },
         {
             field: "contact_no",

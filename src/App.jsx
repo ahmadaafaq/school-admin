@@ -109,7 +109,7 @@ function App() {
                       <Route exact path="/bus/listing" element={<BusListingComponent />} />
                       <Route exact path="/bus/create" element={<BusFormComponent />} />
                       <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
-                      
+
                       <Route exact path="/class/listing" element={<ClassListingComponent />} />
 
                       <Route exact path="/marksheet/listing" element={<MarksheetListingComponent/>}/>
@@ -172,6 +172,17 @@ function App() {
                       <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
+                    </>}
+                  {userRole.priority === 4 &&
+                    <>
+                      <Route exact path="/student/create" element={<StudentFormComponent />} />
+                      <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
+                      <Route exact path="/student/listing" element={<StudentListingComponent />} />
+                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
+
+                      <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
+                      <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
+                      <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
                     </>}
                 </Routes>
               </main>

@@ -16,7 +16,8 @@ export const authReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.AUTH_INFO:
             return {
-                ...state, auth: action.payload
+                ...state,
+                auth: action.payload
             };
         default:
             return state;

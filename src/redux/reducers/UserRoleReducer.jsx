@@ -13,7 +13,7 @@ const initialState = {
     loading: true
 };
 
-export const setUserRoleReducer = (state = initialState, action) => {
+export const setUserRolesReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_USER_ROLES:
             return {

@@ -7,7 +7,8 @@
 */
 
 import { useEffect, useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar/dist";
 import "react-pro-sidebar/dist/css/styles.css";
 
@@ -36,7 +37,6 @@ import { Api, TuneOutlined } from '@mui/icons-material';
 
 import API from "../../apis";
 import { SidebarItem } from "./SidebarItem";
-import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
@@ -47,15 +47,40 @@ import dpsImg from "../assets/dps.png";
 const Sidebar = ({ roleName, rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [allClasses, setAllClasses] = useState([]);
-  const dispatch = useDispatch();
+
   const selected = useSelector(state => state.menuItems.selected);
-  const { listData } = useSelector(state => state.allStudents);
-  const subMenuRef = useRef(null);
+  const submenuRef = useRef(null);
+  const isSubMenuOpen = useRef(false);
+  const location = useLocation();
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
-  const { getLocalStorage } = Utility();
+  const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (submenuRef.current && !submenuRef.current.contains(event.target)) {
+        // Clicked outside the sidebar to close submenu
+        console.log('japan');
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+
+  const toggleSubMenu = () => {
+    isSubMenuOpen.current = !isSubMenuOpen.current;
+  };
+
+  useEffect(() => {
+    // const regex = /^\d+/;
+    if (!location.pathname.startsWith('/student/')) {
+      getLocalStorage('class') ? remLocalStorage('class') : null;
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     API.ClassAPI.getAll(false, 0, 20)
@@ -76,11 +101,10 @@ const Sidebar = ({ roleName, rolePriority }) => {
   }, [isMobile]);
 
   const renderNotCollapsedStudents = () => {
-
     return allClasses?.map(classs => (
       <SidebarItem
         key={classs.id}
-        title={`${classs.name}`}
+        title={`${addClassKeyword(classs.name)}`}
         to={`/student/listing/${classs.id}`}
         icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
         selected={selected}
@@ -129,7 +153,11 @@ const Sidebar = ({ roleName, rolePriority }) => {
         "& .pro-menu-item.pro-sub-menu": {
           color: `${colors.primary[100]}`
         },
-
+        "& .pro-inner-list-item": {
+          height: `${isSubMenuOpen ? "100px" : "0"}` + " !important",
+          overflow: isSubMenuOpen ? "scroll" : "hidden",
+          transition: 'height 0.3s ease-in-out !important'
+        }
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
@@ -195,41 +223,43 @@ const Sidebar = ({ roleName, rolePriority }) => {
             />
             <Divider />
 
-            {isCollapsed ? (
-              <SubMenu
-                title="Student"
-                icon={<PeopleOutlinedIcon />}
-              >
-                <SidebarItem
-                  title="All"
-                  to="/student/listing"
-                  selected={selected}
-                  rolePriority={rolePriority}
-                  menuVisibility={4}
-                  className="All"
-                />
-                {renderCollapsedStudents()}
-              </SubMenu>
-            ) :
-              (
+            <Box onClick={(event) => { event.stopPropagation(); toggleSubMenu(); }}>
+              {isCollapsed && isSubMenuOpen.current ? (
                 <SubMenu
                   title="Student"
                   icon={<PeopleOutlinedIcon />}
                 >
                   <SidebarItem
-                    title="Student"
+                    title="All"
                     to="/student/listing"
-                    icon={<PeopleOutlinedIcon />}
                     selected={selected}
                     rolePriority={rolePriority}
                     menuVisibility={4}
-                    ref={subMenuRef}
+                    className="All"
                   />
-                  {renderNotCollapsedStudents()}
+                  {renderCollapsedStudents()}
                 </SubMenu>
-              )
-            }
-            <Divider />
+              ) :
+                (
+                  <SubMenu
+                    title="All Students"
+                    icon={<PeopleOutlinedIcon />}
+                    ref={submenuRef}
+                  >
+                    <SidebarItem
+                      title="Student"
+                      to="/student/listing"
+                      icon={<PeopleOutlinedIcon />}
+                      selected={selected}
+                      rolePriority={rolePriority}
+                      menuVisibility={4}
+                    />
+                    {renderNotCollapsedStudents()}
+                  </SubMenu>
+                )
+              }
+              <Divider />
+            </Box>
 
             <SidebarItem
               title="Teacher"

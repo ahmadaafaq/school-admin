@@ -59,7 +59,11 @@ export const Utility = () => {
     /** Set local storage with specified key value pair
      */
     const setLocalStorage = (key, value) => {
-        localStorage.setItem(key, JSON.stringify(value));
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch (err) {
+            console.error(`Error setting ${key} in localStorage:`, err);
+        }
     };
 
     /** Get the specified key from browser's local storage if it is present
@@ -73,6 +77,16 @@ export const Utility = () => {
         return null;
     };
 
+    /** Set local storage with specified key value pair
+     */
+    const remLocalStorage = (key) => {
+        try {
+            localStorage.removeItem(key);
+        } catch (err) {
+            console.error(`Error removing ${key} from localStorage:`, err);
+        }
+    };
+
     /** Verifying the token authenticity by making API call
      */
     const verifyToken = async () => {
@@ -83,8 +97,7 @@ export const Utility = () => {
                 }
             })
             .catch(err => {
-                // return err;
-                throw err;
+                return err;
             });
     };
 
@@ -118,17 +131,60 @@ export const Utility = () => {
         return isNaN(num) ? num : romanNumerals[num - 1];
     };
 
+    /** Adds the "class" keyword to a valid number
+     */
+    const addClassKeyword = (num) => {
+        return isNaN(num) ? num : `Class ${num}`;
+    };
+
     /** Finds and returns the name of a class based on its ID from an array of class objects
      */
     const findClassById = (classId, classData) => {
         let found = '';
-        console.log(classData, classId, 'found')
         if (classData) {
             found = classData.find(cls => cls.id === classId);
         }
         return found ? found.name : null;
     };
 
+    /** Finds and returns the name of a section based on its ID from an array of section objects
+     */
+    const findSectionById = (sectionId, sectionData) => {
+        let found = '';
+        if (sectionData) {
+            found = sectionData.find(sect => sect.id === sectionId);
+        }
+        return found ? found.name : null;
+    };
+
+    /** Appends the appropriate suffix ('th', 'rd', 'nd', 'st') to a given number
+     */
+    const appendSuffix = (num) => {
+        if (isNaN(num)) {
+            return num.toLowerCase() === "lower kindergarten" ? "LKG" :
+                num.toLowerCase() === "upper kindergarten" ? "UKG" : num;
+        }
+
+        const specialCase = num >= 10 && num <= 20;
+        // Determine the appropriate suffix based on the last digit of the number
+        const lastDigit = num % 10;
+
+        switch (true) {
+            case specialCase:
+                return `${num}th`;
+            case lastDigit === 1:
+                return `${num}st`;
+            case lastDigit === 2:
+                return `${num}nd`;
+            case lastDigit === 3:
+                return `${num}rd`;
+            default:
+                return `${num}th`;
+        }
+    };
+
+    /** Fetches role and priority by the id of the user logged in
+     */
     const getRoleAndPriorityById = async () => {
         return API.UserRoleAPI.getRoleById({ id: getRole() })
             .then(res => {
@@ -145,14 +201,18 @@ export const Utility = () => {
     };
 
     return {
+        addClassKeyword,
+        appendSuffix,
         convertToRoman,
         createSchoolCode,
         findClassById,
+        findSectionById,
         getInitials,
         getNameAndType,
         getLocalStorage,
         getRole,
         getRoleAndPriorityById,
+        remLocalStorage,
         setLocalStorage,
         toastAndNavigate,
         verifyToken

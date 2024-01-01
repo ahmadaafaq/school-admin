@@ -9,33 +9,33 @@
 import { combineReducers } from "redux";
 
 import { authReducer } from "./AuthReducer";
-import { setBusReducer } from "./BusReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
-import { setClassReducer } from "./ClassReducer";
-import { setMarksheetReducer } from "./MarksheetReducer";
-import { setSectionReducer } from "./SectionReducer";
-import { setAmenityReducer } from "./AmenityReducer";
-import { setSchoolReducer } from "./SchoolReducer";
-import { setStudentReducer } from "./StudentReducer";
+import { setMarksheetsReducer } from "./MarksheetReducer";
+import { setAmenitiesReducer } from "./AmenityReducer";
+import { setBusesReducer } from "./BusReducer";
+import { setClassesReducer } from "./ClassReducer";
+import { setSectionsReducer } from "./SectionReducer";
+import { setSchoolsReducer } from "./SchoolReducer";
+import { setStudentsReducer } from "./StudentReducer";
 import { setSubjectsReducer } from "./SubjectReducer";
-import { setTeacherReducer } from "./TeacherReducer";
-import { setUserReducer } from "./UserReducer";
-import { setUserRoleReducer } from "./UserRoleReducer";
+import { setTeachersReducer } from "./TeacherReducer";
+import { setUsersReducer } from "./UserReducer";
+import { setUserRolesReducer } from "./UserRoleReducer";
 
 const reducers = combineReducers({
     auth: authReducer,
-    allAmenities: setAmenityReducer,
-    allBuses: setBusReducer,
-    allClasses: setClassReducer,
-    allMarksheets: setMarksheetReducer,
-    allSections: setSectionReducer,
-    allSchools: setSchoolReducer,
-    allStudents: setStudentReducer,
+    allAmenities: setAmenitiesReducer,
+    allBuses: setBusesReducer,
+    allClasses: setClassesReducer,
+    allMarksheets: setMarksheetsReducer,
+    allSections: setSectionsReducer,
+    allSchools: setSchoolsReducer,
+    allStudents: setStudentsReducer,
     allSubjects: setSubjectsReducer,
-    allTeachers: setTeacherReducer,
-    allUsers: setUserReducer,
-    allUserRoles: setUserRoleReducer,
+    allTeachers: setTeachersReducer,
+    allUsers: setUsersReducer,
+    allUserRoles: setUserRolesReducer,
     menuItems: menuItemReducer,
     toastInfo: displayToastReducer
 });

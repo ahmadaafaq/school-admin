@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { Box, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
+import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
 import { multipleSkeletons } from "./LoadingSkeleton";
 import { tokens } from "../../theme";
@@ -47,8 +48,7 @@ const ServerPaginationGrid = ({
     const userLoading = useSelector(state => state.allUsers.loading);
     const userRoleLoading = useSelector(state => state.allUserRoles.loading);
     const selected = useSelector(state => state.menuItems.selected);
-    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
-        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+    const classes = classNames;
 
     useEffect(() => {
         //TO BE REFACTORED
