@@ -23,16 +23,15 @@ import { studentData, lineData } from "../common/CustomCharts";
 
 
 const Dashboard = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery("(max-width:480px)");
-  const colors = tokens(theme.palette.mode);
-  const { typography } = themeSettings(theme.palette.mode);
-
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [classes, setClasses] = useState([]);
   const [sections, setSections] = useState([]);
-  console.log("CLASS AND SECTION",selectedClass , selectedSection )
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery("(max-width:480px)");
+  const colors = tokens(theme.palette.mode);
+  const { typography } = themeSettings(theme.palette.mode);
 
   const options1 = {
     chart: {
@@ -136,7 +135,7 @@ const Dashboard = () => {
   const handleClassChange = (event) => {
     setSelectedClass(event.target.value);
   };
-  
+
   const handleSectionChange = (event) => {
     setSelectedSection(event.target.value);
   };
@@ -175,7 +174,7 @@ const Dashboard = () => {
         >
           Dashboard
         </Typography>
-        <Box sx={{display:"flex", marginRight: "24px" }}>
+        <Box sx={{ display: "flex", marginRight: "24px" }}>
           <FormControl variant="filled" sx={{ minWidth: 120, marginRight: "24px" }}
           // error={!!school_id && !!errors.school_id}
           >

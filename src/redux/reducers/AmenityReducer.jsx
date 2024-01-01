@@ -13,7 +13,7 @@ const initialState = {
     loading: true
 };
 
-export const setAmenityReducer = (state = initialState, action) => {
+export const setAmenitiesReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_AMENITIES:
             return {

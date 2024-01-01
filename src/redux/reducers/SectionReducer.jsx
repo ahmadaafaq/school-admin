@@ -13,7 +13,7 @@ const initialState = {
     loading: true
 };
 
-export const setSectionReducer = (state = initialState, action) => {
+export const setSectionsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_SECTIONS:
             return {

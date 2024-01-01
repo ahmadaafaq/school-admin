@@ -16,6 +16,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
+import classNames from "../modules";
 
 import { datagridColumns } from "./StudentConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
@@ -42,12 +43,11 @@ const ListingComponent = () => {
     const [oldPagination, setOldPagination] = useState();
 
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage } = Utility();
+    const { getLocalStorage, setLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
-        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
-    const classId = URLParams ? URLParams.classId : null; // from url
+    const classes = classNames;
+    const classId = URLParams ? URLParams.classId : null;       // grab class id from url
 
     let classConditionObj = classId ? {
         key: 'classId',
@@ -58,6 +58,10 @@ const ListingComponent = () => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
+
+    useEffect(() => {
+        classId ? setLocalStorage('class', classId) : null;
+    }, [classId]);
 
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
@@ -107,7 +111,7 @@ const ListingComponent = () => {
                         onClick={() => { navigateTo(`/student/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
-                        {classNames.includes(selected) ? 'Admission' : `Create New ${selected}`}
+                        {classes.includes(selected) ? 'Admission' : `Create New ${selected}`}
                     </Button>
                 </Box>
             </Box>

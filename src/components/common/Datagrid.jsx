@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { Box, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
+import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
 import { multipleSkeletons } from "./LoadingSkeleton";
 import { tokens } from "../../theme";
@@ -46,8 +47,7 @@ const ServerPaginationGrid = ({
     const userLoading = useSelector(state => state.allUsers.loading);
     const userRoleLoading = useSelector(state => state.allUserRoles.loading);
     const selected = useSelector(state => state.menuItems.selected);
-    const classNames = ["Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "1", "2", "3",
-        "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+    const classes = classNames;
 
     useEffect(() => {
         //TO BE REFACTORED
@@ -131,7 +131,7 @@ const ServerPaginationGrid = ({
                 rows={rows || []}
                 columns={columns}
                 loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading : selected === "Class" ? classLoading
-                    : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ?
+                    : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classes.includes(selected) ?
                         studentLoading : selected === "Teacher" ? teacherLoading : selected === "Subject" ? subjectLoading
                             : selected === "Role" ? userRoleLoading : userLoading}
                 rowCount={rowCountState}

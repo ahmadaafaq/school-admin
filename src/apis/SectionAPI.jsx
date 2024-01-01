@@ -55,7 +55,7 @@ export const SectionAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateSection.name].handleRequestCancellation().signal : undefined,
     });
-  },
+  }
 };
 
 // defining the cancel API object for SectionAPI

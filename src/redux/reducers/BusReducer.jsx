@@ -13,7 +13,7 @@ const initialState = {
     loading: true
 };
 
-export const setBusReducer = (state = initialState, action) => {
+export const setBusesReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_BUSES:
             return {

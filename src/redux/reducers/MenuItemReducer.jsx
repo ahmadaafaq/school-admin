@@ -16,7 +16,8 @@ export const menuItemReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.MENU_ITEM:
             return {
-                ...state, selected: action.payload
+                ...state,
+                selected: action.payload
             };
         default:
             return state;
