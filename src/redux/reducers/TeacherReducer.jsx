@@ -13,7 +13,7 @@ const initialState = {
     loading: true
 };
 
-export const setTeacherReducer = (state = initialState, action) => {
+export const setTeachersReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_TEACHERS:
             return {

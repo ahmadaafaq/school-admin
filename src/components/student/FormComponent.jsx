@@ -20,7 +20,6 @@ import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setClasses } from "../../redux/actions/ClassAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -77,7 +76,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/${selected.toLowerCase()}/listing`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
                 };
                 setLoading(false);
             })
@@ -125,7 +124,7 @@ const FormComponent = () => {
                     })
                         .then(address => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -215,7 +214,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/${selected.toLowerCase()}/listing`)}>
+                    onClick={() => navigateTo(`/student/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}
