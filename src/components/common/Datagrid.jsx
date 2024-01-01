@@ -38,6 +38,7 @@ const ServerPaginationGrid = ({
     const [paginationModel, setPaginationModel] = useState(initialState);
     const amenityLoading = useSelector(state => state.allAmenities.loading);
     const busLoading = useSelector(state => state.allBuses.loading);
+    const marksheetLoading = useSelector(state => state.allMarksheets.loading);
     const classLoading = useSelector(state => state.allClasses.loading);
     const sectionLoading = useSelector(state => state.allSections.loading);
     const schoolLoading = useSelector(state => state.allSchools.loading);
@@ -130,8 +131,8 @@ const ServerPaginationGrid = ({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading : selected === "Class" ? classLoading
-                    : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classes.includes(selected) ?
+                loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading: selected === "Marksheet" ? marksheetLoading : selected === "Class" ? classLoading
+                    : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ?
                         studentLoading : selected === "Teacher" ? teacherLoading : selected === "Subject" ? subjectLoading
                             : selected === "Role" ? userRoleLoading : userLoading}
                 rowCount={rowCountState}

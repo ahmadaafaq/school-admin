@@ -338,6 +338,12 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 rolePriority={rolePriority}
                 menuVisibility={1}
               />
+               <SidebarItem
+                title="Marksheet"
+                to="/marksheet/listing"
+                icon={<FormatListBulletedIcon />}
+                selected={selected}
+              />
               <Divider />
             </>}
             {/* <SidebarItem
@@ -365,12 +371,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 selected={selected}
               />
             
-              <SidebarItem
-                title="Marksheet"
-                to="/employee/listing"
-                icon={<FormatListBulletedIcon />}
-                selected={selected}
-              /> */}
+              */}
           </Box>
         </Menu>
       </ProSidebar>

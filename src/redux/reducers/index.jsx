@@ -11,6 +11,7 @@ import { combineReducers } from "redux";
 import { authReducer } from "./AuthReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
+import { setMarksheetsReducer } from "./MarksheetReducer";
 import { setAmenitiesReducer } from "./AmenityReducer";
 import { setBusesReducer } from "./BusReducer";
 import { setClassesReducer } from "./ClassReducer";
@@ -27,6 +28,7 @@ const reducers = combineReducers({
     allAmenities: setAmenitiesReducer,
     allBuses: setBusesReducer,
     allClasses: setClassesReducer,
+    allMarksheets: setMarksheetsReducer,
     allSections: setSectionsReducer,
     allSchools: setSchoolsReducer,
     allStudents: setStudentsReducer,

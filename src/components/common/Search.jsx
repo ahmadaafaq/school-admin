@@ -52,7 +52,7 @@ const Search = ({
         <Box
             backgroundColor={colors.primary[400]}
             borderRadius="4px"
-            width="44vw"
+            width="40vw"
             height={isTab ? "4vh" : "auto"}
             position="relative"
         >
