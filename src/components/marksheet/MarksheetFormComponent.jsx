@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, colors } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -105,8 +105,10 @@ const UserFormComponent = ({
                         name="class"
                         label="Class"
                         autoComplete="new-class"
+                        value={cls}
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
+                        disabled={cls !== null} 
                     // value={formik.values.section}
                     // error={!!formik.touched.section && !!formik.errors.section}
                     // helperText={formik.touched.section && formik.errors.section}
@@ -118,8 +120,10 @@ const UserFormComponent = ({
                         name="section"
                         label="Section"
                         autoComplete="new-section"
+                        value={section}
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
+                        disabled={section !== null}
                     // value={formik.values.section}
                     // error={!!formik.touched.section && !!formik.errors.section}
                     // helperText={formik.touched.section && formik.errors.section}

@@ -15,7 +15,7 @@ import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/Mark
 
 function DropDown({ classes, sections }) {
     const dispatch = useDispatch();
-    const { findClassById } = Utility();
+    const { findClassById , findSectionById } = Utility();
 
     const handleClassChange = (event) => {
         const selectedCls = findClassById(event.target.value, classes);
@@ -23,8 +23,8 @@ function DropDown({ classes, sections }) {
     };
 
     const handleSectionChange = (event) => {
-        
-        dispatch(setMarksheetSection(event.target.value));
+        const selectedSection = findSectionById(event.target.value, sections);
+        dispatch(setMarksheetSection(selectedSection));
         // setSelectedSection(event.target.value);
         // onClassSectionChange(selectedClass, event.target.value);
     };
@@ -43,7 +43,7 @@ function DropDown({ classes, sections }) {
                     autoComplete="new-school_id"
                     onChange={handleClassChange}
                 >
-                    {classes.map(item => (
+                    {classes?.map(item => (
                         <MenuItem value={item.id} name={item.name} key={item.name}>
                             {item.name}
                         </MenuItem>
