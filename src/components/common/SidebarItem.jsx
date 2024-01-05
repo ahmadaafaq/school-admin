@@ -17,8 +17,15 @@ import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
 export const SidebarItem = ({
-    title, to, icon, selected, rolePriority, menuVisibility, className,
-    handleClassClick = null
+    title,
+    to,
+    icon,
+    selected,
+    rolePriority,
+    menuVisibility,
+    className,
+    handleClassClick = null,
+    isSubMenu = false
 }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -38,7 +45,10 @@ export const SidebarItem = ({
                 marginLeft: className ? '-15px' : 'auto',
                 marginRight: className ? '-15px' : 'auto'
             }}
-            onClick={() => {
+            onClick={(e) => {
+                if (isSubMenu) {
+                    e.stopPropagation();
+                }
                 handleClassClick ? handleClassClick() : null;
                 dispatch(setMenuItem(title));
                 setLocalStorage("menu", { selected: title });

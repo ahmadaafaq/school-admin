@@ -49,8 +49,6 @@ const ListingComponent = () => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
     const classId = URLParams ? URLParams.classId : null; // from url
-    // const [selectedClass, setSelectedClass] = useState(null);
-    // const [selectedSection, setSelectedSection] = useState(null);
 
     let classConditionObj = classId ? {
         key: 'classId',
@@ -62,7 +60,7 @@ const ListingComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-        useEffect(() => {
+    useEffect(() => {
         // Fetch classes from the backend
         API.ClassAPI.getAll(undefined, 0, 17)
             .then((data) => {
@@ -82,7 +80,7 @@ const ListingComponent = () => {
         }
     }, []);
 
-    
+
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
         reloadBtn.style.display = "none";

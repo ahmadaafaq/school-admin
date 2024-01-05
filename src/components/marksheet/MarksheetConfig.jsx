@@ -60,21 +60,14 @@ export const datagridColumns = () => {
             }
         },
         {
-            field: "blood_group",
-            headerName: "Blood Group",
+            field: "subjects",
+            headerName: "Subjects",
             headerAlign: "center",
             align: "center",
-            flex: 1,
-            minWidth: 100
+            flex: 2,
+            minWidth: 200
         },
-        {
-            field: "dob",
-            headerName: "DATE OF BIRTH",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
+        
         {
             field: "result",
             headerName: "RESULT",

@@ -5,28 +5,24 @@
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
 */
-import { useState, useEffect } from "react";
 import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 
-import API from "../../apis";
 import { useDispatch } from "react-redux";
 import { Utility } from "../utility";
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 
 function DropDown({ classes, sections }) {
     const dispatch = useDispatch();
-    const { findClassById } = Utility();
+    const { findSectionById } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedCls = findClassById(event.target.value, classes);
+        const selectedCls = classes.filter(value => value.id === event.target.value);
         dispatch(setMarksheetClass(selectedCls));
     };
 
     const handleSectionChange = (event) => {
-
-        dispatch(setMarksheetSection(event.target.value));
-        // setSelectedSection(event.target.value);
-        // onClassSectionChange(selectedClass, event.target.value);
+        const selectedSection = findSectionById(event.target.value, sections);
+        dispatch(setMarksheetSection(selectedSection));
     };
 
     return (
@@ -43,7 +39,7 @@ function DropDown({ classes, sections }) {
                     autoComplete="new-school_id"
                     onChange={handleClassChange}
                 >
-                    {classes?.length && classes.map(item => (
+                    {classes.map(item => (
                         <MenuItem value={item.id} name={item.name} key={item.name}>
                             {item.name}
                         </MenuItem>
