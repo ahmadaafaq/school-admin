@@ -55,6 +55,35 @@ export const TeacherAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateTeacher.name].handleRequestCancellation().signal : undefined,
     });
+  },
+
+  /** Insert data into teacher_class_subject mapping table in the database
+   */
+  insertIntoMappingTable: async (data, cancel = false) => {
+    console.log('api data=>', data)
+    return await api.request({
+      url: `/create-teacher-class-mapping`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "POST",
+      data: data,
+      signal: cancel ? cancelApiObject[this.insertIntoMappingTable.name].handleRequestCancellation().signal : undefined,
+    });
+  },
+
+  /** Get teacher class and section detail from database
+   */
+  getTeacherDetail: async (teacher_id, cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-teacher-detail/${teacher_id}`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "GET",
+      signal: cancel ? cancelApiObject[this.getTeacherDetail.name].handleRequestCancellation().signal : undefined,
+    });
+    return response;
   }
 };
 

@@ -28,9 +28,6 @@ const BusFormComponent = lazy(() => import("./components/bus/FormComponent"));
 
 const ClassListingComponent = lazy(() => import("./components/class/ListingComponent"));
 
-const MarksheetFormComponent = lazy(() => import("./components/marksheet/FormComponent"));
-const MarksheetListingComponent = lazy(() => import("./components/marksheet/ListingComponent"));
-
 const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"));
 const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"));
 
@@ -112,10 +109,6 @@ function App() {
 
                       <Route exact path="/class/listing" element={<ClassListingComponent />} />
 
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent/>}/>
-                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent/>}/>
-                      <Route exact path="/marksheet/update/:id" element={<StudentFormComponent />} />
-
                       <Route exact path="/school/create" element={<SchoolFormComponent />} />
                       <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
                       <Route exact path="/school/listing" element={<SchoolListingComponent />} />
@@ -124,7 +117,7 @@ function App() {
                       <Route exact path="/subject/listing" element={<SubjectListingComponent />} />
 
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
-                      <Route exact path="/student/create/:id" element={<StudentFormComponent />}/>
+                      <Route exact path="/student/create/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
                       <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />

@@ -55,8 +55,22 @@ export const ClassAPI = {
             data: fields,
             signal: cancel ? cancelApiObject[this.updateClass.name].handleRequestCancellation().signal : undefined,
         });
+    },
+
+    /** Get class and section list by joining 2 tables from the database
+     */
+    getClassSectionList: async (cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-class-section-list`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "GET",
+            signal: cancel ? cancelApiObject[this.getClassSectionList.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
     }
-}
+};
 
 // defining the cancel API object for ClassAPI
 const cancelApiObject = defineCancelApiObject(ClassAPI);

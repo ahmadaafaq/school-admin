@@ -154,7 +154,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
           color: `${colors.primary[100]}`
         },
         "& .pro-inner-list-item": {
-          height: `${isSubMenuOpen ? "100px" : "0"}` + " !important",
+          height: `${isSubMenuOpen ? "100px" : "0"}`,
           overflow: isSubMenuOpen ? "scroll" : "hidden",
           transition: 'height 0.3s ease-in-out !important'
         }
