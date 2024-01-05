@@ -15,6 +15,7 @@ function DropDown({ classes, sections }) {
     const dispatch = useDispatch();
     const { findSectionById } = Utility();
 
+
     const handleClassChange = (event) => {
         const selectedCls = classes.filter(value => value.id === event.target.value);
         dispatch(setMarksheetClass(selectedCls));
@@ -24,23 +25,25 @@ function DropDown({ classes, sections }) {
         const selectedSection = findSectionById(event.target.value, sections);
         dispatch(setMarksheetSection(selectedSection));
     };
-
+    console.log("CASSES", classes, sections)
+    
     return (
         <Box sx={{ display: "flex", marginRight: "10px", marginLeft: "10px" }}>
             <FormControl variant="filled" sx={{ minWidth: 120, marginRight: "10px" }}
             // error={!!school_id && !!errors.school_id}
             >
-                <InputLabel id="schoolField">Select Class</InputLabel>
+                <InputLabel id="classfield">Select Class</InputLabel>
                 <Select
-                    variant="filled"
+                    variant="outlined"
                     labelId="classfield"
                     label="class"
-                    name="school_id"
+                    name="class_id"
                     autoComplete="new-school_id"
                     onChange={handleClassChange}
+                    sx={{backgroundColor:"white"}}
                 >
-                    {classes.map(item => (
-                        <MenuItem value={item.id} name={item.name} key={item.name}>
+                    {classes?.length && classes?.map(item => (
+                        <MenuItem value={item.id} key={item.name}>
                             {item.name}
                         </MenuItem>
                     ))}
@@ -49,17 +52,18 @@ function DropDown({ classes, sections }) {
             <FormControl variant="filled" sx={{ minWidth: 120 }}
             // error={!!school_id && !!errors.school_id}
             >
-                <InputLabel id="schoolField">Select Section</InputLabel>
+                <InputLabel id="sectionfield">Select Section</InputLabel>
                 <Select
                     variant="filled"
                     labelId="sectionfield"
                     label="section"
-                    name="school_id"
+                    name="section_id"
                     autoComplete="new-school_id"
                     onChange={handleSectionChange}
+                    sx={{backgroundColor:"white"}}
                 >
                     {sections?.length && sections.map(item => (
-                        <MenuItem value={item.id} name={item.name} key={item.name}>
+                        <MenuItem value={item.id} key={item.name}>
                             {item.name}
                         </MenuItem>
                     ))}

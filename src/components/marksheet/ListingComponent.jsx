@@ -62,8 +62,9 @@ const ListingComponent = () => {
 
     useEffect(() => {
         // Fetch classes from the backend
-        API.ClassAPI.getAll(undefined, 0, 17)
+        API.ClassAPI.getAll(false, 0, 17)
             .then((data) => {
+                console.log("HEyy", data.data.rows)
                 setClasses(data.data.rows);
             })
             .catch((error) => console.error("Error fetching classes:", error));
@@ -91,7 +92,7 @@ const ListingComponent = () => {
         });
     };
 
-
+    console.log('hjhkhj', classes, sections)
     return (
         <Box m="8px" position="relative">
             <Box
@@ -124,11 +125,14 @@ const ListingComponent = () => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    <DropDown classes={classes} sections={sections} />
+                    {classes.length && sections.length &&
+                        <DropDown classes={classes} sections={sections} />
+                    }
                     <Button
                         type="submit"
                         color="success"
                         variant="contained"
+                      
                         onClick={() => { navigateTo(`/marksheet/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
