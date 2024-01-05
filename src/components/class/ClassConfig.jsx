@@ -22,11 +22,18 @@ export const datagridColumns = (handleDialogOpen) => {
         handleDialogOpen();
         navigateTo("#", { state: { id: id } });
     };
-
     const columns = [
         {
             field: "name",
             headerName: "NAME",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 120
+        },
+        {
+            field: "subjects",
+            headerName: "SUBJECTS",
             headerAlign: "center",
             align: "center",
             flex: 1,

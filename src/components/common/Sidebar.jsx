@@ -266,10 +266,21 @@ const Sidebar = ({ roleName, rolePriority }) => {
             />
             <Divider />
             <SidebarItem
+              title="Marksheet"
+              to="/marksheet/listing"
+              icon={<FormatListBulletedIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <Divider />
+            <SidebarItem
               title="Bus"
               to="/bus/listing"
               icon={<DirectionsBusIcon />}
               selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
             />
             <Divider />
             {rolePriority < 2 && <>
@@ -323,12 +334,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
-              />
-              <SidebarItem
-                title="Marksheet"
-                to="/marksheet/listing"
-                icon={<FormatListBulletedIcon />}
-                selected={selected}
               />
               <Divider />
             </>}

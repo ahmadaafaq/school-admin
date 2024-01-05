@@ -18,8 +18,11 @@ function DropDown({ classes, sections }) {
     const { findClassById , findSectionById } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedCls = findClassById(event.target.value, classes);
+        console.log("CASSES",classes,"BBBB",event.target.value )
+        const selectedCl = findClassById(event.target.value, classes); // 7
+        const selectedCls = classes.filter(value => value.id === event.target.value );
         dispatch(setMarksheetClass(selectedCls));
+        console.log("data", selectedCls);
     };
 
     const handleSectionChange = (event) => {
@@ -44,7 +47,7 @@ function DropDown({ classes, sections }) {
                     onChange={handleClassChange}
                 >
                     {classes?.map(item => (
-                        <MenuItem value={item.id} name={item.name} key={item.name}>
+                        <MenuItem value={item.id} name={item.name} key={item.id}>
                             {item.name}
                         </MenuItem>
                     ))}
