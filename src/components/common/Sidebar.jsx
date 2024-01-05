@@ -44,11 +44,11 @@ import "../common/index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
 
-const Sidebar = ({ roleName, rolePriority }) => {
+const Sidebar = ({ rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [allClasses, setAllClasses] = useState([]);
-  const selected = useSelector(state => state.menuItems.selected);
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
+  const selected = useSelector(state => state.menuItems.selected);
   const location = useLocation();
 
   const theme = useTheme();
@@ -56,9 +56,8 @@ const Sidebar = ({ roleName, rolePriority }) => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
-  const toggleSubMenu = (event) => {
+  const toggleSubMenu = () => {
     setIsubMenuOpen(!isSubMenuOpen);
-    console.log("SUBMENU", isSubMenuOpen)
   };
 
   useEffect(() => {
@@ -141,8 +140,9 @@ const Sidebar = ({ roleName, rolePriority }) => {
           color: `${colors.primary[100]}`
         },
         "& .pro-inner-list-item": {
-          height: `${isSubMenuOpen ? "110px" : "0"}` + " !important",
-          overflowY: isSubMenuOpen ? "scroll" : "hidden"
+          height: `${isSubMenuOpen ? "100px" : "0"}` + " !important",
+          overflow: isSubMenuOpen ? "scroll" : "hidden",
+          transition: 'height 0.3s ease-in-out !important'
         }
       }}
     >
@@ -211,7 +211,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
 
             <Box>
               {isCollapsed && isSubMenuOpen ? (
-                <SubMenu onClick={(event) => { event.stopPropagation(); console.log('sub menu click') }}
+                <SubMenu onClick={(event) => event.stopPropagation()}
                   title="Student"
                   icon={<PeopleOutlinedIcon />}
                 >

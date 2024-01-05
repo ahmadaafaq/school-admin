@@ -10,10 +10,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Formik, useFormik } from "formik";
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography, Autocomplete } from "@mui/material";
 import { Button, Dialog, Select, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
+import { Formik } from "formik";
 
 import API from "../../apis";
 import Loader from "../common/Loader";
@@ -45,13 +45,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [initialState, setInitialState] = useState(initialValues);
+    const [subjects, setSubjects] = useState([]);       //for subject table in class component
 
     const navigateTo = useNavigate();
-    const formik = useFormik({
-        initialValues: initialState,
-        enableReinitialize: true,
-        onSubmit: () => watchForm()
-    });
     const dispatch = useDispatch();
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -59,10 +55,8 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
     const { toastAndNavigate, getLocalStorage } = Utility();
-    const [subjects, setSubjects] = useState([]);       //for subject table in class component
 
     let id = state?.id;
-    console.log("state.id=>", id)
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -96,7 +90,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/class/listing`,location.reload());
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/class/listing`, location.reload());
                 } else {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "error", "An Error Occurred. Please Try Again", navigateTo, location.reload());
@@ -119,6 +113,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const populateData = (id) => {
         setLoading(true);
         const path = [`/get-by-pk/class/${id}`];
+
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 if (response[0].data.status === "Success") {
@@ -130,9 +125,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
                 }
-                const dataObj = {
-                    classData: response[0].data.data,
-                };
             })
             .catch(err => {
                 setLoading(false);
@@ -144,12 +136,10 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     //taking out only the id from subjects object from formData.jobSeekerData.values.subjects
     function getSelectedSubjects(subjects) {
-        console.log('suects', subjects)
         let subjectId = [];          //using traditional function statement for hoisting
         subjects?.forEach(subject => {
             subjectId.push(subject.id);
         });
-        console.log(subjectId, 'ids')
         return subjectId.toString();
     };
 
@@ -171,12 +161,12 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                     }, 2000);
                 } else {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again",  navigateTo, location.reload());
+                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred",  navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
                 throw err;
             });
     };
@@ -187,7 +177,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         const getsubjects = () => {
             API.SubjectAPI.getAll(false, 0, 30)
                 .then(subjects => {
-                    console.log('allsub', subjects)
                     if (subjects.status === 'Success') {
                         setSubjects(subjects.data.rows);
                     } else {
@@ -200,14 +189,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         };
         getsubjects();
     }, []);
-
-    //Create/Update/Populate class
-    // useEffect(() => {
-    //     if (id && subjects) {
-    //         setTitle("Update");
-    //         populateData(id);
-    //     }
-    // }, [id, subjects]);
 
     return (
         <div>

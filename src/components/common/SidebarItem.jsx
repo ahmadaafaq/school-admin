@@ -17,8 +17,15 @@ import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
 export const SidebarItem = ({
-    title, to, icon, selected, rolePriority, menuVisibility, className,
-    handleClassClick = null, isSubMenu = false
+    title,
+    to,
+    icon,
+    selected,
+    rolePriority,
+    menuVisibility,
+    className,
+    handleClassClick = null,
+    isSubMenu = false
 }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -40,7 +47,7 @@ export const SidebarItem = ({
             }}
             onClick={(e) => {
                 if (isSubMenu) {
-                    e.stopPropagation(); console.log('sub menu click');
+                    e.stopPropagation();
                 }
                 handleClassClick ? handleClassClick() : null;
                 dispatch(setMenuItem(title));

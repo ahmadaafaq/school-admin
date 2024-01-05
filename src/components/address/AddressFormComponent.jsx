@@ -11,6 +11,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useFormik } from "formik";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, useMediaQuery } from "@mui/material";
 
+import './index.css';
 import API from "../../apis";
 import addressValidation from "./Validation";
 const initialValues = {
@@ -158,8 +159,12 @@ const AddressFormComponent = ({
                     display="grid"
                     gap="30px"
                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                    position='relative'
+                    id='box-shadow'
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                        transform: 'translate(0)',
+                        transformStyle: 'preserve-3d',
                     }}
                 >
                     <TextField

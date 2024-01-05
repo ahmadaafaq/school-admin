@@ -34,6 +34,7 @@ const FormComponent = () => {
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
+    const [combinedClass, setCombinedClass] = useState([]);     //for teacher form component
 
     const teacherFormRef = useRef();
     const addressFormRef = useRef();
@@ -89,17 +90,20 @@ const FormComponent = () => {
 
     const populateTeacherData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`];
+        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`, `/get-teacher-detail/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
+                console.log('res=>', responses)
                 if (responses[0].data.data) {
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                 }
                 const dataObj = {
-                    teacherData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
+                    teacherData: {
+                        teacherData: responses[0].data.data,
+                        selectedClass: responses[2]?.data?.data,
+                    },
+                    addressData: responses[1]?.data?.data,
                 };
-                console.log(dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -111,22 +115,38 @@ const FormComponent = () => {
     };
 
     const createTeacher = () => {
+        let promise1;
+        let promise2;
         setLoading(true);
+
         API.TeacherAPI.createTeacher({ ...formData.teacherData.values })
             .then(({ data: teacher }) => {
                 if (teacher?.status === 'Success') {
-                    API.AddressAPI.createAddress({
+                    promise1 = API.AddressAPI.createAddress({
                         ...formData.addressData.values,
                         parent_id: teacher.data.id,
                         parent: 'teacher',
-                    })
-                        .then(address => {
+                    });
+
+                    promise2 = formData.teacherData.values.combinedClsSect.map((innerArray, index) => {
+                        const class_subject = formData.teacherData.values?.subject[index] || 0;
+                        // Associating each inner array with a subject
+                        innerArray.map(classData => {
+                            console.log('got', classData.class_id, classData.section_id, class_subject);
+                            API.TeacherAPI.insertIntoMappingTable(
+                                [teacher.data.id, classData.class_id, classData.section_id, class_subject]
+                            )
+                        })
+                    });
+
+                    return Promise.all([promise1, promise2])
+                        .then(data => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
                         })
                         .catch(err => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
+                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                             throw err;
                         });
                 };
@@ -138,9 +158,23 @@ const FormComponent = () => {
             });
     };
 
+    useEffect(() => {
+        API.ClassAPI.getClassSectionList()
+            .then(data => {
+                if (data.status === 'Success') {
+                    setCombinedClass(data.data);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
+
     //Create/Update/Populate teacher
     useEffect(() => {
-        if (id && !submitted) {
+        if (id && !submitted && combinedClass) {
             setTitle("Update");
             populateTeacherData(id);
         }
@@ -162,7 +196,6 @@ const FormComponent = () => {
             setFormData({ ...formData, addressData: data });
     };
 
-
     return (
         <Box m="10px">
             <Typography
@@ -183,7 +216,9 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
-                userId={id}
+                teacherId={id}
+                combinedClass={combinedClass}
+                setCombinedClass={setCombinedClass}
                 updatedValues={updatedValues?.teacherData}
             />
             <AddressFormComponent
