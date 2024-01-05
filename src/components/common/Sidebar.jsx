@@ -47,10 +47,8 @@ import dpsImg from "../assets/dps.png";
 const Sidebar = ({ roleName, rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [allClasses, setAllClasses] = useState([]);
-
   const selected = useSelector(state => state.menuItems.selected);
-  const submenuRef = useRef(null);
-  const isSubMenuOpen = useRef(false);
+  const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
   const location = useLocation();
 
   const theme = useTheme();
@@ -58,21 +56,9 @@ const Sidebar = ({ roleName, rolePriority }) => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (submenuRef.current && !submenuRef.current.contains(event.target)) {
-        // Clicked outside the sidebar to close submenu
-        console.log('japan');
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, []);
-
-  const toggleSubMenu = () => {
-    isSubMenuOpen.current = !isSubMenuOpen.current;
+  const toggleSubMenu = (event) => {
+    setIsubMenuOpen(!isSubMenuOpen);
+    console.log("SUBMENU", isSubMenuOpen)
   };
 
   useEffect(() => {
@@ -110,6 +96,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
         selected={selected}
         rolePriority={rolePriority}
         menuVisibility={4}
+        isSubMenu={true}
       />
     ));
   };
@@ -154,14 +141,13 @@ const Sidebar = ({ roleName, rolePriority }) => {
           color: `${colors.primary[100]}`
         },
         "& .pro-inner-list-item": {
-          height: `${isSubMenuOpen ? "100px" : "0"}` + " !important",
-          overflow: isSubMenuOpen ? "scroll" : "hidden",
-          transition: 'height 0.3s ease-in-out !important'
+          height: `${isSubMenuOpen ? "110px" : "0"}` + " !important",
+          overflowY: isSubMenuOpen ? "scroll" : "hidden"
         }
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
-        <Menu iconShape="square">
+        <Menu iconShape="square" onClick={(event) => toggleSubMenu(event)}>
           {/* LOGO AND MENU ICON */}
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -223,9 +209,9 @@ const Sidebar = ({ roleName, rolePriority }) => {
             />
             <Divider />
 
-            <Box onClick={(event) => { event.stopPropagation(); toggleSubMenu(); }}>
-              {isCollapsed && isSubMenuOpen.current ? (
-                <SubMenu
+            <Box>
+              {isCollapsed && isSubMenuOpen ? (
+                <SubMenu onClick={(event) => { event.stopPropagation(); console.log('sub menu click') }}
                   title="Student"
                   icon={<PeopleOutlinedIcon />}
                 >
@@ -244,7 +230,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
                   <SubMenu
                     title="All Students"
                     icon={<PeopleOutlinedIcon />}
-                    ref={submenuRef}
                   >
                     <SidebarItem
                       title="Student"
@@ -253,6 +238,7 @@ const Sidebar = ({ roleName, rolePriority }) => {
                       selected={selected}
                       rolePriority={rolePriority}
                       menuVisibility={4}
+                      isSubMenu={true}
                     />
                     {renderNotCollapsedStudents()}
                   </SubMenu>
@@ -280,10 +266,21 @@ const Sidebar = ({ roleName, rolePriority }) => {
             />
             <Divider />
             <SidebarItem
+              title="Marksheet"
+              to="/marksheet/listing"
+              icon={<FormatListBulletedIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <Divider />
+            <SidebarItem
               title="Bus"
               to="/bus/listing"
               icon={<DirectionsBusIcon />}
               selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
             />
             <Divider />
             {rolePriority < 2 && <>
@@ -337,12 +334,6 @@ const Sidebar = ({ roleName, rolePriority }) => {
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
-              />
-               <SidebarItem
-                title="Marksheet"
-                to="/marksheet/listing"
-                icon={<FormatListBulletedIcon />}
-                selected={selected}
               />
               <Divider />
             </>}

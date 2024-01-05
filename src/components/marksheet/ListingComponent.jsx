@@ -67,6 +67,7 @@ const ListingComponent = () => {
         API.ClassAPI.getAll(undefined, 0, 17)
             .then((data) => {
                 setClasses(data.data.rows);
+                console.log("ABCDEDJ",data.data.rows)
             })
             .catch((error) => console.error("Error fetching classes:", error));
     }, []);

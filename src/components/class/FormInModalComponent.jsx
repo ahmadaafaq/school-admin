@@ -6,12 +6,12 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Formik } from "formik";
-import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
+import { Formik, useFormik } from "formik";
+import { Box, Divider, InputLabel, MenuItem, FormControl, Typography, Autocomplete } from "@mui/material";
 import { Button, Dialog, Select, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 
@@ -26,7 +26,8 @@ import classValidation from "./Validation";
 
 const initialValues = {
     name: "",
-    status: "inactive"
+    status: "inactive",
+    subjects: [],
 };
 
 const FormComponent = ({ openDialog, setOpenDialog }) => {
@@ -46,6 +47,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [initialState, setInitialState] = useState(initialValues);
 
     const navigateTo = useNavigate();
+    const formik = useFormik({
+        initialValues: initialState,
+        enableReinitialize: true,
+        onSubmit: () => watchForm()
+    });
     const dispatch = useDispatch();
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -53,6 +59,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
     const { toastAndNavigate, getLocalStorage } = Utility();
+    const [subjects, setSubjects] = useState([]);       //for subject table in class component
 
     let id = state?.id;
     console.log("state.id=>", id)
@@ -60,36 +67,53 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
-        if (id) {
+        if (id && subjects) {
             setTitle("Update");
             populateData(id);
         } else {
             setTitle("Create");
             setInitialState(initialValues);
         }
-    }, [id]);
+    }, [id, subjects]);
 
-    const updateClass = (values) => {
+    const updateClass = useCallback(values => {
+        const dataFields = [
+            {
+                ...values,
+                subjects: getSelectedSubjects(values.subjects),
+            },
+        ];
+        const paths = ["/update-class"];
         setLoading(true);
-        API.ClassAPI.updateClass(values)
-            .then(({ data: classs }) => {
-                if (classs.status === 'Success') {
+
+        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
+            .then(responses => {
+                let status = true;
+                responses.forEach(response => {
+                    if (response.data.status !== "Success") {
+                        status = false;
+                    }
+                });
+                if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated");
-                    setTimeout(() => {
-                        handleDialogClose();
-                        location.href = "/class/listing";     //same as location.reload()
-                    }, 2000);
-                } else {          //without settimeout, the page is reloaded immediately, which
-                    setLoading(false);      //we do when there is error in updating, not when success
-                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/class/listing`,location.reload());
+                } else {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "error", "An Error Occurred. Please Try Again", navigateTo, location.reload());
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
+    }, []);
+
+    const getSelectedSubjectsByName = (dataObj) => {
+        const objId = dataObj?.split(",");
+        if (objId) {
+            return subjects.filter(subjects => objId.includes(subjects.id.toString()));
+        }
     };
 
     const populateData = (id) => {
@@ -98,12 +122,17 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 if (response[0].data.status === "Success") {
+                    response[0].data.data.subjects = getSelectedSubjectsByName(response[0].data.data?.subjects);
                     setInitialState(response[0].data.data);
                     setLoading(false);
-                } else {
+                }
+                else {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
                 }
+                const dataObj = {
+                    classData: response[0].data.data,
+                };
             })
             .catch(err => {
                 setLoading(false);
@@ -112,8 +141,25 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             });
     };
 
+
+    //taking out only the id from subjects object from formData.jobSeekerData.values.subjects
+    function getSelectedSubjects(subjects) {
+        console.log('suects', subjects)
+        let subjectId = [];          //using traditional function statement for hoisting
+        subjects?.forEach(subject => {
+            subjectId.push(subject.id);
+        });
+        console.log(subjectId, 'ids')
+        return subjectId.toString();
+    };
+
     const createClass = (values) => {
+        console.log(values.subjects)
         setLoading(true);
+        values = {
+            ...values,
+            subjects: getSelectedSubjects(values?.subjects),
+        }
         API.ClassAPI.createClass(values)
             .then(({ data: classs }) => {
                 if (classs?.status === 'Success') {
@@ -125,16 +171,43 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                     }, 2000);
                 } else {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
+                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again",  navigateTo, location.reload());
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred",  navigateTo, location.reload());
                 throw err;
             });
     };
 
+
+    //get all subjects from subject table stored in db before populating data
+    useEffect(() => {
+        const getsubjects = () => {
+            API.SubjectAPI.getAll(false, 0, 30)
+                .then(subjects => {
+                    console.log('allsub', subjects)
+                    if (subjects.status === 'Success') {
+                        setSubjects(subjects.data.rows);
+                    } else {
+                        console.log("Error, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+        };
+        getsubjects();
+    }, []);
+
+    //Create/Update/Populate class
+    // useEffect(() => {
+    //     if (id && subjects) {
+    //         setTitle("Update");
+    //         populateData(id);
+    //     }
+    // }, [id, subjects]);
 
     return (
         <div>
@@ -176,7 +249,8 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                         handleBlur,
                         handleChange,
                         handleSubmit,
-                        resetForm
+                        resetForm,
+                        setFieldValue
                     }) => (
                         <form onSubmit={handleSubmit}>
                             <Box display="grid" gap="30px" gridTemplateColumns="repeat(2, minmax(0, 1fr))" padding="20px">
@@ -192,6 +266,27 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                     error={!!touched.name && !!errors.name}
                                     helperText={touched.name && errors.name}
                                 />
+                                <Autocomplete
+                                    multiple
+                                    options={subjects}
+                                    getOptionLabel={option => option.name}
+                                    disableCloseOnSelect
+                                    value={values.subjects}
+                                    onChange={(event, value) => setFieldValue("subjects", value)}
+                                    sx={{ gridColumn: "span 1" }}
+                                    renderInput={params => (
+                                        <TextField
+                                            {...params}
+                                            variant="filled"
+                                            type="text"
+                                            name="subjects"
+                                            label="subjects"
+                                            error={!!touched.subjects && !!errors.subjects}
+                                            helperText={touched.subjects && errors.subjects}
+                                        />
+                                    )}
+                                />
+
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
                                     error={!!touched.status && !!errors.status}
                                 >

@@ -157,6 +157,16 @@ export const Utility = () => {
         return found ? found.name : null;
     };
 
+    /** Finds and returns the name of a subject based on its ID from an array of subject objects
+     */
+    const findSubjectById = (subjectId, subjectData) => {
+        let found = '';
+        if (subjectData) {
+            found = subjectData.find(sub => sub.id === subjectId);
+        }
+        return found ? found.name : null;
+    };
+
     /** Appends the appropriate suffix ('th', 'rd', 'nd', 'st') to a given number
      */
     const appendSuffix = (num) => {
@@ -207,6 +217,7 @@ export const Utility = () => {
         createSchoolCode,
         findClassById,
         findSectionById,
+        findSubjectById,
         getInitials,
         getNameAndType,
         getLocalStorage,

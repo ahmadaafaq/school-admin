@@ -15,7 +15,7 @@ const initialState = {
     loading: true
 };
 
-export const setMarksheetReducer = (state = initialState, action) => {
+export const setMarksheetsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.MARKSHEET_CLASS:
             return {
