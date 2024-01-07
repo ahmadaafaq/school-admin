@@ -16,6 +16,7 @@ export default ({ mode }) => {
 
   return defineConfig({
     plugins: [react()],
+    base: "/school-admin/",
     resolve: {
       alias: [
         {
