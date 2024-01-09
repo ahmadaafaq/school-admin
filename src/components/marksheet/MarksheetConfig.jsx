@@ -49,9 +49,6 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                // let className = findClassById(params?.row?.class, listData);
-                let className = 2;
-                // console.log('coonfig', className, listData)
                 return (
                     <div>
                         {params.row.class} {params.row.section}

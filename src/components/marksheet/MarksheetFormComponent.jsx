@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, colors } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, colors, Divider } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -20,8 +20,9 @@ import { useSelector } from "react-redux";
 import { Utility } from "../utility";
 
 const initialValues = {
-    class: "",
-    section: "",
+    class:  "" ,
+    section: "" ,
+    student: "", 
     name: "",
     subjects: [],
     term: "",
@@ -29,7 +30,7 @@ const initialValues = {
     total_marks: "",
     grade: "",
     remark: "",
-    result: "",
+    result: ""
 
 };
 
@@ -43,13 +44,11 @@ const UserFormComponent = ({
     updatedValues = null,
 }) => {
 
-    const { cls, section } = useSelector(state => state.allMarksheets);
+    const { cls, section, students } = useSelector(state => state.allMarksheets);
     const [initialState, setInitialState] = useState(initialValues);
     const [subjects, setSubjects] = useState([]);
     const [filteredSubjects, setFilteredSubjects] = useState([]);
 
-    const { listData } = useSelector(state => state.allClasses);
-    const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { findSubjectById } = Utility();
@@ -118,13 +117,11 @@ const UserFormComponent = ({
         let yes = [];
         cls[0]?.subjects.split(',').map(sub => {
             yes.push(findSubjectById(parseInt(sub), subjects));
-            console.log('selected sujects are=>', yes)
         })
         if (yes.length) {
             setFilteredSubjects(yes);
         }
     }, [subjects]);
-    console.log(filteredSubjects, 'filter')
 
     return (
         <Box m="20px">
@@ -134,22 +131,9 @@ const UserFormComponent = ({
                     gap="10px"
                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },marginBottom:"10px"
+                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginBottom: "10px"
                     }}
                 >
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="name"
-                        label="Name*"
-                        autoComplete="new-name"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.name}
-                        error={!!formik.touched.name && !!formik.errors.name}
-                        helperText={formik.touched.name && formik.errors.name}
-                    />
                     <TextField
                         fullWidth
                         variant="filled"
@@ -160,11 +144,10 @@ const UserFormComponent = ({
                         value={cls[0]?.name}
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-
-                    // value={formik.values.section}
-                    // error={!!formik.touched.section && !!formik.errors.section}
-                    // helperText={formik.touched.section && formik.errors.section}
+                        error={!!formik.touched.section && !!formik.errors.section}
+                        helperText={formik.touched.section && formik.errors.section}
                     />
+
                     <TextField
                         fullWidth
                         variant="filled"
@@ -175,10 +158,29 @@ const UserFormComponent = ({
                         value={section}
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-                    // value={formik.values.section}
-                    // error={!!formik.touched.section && !!formik.errors.section}
-                    // helperText={formik.touched.section && formik.errors.section}
+                        error={!!formik.touched.section && !!formik.errors.section}
+                        helperText={formik.touched.section && formik.errors.section}
                     />
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}>
+                        <InputLabel id="studentField">Student</InputLabel>
+                        <Select
+                            labelId="studentField"
+                            label="Student"
+                            name="student"
+                            autoComplete="new-student"
+                            value={formik.values.student}
+                            onChange={formik.handleChange}
+                        >
+                            {students?.data?.map(student => {
+                                return (
+                                    <MenuItem key={student.id} value={student.id}>
+                                        {student.firstname} {student.lastname}
+                                    </MenuItem>
+                                )
+                            })}
+                        </Select>
+                        <FormHelperText>{formik.touched.student && formik.errors.student}</FormHelperText>
+                    </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.term && !!formik.errors.term}
                     >
@@ -192,94 +194,90 @@ const UserFormComponent = ({
                             value={formik.values.term}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>I</MenuItem>
-                            <MenuItem value={"inactive"}>II</MenuItem>
+                            <MenuItem value={"I"}>I</MenuItem>
+                            <MenuItem value={"II"}>II</MenuItem>
+                            <MenuItem value={"III"}>III</MenuItem>
                         </Select>
                         <FormHelperText>{formik.touched.result && formik.errors.term}</FormHelperText>
                     </FormControl>
-                    <Box style={{ display: 'grid', gap: '10px', width:"84vh",  gridTemplateColumns:"repeat(2, minmax(0, 1fr))"  }}>
-                        {filteredSubjects?.length && filteredSubjects.map((subject, index) => (
-                            <div key={index} style={{ display: 'flex', flexDirection: 'column' }}>
-                                <div>{subject}</div>
-                                <TextField
-                                    fullWidth
-                                    variant="filled"
-                                    type="text"
-                                    autoComplete={`marks-${index}`}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    value={formik.values.marks && formik.values.marks[index]}
-                                />
-                            </div>
-                        ))}
-                    </Box>
                 </Box>
-                <Box
-                    display="grid"
+                <Box style={{ display: 'grid', gap: '10px', width: '171vh', gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
+                    {filteredSubjects?.length && filteredSubjects.map((subject, index) => (
+                        <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '10px', }}>
+                            <Box style={{ width: "28vh", marginTop: "20px" }}>{subject}</Box>
+                            {/* Add individual fields for each subject */}
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                type="text"
+                                name={`marks_obtained_${index}`} // Use a unique name for each subject
+                                label={`Marks obtained*`}
+                                autoComplete={`new-marks-${index}`}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                value={formik.values[`marks_obtained_${index}`]}
+                                error={!!formik.touched[`marks_obtained_${index}`] && !!formik.errors[`marks_obtained_${index}`]}
+                                helperText={formik.touched[`marks_obtained_${index}`] && formik.errors[`marks_obtained_${index}`]}
+                                sx={{ width: "26vh" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                type="text"
+                                name={`total_marks_${index}`} // Use a unique name for each subject
+                                label={`Total marks *`}
+                                autoComplete={`new-marks-${index}`}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                value={formik.values[`total_marks_${index}`]}
+                                error={!!formik.touched[`total_marks_${index}`] && !!formik.errors[`total_marks_${index}`]}
+                                helperText={formik.touched[`total_marks_${index}`] && formik.errors[`total_marks_${index}`]}
+                                sx={{ width: "26vh", marginLeft: "-41px" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                type="text"
+                                name={`grade_${index}`} // Use a unique name for each grade field
+                                label={`Grade*`}
+                                autoComplete={`new-grades-${index}`}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                value={formik.values[`grade_${index}`]} // Use the index here
+                                error={!!formik.touched[`grade_${index}`] && !!formik.errors[`grade_${index}`]}
+                                helperText={formik.touched[`grade_${index}`] && formik.errors[`grade_${index}`]}
+                                sx={{ width: "15vh", marginLeft: "-14vh" }}
+                            />
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                type="text"
+                                name={`remark_${index}`} // Use a unique name for each remark field
+                                label={`Remark`}
+                                autoComplete={`new-remarks-${index}`}
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                value={formik.values[`remark_${index}`]} // Use the index here
+                                error={!!formik.touched[`remark_${index}`] && !!formik.errors[`remark_${index}`]}
+                                helperText={formik.touched[`remark_${index}`] && formik.errors[`remark_${index}`]}
+                                sx={{ width: "65vh", marginLeft: "-32vh" }}
+                            />
+                        </div>
+                    ))}
+                </Box>
+
+                <Box display="grid"
                     gap="10px"
                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-                    }}
-                >
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="marks_obtained"
-                        label="Marks obtained*"
-                        autoComplete="new-marks"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.marks_obtained}
-                        error={!!formik.touched.marks_obtained && !!formik.errors.marks_obtained}
-                        helperText={formik.touched.marks_obtained && formik.errors.marks_obtained}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="total_marks"
-                        label="total marks*"
-                        autoComplete="new-marks"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.total_marks}
-                        error={!!formik.touched.total_marks && !!formik.errors.total_marks}
-                        helperText={formik.touched.total_marks && formik.errors.total_marks}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="grade"
-                        label="grade*"
-                        autoComplete="new-grades"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.grade}
-                        error={!!formik.touched.grade && !!formik.errors.grade}
-                        helperText={formik.touched.grade && formik.errors.grade}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="remark"
-                        label="remark"
-                        autoComplete="new-remarks"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.remark}
-                        error={!!formik.touched.remark && !!formik.errors.remark}
-                        helperText={formik.touched.remark && formik.errors.remark}
-                    />
+                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginTop: "30px"
+                    }}>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.result && !!formik.errors.result}
                     >
                         <InputLabel id="resultField">result</InputLabel>
                         <Select
-                            variant="filled"
+                            variant="outlined"
                             labelId="resultField"
                             label="Result"
                             name="result"
@@ -289,6 +287,7 @@ const UserFormComponent = ({
                         >
                             <MenuItem value={"active"}>Pass</MenuItem>
                             <MenuItem value={"inactive"}>Fail</MenuItem>
+                            <MenuItem value={"inactive"}>Not Declared Yet</MenuItem>
                         </Select>
                         <FormHelperText>{formik.touched.result && formik.errors.result}</FormHelperText>
                     </FormControl>

@@ -35,8 +35,6 @@ const ListingComponent = () => {
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
 
-    const [classes, setClasses] = useState([]);
-    const [sections, setSections] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const { listData } = useSelector(state => state.allMarksheets);
 
@@ -60,27 +58,6 @@ const ListingComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    useEffect(() => {
-        // Fetch classes from the backend
-        API.ClassAPI.getAll(undefined, 0, 17)
-            .then((data) => {
-                setClasses(data.data.rows);
-            })
-            .catch((error) => console.error("Error fetching classes:", error));
-    }, []);
-
-    useEffect(() => {
-        // Fetch sections based on the selected class
-        if (classes) {
-            API.SectionAPI.getAll()
-                .then((data) => {
-                    setSections(data.data.rows);
-                })
-                .catch((error) => console.error("Error fetching sections:", error));
-        }
-    }, []);
-
-
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
         reloadBtn.style.display = "none";
@@ -90,7 +67,6 @@ const ListingComponent = () => {
             oldPagination
         });
     };
-
 
     return (
         <Box m="8px" position="relative">
@@ -124,11 +100,13 @@ const ListingComponent = () => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    <DropDown classes={classes} sections={sections} />
+                        <DropDown />
+                    
                     <Button
                         type="submit"
                         color="success"
                         variant="contained"
+
                         onClick={() => { navigateTo(`/marksheet/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >

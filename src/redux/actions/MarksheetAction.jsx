@@ -30,4 +30,10 @@ export const setMarksheetSection = (marksheetSection) => {
         type: ActionTypes.MARKSHEET_SECTION,
         payload: marksheetSection
     };
+    
 };
+
+export const setMarksheetStudents = (students) => ({
+    type:  ActionTypes.MARKSHEET_STUDENTS,
+    payload: students,
+  });
