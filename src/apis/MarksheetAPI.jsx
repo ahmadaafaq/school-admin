@@ -55,15 +55,7 @@ export const MarksheetAPI = {
             data: fields,
             signal: cancel ? cancelApiObject[this.updateMarksheet.name].handleRequestCancellation().signal : undefined,
         });
-    },
-    getMarksheetList: async (cancel = false) => {
-        const { data: response } = await api.request({
-            url: `/get-marksheet-list`,
-            method: "GET",
-            signal: cancel ? cancelApiObject[this.getMarksheetList.name].handleRequestCancellation().signal : undefined,
-        });
-        return response;
-    },
+    }
 }
 
 // defining the cancel API object for marksheetAPI
