@@ -14,7 +14,7 @@ const { getLocalStorage } = Utility();
 
 export const api = axios.create({
   withCredentials: true,
-  baseURL: ENV.VITE_BASE_URL,
+  baseURL: ENV.VITE_BASE_URL || 'https://school-crm-node-app.onrender.com/api/v1',
   validateStatus: (status) => (status >= 200 && status < 300) || status == 404
 });
 
