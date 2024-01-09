@@ -151,7 +151,7 @@ const Login = () => {
                 fontFamily: typography.fontFamily,
                 fontSize: typography.h2.fontSize
               }}>
-                {ENV.VITE_COMPANY_NAME}
+                {ENV.VITE_COMPANY_NAME || 'School CRM'}
               </Typography>
               <Formik
                 onSubmit={values => setFormData(values)}
