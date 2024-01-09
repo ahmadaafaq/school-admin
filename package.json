@@ -1,7 +1,7 @@
 {
   "name": "school-admin",
   "private": true,
-  "homepage": "https://ahmadaafaq.github.io/school-admin",
+  "homepage": "https://ahmadaafaq.github.io/school-admin/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
