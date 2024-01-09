@@ -14,7 +14,6 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 
 import API from "../../apis";
-import AddressFormComponent from "../address/AddressFormComponent";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import MarksheetFormComponent from "./MarksheetFormComponent";
@@ -81,23 +80,23 @@ const FormComponent = () => {
 
     const populateMarksheetData = (id) => {
         setLoading(true);
-        API.MarksheetAPI.getMarksheetById(id)
-            .then((response) => {
-                if (response.data.data) {
-                    response.data.data.dob = dayjs(response.data.data.dob);
-                    response.data.data.admission_date = dayjs(response.data.data.admission_date);
-                }
-                const dataObj = {
-                    marksheetData: response.data.data,
-                };
-                setUpdatedValues(dataObj);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
+        // API.MarksheetAPI.getMarksheetById(id)
+        //     .then((response) => {
+        //         if (response.data.data) {
+        //             response.data.data.dob = dayjs(response.data.data.dob);
+        //             response.data.data.admission_date = dayjs(response.data.data.admission_date);
+        //         }
+        //         const dataObj = {
+        //             marksheetData: response.data.data,
+        //         };
+        //         setUpdatedValues(dataObj);
+        //         setLoading(false);
+        //     })
+        //     .catch((err) => {
+        //         setLoading(false);
+        //         toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+        //         throw err;
+        //     });
     };
 
     const createMarksheet = () => {
@@ -123,6 +122,7 @@ const FormComponent = () => {
             });
     };
 
+    //Create/Update/Populate marksheet
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
@@ -141,13 +141,14 @@ const FormComponent = () => {
     };
 
     const handleFormChange = (data, form) => {
-        form === "marksheet"
-            ? setFormData({ ...formData, marksheetData: data })
-            : setFormData({ ...formData, addressData: data });
+        if (form === "marksheet") {
+            setFormData({ ...formData, marksheetData: data });
+            console.log("submitted data",data)
+        }
     };
 
     return (
-        <Box m="10px">
+        <Box m="10px" >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -169,8 +170,7 @@ const FormComponent = () => {
                 userId={id}
                 updatedValues={updatedValues?.marksheetData}
             />
-
-            <Box display="flex" justifyContent="end" m="20px">
+            <Box display="flex" justifyContent="end" m="20px 20px 70px 0" >
                 {title === "Update" ? null : (
                     <Button
                         type="reset"

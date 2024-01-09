@@ -9,8 +9,8 @@
 import { ActionTypes } from "../constants/action-types";
 
 const initialState = {
-    cls: null,
-    section: null,
+    cls: '',
+    section: '',
     listData: [],
     loading: true
 };
@@ -32,6 +32,11 @@ export const setMarksheetsReducer = (state = initialState, action) => {
                 ...state,
                 listData: action.payload.listData,
                 loading: action.payload.loading
+            };
+        case ActionTypes.MARKSHEET_STUDENTS:
+            return {
+                ...state,
+                students: action.payload,
             };
         default:
             return state;

@@ -18,6 +18,7 @@ import API from "../../apis";
 import studentValidation from "./Validation";
 
 const initialValues = {
+    roll_no: "",
     firstname: "",
     lastname: "",
     mother_name: "",
@@ -140,6 +141,19 @@ const UserFormComponent = ({
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                     }}
                 >
+                        <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="rollno"
+                        label="Roll number*"
+                        autoComplete="new-rollnumber"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.roll_no}
+                        error={!!formik.touched.roll_no && !!formik.errors.roll_no}
+                        helperText={formik.touched.roll_no && formik.errors.roll_no}
+                    />
                     <TextField
                         fullWidth
                         variant="filled"
