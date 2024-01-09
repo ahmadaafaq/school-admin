@@ -1,0 +1,1 @@
+import{U as r}from"./index-OIGegECp.js";const c=()=>{const{getRole:a}=r();return{getQueryParam:()=>{let e="";switch(a()){case"admin":e="admin";break;case"sub-admin":e="sub-admin";break;case"staff":e="staff";break;case"teacher":e="teacher";break;case"parent":e="parent";break}return e}}};export{c as u};
