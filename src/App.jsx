@@ -16,7 +16,6 @@ import { ColorModeContext, useMode } from "./theme";
 import Login from "./components/login/Login";
 import Topbar from "./components/common/Topbar";
 import Sidebar from "./components/common/Sidebar";
-import Loader from "./components/common/Loader";
 import { Utility } from "./components/utility";
 
 const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
@@ -97,7 +96,7 @@ function App() {
         <CssBaseline />
         <div className="app">
           {getLocalStorage("auth")?.token &&
-            <Suspense fallback={<Loader />}>
+            <Suspense>
               <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
                 <Topbar roleName={userRole.name} />
