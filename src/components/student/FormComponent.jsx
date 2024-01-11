@@ -34,6 +34,7 @@ const FormComponent = () => {
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
+    const [allSubjects, setAllSubjects] = useState([]);
 
     const studentFormRef = useRef();
     const addressFormRef = useRef();
@@ -48,7 +49,7 @@ const FormComponent = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findSubjectsById } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -59,6 +60,7 @@ const FormComponent = () => {
     }, []);
 
     const updateStudentAndAddress = useCallback(formData => {
+        console.log("formdataABCD", formData)
         const dataFields = [
             { ...formData.studentData.values },
             { ...formData.addressData.values }
@@ -87,13 +89,13 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-
     const populateStudentData = (id) => {
         setLoading(true);
         const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
+                    responses[0].data.data.subjects = findSubjectsById(responses[0].data.data.subjects, allSubjects)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
@@ -101,7 +103,6 @@ const FormComponent = () => {
                     studentData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
                 };
-                console.log('form component', dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -114,6 +115,10 @@ const FormComponent = () => {
 
     const createStudent = () => {
         setLoading(true);
+        formData.studentData.values = {
+            ...formData.studentData.values,
+            subjects: getIdsFromObjects(formData.studentData.values?.subjects)
+        }
         API.StudentAPI.createStudent({ ...formData.studentData.values })
             .then(({ data: student }) => {
                 if (student?.status === 'Success') {
@@ -140,9 +145,24 @@ const FormComponent = () => {
             });
     };
 
+    useEffect(() => {
+        API.SubjectAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setAllSubjects(data.data.rows);
+                    console.log(data.data.rows, 'sub')
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
+
     //Create/Update/Populate student
     useEffect(() => {
-        if (id && !submitted) {
+        if (id && !submitted && allSubjects) {
             setTitle("Update");
             populateStudentData(id);
         }
@@ -151,7 +171,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [id, submitted, allSubjects]);
 
     const handleSubmit = async () => {
         await studentFormRef.current.Submit();

@@ -54,7 +54,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { toastAndNavigate, getLocalStorage ,getIdsFromObjects } = Utility();
 
     let id = state?.id;
 
@@ -134,21 +134,12 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     };
 
 
-    //taking out only the id from subjects object from formData.jobSeekerData.values.subjects
-    function getSelectedSubjects(subjects) {
-        let subjectId = [];          //using traditional function statement for hoisting
-        subjects?.forEach(subject => {
-            subjectId.push(subject.id);
-        });
-        return subjectId.toString();
-    };
-
     const createClass = (values) => {
         console.log(values.subjects)
         setLoading(true);
         values = {
             ...values,
-            subjects: getSelectedSubjects(values?.subjects),
+            subjects: getIdsFromObjects(values?.subjects),
         }
         API.ClassAPI.createClass(values)
             .then(({ data: classs }) => {
@@ -247,27 +238,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                     error={!!touched.name && !!errors.name}
                                     helperText={touched.name && errors.name}
                                 />
-                                <Autocomplete
-                                    multiple
-                                    options={subjects}
-                                    getOptionLabel={option => option.name}
-                                    disableCloseOnSelect
-                                    value={values.subjects}
-                                    onChange={(event, value) => setFieldValue("subjects", value)}
-                                    sx={{ gridColumn: "span 1" }}
-                                    renderInput={params => (
-                                        <TextField
-                                            {...params}
-                                            variant="filled"
-                                            type="text"
-                                            name="subjects"
-                                            label="subjects"
-                                            error={!!touched.subjects && !!errors.subjects}
-                                            helperText={touched.subjects && errors.subjects}
-                                        />
-                                    )}
-                                />
-
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
                                     error={!!touched.status && !!errors.status}
                                 >
@@ -285,6 +255,27 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                         <MenuItem value="inactive">Inactive</MenuItem>
                                     </Select>
                                 </FormControl>
+
+                                <Autocomplete
+                                    multiple
+                                    options={subjects}
+                                    getOptionLabel={option => option.name}
+                                    disableCloseOnSelect
+                                    value={values.subjects}
+                                    onChange={(event, value) => setFieldValue("subjects", value)}
+                                    sx={{ gridColumn: "span 2" }}
+                                    renderInput={params => (
+                                        <TextField
+                                            {...params}
+                                            variant="filled"
+                                            type="text"
+                                            name="subjects"
+                                            label="subjects"
+                                            error={!!touched.subjects && !!errors.subjects}
+                                            helperText={touched.subjects && errors.subjects}
+                                        />
+                                    )}
+                                />
                             </Box>
                             <Divider />
                             <Box display="flex" justifyContent="end" p="20px">
