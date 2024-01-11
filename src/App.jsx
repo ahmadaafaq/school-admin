@@ -63,7 +63,7 @@ function App() {
 
   useIdleTimer({    //Automatically SignOut when a user is inactive for 30 minutes
     onIdle,
-    timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER)    //30 minute idle timeout stored in environment variable file
+    timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER || 1800000)    //30 minute idle timeout stored in environment variable file
   });
 
   useEffect(() => {
