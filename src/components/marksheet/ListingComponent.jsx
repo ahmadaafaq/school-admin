@@ -37,6 +37,8 @@ const ListingComponent = () => {
 
     const selected = useSelector(state => state.menuItems.selected);
     const { listData } = useSelector(state => state.allMarksheets);
+    const [selectedClass, setSelectedClass] = useState(null);
+    const [selectedSection, setSelectedSection] = useState(null);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -100,14 +102,19 @@ const ListingComponent = () => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                        <DropDown />
-                    
+
+                    <DropDown
+                        onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
+                        onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
+                    />
+
                     <Button
                         type="submit"
                         color="success"
                         variant="contained"
 
                         onClick={() => { navigateTo(`/marksheet/create`) }}
+                        disabled={!selectedClass || !selectedSection} // Disable if either class or section is not selected
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
                         Create New {selected}
@@ -146,7 +153,6 @@ const ListingComponent = () => {
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
             />
-
         </Box>
     );
 };

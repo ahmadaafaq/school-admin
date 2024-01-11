@@ -55,6 +55,22 @@ export const SubjectAPI = {
             data: fields,
             signal: cancel ? cancelApiObject[this.updateSubject.name].handleRequestCancellation().signal : undefined,
         });
+    },
+
+    /** getting  subject  by class in the database
+     */
+
+    getSubjectsByClass: async (classId, cancel = false) => {
+        console.log('api class=', classId)
+        const { data: response } = await api.request({
+            url: `/get-subjects-by-class/${classId}`,
+            headers: {
+                "x-access-token": getLocalStorage("auth")?.token
+            },
+            method: "GET",
+            signal: cancel ? cancelApiObject[StudentAPI.getStudentsByClassAndSection.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
     }
 }
 

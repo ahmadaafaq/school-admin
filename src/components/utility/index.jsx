@@ -160,11 +160,33 @@ export const Utility = () => {
     /** Finds and returns the name of a subject based on its ID from an array of subject objects
      */
     const findSubjectById = (subjectId, subjectData) => {
+        console.log(subjectId, subjectData, 'utility')
         let found = '';
         if (subjectData) {
             found = subjectData.find(sub => sub.id === subjectId);
         }
         return found ? found.name : null;
+    };
+
+    //to be refactured
+    const findSubjectsById = (subjectIds, subjectData) => {
+        if (!subjectIds || !subjectData) {
+            return [];
+        }
+        return subjectData.filter(sub => subjectIds.includes(sub.id.toString()));
+    };
+
+    /** Taking out only the id from object and returning as a string
+     *  @param object Multiple select dropdown objects
+     *  @returns {string} comma seprated string of ids 
+     */
+
+    function getIdsFromObjects(object) {
+        let objectId = [];          //using traditional function statement for hoisting
+        object?.forEach(object => {
+            objectId.push(object.id);
+        });
+        return objectId.toString();
     };
 
     /** Appends the appropriate suffix ('th', 'rd', 'nd', 'st') to a given number
@@ -218,11 +240,13 @@ export const Utility = () => {
         findClassById,
         findSectionById,
         findSubjectById,
+        findSubjectsById,
         getInitials,
         getNameAndType,
         getLocalStorage,
         getRole,
         getRoleAndPriorityById,
+        getIdsFromObjects,
         remLocalStorage,
         setLocalStorage,
         toastAndNavigate,

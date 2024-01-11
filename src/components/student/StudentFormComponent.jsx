@@ -8,13 +8,14 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
 import API from "../../apis";
+import Loader from "../common/Loader";
 import studentValidation from "./Validation";
 
 const initialValues = {
@@ -28,6 +29,7 @@ const initialValues = {
     email: "",
     class: "",
     section: "",
+    subjects: [],
     admission_date: null,
     dob: null,
     is_specially_abled: false,
@@ -54,6 +56,8 @@ const UserFormComponent = ({
     const [initialState, setInitialState] = useState(initialValues);
     const [classes, setClasses] = useState([]);
     const [sections, setSections] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -130,6 +134,25 @@ const UserFormComponent = ({
             });
     }, []);
 
+    const getSubjectsByClass = (classId) => {
+        setLoading(true);
+        API.SubjectAPI.getSubjectsByClass(classId)
+            .then(subjects => {
+                console.log("data", subjects)
+                if (subjects.status === 'Success') {
+                    setSubjects(subjects.data);
+                    setLoading(false);
+                } else {
+                    setLoading(false);
+                    console.log("Error, Please Try Again");
+                }
+            })
+            .catch(err => {
+                setLoading(false);
+                throw err;
+            })
+    };
+
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -141,7 +164,7 @@ const UserFormComponent = ({
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                     }}
                 >
-                        <TextField
+                    <TextField
                         fullWidth
                         variant="filled"
                         type="text"
@@ -257,7 +280,10 @@ const UserFormComponent = ({
                             name="class"
                             autoComplete="new-class"
                             value={formik.values.class}
-                            onChange={event => formik.setFieldValue("class", event.target.value)}
+                            onChange={event => {
+                                formik.setFieldValue("class", event.target.value);
+                                getSubjectsByClass(event.target.value);
+                            }}
                         >
                             {classes.length && classes.map(cls => (
                                 <MenuItem value={cls.id} name={cls.name} key={cls.name}>
@@ -288,6 +314,27 @@ const UserFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.section && formik.errors.section}</FormHelperText>
                     </FormControl>
+                    <Autocomplete
+                        multiple
+                        options={subjects}
+                        getOptionLabel={option => option.name}
+                        disableCloseOnSelect
+                        value={formik.values.subjects || []}
+                        onChange={(event, value) => formik.setFieldValue("subjects", value)}
+                        sx={{ gridColumn: "span 2" }}
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="filled"
+                                type="text"
+                                name="subjects"
+                                label="subjects"
+                            // error={!!touched.subjects && !!errors.subjects}
+                            // helperText={touched.subjects && errors.subjects}
+                            />
+                        )}
+                    />
+
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             format="DD MMMM YYYY"            //ex - 25 July 2023
@@ -446,6 +493,7 @@ const UserFormComponent = ({
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
+                {loading === true ? <Loader /> : null}
             </form >
         </Box >
     );

@@ -100,19 +100,40 @@ const FormComponent = () => {
     };
 
     const createMarksheet = () => {
-        setLoading(true);
-        API.MarksheetAPI.createMarksheet({ ...formData.marksheetData.values })
-            .then(({ data: marksheet }) => {
-                if (marksheet?.status === "Success") {
+        let promises = [];
+        console.log("submitted data", formData);
+        let payload = {
+            school_id: formData.marksheetData.values.school_id,
+            student_id: formData.marksheetData.values.student,
+            class_id: formData.marksheetData.values.class_id,
+            section_id: formData.marksheetData.values.section_id,
+        };
+
+        formData.marksheetData.values.subjects.map((subjectId, index) => {
+            payload = {
+                ...payload,
+                subject_id: subjectId,
+                marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
+                total_marks: formData.marksheetData.values[`total_marks_${index}`],
+                grade: formData.marksheetData.values[`grade_${index}`],
+                remark: formData.marksheetData.values[`remark_${index}`] ? formData.marksheetData.values[`remark_${index}`] : '',
+                result: formData.marksheetData.values.result
+            }
+            let promise = API.MarksheetAPI.createMarksheet(payload);
+            promises.push(promise);
+        });
+
+        return Promise.all(promises)
+            .then((responses) => {
+                // Check if all responses are successful
+                const isSuccess = responses.every(response => response.data.status === "Success");
+
+                if (isSuccess) {
                     setLoading(false);
-                    toastAndNavigate(
-                        dispatch,
-                        true,
-                        "success",
-                        "Successfully Created",
-                        navigateTo,
-                        `/${selected.toLowerCase()}/listing`
-                    );
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+                } else {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "error", "Failed to create marksheet for one or more subjects");
                 }
             })
             .catch((err) => {
@@ -143,7 +164,6 @@ const FormComponent = () => {
     const handleFormChange = (data, form) => {
         if (form === "marksheet") {
             setFormData({ ...formData, marksheetData: data });
-            console.log("submitted data",data)
         }
     };
 

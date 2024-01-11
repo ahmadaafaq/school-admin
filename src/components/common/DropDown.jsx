@@ -6,43 +6,45 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { Box, FormControl, InputLabel, Select, MenuItem , useTheme} from "@mui/material";
 
 import API from "../../apis";
 import { Utility } from "../utility";
-import { setMarksheetClass, setMarksheetSection , setMarksheetStudents } from "../../redux/actions/MarksheetAction";
+import { tokens } from "../../theme";
+import { setMarksheetClass, setMarksheetSection, setMarksheetStudents } from "../../redux/actions/MarksheetAction";
 
-function DropDown() {
+function DropDown({ onSelectClass, onSelectSection}) {
     const [classes, setClasses] = useState([]);
     const [sections, setSections] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedSection, setSelectedSection] = useState('');
     const [students, setStudents] = useState([]);
-    const [selectedStudent, setSelectedStudent] = useState('');
 
     const dispatch = useDispatch();
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
     const { findSectionById } = Utility();
 
     const handleClassChange = (event) => {
         const selectedCls = classes.filter(value => value.id === event.target.value);
-        console.log(event.target.value)
         setSelectedClass(event.target.value);
+        onSelectSection(selectedCls);
         dispatch(setMarksheetClass(selectedCls));
     };
 
     const handleSectionChange = (event) => {
         const selectedSection = findSectionById(event.target.value, sections);
-        console.log(event.target.value)
         setSelectedSection(event.target.value);
+        onSelectClass(selectedSection);
         dispatch(setMarksheetSection(selectedSection));
+
     };
 
     useEffect(() => {
         // Fetch classes from the backend
         API.ClassAPI.getAll(false, 0, 17)
             .then(data => {
-                console.log("HEyy", data.data.rows)
                 setClasses(data.data.rows);
             })
             .catch((error) => console.error("Error fetching classes:", error));
@@ -53,7 +55,6 @@ function DropDown() {
         if (classes) {
             API.SectionAPI.getAll()
                 .then((data) => {
-                    console.log('mai aagaya')
                     setSections(data.data.rows);
                 })
                 .catch((error) => console.error("Error fetching sections:", error));
@@ -61,12 +62,11 @@ function DropDown() {
     }, [classes]);
 
     useEffect(() => {
-    
+
         // Fetch students based on the selected class and section
         if (selectedClass && selectedSection) {
             API.StudentAPI.getStudentsByClassAndSection(selectedClass, selectedSection)
                 .then((data) => {
-                    console.log('Students:', data);
                     setStudents(data);
                     dispatch(setMarksheetStudents(data));
                 })
@@ -91,8 +91,9 @@ function DropDown() {
                     autoComplete="new-class"
                     onChange={handleClassChange}
                     value={selectedClass}
+                    backgroundColor={colors.primary[700]}
                     sx={{
-                        backgroundColor: "white", height: "12vh"
+                         height: "12vh"
                     }}>
                     {classes.length ? classes.map(item => (
                         <MenuItem value={item.id} key={item.name}>
@@ -118,7 +119,7 @@ function DropDown() {
                     autoComplete="new-section_id"
                     onChange={handleSectionChange}
                     value={selectedSection}
-                    sx={{ backgroundColor: "white" }}
+                    backgroundColor={colors.blueAccent[700]}
                 >
                     {sections?.length && sections.map(item => (
                         <MenuItem value={item.id} key={item.name}>

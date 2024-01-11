@@ -20,9 +20,10 @@ import { useSelector } from "react-redux";
 import { Utility } from "../utility";
 
 const initialValues = {
-    class:  "" ,
-    section: "" ,
-    student: "", 
+    school_id: "",
+    class_id: "",
+    section_id: "",
+    student: "",
     name: "",
     subjects: [],
     term: "",
@@ -120,8 +121,14 @@ const UserFormComponent = ({
         })
         if (yes.length) {
             setFilteredSubjects(yes);
+            initialValues.subjects = cls[0].subjects.split(',');
+            initialValues.school_id = students.data[0].school_id;
+            initialValues.class_id = cls[0].id;
+            initialValues.section_id = students.data[0].section;
+            initialValues.student = students.data[0].id;
         }
     }, [subjects]);
+    console.log('ABCD', cls, students)
 
     return (
         <Box m="20px">
@@ -138,14 +145,14 @@ const UserFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        name="class"
+                        name="class_id"
                         label="Class"
-                        autoComplete="new-class"
+                        autoComplete="new-class_id"
                         value={cls[0]?.name}
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-                        error={!!formik.touched.section && !!formik.errors.section}
-                        helperText={formik.touched.section && formik.errors.section}
+                        error={!!formik.touched.class_id && !!formik.errors.class_id}
+                        helperText={formik.touched.class_id && formik.errors.class_id}
                     />
 
                     <TextField
@@ -285,9 +292,9 @@ const UserFormComponent = ({
                             value={formik.values.result}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Pass</MenuItem>
-                            <MenuItem value={"inactive"}>Fail</MenuItem>
-                            <MenuItem value={"inactive"}>Not Declared Yet</MenuItem>
+                            <MenuItem value={"pass"}>Pass</MenuItem>
+                            <MenuItem value={"fail"}>Fail</MenuItem>
+                            <MenuItem value={"not_declared_yet"}>Not Declared Yet</MenuItem>
                         </Select>
                         <FormHelperText>{formik.touched.result && formik.errors.result}</FormHelperText>
                     </FormControl>

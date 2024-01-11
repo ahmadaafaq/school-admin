@@ -31,7 +31,7 @@ export const datagridColumns = () => {
         navigateTo(`/marksheet/update/${id}`, { state: { id: id } });
     };
 
-    
+
     const columns = [
         {
             field: "roll no",
@@ -64,7 +64,7 @@ export const datagridColumns = () => {
             flex: 2,
             minWidth: 200
         },
-        
+
         {
             field: "result",
             headerName: "RESULT",
@@ -72,7 +72,7 @@ export const datagridColumns = () => {
             align: "center",
             flex: 1,
             minWidth: 120,
-            renderCell: ({ row: { status } }) => {
+            renderCell: ({ row: { result } }) => {
                 return (
                     <Box
                         width="60%"
@@ -81,16 +81,18 @@ export const datagridColumns = () => {
                         display="flex"
                         justifyContent="center"
                         backgroundColor={
-                            status === "active"
+                            result === "pass"
                                 ? colors.greenAccent[600]
-                                : status === "inactive"
+                                : result === "fail"
                                     ? colors.redAccent[700]
-                                    : colors.redAccent[700]
+                                    : result === "Not Declared Yet"
+                                        ? colors.greenAccent[400]
+                                        : colors.redAccent[700]
                         }
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                            {result}
                         </Typography>
                     </Box>
                 );
