@@ -64,11 +64,11 @@ export const datagridColumns = (handleDialogOpen) => {
                 const subjectIds = params?.row.subjects;
                 const subjectNames = findSubjectsById(subjectIds, subjects).map(subject => subject.name);
                 return (
-                    <div style={{ width: '100%' }}>
+                    <div style={{ width: '100%', height:"40px" }}>
                         {subjectNames.map((subject, index) => (
                             <React.Fragment key={index}>
-                                {index > 0 && index % 3 === 0 && <br />}
-                                {index > 0 && ','} {subject}
+                                {index > 0 && ','} 
+                                {index > 0 && index % 3 === 0 && <br />}{subject}
                             </React.Fragment>
                         ))}
                     </div>

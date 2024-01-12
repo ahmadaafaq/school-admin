@@ -8,8 +8,10 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl, Alert } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
+import CheckIcon from '@mui/icons-material/Check';
+import Snackbar from "@mui/material/Snackbar";
 import { useFormik } from "formik";
 
 import API from "../../apis";
@@ -47,10 +49,18 @@ const UserFormComponent = ({
     const [initialState, setInitialState] = useState(initialValues);
     const [subjects, setSubjects] = useState([]);
     const [filteredSubjects, setFilteredSubjects] = useState([]);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { findSubjectById } = Utility();
+
+    const [state, setState] = React.useState({
+        vertical: 'top',
+        horizontal: 'center',
+      });
+
+      const { vertical, horizontal } = state;
 
     const formik = useFormik({
         initialValues: initialState,
@@ -58,6 +68,10 @@ const UserFormComponent = ({
         enableReinitialize: true,
         onSubmit: () => watchForm()
     });
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
 
     React.useImperativeHandle(refId, () => ({
         Submit: async () => {
@@ -119,19 +133,36 @@ const UserFormComponent = ({
         })
         if (yes.length) {
             setFilteredSubjects(yes);
-            console.log("datasssss",students)
+            console.log("datasssss", students)
             initialValues.subjects = cls[0].subjects.split(',');
-            initialValues.school_id = students.data[0].school_id;
+            initialValues.school_id = students.data[0] ? students.data[0].school_id : "";
             initialValues.class_id = cls[0].id;
-            initialValues.section_id = students.data[0].section;
-            initialValues.student = students.data[0].id;
+            initialValues.section_id = students.data[0] ? students.data[0].section : "";
+            initialValues.student = students.data[0] ? students.data[0].id : "";
         }
+        if (!students) {
+            setSnackbarOpen(true);
+        }
+
     }, [subjects]);
     console.log('ABCD', cls, students)
 
     return (
         <Box m="20px">
+            <Snackbar
+                anchorOrigin={{ vertical, horizontal }}
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                key={vertical + horizontal}
+            >
+                <Alert sx={{ width: '100%' }} icon={<CheckIcon fontSize="inherit" />} severity="error" >
+                    No Student Data
+                </Alert>
+            </Snackbar>
             <form ref={refId}>
+
+
                 <Box
                     display="grid"
                     gap="10px"
