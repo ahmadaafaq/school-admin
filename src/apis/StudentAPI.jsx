@@ -59,7 +59,7 @@ export const StudentAPI = {
 
   getStudentsByClassAndSection: async (classId, sectionId, cancel = false) => {
     const { data: response } = await api.request({
-      url: `/get-student-detail?classId=${classId}&sectionId=${sectionId}`,
+      url: `/get-student-by-class?classId=${classId}&sectionId=${sectionId}`,
       headers: {
         "x-access-token": getLocalStorage("auth")?.token
       },

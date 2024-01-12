@@ -11,10 +11,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
-import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
+import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import SchoolFormComponent from "./SchoolFormComponent";
@@ -29,8 +29,15 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         schoolData: { values: null, validated: false },
         addressData: { values: null, validated: false },
+        imageData: { values: null, validated: true },
+        bannerImageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
+    const [deletedImage, setDeletedImage] = useState([]);
+    const [preview, setPreview] = useState([]);
+    const [deletedBannerImage, setDeletedBannerImage] = useState([]);
+    const [previewBanner, setPreviewBanner] = useState([]);
+
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
@@ -38,6 +45,8 @@ const FormComponent = () => {
 
     const schoolFormRef = useRef();
     const addressFormRef = useRef();
+    const imageFormRef = useRef();
+    const bannerImageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -201,12 +210,21 @@ const FormComponent = () => {
     const handleSubmit = async () => {
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
+        await imageFormRef.current.Submit();
+        await bannerImageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'school' ? setFormData({ ...formData, schoolData: data }) :
+        if (form === 'school') {
+            setFormData({ ...formData, schoolData: data });
+        } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
+        } else if (form === 'display') {
+            setFormData({ ...formData, imageData: data });
+        } else if (form === 'banner') {
+            setFormData({ ...formData, bannerImageData: data });
+        }
     };
 
     return (
@@ -243,6 +261,38 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
+            />
+            <ImagePicker
+                key="image"
+                onChange={data => handleFormChange(data, 'display')}
+                refId={imageFormRef}
+                reset={reset}
+                setReset={setReset}
+                setDirty={setDirty}
+                preview={preview}
+                setPreview={setPreview}
+                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
+                deletedImage={deletedImage}
+                setDeletedImage={setDeletedImage}
+                imageType="Display"
+            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
+            // ENV={ENV}
+            />
+            <ImagePicker
+                key="banner"
+                onChange={data => handleFormChange(data, 'banner')}
+                refId={bannerImageFormRef}
+                reset={reset}
+                setReset={setReset}
+                setDirty={setDirty}
+                preview={previewBanner}
+                setPreview={setPreviewBanner}
+                // updatedValues={updatedValues?.imageData.filter(img => img.type === "banner")}
+                deletedImage={deletedBannerImage}
+                setDeletedImage={setDeletedBannerImage}
+                imageType="Banner"
+            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}/banner`}
+            // ENV={ENV}
             />
 
             <Box display="flex" justifyContent="end" m="20px">

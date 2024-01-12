@@ -6,41 +6,96 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-
+import API from "../../apis";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
-import { useEffect } from "react";
 
 export const datagridColumns = () => {
+    const [students, setStudents] = useState([]);
+    const [classes, setClasses] = useState([]);
+    const [sections, setSections] = useState([]);
+    const [subjects, setSubjects] = useState([]);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allClasses);
-    const dispatch = useDispatch();
     const navigateTo = useNavigate();
-    const { convertToRoman, findClassById } = Utility();
+    const { appendSuffix, findStudentById, findClassById, findSectionById, findSubjectById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/marksheet/update/${id}`, { state: { id: id } });
     };
 
+    useEffect(() => {
+        API.ClassAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setClasses(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
+
+    useEffect(() => {
+        API.SectionAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setSections(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
+
+    useEffect(() => {
+        API.SubjectAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setSubjects(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
+
+    useEffect(() => {
+        API.StudentAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
+                    setStudents(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
+    }, []);
 
     const columns = [
-        {
-            field: "roll no",
-            headerName: "ROLL NO",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 120,
-        },
+        // {
+        //     field: "roll no",
+        //     headerName: "ROLL NO",
+        //     headerAlign: "center",
+        //     align: "center",
+        //     flex: 1,
+        //     minWidth: 120,
+        // },
         {
             field: "NAME",
             headerName: "NAME",
@@ -49,9 +104,27 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
+                let studentName = params?.row?.student_id !== 0 ? findStudentById(params?.row?.student_id, students) : '/';
                 return (
                     <div>
-                        {params.row.class} {params.row.section}
+                        {studentName}
+                    </div>
+                );
+            }
+        },
+        {
+            field: "class",
+            headerName: "CLASS",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100,
+            renderCell: (params) => {
+                let className = params?.row?.class_id > 0 ? findClassById(params?.row?.class_id, classes) : '/';
+                let sectionName = params?.row?.section_id > 0 ? findSectionById(params?.row?.section_id, sections) : '/';
+                return (
+                    <div>
+                        {appendSuffix(className)} {sectionName}
                     </div>
                 );
             }
@@ -62,9 +135,24 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 2,
-            minWidth: 200
+            minWidth: 120,
+            renderCell: (params) => {
+                let subjectName = params?.row?.subject_id > 0 ? findSubjectById(parseInt(params?.row?.subject_id), subjects) : '/';
+                return (
+                    <div>
+                        {subjectName}
+                    </div>
+                );
+            }
         },
-
+        {
+            field: "term",
+            headerName: "Term",
+            headerAlign: "center",
+            align: "center",
+            flex: 2,
+            minWidth: 80,
+        },
         {
             field: "result",
             headerName: "RESULT",

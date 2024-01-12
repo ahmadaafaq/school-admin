@@ -137,6 +137,17 @@ export const Utility = () => {
         return isNaN(num) ? num : `Class ${num}`;
     };
 
+
+    /** Finds and returns the name of a student based on its ID from an array of student objects
+     */
+    const findStudentById = (studentId, studentData) => {
+        let found = '';
+        if (studentData) {
+            found = studentData.find(sect => sect.id === studentId);
+        }
+        return found ? `${found.firstname} ${found.lastname}` : '';
+    };
+
     /** Finds and returns the name of a class based on its ID from an array of class objects
      */
     const findClassById = (classId, classData) => {
@@ -160,7 +171,6 @@ export const Utility = () => {
     /** Finds and returns the name of a subject based on its ID from an array of subject objects
      */
     const findSubjectById = (subjectId, subjectData) => {
-        console.log(subjectId, subjectData, 'utility')
         let found = '';
         if (subjectData) {
             found = subjectData.find(sub => sub.id === subjectId);
@@ -237,6 +247,7 @@ export const Utility = () => {
         appendSuffix,
         convertToRoman,
         createSchoolCode,
+        findStudentById,
         findClassById,
         findSectionById,
         findSubjectById,
