@@ -254,8 +254,8 @@ const Login = () => {
                       sx={{
                         color: "#F6F6F2",
                         display: "block",
-                        margin: "auto",
-                        mt: "10px",
+                        margin: "29px 47px ",
+                        mt: "2px",
                         minWidth: isMobile ? "170px" : isTab ? "200px" : "200px",
                         backgroundColor: "#FF9A01",
                         borderRadius: 28

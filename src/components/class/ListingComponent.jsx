@@ -43,8 +43,8 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
     const reloadBtn = document.getElementById("reload-btn");
 
-    const { getPaginatedData } = useCommon();
-    const { getLocalStorage } = Utility();
+    const { getPaginatedData } = useCommon(); 
+    const { getLocalStorage , findSubjectsById} = Utility();
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
