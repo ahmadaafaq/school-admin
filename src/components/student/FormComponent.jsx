@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
+import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
@@ -29,8 +30,11 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         studentData: { values: null, validated: false },
         addressData: { values: null, validated: false },
+        imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
+    const [deletedImage, setDeletedImage] = useState([]);
+    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
@@ -38,6 +42,7 @@ const FormComponent = () => {
 
     const studentFormRef = useRef();
     const addressFormRef = useRef();
+    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -176,12 +181,18 @@ const FormComponent = () => {
     const handleSubmit = async () => {
         await studentFormRef.current.Submit();
         await addressFormRef.current.Submit();
+        await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'student' ? setFormData({ ...formData, studentData: data }) :
+        if (form === 'student') {
+            setFormData({ ...formData, studentData: data });
+        } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
+        } else if (form === 'parent') {
+            setFormData({ ...formData, imageData: data });
+        }
     };
 
     return (
@@ -217,6 +228,22 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
+            />
+            <ImagePicker
+                key="image"
+                onChange={data => handleFormChange(data, 'parent')}
+                refId={imageFormRef}
+                reset={reset}
+                setReset={setReset}
+                setDirty={setDirty}
+                preview={preview}
+                setPreview={setPreview}
+                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
+                deletedImage={deletedImage}
+                setDeletedImage={setDeletedImage}
+                imageType="Guardian"
+            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
+            // ENV={ENV}
             />
 
             <Box display="flex" justifyContent="end" m="20px">

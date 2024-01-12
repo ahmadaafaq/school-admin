@@ -25,6 +25,7 @@ const ServerPaginationGrid = ({
     columns,
     rows,
     count,
+    loading,
     pageSizeOptions,
     searchFlag,
     setOldPagination
@@ -131,10 +132,11 @@ const ServerPaginationGrid = ({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading: selected === "Marksheet" ? marksheetLoading : selected === "Class" ? classLoading
+                loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading : selected === "Marksheet" ? marksheetLoading : selected === "Class" ? classLoading
                     : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ?
                         studentLoading : selected === "Teacher" ? teacherLoading : selected === "Subject" ? subjectLoading
                             : selected === "Role" ? userRoleLoading : userLoading}
+                // loading={loading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,

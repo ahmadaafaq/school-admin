@@ -7,14 +7,14 @@
 */
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Box, FormControl, InputLabel, Select, MenuItem , useTheme} from "@mui/material";
+import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/material";
 
 import API from "../../apis";
 import { Utility } from "../utility";
 import { tokens } from "../../theme";
 import { setMarksheetClass, setMarksheetSection, setMarksheetStudents } from "../../redux/actions/MarksheetAction";
 
-function DropDown({ onSelectClass, onSelectSection}) {
+function DropDown({ onSelectClass, onSelectSection }) {
     const [classes, setClasses] = useState([]);
     const [sections, setSections] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
@@ -38,39 +38,47 @@ function DropDown({ onSelectClass, onSelectSection}) {
         setSelectedSection(event.target.value);
         onSelectClass(selectedSection);
         dispatch(setMarksheetSection(selectedSection));
-
     };
 
     useEffect(() => {
-        // Fetch classes from the backend
-        API.ClassAPI.getAll(false, 0, 17)
+        API.ClassAPI.getAll(false, 0, 20)
             .then(data => {
-                setClasses(data.data.rows);
+                if (data.status === 'Success') {
+                    setClasses(data.data.rows);
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
             })
-            .catch((error) => console.error("Error fetching classes:", error));
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
     }, []);
 
     useEffect(() => {
-        // Fetch sections based on the selected class
-        if (classes) {
-            API.SectionAPI.getAll()
-                .then((data) => {
+        API.SectionAPI.getAll(false, 0, 20)
+            .then(data => {
+                if (data.status === 'Success') {
                     setSections(data.data.rows);
-                })
-                .catch((error) => console.error("Error fetching sections:", error));
-        }
+                } else {
+                    console.error("Error fetching classes. Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.error("Error fetching classes:", err);
+            });
     }, [classes]);
 
     useEffect(() => {
-
         // Fetch students based on the selected class and section
         if (selectedClass && selectedSection) {
             API.StudentAPI.getStudentsByClassAndSection(selectedClass, selectedSection)
-                .then((data) => {
+                .then(data => {
                     setStudents(data);
                     dispatch(setMarksheetStudents(data));
                 })
-                .catch((error) => console.error('Error fetching students:', error));
+                .catch(err => {
+                    console.error('Error fetching students:', err);
+                })
         }
     }, [selectedClass, selectedSection]);
 
@@ -82,7 +90,7 @@ function DropDown({ onSelectClass, onSelectSection}) {
                     height: "44px",
                 },
             }}>
-                <InputLabel id="classfield">Select Class</InputLabel>
+                <InputLabel id="classfield">Class</InputLabel>
                 <Select
                     variant="filled"
                     labelId="classfield"
@@ -91,9 +99,9 @@ function DropDown({ onSelectClass, onSelectSection}) {
                     autoComplete="new-class"
                     onChange={handleClassChange}
                     value={selectedClass}
-                    backgroundColor={colors.primary[700]}
                     sx={{
-                         height: "12vh"
+                        height: "12vh",
+                        backgroundColor: colors.blueAccent[800]
                     }}>
                     {classes.length ? classes.map(item => (
                         <MenuItem value={item.id} key={item.name}>
@@ -110,7 +118,7 @@ function DropDown({ onSelectClass, onSelectSection}) {
             }}
             // error={!!school_id && !!errors.school_id}
             >
-                <InputLabel id="sectionfield">Select Section</InputLabel>
+                <InputLabel id="sectionfield">Section</InputLabel>
                 <Select
                     variant="filled"
                     labelId="sectionfield"
@@ -119,7 +127,9 @@ function DropDown({ onSelectClass, onSelectSection}) {
                     autoComplete="new-section_id"
                     onChange={handleSectionChange}
                     value={selectedSection}
-                    backgroundColor={colors.blueAccent[700]}
+                    sx={{
+                        backgroundColor: colors.greenAccent[600]
+                    }}
                 >
                     {sections?.length && sections.map(item => (
                         <MenuItem value={item.id} key={item.name}>

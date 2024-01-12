@@ -20,6 +20,8 @@ import { Utility } from "../utility";
 export const datagridColumns = () => {
     const [classes, setClasses] = useState([]);
     const [sections, setSections] = useState([]);
+    const [teacherDetail, setTeacherDetail] = useState([]);
+    const [teacherIds, setTeacherIds] = useState([]);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -59,6 +61,24 @@ export const datagridColumns = () => {
             });
     }, []);
 
+    // console.log(teacherIds, 'teacher');
+
+    // const getTeacherDetailById = (teacherId) => {
+    //     console.log('id', teacherId)
+    //     API.TeacherAPI.getTeacherDetail(teacherId)
+    //         .then(data => {
+    //             if (data.status === 'Success' && data.data.length) {
+    //                 console.log(data.data, 'teacher')
+    //                 setTeacherDetail(data.data);
+    //             } else {
+    //                 console.error("Error fetching classes. Please Try Again");
+    //             }
+    //         })
+    //         .catch(err => {
+    //             console.error("Error fetching classes:", err);
+    //         });
+    // };
+
     const columns = [
         {
             field: "fullname",
@@ -78,8 +98,9 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findClassById(params?.row?.class, classes);
+                let className = params?.row?.class !== 0 ? findClassById(params?.row?.class, classes) : '/';
                 let sectionName = findSectionById(params?.row?.section, sections);
+                // params?.row?.class === 0 ? getTeacherDetailById(params.row.id) : null;
                 return (
                     <div>
                         {appendSuffix(className)} {sectionName}
@@ -95,15 +116,15 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100
         },
-        {
-            field: "updated_at",
-            headerName: "UPDATED AT",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100,
-            valueFormatter: params => params?.value.substring(0, 10)
-        },
+        // {
+        //     field: "updated_at",
+        //     headerName: "UPDATED AT",
+        //     headerAlign: "center",
+        //     align: "center",
+        //     flex: 1,
+        //     minWidth: 100,
+        //     valueFormatter: params => params?.value.substring(0, 10)
+        // },
         {
             field: "status",
             headerName: "STATUS",

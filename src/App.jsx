@@ -27,8 +27,8 @@ const BusFormComponent = lazy(() => import("./components/bus/FormComponent"));
 
 const ClassListingComponent = lazy(() => import("./components/class/ListingComponent"));
 
-const MarksheetFormComponent =lazy(() => import("./components/marksheet/FormComponent"));
-const MarksheetListingComponent =lazy(() => import("./components/marksheet/ListingComponent"));
+const MarksheetFormComponent = lazy(() => import("./components/marksheet/FormComponent"));
+const MarksheetListingComponent = lazy(() => import("./components/marksheet/ListingComponent"));
 
 const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"));
 const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"));
@@ -69,7 +69,6 @@ function App() {
   useEffect(() => {
     getRoleAndPriorityById()
       .then(result => {
-        console.log(result, 'useeffect 1')
         if (result) {
           setUserRole({
             name: result.name,
@@ -82,7 +81,6 @@ function App() {
   useEffect(() => {
     verifyToken()
       .then(result => {
-        console.log('useeffect2', !result)
         if (!result && pathname !== '/login') {
           localStorage.clear();
           navigateTo('../login', { replace: true });
@@ -110,9 +108,9 @@ function App() {
                       <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
 
                       <Route exact path="/class/listing" element={<ClassListingComponent />} />
-                      
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent/>}/>
-                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent/>}/>
+
+                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
+                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
 
                       <Route exact path="/school/create" element={<SchoolFormComponent />} />
                       <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
@@ -153,8 +151,8 @@ function App() {
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
                       <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent/>}/>
-                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent/>}/>
+                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
+                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
@@ -175,9 +173,9 @@ function App() {
                       <Route exact path="/bus/create" element={<BusFormComponent />} />
                       <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
 
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent/>}/>
-                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent/>}/>
-                      
+                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
+                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
+
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />

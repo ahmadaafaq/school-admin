@@ -194,7 +194,7 @@ const UserFormComponent = ({
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                         transform: 'translate(0)',
                         transformStyle: 'preserve-3d',
-                        marginBottom: '80px'
+                        marginBottom: '40px'
                     }}
                 >
                     <TextField
@@ -492,7 +492,7 @@ const UserFormComponent = ({
                     sx={{
                         transform: 'translate(0)',
                         transformStyle: 'preserve-3d',
-                        marginBottom: '80px'
+                        marginBottom: '40px'
                     }}
                 >
                     <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' onClick={handleAddClick}>
