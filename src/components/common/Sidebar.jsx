@@ -56,8 +56,11 @@ const Sidebar = ({ rolePriority }) => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
-  const toggleSubMenu = () => {
-    setIsubMenuOpen(!isSubMenuOpen);
+  const closeSubMenu = () => {
+    if (isSubMenuOpen) {
+      setIsubMenuOpen(false);
+    } 
+    console.log("i am togglemenu",isSubMenuOpen)
   };
 
   useEffect(() => {
@@ -114,7 +117,7 @@ const Sidebar = ({ rolePriority }) => {
       />
     ));
   };
-
+  console.log("submenu",isSubMenuOpen)
   return (
     <Box
       sx={{
@@ -140,14 +143,14 @@ const Sidebar = ({ rolePriority }) => {
           color: `${colors.primary[100]}`
         },
         "& .pro-inner-list-item": {
-          height: `${isSubMenuOpen ? "100px" : "0"}` + " !important",
-          overflow: isSubMenuOpen ? "scroll" : "hidden",
+          height: `${isSubMenuOpen ? "115px" : "0"}` + " !important",
+          overflowY: isSubMenuOpen ? "scroll" : "hidden",
           transition: 'height 0.3s ease-in-out !important'
         }
       }}
     >
       <ProSidebar collapsed={isCollapsed}>
-        <Menu iconShape="square" onClick={(event) => toggleSubMenu(event)}>
+        <Menu iconShape="square" onClick={(event) => closeSubMenu(event)}>
           {/* LOGO AND MENU ICON */}
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -229,7 +232,14 @@ const Sidebar = ({ rolePriority }) => {
                 (
                   <SubMenu
                     title="All Students"
-                    icon={<PeopleOutlinedIcon />}
+                    onClick={(event) => {
+                      isSubMenuOpen ? setIsubMenuOpen(false) :
+                      setIsubMenuOpen(true);
+                      event.stopPropagation();
+                    }}
+                    open={isSubMenuOpen}
+                    icon={<PeopleOutlinedIcon />
+                  }
                   >
                     <SidebarItem
                       title="Student"
