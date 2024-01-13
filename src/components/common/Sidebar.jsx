@@ -59,8 +59,8 @@ const Sidebar = ({ rolePriority }) => {
   const closeSubMenu = () => {
     if (isSubMenuOpen) {
       setIsubMenuOpen(false);
-    } 
-    console.log("i am togglemenu",isSubMenuOpen)
+    }
+    // console.log("i am togglemenu",isSubMenuOpen)
   };
 
   useEffect(() => {
@@ -117,7 +117,7 @@ const Sidebar = ({ rolePriority }) => {
       />
     ));
   };
-  console.log("submenu",isSubMenuOpen)
+  // console.log("submenu",isSubMenuOpen)
   return (
     <Box
       sx={{
@@ -234,12 +234,12 @@ const Sidebar = ({ rolePriority }) => {
                     title="All Students"
                     onClick={(event) => {
                       isSubMenuOpen ? setIsubMenuOpen(false) :
-                      setIsubMenuOpen(true);
+                        setIsubMenuOpen(true);
                       event.stopPropagation();
                     }}
                     open={isSubMenuOpen}
                     icon={<PeopleOutlinedIcon />
-                  }
+                    }
                   >
                     <SidebarItem
                       title="Student"
