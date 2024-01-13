@@ -119,15 +119,14 @@ const UserFormComponent = ({
         })
         if (yes.length) {
             setFilteredSubjects(yes);
-            console.log("datasssss",students)
-            initialValues.subjects = cls[0].subjects.split(',');
-            initialValues.school_id = students.data[0].school_id;
-            initialValues.class_id = cls[0].id;
-            initialValues.section_id = students.data[0].section;
-            initialValues.student = students.data[0].id;
+            initialValues.subjects = cls[0]?.subjects?.split(',');
+            initialValues.school_id = students?.data[0]?.school_id;
+            initialValues.class_id = cls[0]?.id;
+            initialValues.section_id = students?.data[0]?.section;
+            initialValues.student = students?.data[0]?.id;
         }
     }, [subjects]);
-    console.log('ABCD', cls, students)
+    console.log('class and students=', cls, students)
 
     return (
         <Box m="20px">

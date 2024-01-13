@@ -19,7 +19,6 @@ function DropDown({ onSelectClass, onSelectSection }) {
     const [sections, setSections] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedSection, setSelectedSection] = useState('');
-    const [students, setStudents] = useState([]);
 
     const dispatch = useDispatch();
     const theme = useTheme();
@@ -73,7 +72,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
         if (selectedClass && selectedSection) {
             API.StudentAPI.getStudentsByClassAndSection(selectedClass, selectedSection)
                 .then(data => {
-                    setStudents(data);
+                    console.log(data, 'dropdown component')
                     dispatch(setMarksheetStudents(data));
                 })
                 .catch(err => {
