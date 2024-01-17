@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -14,19 +14,21 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
+import { setClasses } from "../../redux/actions/ClassAction";
+import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
+import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const [classes, setClasses] = useState([]);
-    const [sections, setSections] = useState([]);
-    const [teacherDetail, setTeacherDetail] = useState([]);
-    const [teacherIds, setTeacherIds] = useState([]);
+    const classesInRedux = useSelector(state => state.allClasses);
+    const sectionsInRedux = useSelector(state => state.allSections);
+    const selected = useSelector(state => state.menuItems.selected);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const selected = useSelector(state => state.menuItems.selected);
     const navigateTo = useNavigate();
+    const { getPaginatedData } = useCommon();
     const { appendSuffix, findClassById, findSectionById } = Utility();
 
     const handleActionEdit = (id) => {
@@ -34,32 +36,16 @@ export const datagridColumns = () => {
     };
 
     useEffect(() => {
-        API.ClassAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setClasses(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!classesInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setClasses, API.ClassAPI);
+        }
+    }, [classesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.SectionAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setSections(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!sectionsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setSections, API.SectionAPI);
+        }
+    }, [sectionsInRedux?.listData?.rows?.length]);
 
     // console.log(teacherIds, 'teacher');
 
@@ -98,9 +84,8 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = params?.row?.class !== 0 ? findClassById(params?.row?.class, classes) : '/';
-                let sectionName = findSectionById(params?.row?.section, sections);
-                // params?.row?.class === 0 ? getTeacherDetailById(params.row.id) : null;
+                let className = params?.row?.class !== 0 ? findClassById(params?.row?.class, classesInRedux?.listData?.rows) : '/';
+                let sectionName = findSectionById(params?.row?.section, sectionsInRedux?.listData?.rows);
                 return (
                     <div>
                         {appendSuffix(className)} {sectionName}

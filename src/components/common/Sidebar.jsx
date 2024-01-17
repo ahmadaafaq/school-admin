@@ -6,7 +6,7 @@
 * restrictions set forth in your license agreement with School CRM.
 */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar/dist";
@@ -36,9 +36,11 @@ import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import { Api, TuneOutlined } from '@mui/icons-material';
 
 import API from "../../apis";
+import { setClasses } from "../../redux/actions/ClassAction";
 import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
+import { useCommon } from "../hooks/common";
 
 import "../common/index.css";
 import companyImg from "../assets/eden.jpg";
@@ -46,21 +48,21 @@ import dpsImg from "../assets/dps.png";
 
 const Sidebar = ({ rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [allClasses, setAllClasses] = useState([]);
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
   const selected = useSelector(state => state.menuItems.selected);
-  const location = useLocation();
+  const classesInRedux = useSelector(state => state.allClasses);
 
+  const location = useLocation();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
+  const { getPaginatedData } = useCommon();
   const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
   const closeSubMenu = () => {
     if (isSubMenuOpen) {
       setIsubMenuOpen(false);
     }
-    // console.log("i am togglemenu",isSubMenuOpen)
   };
 
   useEffect(() => {
@@ -71,25 +73,17 @@ const Sidebar = ({ rolePriority }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    API.ClassAPI.getAll(false, 0, 20)
-      .then(data => {
-        if (data.status === 'Success') {
-          setAllClasses(data.data.rows);
-        } else {
-          console.log("Error fetching classes, Please Try Again");
-        }
-      })
-      .catch(err => {
-        throw err;
-      });
-  }, []);
+    if (!classesInRedux?.listData?.rows?.length) {
+      getPaginatedData(0, 20, setClasses, API.ClassAPI);
+    }
+  }, [classesInRedux?.listData?.rows?.length]);
 
   useEffect(() => {
     setIsCollapsed(isMobile);
   }, [isMobile]);
 
   const renderNotCollapsedStudents = () => {
-    return allClasses?.map(classs => (
+    return classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(classs => (
       <SidebarItem
         key={classs.id}
         title={`${addClassKeyword(classs.name)}`}

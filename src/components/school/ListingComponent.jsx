@@ -67,12 +67,13 @@ const ListingComponent = () => {
                 borderRadius="4px"
                 padding={isMobile ? "1vh" : "2vh"}
                 backgroundColor={colors.blueAccent[700]}
+                position="relative"
             >
                 <Box
                     display="flex"
                     height={isMobile ? "16vh" : "7vh"}
                     flexDirection={isMobile ? "column" : "row"}
-                    justifyContent={"space-between"}
+                    justifyContent="space-between"
                     alignItems={isMobile ? "center" : "normal"}
                 >
                     <Typography
@@ -105,17 +106,17 @@ const ListingComponent = () => {
             <Button sx={{
                 display: "none",
                 position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
+                top: isMobile ? "202px" : isTab ? "142px" : "110px",
+                left: isMobile ? "320px" : isTab ? "320px" : "325px",
+                zIndex: 10,
+                borderRadius: "10%",
                 color: colors.grey[100]
             }}
                 id="reload-btn"
                 type="button"
                 onClick={handleReload}
             >
-                <span style={{ display: "inherit", marginRight: "5px", marginLeft: "-2px" }}>
+                <span style={{ display: "inherit", marginRight: "5px" }}>
                     <ReplayIcon />
                 </span>
                 Back

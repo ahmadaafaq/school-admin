@@ -15,11 +15,19 @@ export const useCommon = () => {
     const dispatch = useDispatch();
     const selected = useSelector(state => state.menuItems.selected);
     const { getLocalStorage } = Utility();
+    const authInfo = getLocalStorage("auth");
 
-    /** Get data for pagination according to given parameters to be used in API call
+    /**
+     * Fetches paginated data from an API based on the given parameters.
+     *
+     * @param {number} page - The page number to fetch (default is 0).
+     * @param {number} size - The number of items per page.
+     * @param {Function} action - The Redux action creator function to dispatch the result.
+     * @param {object} api - The API object with a method named 'getAll'.
+     * @param {boolean} condition - Additional condition for the API call (default is false).
+     * @param {boolean} search - Flag indicating whether a search is performed (default is false).
      */
     const getPaginatedData = useCallback((page = 0, size, action, api, condition = false, search = false) => {
-        const authInfo = getLocalStorage("auth");
 
         api.getAll(condition, page, size, search, authInfo)
             .then(res => {
@@ -33,7 +41,7 @@ export const useCommon = () => {
                 console.error("An error occurred: ", err);
                 dispatch(action({ listData: [], loading: false }));
             });
-    }, [selected, getLocalStorage]);
+    }, [selected]);
 
     return {
         getPaginatedData

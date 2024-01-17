@@ -60,16 +60,21 @@ export const UserRoleAPI = {
     /** Get role name and priority by role id from the database
      */
     getRoleById: async (id, cancel = false) => {
-        const { data: response } = await api.request({
-            url: `/get-role-by-id`,
-            headers: {
-                "x-access-token": getLocalStorage("auth").token
-            },
-            method: "POST",
-            data: id,
-            signal: cancel ? cancelApiObject[this.getRoleById.name].handleRequestCancellation().signal : undefined,
-        });
-        return response;
+        const token = getLocalStorage("auth")?.token;
+        if (token) {
+            const { data: response } = await api.request({
+                url: `/get-role-by-id`,
+                headers: {
+                    "x-access-token": getLocalStorage("auth").token
+                },
+                method: "POST",
+                data: id,
+                signal: cancel ? cancelApiObject[this.getRoleById.name].handleRequestCancellation().signal : undefined,
+            });
+            return response;
+        } else {
+            return { status: false };
+        }
     }
 }
 

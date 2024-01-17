@@ -16,13 +16,13 @@ import { useTheme } from '@mui/material/styles';
 import { Formik } from "formik";
 
 import API from "../../apis";
+import classValidation from "./Validation";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
-import classValidation from "./Validation";
 
 const initialValues = {
     name: "",
@@ -54,7 +54,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
-    const { toastAndNavigate, getLocalStorage ,getIdsFromObjects } = Utility();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObjects } = Utility();
 
     let id = state?.id;
 

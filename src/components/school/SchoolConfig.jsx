@@ -13,7 +13,6 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
 
 export const datagridColumns = () => {
 
@@ -28,8 +27,16 @@ export const datagridColumns = () => {
 
     const columns = [
         {
+            field: "affiliation_no",
+            headerName: "Affiliation Number",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
             field: "name",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -37,24 +44,24 @@ export const datagridColumns = () => {
         },
         {
             field: "board",
-            headerName: "BOARD",
+            headerName: "Board",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 80
         },
         {
             field: "sub_type",
-            headerName: "SUB TYPE",
+            headerName: "Sub Type",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
+            minWidth: 80,
             valueGetter: params => params.row.sub_type.charAt(0).toUpperCase() + params.row.sub_type.slice(1)
         },
         {
-            field: "founding_year",
-            headerName: "Founding Year",
+            field: "contact_no_1",
+            headerName: "Contact Number",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -62,7 +69,7 @@ export const datagridColumns = () => {
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -93,7 +100,7 @@ export const datagridColumns = () => {
         },
         {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

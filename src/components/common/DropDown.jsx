@@ -6,66 +6,47 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/material";
 
 import API from "../../apis";
-import { Utility } from "../utility";
-import { tokens } from "../../theme";
+import { setClasses } from "../../redux/actions/ClassAction";
+import { setSections } from "../../redux/actions/SectionAction";
 import { setMarksheetClass, setMarksheetSection, setMarksheetStudents } from "../../redux/actions/MarksheetAction";
+import { tokens } from "../../theme";
+import { Utility } from "../utility";
+import { useCommon } from "../hooks/common";
 
 function DropDown({ onSelectClass, onSelectSection }) {
-    const [classes, setClasses] = useState([]);
-    const [sections, setSections] = useState([]);
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedSection, setSelectedSection] = useState('');
+    const classesInRedux = useSelector(state => state.allClasses);
+    const sectionsInRedux = useSelector(state => state.allSections);
 
     const dispatch = useDispatch();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { findSectionById } = Utility();
+    const { getPaginatedData } = useCommon();
+    const { findClassById, findSectionById } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedCls = classes.filter(value => value.id === event.target.value);
+        const selectedClass = findClassById(event.target.value, classesInRedux?.listData?.rows);
         setSelectedClass(event.target.value);
-        onSelectSection(selectedCls);
-        dispatch(setMarksheetClass(selectedCls));
+        onSelectSection(selectedClass);
+        dispatch(setMarksheetClass(selectedClass));
     };
 
     const handleSectionChange = (event) => {
-        const selectedSection = findSectionById(event.target.value, sections);
+        const selectedSection = findSectionById(event.target.value, sectionsInRedux?.listData?.rows);
         setSelectedSection(event.target.value);
         onSelectClass(selectedSection);
         dispatch(setMarksheetSection(selectedSection));
     };
 
     useEffect(() => {
-        API.ClassAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setClasses(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
+        getPaginatedData(0, 20, setClasses, API.ClassAPI);
+        getPaginatedData(0, 20, setSections, API.SectionAPI);
     }, []);
-
-    useEffect(() => {
-        API.SectionAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setSections(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, [classes]);
 
     useEffect(() => {
         // Fetch students based on the selected class and section
@@ -102,12 +83,11 @@ function DropDown({ onSelectClass, onSelectSection }) {
                         height: "12vh",
                         backgroundColor: colors.blueAccent[800]
                     }}>
-                    {classes.length ? classes.map(item => (
+                    {classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(item => (
                         <MenuItem value={item.id} key={item.name}>
                             {item.name}
                         </MenuItem>
-                    ))
-                        : null}
+                    ))}
                 </Select>
             </FormControl>
             <FormControl variant="filled" sx={{
@@ -130,7 +110,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
                         backgroundColor: colors.greenAccent[600]
                     }}
                 >
-                    {sections?.length && sections.map(item => (
+                    {sectionsInRedux?.listData?.rows?.length && sectionsInRedux.listData.rows.map(item => (
                         <MenuItem value={item.id} key={item.name}>
                             {item.name}
                         </MenuItem>
