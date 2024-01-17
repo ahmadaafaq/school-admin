@@ -225,6 +225,19 @@ export const Utility = () => {
         }
     };
 
+    //function to check whether an object is empty
+    const isObjEmpty = (obj) => {
+        for (const prop in obj) {
+            console.log(prop, obj, 'objEmpty')
+            if (Object.hasOwn(obj, prop)) {
+                console.log('returned false')
+                return false;
+            }
+        }
+        console.log('returned true')
+        return true;
+    };
+
     /** Fetches role and priority by the id of the user logged in
      */
     const getRoleAndPriorityById = async () => {
@@ -258,6 +271,7 @@ export const Utility = () => {
         getRole,
         getRoleAndPriorityById,
         getIdsFromObjects,
+        isObjEmpty,
         remLocalStorage,
         setLocalStorage,
         toastAndNavigate,

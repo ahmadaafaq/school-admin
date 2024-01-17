@@ -7,6 +7,7 @@
 */
 
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 import { Box, InputLabel, MenuItem, InputAdornment, IconButton, FormControl } from "@mui/material";
 import { Button, Select, TextField, useMediaQuery } from "@mui/material";
@@ -17,7 +18,8 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 
 import API from "../../apis";
 import userValidation from "./Validation";
-import { Utility } from "../utility";
+import { setSchools } from "../../redux/actions/SchoolAction";
+import { useCommon } from "../hooks/common";
 
 const initialValues = {
     school_id: '',
@@ -47,15 +49,14 @@ const UserFormComponent = ({
         password: null
     });
     const [initialState, setInitialState] = useState(initialValues);
-    const [schools, setSchools] = useState([]);
     const [schoolId, setSchoolId] = useState(null);
     const [allRoles, setAllRoles] = useState([]);
-    const [currentRole, setCurrentRole] = useState({ name: '', priority: null });
+    const schoolsInRedux = useSelector(state => state.allSchools);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const pwField = document.getElementById("pwField");
-    const { getRoleAndPriorityById } = Utility();
+    const { getPaginatedData } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -109,21 +110,10 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        const getSchools = () => {
-            API.SchoolAPI.getAllSchools()
-                .then(school => {
-                    if (school?.status === 'Success') {
-                        setSchools(school.data.list);
-                    } else {
-                        console.log("An Error Occurred, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getSchools();
-    }, []);
+        if (!schoolsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSchools, API.SchoolAPI);
+        }
+    }, [schoolsInRedux]);
 
     useEffect(() => {
         const getRoles = () => {
@@ -141,7 +131,6 @@ const UserFormComponent = ({
         };
         getRoles();
     }, []);
-    // console.log(allRoles)
 
     const handleUpdatePassword = () => {
         if (updatePassword.clicked) {
@@ -302,7 +291,7 @@ const UserFormComponent = ({
                                 formik.setFieldValue("school_id", selectedSchoolId);
                             }}
                         >
-                            {schools.map(item => (
+                            {schoolsInRedux?.listData?.rows?.length && schoolsInRedux.listData.rows.map(item => (
                                 <MenuItem value={item.id} name={item.name} key={item.name}>
                                     {item.name}
                                 </MenuItem>

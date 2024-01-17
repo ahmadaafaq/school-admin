@@ -7,24 +7,29 @@
  */
 
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
+import { setClasses } from "../../redux/actions/ClassAction";
+import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
+import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
     const [students, setStudents] = useState([]);
-    const [classes, setClasses] = useState([]);
-    const [sections, setSections] = useState([]);
     const [subjects, setSubjects] = useState([]);
+    const classesInRedux = useSelector(state => state.allClasses);
+    const sectionsInRedux = useSelector(state => state.allSections);
 
+    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const navigateTo = useNavigate();
+    const { getPaginatedData } = useCommon();
     const { appendSuffix, findStudentById, findClassById, findSectionById, findSubjectById } = Utility();
 
     const handleActionEdit = (id) => {
@@ -32,32 +37,16 @@ export const datagridColumns = () => {
     };
 
     useEffect(() => {
-        API.ClassAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setClasses(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!classesInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setClasses, API.ClassAPI);
+        }
+    }, [classesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.SectionAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setSections(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!sectionsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setSections, API.SectionAPI);
+        }
+    }, [sectionsInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
         API.SubjectAPI.getAll(false, 0, 20)
@@ -120,8 +109,8 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = params?.row?.class_id > 0 ? findClassById(params?.row?.class_id, classes) : '/';
-                let sectionName = params?.row?.section_id > 0 ? findSectionById(params?.row?.section_id, sections) : '/';
+                let className = params?.row?.class_id > 0 ? findClassById(params?.row?.class_id, classesInRedux?.listData?.rows) : '/';
+                let sectionName = params?.row?.section_id > 0 ? findSectionById(params?.row?.section_id, sectionsInRedux?.listData?.rows) : '/';
                 return (
                     <div>
                         {appendSuffix(className)} {sectionName}

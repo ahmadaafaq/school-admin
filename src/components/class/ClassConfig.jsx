@@ -5,29 +5,29 @@
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
+import API from "../../apis";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
-import API from "../../apis";
-import { useState, useEffect } from "react";
 
 export const datagridColumns = (handleDialogOpen) => {
+    const [subjects, setSubjects] = useState([]);
+    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const navigateTo = useNavigate();
     const { findSubjectsById } = Utility();
 
-    const [subjects, setSubjects] = useState([]);
     const handleActionEdit = (id) => {
         handleDialogOpen();
         navigateTo("#", { state: { id: id } });
     };
-    //get all subjects from subject table stored in db before populating data
+
     useEffect(() => {
         const getsubjects = () => {
             API.SubjectAPI.getAll(false, 0, 30)
@@ -44,6 +44,7 @@ export const datagridColumns = (handleDialogOpen) => {
         };
         getsubjects();
     }, []);
+
     const columns = [
         {
             field: "name",
@@ -64,10 +65,10 @@ export const datagridColumns = (handleDialogOpen) => {
                 const subjectIds = params?.row.subjects;
                 const subjectNames = findSubjectsById(subjectIds, subjects).map(subject => subject.name);
                 return (
-                    <div style={{ width: '100%', height:"40px" }}>
+                    <div style={{ width: '100%', height: "40px" }}>
                         {subjectNames.map((subject, index) => (
                             <React.Fragment key={index}>
-                                {index > 0 && ','} 
+                                {index > 0 && ','}
                                 {index > 0 && index % 3 === 0 && <br />}{subject}
                             </React.Fragment>
                         ))}

@@ -60,6 +60,7 @@ const Search = ({
                 ml: 2,
                 flex: 1,
                 width: "88%",
+                position: "absolute",
                 mt: isMobile ? 0 : 1
             }}
                 placeholder="Search"
@@ -71,8 +72,8 @@ const Search = ({
             <IconButton sx={{
                 p: 1,
                 position: "absolute",
-                top: isTab ? "1vw" : "0",
-                right: isTab ? "1vw" : "0",
+                top: isTab ? "0" : "6px",
+                right: isTab ? "2px" : "2px",
                 "&:hover": { backgroundColor: colors.greenAccent[600] }
             }}
                 onClick={handleSearch}

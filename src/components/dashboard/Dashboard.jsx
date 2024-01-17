@@ -6,7 +6,8 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import { Box,  Typography, useTheme, useMediaQuery } from "@mui/material";
+import { useState } from "react";
+import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -15,13 +16,14 @@ import EngineeringSharpIcon from '@mui/icons-material/EngineeringSharp';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
-import { tokens, themeSettings } from "../../theme";
-import StatBox from "../common/StatBox";
-import { studentData, lineData } from "../common/CustomCharts";
 import DropDown from "../common/DropDown";
-
+import StatBox from "../common/StatBox";
+import { tokens, themeSettings } from "../../theme";
+import { studentData, lineData } from "../common/CustomCharts";
 
 const Dashboard = () => {
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const colors = tokens(theme.palette.mode);
@@ -127,7 +129,7 @@ const Dashboard = () => {
       color: colors.blueAccent[600],
     }],
   };
- 
+
   return (
     <Box m="10px"  >
       {/* HEADER */}
@@ -141,7 +143,10 @@ const Dashboard = () => {
         >
           Dashboard
         </Typography>
-        <DropDown/>
+        <DropDown
+          onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
+          onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
+        />
       </Box>
       {/* GRID & CHARTS */}
       <Box

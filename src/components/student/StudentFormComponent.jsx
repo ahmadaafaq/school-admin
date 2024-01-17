@@ -7,6 +7,7 @@
 */
 
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
@@ -15,8 +16,11 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
 import API from "../../apis";
-import Loader from "../common/Loader";
 import studentValidation from "./Validation";
+
+import { setClasses } from "../../redux/actions/ClassAction";
+import { setSections } from "../../redux/actions/SectionAction";
+import { useCommon } from "../hooks/common";
 
 const initialValues = {
     roll_no: "",
@@ -54,14 +58,15 @@ const UserFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [classes, setClasses] = useState([]);
-    const [sections, setSections] = useState([]);
     const [subjects, setSubjects] = useState([]);
-    const [loading, setLoading] = useState(false);
+
+    const classesInRedux = useSelector(state => state.allClasses);
+    const sectionsInRedux = useSelector(state => state.allSections);
 
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
+    const { getPaginatedData } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -107,49 +112,29 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        API.ClassAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setClasses(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!classesInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setClasses, API.ClassAPI);
+        }
+    }, [classesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.SectionAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setSections(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!sectionsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setSections, API.SectionAPI);
+        }
+    }, [sectionsInRedux?.listData?.rows?.length]);
 
     const getSubjectsByClass = (classId) => {
-        setLoading(true);
         API.SubjectAPI.getSubjectsByClass(classId)
             .then(subjects => {
-                console.log("data", subjects)
+                console.log("subjects", subjects)
                 if (subjects.status === 'Success') {
                     setSubjects(subjects.data);
-                    setLoading(false);
                 } else {
-                    setLoading(false);
                     console.log("Error, Please Try Again");
                 }
             })
             .catch(err => {
-                setLoading(false);
-                throw err;
+                console.log("Error, Fetching Subjects:", err);
             })
     };
 
@@ -285,7 +270,7 @@ const UserFormComponent = ({
                                 getSubjectsByClass(event.target.value);
                             }}
                         >
-                            {classes.length && classes.map(cls => (
+                            {classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(cls => (
                                 <MenuItem value={cls.id} name={cls.name} key={cls.name}>
                                     {cls.name}
                                 </MenuItem>
@@ -306,7 +291,7 @@ const UserFormComponent = ({
                             value={formik.values.section}
                             onChange={event => formik.setFieldValue("section", event.target.value)}
                         >
-                            {sections.length && sections.map(section => (
+                            {sectionsInRedux?.listData?.rows?.length && sectionsInRedux.listData.rows.map(section => (
                                 <MenuItem value={section.id} name={section.name} key={section.name}>
                                     {section.name}
                                 </MenuItem>
@@ -329,8 +314,8 @@ const UserFormComponent = ({
                                 type="text"
                                 name="subjects"
                                 label="subjects"
-                            // error={!!touched.subjects && !!errors.subjects}
-                            // helperText={touched.subjects && errors.subjects}
+                                error={!!formik.touched.subjects && !!formik.errors.subjects}
+                                helperText={formik.touched.subjects && formik.errors.subjects}
                             />
                         )}
                     />
@@ -349,7 +334,7 @@ const UserFormComponent = ({
                             }}
                         />
                         <DatePicker
-                            format="DD MMMM YYYY"            //ex - 25 July 2023
+                            format="DD MMMM YYYY"
                             views={['day', "month", "year"]}
                             label="Select Admission Date"
                             name="admission_date"
@@ -493,7 +478,6 @@ const UserFormComponent = ({
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
-                {loading === true ? <Loader /> : null}
             </form >
         </Box >
     );
