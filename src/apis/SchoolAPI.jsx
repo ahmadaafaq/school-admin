@@ -57,16 +57,31 @@ export const SchoolAPI = {
     });
   },
 
-  /** Get all the schools from the database
-   */
-  getAllSchools: async (cancel = false) => {
-    const { data: response } = await api.request({
-      url: `/get-all-schools`,
-      method: "GET",
+  /** Insert data into teacher_class_subject mapping table in the database
+    */
+  insertIntoMappingTable: async (data, cancel = false) => {
+    console.log('api data=>', data)
+    return await api.request({
+      url: `/create-school-class-mapping`,
       headers: {
         "x-access-token": getLocalStorage("auth").token
       },
-      signal: cancel ? cancelApiObject[this.getAllSchools.name].handleRequestCancellation().signal : undefined,
+      method: "POST",
+      data: data,
+      signal: cancel ? cancelApiObject[this.insertIntoMappingTable.name].handleRequestCancellation().signal : undefined,
+    });
+  },
+
+  /** Get school class and section detail from database
+   */
+  getSchoolClasses: async (school_id, cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-school-classes/${school_id}`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "GET",
+      signal: cancel ? cancelApiObject[this.getSchoolClasses.name].handleRequestCancellation().signal : undefined,
     });
     return response;
   }

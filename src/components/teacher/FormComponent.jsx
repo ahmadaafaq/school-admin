@@ -109,6 +109,7 @@ const FormComponent = () => {
                     },
                     addressData: responses[1]?.data?.data,
                 };
+                console.log('teacher dataobj', dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -188,7 +189,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [id, submitted, combinedClass]);
 
     const handleSubmit = async () => {
         await teacherFormRef.current.Submit();
@@ -202,7 +203,7 @@ const FormComponent = () => {
             setFormData({ ...formData, teacherData: data });
         } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
-        } else if (form === 'teacher') {
+        } else if (form === 'image') {
             setFormData({ ...formData, imageData: data });
         }
     };
@@ -245,7 +246,7 @@ const FormComponent = () => {
             />
             <ImagePicker
                 key="image"
-                onChange={data => handleFormChange(data, 'teacher')}
+                onChange={data => handleFormChange(data, 'image')}
                 refId={imageFormRef}
                 reset={reset}
                 setReset={setReset}
