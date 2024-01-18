@@ -9,7 +9,8 @@
 import React, { useState, useEffect } from "react";
 
 import { Box, Checkbox, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
-import { Autocomplete, Select, TextField, useMediaQuery } from "@mui/material";
+import { Autocomplete, Divider, Select, TextField, useMediaQuery } from "@mui/material";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useFormik } from "formik";
 
 import schoolValidation from "./Validation";
@@ -24,6 +25,8 @@ const initialValues = {
     board: "",
     area: "",
     amenities: [],
+    classes: [],
+    sections: [],
     is_boarding: false,
     boarding_capacity: 0,
     capacity: 0,
@@ -40,12 +43,17 @@ const UserFormComponent = ({
     setDirty,
     reset,
     setReset,
-    userId,
+    schoolId,
     amenities,
+    classesInRedux,
+    sectionsInRedux,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
+    const [fields, setFields] = useState([{ id: 1 }]);
+    const [updatedArr, setUpdatedArr] = useState({});
+
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
@@ -74,6 +82,12 @@ const UserFormComponent = ({
         };
     };
 
+    const handleAddClick = () => {
+        setFields([
+            ...fields,
+            { id: fields.length + 1 }
+        ]);
+    };
 
     useEffect(() => {
         if (reset) {
@@ -90,10 +104,28 @@ const UserFormComponent = ({
 
     useEffect(() => {
         if (updatedValues) {
-            setInitialState(updatedValues);
+            const updatedArrHelper = updatedValues.selectedClass.reduce((acc, obj) => {
+                const key = obj.class_id;
+                if (!acc[key]) {
+                    acc[key] = [];
+                }
+                acc[key].push(obj);
+                return acc;
+            }, {});
+            setUpdatedArr(updatedArrHelper);
+            console.log(updatedArr, 'updated', updatedArrHelper);
+
+            // Check if updatedArrHelper is not empty and has keys
+            const hasData = updatedArrHelper && Object.keys(updatedArrHelper).length > 0;
+            setInitialState({
+                ...initialState,
+                ...updatedValues.schoolData,
+                classes: hasData ? Object.keys(updatedArrHelper) : [],
+                sections: hasData ? Object.values(updatedArrHelper) : []
+            });
         }
     }, [updatedValues]);
-
+    console.log('Object.values(updatedArr)=>', Object.values(updatedArr));
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -103,6 +135,7 @@ const UserFormComponent = ({
                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                        marginBottom: '40px'
                     }}
                 >
                     <TextField
@@ -351,6 +384,144 @@ const UserFormComponent = ({
                             error={!!formik.touched.boarding_capacity && !!formik.errors.boarding_capacity}
                             helperText={formik.touched.boarding_capacity && formik.errors.boarding_capacity}
                         />}
+                </Box>
+
+                <Box
+                    border='2px solid #BADFE7'
+                    borderRadius='12px'
+                    padding='4px'
+                    display='grid'
+                    gap="30px"
+                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                    gridColumn="span 4"
+                    position='relative'
+                    className='box-shadow'
+                    sx={{
+                        transform: 'translate(0)',
+                        transformStyle: 'preserve-3d',
+                        marginBottom: '40px'
+                    }}
+                >
+                    <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' onClick={handleAddClick}>
+                        <AddCircleIcon sx={{ fontSize: '22px' }} />
+                        <span style={{
+                            color: "rgb(97,97,97)", fontWeight: "300", fontSize: "16px", lineHeight: "30px", letterSpacing: "0.015em"
+                        }}> Add Classes </span>
+                    </Box>
+
+                    {/* create */}
+                    {!schoolId && fields.map(field => (
+                        <React.Fragment key={field.id}>
+                            <FormControl variant="filled" sx={{ minWidth: 120 }}
+                                error={!!formik.touched.classes && !!formik.errors.classes}
+                            >
+                                <InputLabel id={`classesField_${field.id}`}>Class</InputLabel>
+                                <Select
+                                    variant="filled"
+                                    labelId={`classesField_${field.id}`}
+                                    name={`classes${field.id}`}
+                                    autoComplete="new-classes"
+                                    value={formik.values.classes[field.id - 1]}
+                                    onChange={(event, value) => {
+                                        const subArr = [...formik.values.classes];
+                                        subArr[field.id - 1] = value.props.value;
+                                        formik.setFieldValue("classes", subArr)
+                                    }}
+                                >
+                                    {classesInRedux?.length && classesInRedux.map(cls => (
+                                        <MenuItem value={cls.id} name={cls.name} key={cls.name}>
+                                            {cls.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
+                            </FormControl>
+
+                            <Autocomplete
+                                multiple
+                                options={sectionsInRedux || []}
+                                getOptionLabel={option => option.name}
+                                disableCloseOnSelect
+                                value={formik.values.sections[field.id - 1]}
+                                onChange={(event, value) => {
+                                    const clsArr = [...formik.values.sections];
+                                    clsArr[field.id - 1] = value;
+                                    formik.setFieldValue("sections", clsArr)
+                                }}
+                                sx={{ gridColumn: "span 2" }}
+                                renderInput={params => (
+                                    <TextField
+                                        {...params}
+                                        variant="filled"
+                                        type="text"
+                                        name={`sections${field.id}`}
+                                        label="Section"
+                                    // error={`${!!formik.touched}.combinedClsSect_${field.id}` && !!formik.errors.{`combinedClsSect_${field.id}`}}
+                                    // helperText={formik.touched.{`combinedClsSect_${field.id}`} && formik.errors.{`combinedClsSect_${field.id}`}}
+                                    />
+                                )}
+                            />
+                            {fields.length > 1 && <Divider sx={{ borderBottomWidth: '0px' }} />}
+                        </React.Fragment>))}
+
+                    {/* Update */}
+                    {schoolId && Object.values(updatedArr).map((field, index) => {
+                        let key = index + 1;
+                        // console.log(updatedArr[index])
+                        return (
+                            <React.Fragment key={key}>
+                                <FormControl variant="filled" sx={{ minWidth: 120 }}
+                                    error={!!formik.touched.classes && !!formik.errors.classes}
+                                >
+                                    <InputLabel id={`classesField_${key}`}>Class</InputLabel>
+                                    <Select
+                                        variant="filled"
+                                        labelId={`classesField_${key}`}
+                                        name={`classes${key}`}
+                                        autoComplete="new-classes"
+                                        value={field[0]?.class_id}
+                                        onChange={(event, value) => {
+                                            const subArr = [...formik.values.classes];
+                                            subArr[key - 1] = value.props.value;
+                                            formik.setFieldValue("classes", subArr)
+                                        }}
+                                    >
+                                        {classesInRedux?.length && classesInRedux.map(cls => (
+                                            <MenuItem value={cls.id} name={cls.name} key={cls.name}>
+                                                {cls.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
+                                </FormControl>
+
+                                <Autocomplete
+                                    multiple
+                                    options={sectionsInRedux || []}
+                                    getOptionLabel={option => option.name}
+                                    disableCloseOnSelect
+                                    value={formik.values.sections[index] || []}
+                                    onChange={(event, value) => {
+                                        const clsArr = [...formik.values.sections];
+                                        clsArr[key - 1] = value;
+                                        formik.setFieldValue("sections", clsArr)
+                                    }}
+                                    sx={{ gridColumn: "span 2" }}
+                                    renderInput={params => (
+                                        <TextField
+                                            {...params}
+                                            variant="filled"
+                                            type="text"
+                                            name={`sections${key}`}
+                                            label="Section"
+                                        // error={`${!!formik.touched}.combinedClsSect_${field.id}` && !!formik.errors.{`combinedClsSect_${field.id}`}}
+                                        // helperText={formik.touched.{`combinedClsSect_${field.id}`} && formik.errors.{`combinedClsSect_${field.id}`}}
+                                        />
+                                    )}
+                                />
+                                {index > 0 && <Divider sx={{ borderBottomWidth: '0px' }} />}
+                            </React.Fragment>)
+                    })}
                 </Box>
             </form>
         </Box>

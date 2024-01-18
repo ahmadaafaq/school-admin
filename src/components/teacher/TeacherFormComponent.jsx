@@ -561,7 +561,7 @@ const UserFormComponent = ({
                                         label={`Subject ${key}`}
                                         name={`subject_${key}`}
                                         autoComplete="new-subject"
-                                        value={field[index].subject_id}
+                                        value={field[index]?.subject_id}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.subject];
                                             subArr[key - 1] = value.props.value;

@@ -128,7 +128,7 @@ const UserFormComponent = ({
 
     useEffect(() => {
         let yes = [];
-        cls[0]?.subjects.split(',').map(sub => {
+        cls[0]?.subjects?.split(',').map(sub => {
             yes.push(findSubjectById(parseInt(sub), subjects));
         })
         if (yes.length) {
