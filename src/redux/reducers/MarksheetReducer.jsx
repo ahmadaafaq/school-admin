@@ -9,10 +9,11 @@
 import { ActionTypes } from "../constants/action-types";
 
 const initialState = {
-    cls: '',
-    section: '',
+    marksheetClass: '',
+    marksheetSection: '',
     listData: [],
-    loading: true
+    loading: true,
+    
 };
 
 export const setMarksheetsReducer = (state = initialState, action) => {
@@ -20,12 +21,12 @@ export const setMarksheetsReducer = (state = initialState, action) => {
         case ActionTypes.MARKSHEET_CLASS:
             return {
                 ...state,
-                cls: action.payload
+                marksheetClass: action.payload
             };
         case ActionTypes.MARKSHEET_SECTION:
             return {
                 ...state,
-                section: action.payload
+                marksheetSection: action.payload
             };
         case ActionTypes.SET_MARKSHEETS:
             return {
@@ -33,11 +34,11 @@ export const setMarksheetsReducer = (state = initialState, action) => {
                 listData: action.payload.listData,
                 loading: action.payload.loading
             };
-        case ActionTypes.MARKSHEET_STUDENTS:
-            return {
-                ...state,
-                students: action.payload,
-            };
+        // case ActionTypes.MARKSHEET_STUDENTS:
+        //     return {     why is this
+        //         ...state,
+        //         students: action.payload,
+        //     };
         default:
             return state;
     };
