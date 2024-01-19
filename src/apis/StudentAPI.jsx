@@ -57,17 +57,18 @@ export const StudentAPI = {
     });
   },
 
-  getStudentsByClassAndSection: async (classId, sectionId, cancel = false) => {
+  /** */
+  getStudentsByClass: async (classId, sectionId, cancel = false) => {
     const { data: response } = await api.request({
-      url: `/get-student-by-class?classId=${classId}&sectionId=${sectionId}`,
+      url: `/get-students-by-class/${classId}/${sectionId}`,
       headers: {
         "x-access-token": getLocalStorage("auth")?.token
       },
       method: "GET",
-      signal: cancel ? cancelApiObject[StudentAPI.getStudentsByClassAndSection.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[StudentAPI.getStudentsByClass.name].handleRequestCancellation().signal : undefined,
     });
     return response;
-  },
+  }
 };
 
 // defining the cancel API object for StudentAPI

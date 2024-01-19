@@ -167,6 +167,7 @@ const UserFormComponent = ({
                 console.error("Error fetching classes:", err);
             });
     }, []);
+    console.log('Object.values(updatedArr)=>', Object.values(updatedArr));
 
     return (
         <Box m="20px">
@@ -561,7 +562,7 @@ const UserFormComponent = ({
                                         label={`Subject ${key}`}
                                         name={`subject_${key}`}
                                         autoComplete="new-subject"
-                                        value={field[index]?.subject_id}
+                                        value={formik.values.subject[index] || []}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.subject];
                                             subArr[key - 1] = value.props.value;

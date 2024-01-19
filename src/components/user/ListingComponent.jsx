@@ -124,7 +124,7 @@ const ListingComponent = () => {
                 type="button"
                 onClick={handleReload}
             >
-                <span style={{ display: "inherit", marginRight: "5px", marginLeft: "-2px" }}>
+                <span style={{ display: "inherit", marginRight: "5px" }}>
                     <ReplayIcon />
                 </span>
                 Back

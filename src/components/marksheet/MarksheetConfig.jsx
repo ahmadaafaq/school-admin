@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -16,19 +16,21 @@ import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRen
 import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
 import { setSections } from "../../redux/actions/SectionAction";
+import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const [students, setStudents] = useState([]);
-    const [subjects, setSubjects] = useState([]);
     const classesInRedux = useSelector(state => state.allClasses);
     const sectionsInRedux = useSelector(state => state.allSections);
+    const subjectsInRedux = useSelector(state => state.allSubjects);
+    const studentsInRedux = useSelector(state => state.allStudents);
 
-    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const navigateTo = useNavigate();
     const { getPaginatedData } = useCommon();
     const { appendSuffix, findStudentById, findClassById, findSectionById, findSubjectById } = Utility();
 
@@ -49,32 +51,16 @@ export const datagridColumns = () => {
     }, [sectionsInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.SubjectAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setSubjects(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!subjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        }
+    }, [subjectsInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.StudentAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setStudents(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!studentsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setStudents, API.StudentAPI);
+        }
+    }, [studentsInRedux?.listData?.rows?.length]);
 
     const columns = [
         // {
@@ -93,7 +79,7 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let studentName = params?.row?.student_id !== 0 ? findStudentById(params?.row?.student_id, students) : '/';
+                let studentName = params?.row?.student_id !== 0 ? findStudentById(params?.row?.student_id, studentsInRedux?.listData?.rows) : '/';
                 return (
                     <div>
                         {studentName}
@@ -126,7 +112,7 @@ export const datagridColumns = () => {
             flex: 2,
             minWidth: 120,
             renderCell: (params) => {
-                let subjectName = params?.row?.subject_id > 0 ? findSubjectById(parseInt(params?.row?.subject_id), subjects) : '/';
+                let subjectName = params?.row?.subject_id > 0 ? findSubjectById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows) : '/';
                 return (
                     <div>
                         {subjectName}

@@ -16,23 +16,22 @@ import { useFormik } from "formik";
 
 import API from "../../apis";
 import marksheetValidation from "./Validation";
+import { setSubjects } from "../../redux/actions/SubjectAction";
 import { useSelector } from "react-redux";
 import { Utility } from "../utility";
+import { useCommon } from "../hooks/common";
 
 const initialValues = {
-    school_id: "",
-    class_id: "",
-    section_id: "",
+    class: "",
+    section: "",
     student: "",
-    name: "",
-    subjects: [],
+    // subjects: [],
     term: "",
     marks_obtained: "",
     total_marks: "",
     grade: "",
     remark: "",
     result: ""
-
 };
 
 const UserFormComponent = ({
@@ -45,22 +44,22 @@ const UserFormComponent = ({
     updatedValues = null,
 }) => {
 
-    const { cls, section, students } = useSelector(state => state.allMarksheets);
     const [initialState, setInitialState] = useState(initialValues);
-    const [subjects, setSubjects] = useState([]);
     const [filteredSubjects, setFilteredSubjects] = useState([]);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const subjectsInRedux = useSelector(state => state.allSubjects);
+    const { marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { findSubjectById } = Utility();
+    const { getPaginatedData } = useCommon();
 
-    const [state, setState] = React.useState({
+    const [state, setState] = useState({
         vertical: 'top',
         horizontal: 'center',
-      });
-
-      const { vertical, horizontal } = state;
+    });
+    const { vertical, horizontal } = state;
 
     const formik = useFormik({
         initialValues: initialState,
@@ -110,38 +109,26 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        const getsubjects = () => {
-            API.SubjectAPI.getAll(false, 0, 30)
-                .then(subjects => {
-                    if (subjects.status === 'Success') {
-                        setSubjects(subjects.data.rows);
-                    } else {
-                        console.log("Error, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getsubjects();
-    }, []);
-
-    useEffect(() => {
-        let yes = [];
-        cls[0]?.subjects?.split(',').map(sub => {
-            yes.push(findSubjectById(parseInt(sub), subjects));
-        })
-        if (yes.length) {
-            setFilteredSubjects(yes);
-            initialValues.subjects = cls[0]?.subjects?.split(',');
-            initialValues.school_id = students?.data[0]?.school_id;
-            initialValues.class_id = cls[0]?.id;
-            initialValues.section_id = students?.data[0]?.section;
-            initialValues.student = students?.data[0]?.id;
+        if (!subjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
         }
+    }, [subjectsInRedux?.listData?.rows?.length]);
 
-    }, [subjects]);
-    console.log('class and students=', cls, students)
+    console.log('class and students=', marksheetClass, marksheetSection)
+    useEffect(() => {
+        let classSubjects = [];
+        marksheetClass?.subjects?.split(',').map(sub => {
+            classSubjects.push(findSubjectById(parseInt(sub), subjectsInRedux?.listData?.rows));
+        })
+        if (classSubjects.length) {
+            setFilteredSubjects(classSubjects);
+            initialValues.class = marksheetClass?.name;
+            initialValues.section = marksheetSection;
+            // initialValues.subjects = marksheetClass?.subjects?.split(',');
+            // initialValues.school_id = students?.data[0]?.school_id;
+            // initialValues.student = students?.data[0]?.id;
+        }
+    }, [subjectsInRedux?.listData?.rows]);
 
     return (
         <Box m="20px">
@@ -158,7 +145,6 @@ const UserFormComponent = ({
             </Snackbar>
             <form ref={refId}>
 
-
                 <Box
                     display="grid"
                     gap="10px"
@@ -171,14 +157,13 @@ const UserFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        name="class_id"
+                        name="class"
                         label="Class"
-                        autoComplete="new-class_id"
-                        value={cls[0]?.name}
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        error={!!formik.touched.class_id && !!formik.errors.class_id}
-                        helperText={formik.touched.class_id && formik.errors.class_id}
+                        value={formik.values.class}
+                    // onBlur={formik.handleBlur}
+                    // onChange={formik.handleChange}
+                    // error={!!formik.touched.class_id && !!formik.errors.class_id}
+                    // helperText={formik.touched.class_id && formik.errors.class_id}
                     />
 
                     <TextField
@@ -187,12 +172,11 @@ const UserFormComponent = ({
                         type="text"
                         name="section"
                         label="Section"
-                        autoComplete="new-section"
-                        value={section}
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        error={!!formik.touched.section && !!formik.errors.section}
-                        helperText={formik.touched.section && formik.errors.section}
+                        value={formik.values.section}
+                    // onBlur={formik.handleBlur}
+                    // onChange={formik.handleChange}
+                    // error={!!formik.touched.section && !!formik.errors.section}
+                    // helperText={formik.touched.section && formik.errors.section}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}>
                         <InputLabel id="studentField">Student</InputLabel>
@@ -204,13 +188,13 @@ const UserFormComponent = ({
                             value={formik.values.student}
                             onChange={formik.handleChange}
                         >
-                            {students?.data?.map(student => {
+                            {/* {students?.data?.map(student => {
                                 return (
                                     <MenuItem key={student.id} value={student.id}>
                                         {student.firstname} {student.lastname}
                                     </MenuItem>
                                 )
-                            })}
+                            })} */}
                         </Select>
                         <FormHelperText>{formik.touched.student && formik.errors.student}</FormHelperText>
                     </FormControl>
@@ -310,7 +294,7 @@ const UserFormComponent = ({
                     >
                         <InputLabel id="resultField">result</InputLabel>
                         <Select
-                            variant="outlined"
+                            variant="filled"
                             labelId="resultField"
                             label="Result"
                             name="result"

@@ -12,7 +12,7 @@ import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/m
 import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
 import { setSections } from "../../redux/actions/SectionAction";
-import { setMarksheetClass, setMarksheetSection, setMarksheetStudents } from "../../redux/actions/MarksheetAction";
+import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
@@ -23,14 +23,14 @@ function DropDown({ onSelectClass, onSelectSection }) {
     const classesInRedux = useSelector(state => state.allClasses);
     const sectionsInRedux = useSelector(state => state.allSections);
 
-    const dispatch = useDispatch();
     const theme = useTheme();
+    const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
     const { getPaginatedData } = useCommon();
-    const { findClassById, findSectionById } = Utility();
+    const { findSectionById } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedClass = findClassById(event.target.value, classesInRedux?.listData?.rows);
+        const selectedClass = classesInRedux?.listData?.rows.find(cls => cls.id === event.target.value);
         setSelectedClass(event.target.value);
         onSelectSection(selectedClass);
         dispatch(setMarksheetClass(selectedClass));
@@ -51,10 +51,10 @@ function DropDown({ onSelectClass, onSelectSection }) {
     useEffect(() => {
         // Fetch students based on the selected class and section
         if (selectedClass && selectedSection) {
-            API.StudentAPI.getStudentsByClassAndSection(selectedClass, selectedSection)
+            API.StudentAPI.getStudentsByClass(selectedClass, selectedSection)
                 .then(data => {
-                    console.log(data, 'dropdown component')
-                    dispatch(setMarksheetStudents(data));
+                    console.log(data, 'student marksheet data')
+                    // dispatch(setMarksheetStudents(data));
                 })
                 .catch(err => {
                     console.error('Error fetching students:', err);

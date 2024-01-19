@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import { Box, Checkbox, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
+import { Box, Checkbox, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, selectClasses } from "@mui/material";
 import { Autocomplete, Divider, Select, TextField, useMediaQuery } from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useFormik } from "formik";
@@ -52,7 +52,6 @@ const UserFormComponent = ({
 
     const [initialState, setInitialState] = useState(initialValues);
     const [fields, setFields] = useState([{ id: 1 }]);
-    const [updatedArr, setUpdatedArr] = useState({});
 
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -104,6 +103,7 @@ const UserFormComponent = ({
 
     useEffect(() => {
         if (updatedValues) {
+            console.log(updatedValues, 'our joined object')
             const updatedArrHelper = updatedValues.selectedClass.reduce((acc, obj) => {
                 const key = obj.class_id;
                 if (!acc[key]) {
@@ -112,8 +112,6 @@ const UserFormComponent = ({
                 acc[key].push(obj);
                 return acc;
             }, {});
-            setUpdatedArr(updatedArrHelper);
-            console.log(updatedArr, 'updated', updatedArrHelper);
 
             // Check if updatedArrHelper is not empty and has keys
             const hasData = updatedArrHelper && Object.keys(updatedArrHelper).length > 0;
@@ -125,7 +123,11 @@ const UserFormComponent = ({
             });
         }
     }, [updatedValues]);
-    console.log('Object.values(updatedArr)=>', Object.values(updatedArr));
+    console.log('formik.values.sections=>', formik.values.sections);
+    console.log('formik.values.amenities=>', formik.values.amenities);
+    console.log('amenities=>', amenities);
+    console.log('sectionsInRedux=>', sectionsInRedux);
+
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -465,9 +467,9 @@ const UserFormComponent = ({
                         </React.Fragment>))}
 
                     {/* Update */}
-                    {schoolId && Object.values(updatedArr).map((field, index) => {
+                    {schoolId && formik.values.classes && formik.values.classes.map((field, index) => {
                         let key = index + 1;
-                        // console.log(updatedArr[index])
+                        console.log('formik.values.classes[index]=>', formik.values.classes[index])
                         return (
                             <React.Fragment key={key}>
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
@@ -479,7 +481,7 @@ const UserFormComponent = ({
                                         labelId={`classesField_${key}`}
                                         name={`classes${key}`}
                                         autoComplete="new-classes"
-                                        value={field[0]?.class_id}
+                                        value={field || []}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.classes];
                                             subArr[key - 1] = value.props.value;
@@ -500,7 +502,7 @@ const UserFormComponent = ({
                                     options={sectionsInRedux || []}
                                     getOptionLabel={option => option.name}
                                     disableCloseOnSelect
-                                    value={formik.values.sections[index] || []}
+                                    value={sectionsInRedux || []}
                                     onChange={(event, value) => {
                                         const clsArr = [...formik.values.sections];
                                         clsArr[key - 1] = value;
@@ -519,7 +521,7 @@ const UserFormComponent = ({
                                         />
                                     )}
                                 />
-                                {index > 0 && <Divider sx={{ borderBottomWidth: '0px' }} />}
+                                <Divider sx={{ borderBottomWidth: '0px' }} />
                             </React.Fragment>)
                     })}
                 </Box>

@@ -7,7 +7,7 @@
 */
 
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
@@ -28,32 +28,25 @@ import { Utility } from "../utility";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = () => {
-    const theme = useTheme();
-    const navigateTo = useNavigate();
-    const dispatch = useDispatch();
-    const URLParams = useParams();
-    const isMobile = useMediaQuery("(max-width:480px)");
-    const isTab = useMediaQuery("(max-width:920px)");
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allMarksheets);
     const [selectedClass, setSelectedClass] = useState(null);
     const [selectedSection, setSelectedSection] = useState(null);
+    const selected = useSelector(state => state.menuItems.selected);
+    const { listData } = useSelector(state => state.allMarksheets);
+
+    const navigateTo = useNavigate();
+    const dispatch = useDispatch();
+    const isMobile = useMediaQuery("(max-width:480px)");
+    const isTab = useMediaQuery("(max-width:920px)");
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
 
-    const { getPaginatedData } = useCommon();
-    const { getLocalStorage } = Utility();
+    const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-    const classId = URLParams ? URLParams.classId : null; // from url
-
-    let classConditionObj = classId ? {
-        key: 'classId',
-        value: classId
-    } : null;
+    const { getPaginatedData } = useCommon();
+    const { getLocalStorage } = Utility();
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -134,7 +127,7 @@ const ListingComponent = () => {
                 type="button"
                 onClick={handleReload}
             >
-                <span style={{ display: "inherit", marginRight: "5px", marginLeft: "-2px" }}>
+                <span style={{ display: "inherit", marginRight: "5px" }}>
                     <ReplayIcon />
                 </span>
                 Back
@@ -144,7 +137,6 @@ const ListingComponent = () => {
                 api={API.MarksheetAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns()}
-                condition={classConditionObj}
                 rows={listData.rows}
                 count={listData.count}
                 selected={selected}
