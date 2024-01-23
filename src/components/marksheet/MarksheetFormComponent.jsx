@@ -52,8 +52,8 @@ const UserFormComponent = ({
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { findSubjectById } = Utility();
     const { getPaginatedData } = useCommon();
+    const { findById } = Utility();
 
     const [state, setState] = useState({
         vertical: 'top',
@@ -118,7 +118,7 @@ const UserFormComponent = ({
     useEffect(() => {
         let classSubjects = [];
         marksheetClass?.subjects?.split(',').map(sub => {
-            classSubjects.push(findSubjectById(parseInt(sub), subjectsInRedux?.listData?.rows));
+            classSubjects.push(findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name);
         })
         if (classSubjects.length) {
             setFilteredSubjects(classSubjects);

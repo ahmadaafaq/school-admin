@@ -32,7 +32,7 @@ export const datagridColumns = () => {
     const colors = tokens(theme.palette.mode);
     const navigateTo = useNavigate();
     const { getPaginatedData } = useCommon();
-    const { appendSuffix, findStudentById, findClassById, findSectionById, findSubjectById } = Utility();
+    const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/marksheet/update/${id}`, { state: { id: id } });
@@ -79,10 +79,10 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let studentName = params?.row?.student_id !== 0 ? findStudentById(params?.row?.student_id, studentsInRedux?.listData?.rows) : '/';
+                let studentName = params?.row?.student_id !== 0 ? findById(params?.row?.student_id, studentsInRedux?.listData?.rows) : '/';
                 return (
                     <div>
-                        {studentName}
+                        {`${studentName.firstname} ${studentName.lastname}`}
                     </div>
                 );
             }
@@ -95,11 +95,11 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = params?.row?.class_id > 0 ? findClassById(params?.row?.class_id, classesInRedux?.listData?.rows) : '/';
-                let sectionName = params?.row?.section_id > 0 ? findSectionById(params?.row?.section_id, sectionsInRedux?.listData?.rows) : '/';
+                let className = params?.row?.class_id > 0 ? findById(params?.row?.class_id, classesInRedux?.listData?.rows) : '/';
+                let sectionName = params?.row?.section_id > 0 ? findById(params?.row?.section_id, sectionsInRedux?.listData?.rows) : '/';
                 return (
                     <div>
-                        {appendSuffix(className)} {sectionName}
+                        {appendSuffix(className.name)} {sectionName.name}
                     </div>
                 );
             }
@@ -112,10 +112,10 @@ export const datagridColumns = () => {
             flex: 2,
             minWidth: 120,
             renderCell: (params) => {
-                let subjectName = params?.row?.subject_id > 0 ? findSubjectById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows) : '/';
+                let subjectName = params?.row?.subject_id > 0 ? findById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows) : '/';
                 return (
                     <div>
-                        {subjectName}
+                        {subjectName.name}
                     </div>
                 );
             }

@@ -29,7 +29,7 @@ export const datagridColumns = () => {
     const colors = tokens(theme.palette.mode);
 
     const { getPaginatedData } = useCommon();
-    const { appendSuffix, findClassById, findSectionById } = Utility();
+    const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/student/update/${id}`, { state: { id: id } });
@@ -66,11 +66,11 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findClassById(params?.row?.class, classesInRedux?.listData?.rows);
-                let sectionName = findSectionById(params?.row?.section, sectionsInRedux?.listData?.rows);
+                let className = findById(params?.row?.class, classesInRedux?.listData?.rows)?.name;
+                let sectionName = findById(params?.row?.section, sectionsInRedux?.listData?.rows)?.name;
                 return (
                     <div>
-                        {appendSuffix(className)} {sectionName}
+                        {className ? appendSuffix(className) : '/'} {sectionName}
                     </div>
                 );
             }
