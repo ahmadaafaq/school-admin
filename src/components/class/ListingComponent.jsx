@@ -44,7 +44,7 @@ const ListingComponent = () => {
     const reloadBtn = document.getElementById("reload-btn");
 
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage, findSubjectsById } = Utility();
+    const { getLocalStorage } = Utility();
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");

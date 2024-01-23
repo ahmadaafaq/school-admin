@@ -10,205 +10,24 @@ import API from "../../apis";
 import { displayToast } from "../../redux/actions/ToastAction";
 
 export const Utility = () => {
-    /** Get initials of logged in user
-     */
-    const getInitials = () => {
-        let firstNameInitial = '';
-        let lastNameInitial = '';
-        const authInfo = getLocalStorage("auth");
-
-        let fullName = authInfo?.username?.split(" ");
-        if (fullName?.length) {
-            firstNameInitial = fullName[0][0].toUpperCase();
-            if (fullName[1]?.[0] !== undefined) {
-                lastNameInitial = fullName[1][0].toUpperCase();
-            };
-        };
-        return `${firstNameInitial} ${lastNameInitial}`;
-    };
-
-    /** Get the formatted name and role of the logged in user
-     */
-    const getNameAndType = (roleName) => {
-        const authInfo = getLocalStorage("auth");
-        const fullName = (authInfo?.username || '').split(" ");
-        const firstName = fullName[0]?.charAt(0).toUpperCase() + fullName[0]?.slice(1) || '';
-        const lastName = fullName[1]?.charAt(0).toUpperCase() + fullName[1]?.slice(1) || '';
-        const formattedRole = (roleName || '').charAt(0).toUpperCase() + (roleName || '').slice(1);
-
-        return {
-            username: `${firstName} ${lastName}`.trim(),
-            role: formattedRole,
-        };
-    };
-
-    /** Generates unique School Code by taking the initial letters of each word in the school name (excluding the word "school") and
-     *  appending a random three-digit number
-     */
-    const createSchoolCode = (name) => {
-        let school = name.toLowerCase().split(" ");
-        let code = '';
-
-        for (let name of school) {
-            if (name !== 'school')
-                code += name.charAt(0).toUpperCase();
-        }
-        return `${code}S${Math.floor(Math.random() * 1000)}`;
-    };
-
-    /** Set local storage with specified key value pair
-     */
-    const setLocalStorage = (key, value) => {
-        try {
-            localStorage.setItem(key, JSON.stringify(value));
-        } catch (err) {
-            console.error(`Error setting ${key} in localStorage:`, err);
-        }
-    };
-
-    /** Get the specified key from browser's local storage if it is present
-     */
-    const getLocalStorage = (key) => {
-        const storedValue = localStorage.getItem(key);
-        if (typeof storedValue !== 'undefined' && storedValue !== null && storedValue !== 'undefined') {
-            return JSON.parse(storedValue);
-        }
-        // handling the absence of the key in localStorage
-        return null;
-    };
-
-    /** Set local storage with specified key value pair
-     */
-    const remLocalStorage = (key) => {
-        try {
-            localStorage.removeItem(key);
-        } catch (err) {
-            console.error(`Error removing ${key} from localStorage:`, err);
-        }
-    };
-
-    /** Verifying the token authenticity by making API call
-     */
-    const verifyToken = async () => {
-        return API.CommonAPI.verifyToken()
-            .then(verified => {
-                if (verified) {
-                    return verified.data === "Verified";
-                }
-            })
-            .catch(err => {
-                return err;
-            });
-    };
-
-    /** Display toast message and navigate to the path if provided 
-     */
-    const toastAndNavigate = (dispatch, display, severity, msg, navigateTo, path = null) => {
-        dispatch(displayToast({ toastAlert: display, toastSeverity: severity, toastMessage: msg }));
-
-        setTimeout(() => {
-            dispatch(displayToast({ toastAlert: !display, toastSeverity: "", toastMessage: "" }));
-            if (path) {
-                navigateTo(path);
-            }
-        }, 2000);
-    };
-
-    /** Get user role from localStorage 
-    */
-    const getRole = () => {
-        const authData = getLocalStorage("auth");
-        if (authData && authData.role !== undefined) {
-            return authData.role;
-        }
-        return null;
-    };
-
-    /** Converts a given number to its Roman numeral representation
-     */
-    const convertToRoman = (num) => {
-        const romanNumerals = ["Ist", "IInd", "IIIrd", "IVth", "Vth", "VIth", "VIIth", "VIIIth", "IXth", "Xth", "XIth", "XIIth"];
-        return isNaN(num) ? num : romanNumerals[num - 1];
-    };
-
-    /** Adds the "class" keyword to a valid number
+    /** Adds the keyword "Class" to a number, creating a formatted class representation.
+     * @param {number} num - The number to be formatted.
+     * @returns {string|number} - The formatted class representation with the keyword "Class" or the original number if not a valid number.
      */
     const addClassKeyword = (num) => {
         return isNaN(num) ? num : `Class ${num}`;
     };
 
-
-    /** Finds and returns the name of a student based on its ID from an array of student objects
-     */
-    const findStudentById = (studentId, studentData) => {
-        let found = '';
-        if (studentData) {
-            found = studentData.find(sect => sect.id === studentId);
-        }
-        return found ? `${found.firstname} ${found.lastname}` : '';
-    };
-
-    /** Finds and returns the name of a class based on its ID from an array of class objects
-     */
-    const findClassById = (classId, classData) => {
-        let found = '';
-        if (classData) {
-            found = classData.find(cls => cls.id === classId);
-        }
-        return found ? found.name : null;
-    };
-
-    /** Finds and returns the name of a section based on its ID from an array of section objects
-     */
-    const findSectionById = (sectionId, sectionData) => {
-        let found = '';
-        if (sectionData) {
-            found = sectionData.find(sect => sect.id === sectionId);
-        }
-        return found ? found.name : null;
-    };
-
-    /** Finds and returns the name of a subject based on its ID from an array of subject objects
-     */
-    const findSubjectById = (subjectId, subjectData) => {
-        let found = '';
-        if (subjectData) {
-            found = subjectData.find(sub => sub.id === subjectId);
-        }
-        return found ? found.name : null;
-    };
-
-    //to be refactured
-    const findSubjectsById = (subjectIds, subjectData) => {
-        if (!subjectIds || !subjectData) {
-            return [];
-        }
-        return subjectData.filter(sub => subjectIds.includes(sub.id.toString()));
-    };
-
-    /** Taking out only the id from object and returning as a string
-     *  @param object Multiple select dropdown objects
-     *  @returns {string} comma seprated string of ids 
-     */
-
-    function getIdsFromObjects(object) {
-        let objectId = [];          //using traditional function statement for hoisting
-        object?.forEach(object => {
-            objectId.push(object.id);
-        });
-        return objectId.toString();
-    };
-
-    /** Appends the appropriate suffix ('th', 'rd', 'nd', 'st') to a given number
+    /** Appends a suffix to a number or converts specific string values to abbreviations.
+     * @param {string|number} num - The number or string value to which the suffix or abbreviation will be appended.
+     * @returns {string} - The original input with an appended suffix or abbreviation.
      */
     const appendSuffix = (num) => {
         if (isNaN(num)) {
             return num.toLowerCase() === "lower kindergarten" ? "LKG" :
                 num.toLowerCase() === "upper kindergarten" ? "UKG" : num;
         }
-
         const specialCase = num >= 10 && num <= 20;
-        // Determine the appropriate suffix based on the last digit of the number
         const lastDigit = num % 10;
 
         switch (true) {
@@ -225,20 +44,104 @@ export const Utility = () => {
         }
     };
 
-    //function to check whether an object is empty
-    const isObjEmpty = (obj) => {
-        for (const prop in obj) {
-            console.log(prop, obj, 'objEmpty')
-            if (Object.hasOwn(obj, prop)) {
-                console.log('returned false')
-                return false;
-            }
+    /** Creates a school code based on the provided name.
+     * @param {string} name - The name used to generate the school code.
+     * @returns {string} - The generated school code.
+     */
+    const createSchoolCode = (name) => {
+        let school = name.toLowerCase().split(" ");
+        let code = '';
+
+        for (let name of school) {
+            if (name !== 'school')
+                code += name.charAt(0).toUpperCase();
         }
-        console.log('returned true')
-        return true;
+        return `${code}S${Math.floor(Math.random() * 1000)}`;
     };
 
-    /** Fetches role and priority by the id of the user logged in
+    /** Finds an object in a collection by its ID.
+     * @param {number} id - The ID to search for.
+     * @param {Array} model - The collection (array of objects) to search within.
+     * @returns {Object|string} - The found object with the specified ID, or an empty string if not found.
+     */
+    const findById = (id, model) => {
+        let found = '';
+        if (model) {
+            found = model.find(sect => sect.id === id);
+        }
+        return found;
+    };
+
+    /** Finds multiple objects in a collection by their IDs.
+     * @param {Array} ids - The array of IDs to search for.
+     * @param {Array} model - The collection (array of objects) to search within.
+     * @returns {Array} - An array containing the found objects with the specified IDs.
+     */
+    const findMultipleById = (ids, model) => {
+        if (!ids || !model) {
+            return [];
+        }
+        return model.filter(sub => ids.includes(sub.id.toString()));
+    };
+
+    /** Gets user initials from the first and last name stored in auth information.
+     * @returns {string} - User initials.
+     */
+    const getInitials = () => {
+        const authInfo = getLocalStorage("auth");
+        if (authInfo?.username) {
+            const [firstName, lastName] = authInfo.username.split(" ");
+            const firstNameInitial = firstName?.[0]?.toUpperCase() || '';
+            const lastNameInitial = lastName?.[0]?.toUpperCase() || '';
+
+            return `${firstNameInitial} ${lastNameInitial}`;
+        }
+        return;
+    };
+
+    /** Gets formatted username and role based on the provided role name.
+     * @param {string} roleName - The role name to be formatted.
+     * @returns {Object} - An object containing formatted username and role.
+     */
+    const getNameAndType = (roleName) => {
+        const authInfo = getLocalStorage("auth");
+        const fullName = (authInfo?.username || '').split(" ");
+        const firstName = fullName[0]?.charAt(0).toUpperCase() + fullName[0]?.slice(1) || '';
+        const lastName = fullName[1]?.charAt(0).toUpperCase() + fullName[1]?.slice(1) || '';
+        const formattedRole = (roleName || '').charAt(0).toUpperCase() + (roleName || '').slice(1);
+
+        return {
+            username: `${firstName} ${lastName}`.trim(),
+            role: formattedRole,
+        };
+    };
+
+    /** Extracts and concatenates IDs from array of objects.
+     * @param {Array} object - The array of objects from which to extract IDs.
+     * @returns {string} - A comma-separated string of IDs.
+     */
+    const getIdsFromObject = (object) => {
+        let objectId = [];
+        object?.forEach(object => {
+            objectId.push(object.id);
+        });
+        return objectId.toString();
+    };
+
+    /** Get selected values by matching IDs from a comma-separated string.
+     * @param {string} - A comma-separated string of IDs.
+     * @returns {Array} - An array of objects of selected values.
+     */
+    const getValuesFromArray = (ids, model) => {
+        const idArray = ids?.split(",");
+        if (idArray) {
+            return model.filter(value => idArray.includes(value.id.toString()));
+        }
+    };
+
+    /** Retrieves user role and priority information by making an asynchronous API call.
+     * @returns {Promise<Object|null>} - A promise that resolves to an object containing user role and priority information,
+     *                                   or null if there is an error during the API call.
      */
     const getRoleAndPriorityById = async () => {
         return API.UserRoleAPI.getRoleById({ id: getRole() })
@@ -255,22 +158,116 @@ export const Utility = () => {
             })
     };
 
+    /** Gets the value associated with a key from local storage.
+     * @param {string} key - The key for which to retrieve the value from local storage.
+     * @returns {any|null} - The value associated with the key, or null if the key is not found.
+     */
+    const getLocalStorage = (key) => {
+        const storedValue = localStorage.getItem(key);
+        if (typeof storedValue !== 'undefined' && storedValue !== null && storedValue !== 'undefined') {
+            return JSON.parse(storedValue);
+        }
+        return null;
+    };
+
+    /** Retrieves the user's role from local storage.
+     * @returns {string|null} - The user's role, or null if the role is not available in local storage.
+     */
+    const getRole = () => {
+        const authData = getLocalStorage("auth");
+        if (authData && authData.role !== undefined) {
+            return authData.role;
+        }
+        return null;
+    };
+
+    /** Checks if an object is empty (has no own enumerable properties).
+    * @param {Object} obj - The object to be checked for emptiness.
+    * @returns {boolean} - True if the object is empty, false otherwise.
+    */
+    const isObjEmpty = (obj) => {
+        for (const prop in obj) {
+            if (Object.hasOwn(obj, prop)) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    /** Removes a key-value pair from local storage.
+     * @param {string} key - The key to be removed from local storage.
+     * @returns {void} - This function does not return any value.
+     */
+    const remLocalStorage = (key) => {
+        try {
+            localStorage.removeItem(key);
+        } catch (err) {
+            console.error(`Error removing ${key} from localStorage:`, err);
+        }
+    };
+
+    /** Sets a key-value pair in the local storage.
+      * @param {string} key - The key to be set in local storage.
+      * @param {any} value - The value associated with the key.
+      * @returns {void} - This function does not return any value.
+      */
+    const setLocalStorage = (key, value) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch (err) {
+            console.error(`Error setting ${key} in localStorage:`, err);
+        }
+    };
+
+    /** Displays a toast alert, sets its severity and message, and navigates to a specified path (optional) after a delay.
+     * @param {function} dispatch - The Redux dispatch function.
+     * @param {boolean} display - Whether to display the toast alert.
+     * @param {string} severity - The severity level of the toast alert (e.g., 'success', 'info', 'warning', 'error').
+     * @param {string} msg - The message to be displayed in the toast alert.
+     * @param {function} navigateTo - The navigation function to be called after the delay.
+     * @param {string|null} path - The optional path to navigate to after hiding the toast alert.
+     * @returns {void} - This function does not return any value.
+     */
+    const toastAndNavigate = (dispatch, display, severity, msg, navigateTo, path = null) => {
+        dispatch(displayToast({ toastAlert: display, toastSeverity: severity, toastMessage: msg }));
+
+        setTimeout(() => {
+            dispatch(displayToast({ toastAlert: !display, toastSeverity: "", toastMessage: "" }));
+            if (path) {
+                navigateTo(path);
+            }
+        }, 2000);
+    };
+
+    /** Verifies a token using an asynchronous API call.
+     * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,
+     *                                       or a string containing an error message if verification fails.
+     */
+    const verifyToken = async () => {
+        return API.CommonAPI.verifyToken()
+            .then(verified => {
+                if (verified) {
+                    return verified.data === "Verified";
+                }
+            })
+            .catch(err => {
+                return err;
+            });
+    };
+
     return {
         addClassKeyword,
         appendSuffix,
-        convertToRoman,
         createSchoolCode,
-        findStudentById,
-        findClassById,
-        findSectionById,
-        findSubjectById,
-        findSubjectsById,
+        findById,
+        findMultipleById,
         getInitials,
         getNameAndType,
         getLocalStorage,
         getRole,
         getRoleAndPriorityById,
-        getIdsFromObjects,
+        getIdsFromObject,
+        getValuesFromArray,
         isObjEmpty,
         remLocalStorage,
         setLocalStorage,

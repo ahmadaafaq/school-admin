@@ -23,8 +23,8 @@ import { setClasses } from "../../redux/actions/ClassAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setSections } from "../../redux/actions/SectionAction";
 import { tokens, themeSettings } from "../../theme";
-import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
+import { Utility } from "../utility";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
@@ -64,7 +64,7 @@ const FormComponent = () => {
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { createSchoolCode, getLocalStorage, toastAndNavigate } = Utility();
+    const { createSchoolCode, getLocalStorage, getIdsFromObject, getValuesFromArray, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -81,7 +81,7 @@ const FormComponent = () => {
         const dataFields = [
             {
                 ...formData.schoolData.values,
-                amenities: getSelectedAmenities(formData.schoolData.values.amenities)
+                amenities: getIdsFromObject(formData.schoolData.values.amenities)
             },
             { ...formData.addressData.values }
         ];
@@ -113,7 +113,7 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.amenities = getSelectedAmenitiesByName(responses[0].data.data?.amenities);
+                    responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, amenities);
                 }
                 const dataObj = {
                     schoolData: {
@@ -141,7 +141,7 @@ const FormComponent = () => {
         formData.schoolData.values = {
             ...formData.schoolData.values,
             school_code: createSchoolCode(formData.schoolData.values.name),
-            amenities: getSelectedAmenities(formData.schoolData.values?.amenities)
+            amenities: getIdsFromObject(formData.schoolData.values?.amenities)
         };
         // console.log(formData.schoolData.values, 'school values')
 
@@ -183,22 +183,6 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
-
-    //taking out only the id from amenities object from formData.salonData.values.amenities
-    function getSelectedAmenities(amenities) {
-        let amenityId = [];         //using traditional function statement for hoisting
-        amenities?.forEach(amenity => {
-            amenityId.push(amenity.id);
-        });
-        return amenityId.toString();
-    };
-
-    const getSelectedAmenitiesByName = (dataObj) => {
-        const objId = dataObj?.split(",");
-        if (objId) {
-            return amenities.filter(amenity => objId.includes(amenity.id.toString()));
-        }
     };
 
     //get all amenities from amenity table stored in the db before populating data

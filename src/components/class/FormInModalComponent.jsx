@@ -21,7 +21,9 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
+import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
+import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -45,7 +47,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [initialState, setInitialState] = useState(initialValues);
-    const [subjects, setSubjects] = useState([]);       //for subject table in class component
+    const subjectsInRedux = useSelector(state => state.allSubjects);
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -54,6 +56,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
+    const { getPaginatedData } = useCommon();
     const { toastAndNavigate, getLocalStorage, getIdsFromObjects } = Utility();
 
     let id = state?.id;
@@ -61,14 +64,14 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
-        if (id && subjects) {
+        if (id) {
             setTitle("Update");
             populateData(id);
         } else {
             setTitle("Create");
             setInitialState(initialValues);
         }
-    }, [id, subjects]);
+    }, [id]);
 
     const updateClass = useCallback(values => {
         const dataFields = [
@@ -106,7 +109,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const getSelectedSubjectsByName = (dataObj) => {
         const objId = dataObj?.split(",");
         if (objId) {
-            return subjects.filter(subjects => objId.includes(subjects.id.toString()));
+            return subjectsInRedux?.listData?.rows.filter(subject => objId.includes(subject.id.toString()));
         }
     };
 
@@ -132,7 +135,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 throw err;
             });
     };
-
 
     const createClass = (values) => {
         console.log(values.subjects)
@@ -162,24 +164,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             });
     };
 
-
-    //get all subjects from subject table stored in db before populating data
     useEffect(() => {
-        const getsubjects = () => {
-            API.SubjectAPI.getAll(false, 0, 30)
-                .then(subjects => {
-                    if (subjects.status === 'Success') {
-                        setSubjects(subjects.data.rows);
-                    } else {
-                        console.log("Error, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getsubjects();
-    }, []);
+        if (!subjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        }
+    }, [subjectsInRedux?.listData?.rows?.length]);
 
     return (
         <div>

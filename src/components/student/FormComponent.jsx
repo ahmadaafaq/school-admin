@@ -21,7 +21,9 @@ import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
+import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
+import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 const FormComponent = () => {
@@ -38,7 +40,10 @@ const FormComponent = () => {
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
-    const [allSubjects, setAllSubjects] = useState([]);
+
+    const subjectsInRedux = useSelector(state => state.allSubjects);
+    const selected = useSelector(state => state.menuItems.selected);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const studentFormRef = useRef();
     const addressFormRef = useRef();
@@ -50,11 +55,9 @@ const FormComponent = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findSubjectsById } = Utility();
+    const { getPaginatedData } = useCommon();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -100,7 +103,7 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.subjects = findSubjectsById(responses[0].data.data.subjects, allSubjects)
+                    responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
@@ -151,23 +154,14 @@ const FormComponent = () => {
     };
 
     useEffect(() => {
-        API.SubjectAPI.getAll(false, 0, 20)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setAllSubjects(data.data.rows);
-                    console.log(data.data.rows, 'sub')
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!subjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        }
+    }, [subjectsInRedux?.listData?.rows?.length]);
 
     //Create/Update/Populate student
     useEffect(() => {
-        if (id && !submitted && allSubjects) {
+        if (id && !submitted) {
             setTitle("Update");
             populateStudentData(id);
         }
@@ -176,7 +170,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted, allSubjects]);
+    }, [id, submitted]);
 
     const handleSubmit = async () => {
         await studentFormRef.current.Submit();

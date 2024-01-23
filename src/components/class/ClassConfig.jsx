@@ -6,22 +6,26 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
+import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens } from "../../theme";
+import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 export const datagridColumns = (handleDialogOpen) => {
-    const [subjects, setSubjects] = useState([]);
+    const subjectsInRedux = useSelector(state => state.allSubjects);
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { findSubjectsById } = Utility();
+    const { getPaginatedData } = useCommon();
+    const { findMultipleById } = Utility();
 
     const handleActionEdit = (id) => {
         handleDialogOpen();
@@ -29,21 +33,10 @@ export const datagridColumns = (handleDialogOpen) => {
     };
 
     useEffect(() => {
-        const getsubjects = () => {
-            API.SubjectAPI.getAll(false, 0, 30)
-                .then(subjects => {
-                    if (subjects.status === 'Success') {
-                        setSubjects(subjects.data.rows);
-                    } else {
-                        console.log("Error, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getsubjects();
-    }, []);
+        if (!subjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        }
+    }, [subjectsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -63,7 +56,7 @@ export const datagridColumns = (handleDialogOpen) => {
             minWidth: 120,
             renderCell: (params) => {
                 const subjectIds = params?.row.subjects;
-                const subjectNames = findSubjectsById(subjectIds, subjects).map(subject => subject.name);
+                const subjectNames = findMultipleById(subjectIds, subjectsInRedux?.listData?.rows).map(subject => subject.name);
                 return (
                     <div style={{ width: '100%', height: "40px" }}>
                         {subjectNames.map((subject, index) => (

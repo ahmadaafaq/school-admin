@@ -39,8 +39,8 @@ import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
 import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
+import { Utility } from "../utility";
 
 import "../common/index.css";
 import companyImg from "../assets/eden.jpg";

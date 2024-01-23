@@ -22,6 +22,7 @@ import teacherValidation from "./Validation";
 
 import { setClasses } from "../../redux/actions/ClassAction";
 import { setSections } from "../../redux/actions/SectionAction";
+import { setSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
@@ -50,7 +51,7 @@ const initialValues = {
     status: "inactive"
 };
 
-const UserFormComponent = ({
+const TeacherFormComponent = ({
     onChange,
     refId,
     setDirty,
@@ -61,12 +62,12 @@ const UserFormComponent = ({
     updatedValues = null
 }) => {
     const [initialState, setInitialState] = useState(initialValues);
-    const [subjects, setSubjects] = useState([]);
     const [fields, setFields] = useState([{ id: 1 }]);
     const [updatedArr, setUpdatedArr] = useState({});
 
     const classesInRedux = useSelector(state => state.allClasses);
     const sectionsInRedux = useSelector(state => state.allSections);
+    const subjectsInRedux = useSelector(state => state.allSubjects);
 
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -155,18 +156,10 @@ const UserFormComponent = ({
     }, [sectionsInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.SubjectAPI.getAll(false, 0, 30)
-            .then(data => {
-                if (data.status === 'Success') {
-                    setSubjects(data.data.rows);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
-            });
-    }, []);
+        if (!subjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        }
+    }, [subjectsInRedux?.listData?.rows?.length]);
     console.log('Object.values(updatedArr)=>', Object.values(updatedArr));
 
     return (
@@ -484,7 +477,12 @@ const UserFormComponent = ({
                         marginBottom: '40px'
                     }}
                 >
-                    <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' onClick={handleAddClick}>
+                    <Box
+                        onClick={handleAddClick}
+                        sx={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                        }}
+                    >
                         <AddCircleIcon sx={{ fontSize: '22px' }} />
                         <span style={{
                             color: "rgb(97,97,97)", fontWeight: "300", fontSize: "16px", lineHeight: "30px", letterSpacing: "0.015em"
@@ -511,7 +509,7 @@ const UserFormComponent = ({
                                         formik.setFieldValue("subject", subArr)
                                     }}
                                 >
-                                    {subjects.length && subjects.map(subject => (
+                                    {subjectsInRedux?.listData?.rows.length && subjectsInRedux.listData.rows.map(subject => (
                                         <MenuItem value={subject.id} name={subject.name} key={subject.name}>
                                             {subject.name}
                                         </MenuItem>
@@ -569,7 +567,7 @@ const UserFormComponent = ({
                                             formik.setFieldValue("subject", subArr)
                                         }}
                                     >
-                                        {subjects.length && subjects.map(subject => (
+                                        {subjectsInRedux?.listData?.rows.length && subjectsInRedux.listData.rows.map(subject => (
                                             <MenuItem value={subject.id} name={subject.name} key={subject.name}>
                                                 {subject.name}
                                             </MenuItem>
@@ -611,4 +609,4 @@ const UserFormComponent = ({
     );
 }
 
-export default UserFormComponent;
+export default TeacherFormComponent;

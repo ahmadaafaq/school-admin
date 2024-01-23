@@ -14,8 +14,8 @@ import { setClasses } from "../../redux/actions/ClassAction";
 import { setSections } from "../../redux/actions/SectionAction";
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
+import { Utility } from "../utility";
 
 function DropDown({ onSelectClass, onSelectSection }) {
     const [selectedClass, setSelectedClass] = useState('');
@@ -27,20 +27,20 @@ function DropDown({ onSelectClass, onSelectSection }) {
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
     const { getPaginatedData } = useCommon();
-    const { findSectionById } = Utility();
+    const { findById } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedClass = classesInRedux?.listData?.rows.find(cls => cls.id === event.target.value);
+        const selectedClass = findById(event.target.value, classesInRedux?.listData?.rows);
         setSelectedClass(event.target.value);
-        onSelectSection(selectedClass);
+        onSelectClass(selectedClass);
         dispatch(setMarksheetClass(selectedClass));
     };
 
     const handleSectionChange = (event) => {
-        const selectedSection = findSectionById(event.target.value, sectionsInRedux?.listData?.rows);
+        const selectedSection = findById(event.target.value, sectionsInRedux?.listData?.rows);
         setSelectedSection(event.target.value);
-        onSelectClass(selectedSection);
-        dispatch(setMarksheetSection(selectedSection));
+        onSelectSection(selectedSection?.name);
+        dispatch(setMarksheetSection(selectedSection?.name));
     };
 
     useEffect(() => {
