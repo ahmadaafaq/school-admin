@@ -6,9 +6,10 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+
 
 
 import ProgressCircle from "./ProgressCircle";
@@ -17,14 +18,16 @@ import { tokens } from "../../theme";
 const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const isMobile = useMediaQuery("(max-width:480px)");
+
 
     return (
-        <Box width="100%" m="0 30px">
+        <Box width="100%" m={isMobile?"0px" : "0 30px"}>
             <Box display="flex" justifyContent="space-between">
                 <Box>
                     {icon}
                     <Typography
-                        variant="h4"
+                        variant={isMobile ? "h6" : "h4"}
                         fontWeight="bold"
                         sx={{ color: colors.primary[500] }}
                     >
@@ -36,11 +39,11 @@ const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => 
                 </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
-                <Typography variant="h5" sx={{ color: colors.primary[500] }}>
+                <Typography variant={isMobile?"h6":"h5" }sx={{ color: colors.primary[500] }}>
                     {subtitle}
                 </Typography>
                 <Typography
-                    variant="h5"
+                    variant={isMobile?"h6":"h5"}
                     fontStyle="italic"
                     sx={{ color: colors.primary[500] }}
                 >

@@ -57,6 +57,7 @@ const Sidebar = ({ rolePriority }) => {
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
   const { getPaginatedData } = useCommon();
+  const isTab = useMediaQuery("(max-width:920px)");
   const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
   const closeSubMenu = () => {
@@ -81,6 +82,9 @@ const Sidebar = ({ rolePriority }) => {
   useEffect(() => {
     setIsCollapsed(isMobile);
   }, [isMobile]);
+  useEffect(() => {
+    setIsCollapsed(isTab);
+  }, [isTab]);
 
   const renderNotCollapsedStudents = () => {
     return classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(classs => (
@@ -116,7 +120,8 @@ const Sidebar = ({ rolePriority }) => {
     <Box
       sx={{
         "& .pro-sidebar-inner": {
-          background: theme.palette.mode === 'light' ? '#ffffff' : `${colors.primary[400]} !important`
+          background: theme.palette.mode === 'light' ? '#ffffff' : `${colors.primary[400]} !important`,
+          overflow:isMobile ? "hidden":""
         },
         "& .pro-icon-wrapper": {
           backgroundColor: `transparent !important`

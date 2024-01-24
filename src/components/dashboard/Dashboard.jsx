@@ -26,6 +26,7 @@ const Dashboard = () => {
   const [selectedSection, setSelectedSection] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
+  const isTab = useMediaQuery("(max-width:920px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
 
@@ -136,14 +137,14 @@ const Dashboard = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography
           fontFamily={typography.fontFamily}
-          fontSize={typography.h2.fontSize}
+          fontSize={isMobile ? typography.h4.fontSize : typography.h2.fontSize}
           color={colors.grey[100]}
           fontWeight="bold"
           display="inline-block"
         >
           Dashboard
         </Typography>
-        <DropDown
+        <DropDown 
           onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
           onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
         />
@@ -151,9 +152,11 @@ const Dashboard = () => {
       {/* GRID & CHARTS */}
       <Box
         display="grid"
-        gridTemplateColumns={isMobile ? "repeat(1, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))"}
-        gap="30px"
-        margin="20px"
+        gridTemplateColumns={isMobile ? "repeat(2, minmax(0, 1fr))" :isTab? "repeat(2, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))"}
+        gridTemplateRows={isMobile? "0.1fr 0.1fr 0.2fr 0.2fr" : isTab? "1fr 1fr 2fr 2fr" : ""}
+        gridTemplateAreas={isMobile? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"` :isTab? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"` : `"box1 box2 box3 box4" "chart1 chart1 chart2 chart2"`}
+        gap={isMobile ? "15px" : "30px"}
+        margin={isMobile ? "10px" : "20px"}
         flexWrap="wrap"
       >
         {/* ROW 1 */}
@@ -162,8 +165,10 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          padding="15px"
+          padding={isMobile? "8px" : "15px"}
           borderRadius="6px"
+          gridArea="box1"
+
         >
           <StatBox
             title="12,361"
@@ -173,7 +178,7 @@ const Dashboard = () => {
             yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
-                sx={{ color: colors.primary[500], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize:isMobile?"10px" : "26px" }}
               />
             }
           />
@@ -184,6 +189,8 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="center"
           borderRadius="6px"
+          padding={isMobile? "8px" : "15px"}
+          gridArea="box2"
         >
           <StatBox
             title="32,441"
@@ -193,7 +200,7 @@ const Dashboard = () => {
             yellowColor={colors.greenAccent[700]}
             icon={
               <PersonAddIcon
-                sx={{ color: colors.primary[500], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize:isMobile?"10px" :"26px" }}
               />
             }
           />
@@ -204,6 +211,8 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="center"
           borderRadius="6px"
+          padding={isMobile? "8px" : "15px"}
+          gridArea="box3"
         >
           <StatBox
             title="1,325"
@@ -213,7 +222,7 @@ const Dashboard = () => {
             yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
-                sx={{ color: colors.primary[500], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize:isMobile?"10px" : "26px" }}
               />
             }
           />
@@ -224,6 +233,8 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="center"
           borderRadius="6px"
+          padding={isMobile? "8px" : "15px"}
+          gridArea="box4"
         >
           <StatBox
 
@@ -234,15 +245,16 @@ const Dashboard = () => {
             yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon
-                sx={{ color: colors.primary[500], fontSize: "26px" }}
+                sx={{ color: colors.primary[500], fontSize:isMobile?"10px" : "26px" }}
               />
             }
           />
         </Box>
 
-        <Box sx={{ width: "105vh" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh",gridArea:"chart1"}}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
-        <Box sx={{ width: "60vh", marginLeft: "65vh" }}>
+
+        <Box sx={{ width: isMobile ? "100%" :isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh": isTab? "0vh": "24vh",gridArea:"chart2" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>
