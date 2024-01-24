@@ -21,6 +21,8 @@ import { setStudentsReducer } from "./StudentReducer";
 import { setSubjectsReducer } from "./SubjectReducer";
 import { setTeachersReducer } from "./TeacherReducer";
 import { setUsersReducer } from "./UserReducer";
+import { setEmployeesReducer } from "./EmployeeReducer";
+import { setHolidaysReducer } from "./HolidayReducer"
 import { setUserRolesReducer } from "./UserRoleReducer";
 
 const reducers = combineReducers({
@@ -35,7 +37,9 @@ const reducers = combineReducers({
     allSubjects: setSubjectsReducer,
     allTeachers: setTeachersReducer,
     allUsers: setUsersReducer,
+    allEmployees:setEmployeesReducer,
     allUserRoles: setUserRolesReducer,
+    allHolidays: setHolidaysReducer,
     menuItems: menuItemReducer,
     toastInfo: displayToastReducer
 });

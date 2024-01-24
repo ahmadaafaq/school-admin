@@ -34,6 +34,7 @@ import ApiIcon from '@mui/icons-material/Api';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import LoyaltyIcon from '@mui/icons-material/Loyalty';
 import { Api, TuneOutlined } from '@mui/icons-material';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
 import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
@@ -121,7 +122,7 @@ const Sidebar = ({ rolePriority }) => {
       sx={{
         "& .pro-sidebar-inner": {
           background: theme.palette.mode === 'light' ? '#ffffff' : `${colors.primary[400]} !important`,
-          overflow:isMobile ? "hidden":""
+          overflow: isMobile ? "hidden" : ""
         },
         "& .pro-icon-wrapper": {
           backgroundColor: `transparent !important`
@@ -269,6 +270,15 @@ const Sidebar = ({ rolePriority }) => {
               title="User"
               to="/user/listing"
               icon={<PregnantWomanIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <Divider />
+            <SidebarItem
+              title="Employee"
+              to="/employee/listing"
+              icon={<AssignmentIndIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
