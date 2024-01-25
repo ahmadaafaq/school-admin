@@ -23,14 +23,10 @@ import holidayValidation from "./Validation";
 import { useCommon } from "../hooks/common";
 
 const initialValues = {
-    firstname: "",
-    lastname: "",
-    email: "",
-    contact_no: "",
-    role: "",
-    dob: null,
-    gender: "",
-    status: "inactive"
+    name: "",
+    date: null,
+    type: "school_closure",
+    notes: ""
 };
 
 const HolidayFormComponent = ({
@@ -44,7 +40,7 @@ const HolidayFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-   // const [subjects, setSubjects] = useState([]);
+    // const [subjects, setSubjects] = useState([]);
 
     // const classesInRedux = useSelector(state => state.allClasses);
     // const sectionsInRedux = useSelector(state => state.allSections);
@@ -139,120 +135,64 @@ const HolidayFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        name="firstname"
-                        label="Firstname*"
-                        autoComplete="new-firstname"
+                        name="title"
+                        label="Title*"
+                        autoComplete="new-title"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-                        value={formik.values.firstname}
-                        error={!!formik.touched.firstname && !!formik.errors.firstname}
-                        helperText={formik.touched.firstname && formik.errors.firstname}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="lastname"
-                        label="Lastname*"
-                        autoComplete="new-lastname"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.lastname}
-                        error={!!formik.touched.lastname && !!formik.errors.lastname}
-                        helperText={formik.touched.lastname && formik.errors.lastname}
-                    />
-
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Email"
-                        name="email"
-                        autoComplete="new-email"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.email}
-                        error={!!formik.touched.email && !!formik.errors.email}
-                        helperText={formik.touched.email && formik.errors.email}
-                       
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Contact Number*"
-                        name="contact_no"
-                        autoComplete="new-contact"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.contact_no}
-                        error={!!formik.touched.contact_no && !!formik.errors.contact_no}
-                        helperText={formik.touched.contact_no && formik.errors.contact_no}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Role"
-                        name="role"
-                        autoComplete="new-role"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.role}
-                        error={!!formik.touched.role && !!formik.errors.role}
-                        helperText={formik.touched.role && formik.errors.role}
+                        value={formik.values.title}
+                        error={!!formik.touched.title && !!formik.errors.title}
+                        helperText={formik.touched.title && formik.errors.title}
                     />
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             format="DD MMMM YYYY"            //ex - 25 July 2023
                             views={['day', "month", "year"]}
-                            label="Select Date Of Birth"
-                            name="dob"
+                            label="Select Date"
+                            name="date"
                             required
-                            value={formik.values.dob}
-                            onChange={newDob => {
-                                formik.setFieldValue("dob", newDob);
+                            value={formik.values.date}
+                            onChange={newDate => {
+                                formik.setFieldValue("date", newDate);
                             }}
                         />
                     </LocalizationProvider>
+
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.gender && !!formik.errors.gender}
+                        error={!!formik.touched.type && !!formik.errors.type}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel id="typeField">Type</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="genderField"
-                            label="Gender"
-                            name="gender"
-                            autoComplete="new-gender"
-                            value={formik.values.gender}
+                            labelId="typeField"
+                            label="Type"
+                            name="type"
+                            autoComplete="new-type"
+                            value={formik.values.type}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
+                            <MenuItem value={"school_closure"}>School Closure</MenuItem>
+                            <MenuItem value={"partial_closure"}>Partial Closure</MenuItem>
+                            <MenuItem value={"staff_only"}>Staff Only</MenuItem>
+
                         </Select>
-                        <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
+                        <FormHelperText>{formik.touched.type && formik.errors.type}</FormHelperText>
                     </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.status && !!formik.errors.status}
-                    >
-                        <InputLabel id="statusField">Status</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="statusField"
-                            label="Status"
-                            name="status"
-                            autoComplete="new-status"
-                            value={formik.values.status}
-                            onChange={formik.handleChange}
-                        >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
-                        </Select>
-                        <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
-                    </FormControl>
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Note"
+                        name="notes"
+                        autoComplete="new-notes"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.notes}
+                        error={!!formik.touched.notes && !!formik.errors.notes}
+                        helperText={formik.touched.notes && formik.errors.notes}
+
+                    />
                 </Box>
             </form >
         </Box >

@@ -23,6 +23,7 @@ import { TeacherAPI } from "./TeacherAPI";
 import { UserAPI } from "./UserAPI";
 import { EmployeeAPI } from "./EmployeeAPI";
 import { HolidayAPI } from "./HolidayAPI";
+import { PaymentAPI } from "./PaymentAPI";
 import { UserRoleAPI } from "./UserRoleAPI";
 
 export default {
@@ -43,5 +44,6 @@ export default {
     UserAPI,
     EmployeeAPI,
     HolidayAPI,
+    PaymentAPI,
     UserRoleAPI
 };

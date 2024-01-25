@@ -49,6 +49,8 @@ const ServerPaginationGrid = ({
     const userLoading = useSelector(state => state.allUsers.loading);
     const userRoleLoading = useSelector(state => state.allUserRoles.loading);
     const employeeLoading = useSelector(state => state.allEmployees.loading);
+    const holidayLoading = useSelector(state => state.allHolidays.loading);
+    const paymentLoading = useSelector(state => state.allPayments.loading);
     const selected = useSelector(state => state.menuItems.selected);
     const classes = classNames;
 
@@ -136,7 +138,7 @@ const ServerPaginationGrid = ({
                 loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading : selected === "Marksheet" ? marksheetLoading : selected === "Class" ? classLoading
                     : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ?
                         studentLoading : selected === "Teacher" ? teacherLoading : selected === "Subject" ? subjectLoading
-                            : selected === "Role" ? userRoleLoading : selected === "Employee" ? employeeLoading : userLoading}
+                            : selected === "Role" ? userRoleLoading : selected === "Employee" ? employeeLoading : selected === "Holiday" ? holidayLoading : selected === "Payment" ? paymentLoading: userLoading}
                 // loading={loading}
                 rowCount={rowCountState}
                 components={{

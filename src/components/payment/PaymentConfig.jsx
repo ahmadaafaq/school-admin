@@ -32,7 +32,7 @@ export const datagridColumns = () => {
     const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/holiday/update/${id}`, { state: { id: id } });
+        navigateTo(`/payment/update/${id}`, { state: { id: id } });
     };
 
     // useEffect(() => {
@@ -49,24 +49,24 @@ export const datagridColumns = () => {
 
     const columns = [
         {
-            field: "title",
-            headerName: "Title",
+            field: "academic_year",
+            headerName: "Academic Year",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
         },
         {
-            field: "date",
-            headerName: "Date",
+            field: "amount",
+            headerName: "Amount",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "note",
-            headerName: "Notes",
+            field: "due_date",
+            headerName: "Due Date",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -88,22 +88,106 @@ export const datagridColumns = () => {
                         display="flex"
                         justifyContent="center"
                         backgroundColor={
-                            type === "school_closure"
+                            type === "school"
                                 ? colors.greenAccent[600]
-                                : type === "partial_closure"
+                                : type === "event"
                                     ? colors.redAccent[700]
-                                    : type === "staff_only"
+                                    : type === "cycle stand"
+                                        ? colors.blueAccent[800]
+                                        : type === "bus"
+                                            ? colors.blueAccent[900]
+                                            : colors.blueAccent[900]
+                        }
+                        borderRadius="4px"
+                    >
+                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
+                            {status}
+                        </Typography>
+                    </Box>
+                );
+            },
+        },
+        {
+            field: "payment_status",
+            headerName: "Payment Status",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ row: { payment_status } }) => {
+                return (
+                    <Box
+                        width="60%"
+                        m="0 auto"
+                        p="5px"
+                        display="flex"
+                        justifyContent="center"
+                        backgroundColor={
+                            payment_status === "pending"
+                                ? colors.greenAccent[600]
+                                : payment_status === "partial"
+                                    ? colors.redAccent[700]
+                                    : payment_status === "full"
                                         ? colors.blueAccent[800]
                                         : colors.blueAccent[800]
                         }
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {type}
+                            {payment_status}
                         </Typography>
                     </Box>
                 );
             },
+        },
+        {
+            field: "payment_method",
+            headerName: "Payment Method",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 120,
+            renderCell: ({ row: { payment_method } }) => {
+                return (
+                    <Box
+                        width="60%"
+                        m="0 auto"
+                        p="5px"
+                        display="flex"
+                        justifyContent="center"
+                        backgroundColor={
+                            payment_method === "cash"
+                                ? colors.greenAccent[600]
+                                : payment_method === "credit card"
+                                    ? colors.redAccent[700]
+                                    : payment_method === "online transfer"
+                                        ? colors.blueAccent[800]
+                                        : colors.blueAccent[800]
+                        }
+                        borderRadius="4px"
+                    >
+                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
+                            {payment_method}
+                        </Typography>
+                    </Box>
+                );
+            },
+        },
+        {
+            field: "payment_date",
+            headerName: "Payment Date",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "late_fee",
+            headerName: "Late Fee",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
         },
         {
             field: "action",

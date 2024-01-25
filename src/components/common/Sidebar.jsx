@@ -17,24 +17,17 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
-import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
-import Person2Icon from '@mui/icons-material/Person2';
 import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import ApiIcon from '@mui/icons-material/Api';
-import AssistantIcon from '@mui/icons-material/Assistant';
-import LoyaltyIcon from '@mui/icons-material/Loyalty';
-import { Api, TuneOutlined } from '@mui/icons-material';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import EventIcon from '@mui/icons-material/Event';
+import PaymentIcon from '@mui/icons-material/Payment';
+import amenityIcon from '../assets/amenityIcon.png';
+import classIcon from '../assets/classIcon.png';
+import sectionIcon from '../assets/sectionIcon.png'
 
 import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
@@ -285,6 +278,24 @@ const Sidebar = ({ rolePriority }) => {
             />
             <Divider />
             <SidebarItem
+              title="Holiday"
+              to="/holiday/listing"
+              icon={<EventIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <Divider />
+            <SidebarItem
+              title="Payment"
+              to="/payment/listing"
+              icon={<PaymentIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+            />
+            <Divider />
+            <SidebarItem
               title="Marksheet"
               to="/marksheet/listing"
               icon={<FormatListBulletedIcon />}
@@ -313,7 +324,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Amenity"
                 to="/amenity/listing"
-                icon={<ApiIcon />}
+                icon={<img src={amenityIcon} height={35} width={35} />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -322,7 +333,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Class"
                 to="/class/listing"
-                icon={<BorderColorIcon />}
+                icon={<img src={classIcon} height={25} width={25} />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -331,7 +342,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Section"
                 to="/section/listing"
-                icon={<BorderColorIcon />}
+                icon={<img src={sectionIcon} height={25} width={25} />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -356,32 +367,6 @@ const Sidebar = ({ rolePriority }) => {
               />
               <Divider />
             </>}
-            {/* <SidebarItem
-                title="Time Table"
-                to="/employee/listing"
-                icon={<ReceiptLongIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Attendance"
-                to="/employee/listing"
-                icon={<CalendarMonthIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Holiday"
-                to="/employee/listing"
-                icon={<AirplaneTicketIcon />}
-                selected={selected}
-              />
-              <SidebarItem
-                title="Leave"
-                to="/employee/listing"
-                icon={<ExitToAppIcon />}
-                selected={selected}
-              />
-            
-              */}
           </Box>
         </Menu>
       </ProSidebar>
