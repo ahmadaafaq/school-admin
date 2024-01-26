@@ -57,7 +57,8 @@ export const StudentAPI = {
     });
   },
 
-  /** */
+  /** Retrieves a list of students belonging to a specific class and section.
+   */
   getStudentsByClass: async (classId, sectionId, cancel = false) => {
     const { data: response } = await api.request({
       url: `/get-students-by-class/${classId}/${sectionId}`,

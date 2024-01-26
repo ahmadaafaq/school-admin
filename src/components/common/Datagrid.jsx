@@ -91,7 +91,8 @@ const ServerPaginationGrid = ({
                     fontSize: "1rem"
                 },
                 "& .MuiDataGrid-cell": {
-                    borderBottom: "none"
+                    borderBottom: "none",
+                    // minHeight: "100px !important"
                 },
                 "& .MuiDataGrid-cellCheckbox": {
                     borderBottom: "none"

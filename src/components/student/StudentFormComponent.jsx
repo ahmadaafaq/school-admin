@@ -7,23 +7,24 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useFormik } from "formik";
 
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { useFormik } from "formik";
 
 import API from "../../apis";
 import studentValidation from "./Validation";
 
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setFormSections } from "../../redux/actions/SectionAction";
 import { useCommon } from "../hooks/common";
+import { Utility } from "../utility";
 
 const initialValues = {
-    roll_no: "",
+    session: "",
     firstname: "",
     lastname: "",
     mother_name: "",
@@ -58,15 +59,17 @@ const UserFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [subjects, setSubjects] = useState([]);
+    const [classSubjects, setClassSubjects] = useState([]);
 
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
 
+    const dispatch = useDispatch();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { getPaginatedData } = useCommon();
+    const { createSession, customSort, createUniqueDataArray } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -112,29 +115,39 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
-        }
-    }, [classesInRedux?.listData?.rows?.length]);
+        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+            API.SchoolAPI.getSchoolClasses(5)
+                .then(classData => {
+                    if (classData.status === 'Success') {
+                        classData.data.sort(customSort);
 
-    useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setFormClasses(uniqueClassDataArray));
+
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        dispatch(setFormSections(uniqueSectionDataArray));
+                    } else {
+                        console.log("Error Fetching ClassData, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    console.log("Error Fetching ClassData:", err);
+                });
         }
-    }, [sectionsInRedux?.listData?.rows?.length]);
+    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+
 
     const getSubjectsByClass = (classId) => {
         API.SubjectAPI.getSubjectsByClass(classId)
             .then(subjects => {
-                console.log("subjects", subjects)
                 if (subjects.status === 'Success') {
-                    setSubjects(subjects.data);
+                    setClassSubjects(subjects.data);
                 } else {
-                    console.log("Error, Please Try Again");
+                    console.log("Error Fetching Subjects, Please Try Again");
                 }
             })
             .catch(err => {
-                console.log("Error, Fetching Subjects:", err);
+                console.log("Error Fetching Subjects:", err);
             })
     };
 
@@ -146,29 +159,34 @@ const UserFormComponent = ({
                     gap="30px"
                     gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
                     }}
                 >
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        name="rollno"
-                        label="Roll number*"
-                        autoComplete="new-rollnumber"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.roll_no}
-                        error={!!formik.touched.roll_no && !!formik.errors.roll_no}
-                        helperText={formik.touched.roll_no && formik.errors.roll_no}
-                    />
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.session && !!formik.errors.session}
+                    >
+                        <InputLabel id="sessionField">Session</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="sessionField"
+                            name="session"
+                            value={formik.values.session}
+                            onChange={event => formik.setFieldValue("session", event.target.value)}
+                        >
+                            {createSession().map(session => (
+                                <MenuItem value={session} name={session} key={session}>
+                                    {session}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.session && formik.errors.session}</FormHelperText>
+                    </FormControl>
                     <TextField
                         fullWidth
                         variant="filled"
                         type="text"
                         name="firstname"
                         label="Firstname*"
-                        autoComplete="new-firstname"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.firstname}
@@ -181,7 +199,6 @@ const UserFormComponent = ({
                         type="text"
                         name="lastname"
                         label="Lastname*"
-                        autoComplete="new-lastname"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.lastname}
@@ -194,7 +211,6 @@ const UserFormComponent = ({
                         type="text"
                         name="mother_name"
                         label="Mother's Name*"
-                        autoComplete="new-mother_name"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.mother_name}
@@ -207,7 +223,6 @@ const UserFormComponent = ({
                         type="text"
                         name="father_name"
                         label="Father's Name*"
-                        autoComplete="new-father_name"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.father_name}
@@ -220,7 +235,6 @@ const UserFormComponent = ({
                         type="text"
                         name="guardian"
                         label="Guardian If Any"
-                        autoComplete="new-guardian"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.guardian}
@@ -233,7 +247,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Contact Number*"
                         name="contact_no"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.contact_no}
@@ -246,13 +259,11 @@ const UserFormComponent = ({
                         type="text"
                         label="Email"
                         name="email"
-                        autoComplete="new-email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.email}
                         error={!!formik.touched.email && !!formik.errors.email}
                         helperText={formik.touched.email && formik.errors.email}
-                        sx={{ gridColumn: "span 2" }}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.class && !!formik.errors.class}
@@ -261,18 +272,16 @@ const UserFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="classField"
-                            label="class"
                             name="class"
-                            autoComplete="new-class"
                             value={formik.values.class}
                             onChange={event => {
                                 formik.setFieldValue("class", event.target.value);
                                 getSubjectsByClass(event.target.value);
                             }}
                         >
-                            {classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(cls => (
-                                <MenuItem value={cls.id} name={cls.name} key={cls.name}>
-                                    {cls.name}
+                            {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
+                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                    {cls.class_name}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -285,13 +294,11 @@ const UserFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="sectionField"
-                            label="Section"
                             name="section"
-                            autoComplete="new-section"
                             value={formik.values.section}
                             onChange={event => formik.setFieldValue("section", event.target.value)}
                         >
-                            {sectionsInRedux?.listData?.rows?.length && sectionsInRedux.listData.rows.map(section => (
+                            {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
                                 <MenuItem value={section.id} name={section.name} key={section.name}>
                                     {section.name}
                                 </MenuItem>
@@ -301,7 +308,7 @@ const UserFormComponent = ({
                     </FormControl>
                     <Autocomplete
                         multiple
-                        options={subjects}
+                        options={classSubjects || []}
                         getOptionLabel={option => option.name}
                         disableCloseOnSelect
                         value={formik.values.subjects || []}
@@ -329,7 +336,6 @@ const UserFormComponent = ({
                             required
                             value={formik.values.dob}
                             onChange={newDob => {
-                                console.log("DOB=>", newDob);
                                 formik.setFieldValue("dob", newDob);
                             }}
                         />
@@ -341,7 +347,6 @@ const UserFormComponent = ({
                             required
                             value={formik.values.admission_date}
                             onChange={new_admission_date => {
-                                console.log("admission_date=>", new_admission_date);
                                 formik.setFieldValue("admission_date", new_admission_date);
                             }}
                         />
@@ -361,7 +366,6 @@ const UserFormComponent = ({
                         type="text"
                         name="blood_group"
                         label="Blood Group"
-                        autoComplete="new-blood_group"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.blood_group}
@@ -374,7 +378,6 @@ const UserFormComponent = ({
                         type="text"
                         name="birth_mark"
                         label="Birth Mark"
-                        autoComplete="new-birth_mark"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.birth_mark}
@@ -387,7 +390,6 @@ const UserFormComponent = ({
                         type="text"
                         name="religion"
                         label="Religion"
-                        autoComplete="new-religion"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.religion}
@@ -400,7 +402,6 @@ const UserFormComponent = ({
                         type="text"
                         name="nationality"
                         label="Nationality"
-                        autoComplete="new-nationality"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.nationality}
@@ -413,7 +414,6 @@ const UserFormComponent = ({
                         type="text"
                         name="age"
                         label="Age"
-                        autoComplete="new-age"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.age}
@@ -428,8 +428,6 @@ const UserFormComponent = ({
                             variant="filled"
                             labelId="castGroupField"
                             name="caste_group"
-                            label="Caste Group"
-                            autoComplete="new-caste_group"
                             value={formik.values.caste_group}
                             onChange={formik.handleChange}
                         >
@@ -447,9 +445,7 @@ const UserFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="genderField"
-                            label="Gender"
                             name="gender"
-                            autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
@@ -466,9 +462,7 @@ const UserFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >

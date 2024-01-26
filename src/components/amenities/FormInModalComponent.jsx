@@ -16,13 +16,14 @@ import { Button, Dialog, Select, TextField, useMediaQuery } from "@mui/material"
 import { useTheme } from '@mui/material/styles';
 
 import API from "../../apis";
+import amenityValidation from "./Validation";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
-import amenityValidation from "./Validation";
+
 
 const initialValues = {
     name: "",
@@ -46,10 +47,10 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [loading, setLoading] = useState(false);
     const [initialState, setInitialState] = useState(initialValues);
 
-    const navigateTo = useNavigate();
-    const dispatch = useDispatch();
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
+    const navigateTo = useNavigate();
+    const dispatch = useDispatch();
 
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);

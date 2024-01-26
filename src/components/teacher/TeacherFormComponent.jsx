@@ -7,7 +7,7 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useFormik } from "formik";
 
 import { Box, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, FormHelperText, Divider } from "@mui/material";
@@ -16,13 +16,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 
-import './index.css';
 import API from "../../apis";
 import teacherValidation from "./Validation";
 
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setFormSections } from "../../redux/actions/SectionAction";
+import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
@@ -65,15 +64,16 @@ const TeacherFormComponent = ({
     const [fields, setFields] = useState([{ id: 1 }]);
     const [updatedArr, setUpdatedArr] = useState({});
 
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
-    const subjectsInRedux = useSelector(state => state.allSubjects);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
 
+    const dispatch = useDispatch();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { getPaginatedData } = useCommon();
-    const { appendSuffix } = Utility();
+    const { appendSuffix, customSort, createUniqueDataArray } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -130,7 +130,27 @@ const TeacherFormComponent = ({
                 return acc;
             }, {});
             setUpdatedArr(updatedArrHelper);
-            console.log(updatedArr, 'updated', updatedArrHelper);
+            // console.log('updatedArrHelper', updatedArrHelper)
+
+
+            const assignUpdatedClass = (classData) => {
+                let filteredClass;
+                let filteredClassArray = [];
+                classData.map(cls => {
+                    console.log(cls, 'cls');
+
+                    // Filter out elements from sectionsInRedux that have matching ids in the current section
+                    filteredClass = combinedClass.filter(clsItem =>
+                        cls.some(cl => cl.id === clsItem.id)
+                    );
+                    console.log(filteredClass, 'filteredClass');
+                    filteredClassArray.push(filteredClass);
+                });
+
+                console.log(filteredClassArray, 'filteredSectioArrayn');
+                return filteredClassArray;
+            };
+            assignUpdatedClass(Object.values(updatedArrHelper));
 
             // Check if updatedArrHelper is not empty and has keys
             const hasData = updatedArrHelper && Object.keys(updatedArrHelper).length > 0;
@@ -142,25 +162,37 @@ const TeacherFormComponent = ({
             });
         }
     }, [updatedValues]);
+    // console.log("modified combinedClass query>", combinedClass)
+
 
     useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
+        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+            API.SchoolAPI.getSchoolClasses(5)
+                .then(classData => {
+                    if (classData.status === 'Success') {
+                        classData.data.sort(customSort);
+
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setFormClasses(uniqueClassDataArray));
+
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        dispatch(setFormSections(uniqueSectionDataArray));
+                    } else {
+                        console.log("Error Fetching ClassData, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    console.log("Error Fetching ClassData:", err);
+                });
         }
-    }, [classesInRedux?.listData?.rows?.length]);
+    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
+        if (!formSubjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
         }
-    }, [sectionsInRedux?.listData?.rows?.length]);
-
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
-    console.log('Object.values(updatedArr)=>', Object.values(updatedArr));
+    }, [formSubjectsInRedux?.listData?.rows?.length]);
+    console.log(formSubjectsInRedux?.listData, 'formSubjectsinredux')
 
     return (
         <Box m="20px">
@@ -174,8 +206,6 @@ const TeacherFormComponent = ({
                     className='box-shadow'
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-                        transform: 'translate(0)',
-                        transformStyle: 'preserve-3d',
                         marginBottom: '40px'
                     }}
                 >
@@ -185,7 +215,6 @@ const TeacherFormComponent = ({
                         type="text"
                         name="firstname"
                         label="Firstname*"
-                        autoComplete="new-firstname"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.firstname}
@@ -198,7 +227,6 @@ const TeacherFormComponent = ({
                         type="text"
                         name="lastname"
                         label="Lastname*"
-                        autoComplete="new-lastname"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.lastname}
@@ -211,7 +239,6 @@ const TeacherFormComponent = ({
                         type="text"
                         label="Email"
                         name="email"
-                        autoComplete="new-email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.email}
@@ -225,7 +252,6 @@ const TeacherFormComponent = ({
                         type="text"
                         label="Contact Number*"
                         name="contact_no"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.contact_no}
@@ -238,7 +264,6 @@ const TeacherFormComponent = ({
                         type="text"
                         label="Age"
                         name="age"
-                        autoComplete="new-age"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.age}
@@ -263,7 +288,6 @@ const TeacherFormComponent = ({
                         type="text"
                         label="Religion"
                         name="religion"
-                        autoComplete="new-religion"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.religion}
@@ -278,8 +302,6 @@ const TeacherFormComponent = ({
                             variant="filled"
                             labelId="castGroupField"
                             name="caste_group"
-                            label="Caste Group"
-                            autoComplete="new-caste_group"
                             value={formik.values.caste_group}
                             onChange={formik.handleChange}
                         >
@@ -387,15 +409,13 @@ const TeacherFormComponent = ({
                             <Select
                                 variant="filled"
                                 labelId="classField"
-                                label="Class"
                                 name="class"
-                                autoComplete="new-class"
                                 value={formik.values.class}
                                 onChange={formik.handleChange}
                             >
-                                {classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(cls => (
-                                    <MenuItem value={cls.id} name={cls.name} key={cls.name}>
-                                        {cls.name}
+                                {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
+                                    <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                        {cls.class_name}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -408,13 +428,11 @@ const TeacherFormComponent = ({
                             <Select
                                 variant="filled"
                                 labelId="sectionField"
-                                label="Section"
                                 name="section"
-                                autoComplete="new-section"
                                 value={formik.values.section}
                                 onChange={event => formik.setFieldValue("section", event.target.value)}
                             >
-                                {sectionsInRedux?.listData?.rows?.length && sectionsInRedux.listData.rows.map(section => (
+                                {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
                                     <MenuItem value={section.id} name={section.name} key={section.name}>
                                         {section.name}
                                     </MenuItem>
@@ -430,9 +448,7 @@ const TeacherFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="genderField"
-                            label="Gender"
                             name="gender"
-                            autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
@@ -448,9 +464,7 @@ const TeacherFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                             error={!!formik.touched.status && !!formik.errors.status}
@@ -499,9 +513,7 @@ const TeacherFormComponent = ({
                                 <Select
                                     variant="filled"
                                     labelId={`subjectField_${field.id}`}
-                                    label={`Subject ${field.id}`}
                                     name={`subject_${field.id}`}
-                                    autoComplete="new-subject"
                                     value={formik.values.subject[field.id - 1]}
                                     onChange={(event, value) => {
                                         const subArr = [...formik.values.subject];
@@ -509,7 +521,7 @@ const TeacherFormComponent = ({
                                         formik.setFieldValue("subject", subArr)
                                     }}
                                 >
-                                    {subjectsInRedux?.listData?.rows.length && subjectsInRedux.listData.rows.map(subject => (
+                                    {formSubjectsInRedux?.listData?.rows?.length && formSubjectsInRedux.listData.rows.map(subject => (
                                         <MenuItem value={subject.id} name={subject.name} key={subject.name}>
                                             {subject.name}
                                         </MenuItem>
@@ -520,7 +532,7 @@ const TeacherFormComponent = ({
 
                             <Autocomplete
                                 multiple
-                                options={combinedClass}
+                                options={combinedClass || []}
                                 getOptionLabel={option => `${appendSuffix(option.class_name)} ${option.section_name}`}
                                 disableCloseOnSelect
                                 value={formik.values.combinedClsSect[field.id - 1]}
@@ -557,9 +569,7 @@ const TeacherFormComponent = ({
                                     <Select
                                         variant="filled"
                                         labelId={`subjectField_${key}`}
-                                        label={`Subject ${key}`}
                                         name={`subject_${key}`}
-                                        autoComplete="new-subject"
                                         value={formik.values.subject[index] || []}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.subject];
@@ -567,7 +577,7 @@ const TeacherFormComponent = ({
                                             formik.setFieldValue("subject", subArr)
                                         }}
                                     >
-                                        {subjectsInRedux?.listData?.rows.length && subjectsInRedux.listData.rows.map(subject => (
+                                        {formSubjectsInRedux?.listData?.rows?.length && formSubjectsInRedux.listData.rows.map(subject => (
                                             <MenuItem value={subject.id} name={subject.name} key={subject.name}>
                                                 {subject.name}
                                             </MenuItem>
@@ -578,7 +588,7 @@ const TeacherFormComponent = ({
 
                                 <Autocomplete
                                     multiple
-                                    options={combinedClass}
+                                    options={combinedClass || []}
                                     getOptionLabel={option => `${appendSuffix(option.class_name)} ${option.section_name}`}
                                     disableCloseOnSelect
                                     value={formik.values.combinedClsSect[index] || []}

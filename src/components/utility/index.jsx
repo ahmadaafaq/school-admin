@@ -59,6 +59,63 @@ export const Utility = () => {
         return `${code}S${Math.floor(Math.random() * 1000)}`;
     };
 
+    /** Creates an array of academic sessions based on the current year.
+     * @returns {Array} - An array containing three academic session strings.
+     *                    [previousSession, currentSession, nextSession]
+     */
+    const createSession = () => {
+        const currentYear = new Date().getFullYear();
+        const nextYear = currentYear + 1;
+        const previousYear = currentYear - 1;
+
+        return [`${previousYear - 1}-${previousYear}`, `${previousYear}-${currentYear}`, `${currentYear}-${nextYear}`]
+    };
+
+    /** Custom sorting function for sorting objects based on the class_name property, prioritizes non-numeric classnames.
+    * @param {Object} a - The first object to compare.
+    * @param {Object} b - The second object to compare.
+    * @returns {number} - A negative value if a should be sorted before b, a positive value if b should be sorted before a, or 0 if they are equal.
+    */
+    const customSort = (a, b) => {
+        // Check if both class names are non-numeric
+        const isANonNumeric = isNaN(a.class_name);
+        const isBNonNumeric = isNaN(b.class_name);
+
+        // Sort non-numeric classes to the top
+        if (isANonNumeric && !isBNonNumeric) {
+            return -1;
+        } else if (!isANonNumeric && isBNonNumeric) {
+            return 1;
+        }
+
+        // If both are numeric or both are non-numeric, use localeCompare
+        return a.class_name.localeCompare(b.class_name);
+    };
+
+    /** Creates a unique data array based on specified keys from the dataArray.
+     * @param {Array} dataArray - The array of objects.
+     * @param {string} key1 - The first key to consider for uniqueness.
+     * @param {string} key2 - The second key to consider for uniqueness.
+     * @returns {Array} - An array of unique objects based on the specified keys.
+     */
+    const createUniqueDataArray = (dataArray, key1, key2, key3 = null) => {
+        const uniqueDataArray = new Set();
+
+        dataArray.forEach(obj => {
+            let combinedKeys = `${obj[key1]}-${obj[key2]}`;
+            uniqueDataArray.add(key3 ? `${combinedKeys}-${obj[key3]}` : combinedKeys);
+        });
+        // Convert the Set back to an array of unique objects
+        return Array.from(uniqueDataArray).map(compoundKey => {
+            const [id, name, sub] = compoundKey.split('-');
+            let obj = {
+                [key1]: parseInt(id),
+                [key2]: name
+            };
+            return key3 ? { ...obj, [key3]: sub } : obj;
+        });
+    };
+
     /** Finds an object in a collection by its ID.
      * @param {number} id - The ID to search for.
      * @param {Array} model - The collection (array of objects) to search within.
@@ -67,7 +124,7 @@ export const Utility = () => {
     const findById = (id, model) => {
         let found = '';
         if (model) {
-            found = model.find(sect => sect.id === id);
+            found = model.find((obj => obj.id === id || obj.class_id === id));
         }
         return found;
     };
@@ -81,7 +138,7 @@ export const Utility = () => {
         if (!ids || !model) {
             return [];
         }
-        return model.filter(sub => ids.includes(sub.id.toString()));
+        return model.filter(obj => ids.split(',').indexOf(obj.id.toString()) > -1);
     };
 
     /** Gets user initials from the first and last name stored in auth information.
@@ -147,10 +204,9 @@ export const Utility = () => {
         return API.UserRoleAPI.getRoleById({ id: getRole() })
             .then(res => {
                 if (res.status === 'Success') {
-                    console.log(res.data, 'api');
                     return res.data;
                 } else if (res.status === 'Error') {
-                    console.log('error')
+                    console.log('Error Getting User Role And Priority')
                 }
             })
             .catch(err => {
@@ -259,6 +315,9 @@ export const Utility = () => {
         addClassKeyword,
         appendSuffix,
         createSchoolCode,
+        createSession,
+        customSort,
+        createUniqueDataArray,
         findById,
         findMultipleById,
         getInitials,

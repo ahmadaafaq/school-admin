@@ -19,9 +19,10 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import SchoolFormComponent from "./SchoolFormComponent";
 
-import { setClasses } from "../../redux/actions/ClassAction";
+import { setFormAmenities } from "../../redux/actions/AmenityAction";
+import { setFormClasses } from "../../redux/actions/ClassAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSections } from "../../redux/actions/SectionAction";
+import { setFormSections } from "../../redux/actions/SectionAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -44,9 +45,12 @@ const FormComponent = () => {
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
-    const [amenities, setAmenities] = useState([]);     //for amenities table data from db
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
+
+    const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const selected = useSelector(state => state.menuItems.selected);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const schoolFormRef = useRef();
     const addressFormRef = useRef();
@@ -58,10 +62,8 @@ const FormComponent = () => {
     const userParams = useParams();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { typography } = themeSettings(theme.palette.mode);
 
-    const selected = useSelector(state => state.menuItems.selected);
-    const toastInfo = useSelector(state => state.toastInfo);
+    const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
     const { createSchoolCode, getLocalStorage, getIdsFromObject, getValuesFromArray, toastAndNavigate } = Utility();
@@ -113,7 +115,7 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, amenities);
+                    responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
                 }
                 const dataObj = {
                     schoolData: {
@@ -159,7 +161,6 @@ const FormComponent = () => {
                         const schoolClass = formData.schoolData.values.classes[index] || 0;
                         // Associating each inner array with a class
                         innerArray.map(sectionData => {
-                            console.log('got', schoolClass, sectionData.id);
                             API.SchoolAPI.insertIntoMappingTable(
                                 [school.data.id, schoolClass, sectionData.id]
                             )
@@ -185,39 +186,27 @@ const FormComponent = () => {
             });
     };
 
-    //get all amenities from amenity table stored in the db before populating data
     useEffect(() => {
-        const getAmenities = () => {
-            API.AmenityAPI.getAll(false, 0, 30)
-                .then(amenities => {
-                    if (amenities.status === 'Success') {
-                        setAmenities(amenities.data.rows);
-                    } else {
-                        console.log("Error, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getAmenities();
-    }, []);
+        if (!formAmenitiesInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setFormAmenities, API.AmenityAPI);
+        }
+    }, [formAmenitiesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
+        if (!formClassesInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setFormClasses, API.ClassAPI);
         }
-    }, [classesInRedux?.listData?.rows?.length]);
+    }, [formClassesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
+        if (!formSectionsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 20, setFormSections, API.SectionAPI);
         }
-    }, [sectionsInRedux?.listData?.rows?.length]);
+    }, [formSectionsInRedux?.listData?.rows?.length]);
 
     //Create/Update/Populate School
     useEffect(() => {
-        if (id && !submitted && amenities) {
+        if (id && !submitted) {
             setTitle("Update");
             populateSchoolData(id);
         }
@@ -226,7 +215,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted, amenities]);
+    }, [id, submitted]);
 
     const handleSubmit = async () => {
         await schoolFormRef.current.Submit();
@@ -269,9 +258,9 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 schoolId={id}
-                amenities={amenities}
-                classesInRedux={classesInRedux?.listData?.rows}
-                sectionsInRedux={sectionsInRedux?.listData?.rows}
+                amenities={formAmenitiesInRedux?.listData?.rows}
+                classesInRedux={formClassesInRedux?.listData?.rows}
+                sectionsInRedux={formSectionsInRedux?.listData?.rows}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent

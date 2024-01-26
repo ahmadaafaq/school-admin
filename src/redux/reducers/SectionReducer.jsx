@@ -13,13 +13,29 @@ const initialState = {
     loading: true
 };
 
+const initialFormState = {
+    listData: []
+};
+
 export const setSectionsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_SECTIONS:
+        case ActionTypes.SET_LISTING_SECTIONS:
             return {
                 ...state,
                 listData: action.payload.listData,
                 loading: action.payload.loading
+            };
+        default:
+            return state;
+    };
+};
+
+export const setFormSectionsReducer = (state = initialFormState, action) => {
+    switch (action.type) {
+        case ActionTypes.SET_FORM_SECTIONS:
+            return {
+                ...state,
+                listData: action.payload
             };
         default:
             return state;

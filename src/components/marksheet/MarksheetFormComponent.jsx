@@ -115,9 +115,10 @@ const UserFormComponent = ({
     }, [subjectsInRedux?.listData?.rows?.length]);
 
     console.log('class and students=', marksheetClass, marksheetSection)
+
     useEffect(() => {
         let classSubjects = [];
-        marksheetClass?.subjects?.split(',').map(sub => {
+        marksheetClass?.class_subjects?.split(',').map(sub => {
             classSubjects.push(findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name);
         })
         if (classSubjects.length) {
