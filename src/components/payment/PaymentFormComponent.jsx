@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
@@ -26,12 +26,12 @@ import { useCommon } from "../hooks/common";
 const initialValues = {
     academic_year: "",
     amount: "",
-    due_date:null,
+    due_date: null,
     type: "school",
-    payment_status:"pending",
-    payment_method:"cash",
-    payment_date:null,
-    late_fee:""
+    payment_status: "pending",
+    payment_method: "cash",
+    payment_date: null,
+    late_fee: ""
 };
 
 const PaymentFormComponent = ({
@@ -55,7 +55,7 @@ const PaymentFormComponent = ({
     // const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData } = useCommon();
+    const { getPaginatedData,getStudents } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -112,12 +112,25 @@ const PaymentFormComponent = ({
         }
     }, [sectionInRedux?.listData?.rows]);
 
-    useEffect(() => {
-        if (!studentInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 100, setStudents, API.StudentAPI);
-        }
-    }, [studentInRedux?.listData?.rows]);
+    // const getStudents = useCallback(() => {
+    //     console.log('call getStudents', formik.values.class_id, formik.values.section_id)
+    //     if (formik.values.class_id && formik.values.section_id) {
+    //         const condition = {
+    //             classId: formik.values.class_id,
+    //             sectionId: formik.values.section_id
+    //         };
 
+    //         // call api to get students
+    //         getPaginatedData(0, 100, setStudents, API.StudentAPI, condition);
+    //     }
+    // }, [formik.values.class_id, formik.values.section_id]);
+
+    useEffect(() => {
+        getStudents(formik.values.class_id, formik.values.section_id, setStudents, API);
+    }, [formik.values.class_id, formik.values.section_id]);
+
+
+    console.log('studentInRedux=>', studentInRedux)
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -166,6 +179,7 @@ const PaymentFormComponent = ({
                                 const getSectionId = event.target.value;
                                 setSectionId(getSectionId);
                                 formik.setFieldValue("section_id", event.target.value);
+
                             }}
                         >
                             {sectionInRedux?.listData?.rows?.length && sectionInRedux.listData.rows.map(item => (
@@ -194,8 +208,8 @@ const PaymentFormComponent = ({
                             }}
                         >
                             {studentInRedux?.listData?.rows?.length && studentInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
-                                    {item.name}
+                                <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.firstname}>
+                                    {`${item.firstname} ${item.lastname}`}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -215,7 +229,7 @@ const PaymentFormComponent = ({
                         error={!!formik.touched.academic_year && !!formik.errors.academic_year}
                         helperText={formik.touched.academic_year && formik.errors.academic_year}
                     />
-                     <FormControl variant="filled" sx={{ minWidth: 120 }}
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.payment_status && !!formik.errors.payment_status}
                     >
                         <InputLabel id="payment_statusField">Payment_status</InputLabel>
@@ -235,7 +249,7 @@ const PaymentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.payment_status && formik.errors.payment_status}</FormHelperText>
                     </FormControl>
-                     <TextField
+                    <TextField
                         fullWidth
                         variant="filled"
                         type="number"
@@ -284,7 +298,7 @@ const PaymentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.type && formik.errors.type}</FormHelperText>
                     </FormControl>
-                   
+
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.payment_method && !!formik.errors.payment_method}
                     >
@@ -319,7 +333,7 @@ const PaymentFormComponent = ({
                             }}
                         />
                     </LocalizationProvider>
-                    
+
                     <TextField
                         fullWidth
                         variant="filled"
