@@ -98,6 +98,7 @@ const FormComponent = () => {
     }, [formData]);
 
     const populateStudentData = (id) => {
+        console.log('qwertyuihgfdxc=>>>>',id);
         setLoading(true);
         const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)

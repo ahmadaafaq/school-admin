@@ -39,6 +39,11 @@ export const datagridColumns = () => {
         navigateTo(`/student/update/${id}`, { state: { id: id } });
     };
 
+    const handleActionShow = (id) => {
+        setOpen(true);
+        navigateTo("#", { state: { id: id } });
+    };
+
     useEffect(() => {
         if (!classesInRedux?.listData?.rows?.length) {
             getPaginatedData(0, 20, setClasses, API.ClassAPI);
@@ -147,10 +152,10 @@ export const datagridColumns = () => {
                             <DriveFileRenameOutlineOutlinedIcon />
                         </Button>
                         <Button color="info" variant="contained"
-                            onClick={() => setOpen(true)}
+                            onClick={() => handleActionShow(id)}
                             sx={{ minWidth: "50px" }}
                         >
-                                <PreviewIcon />
+                            <PreviewIcon />
                         </Button>
                         <BasicModal open={open} setOpen={setOpen} />
                     </Box>

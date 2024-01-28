@@ -28,6 +28,8 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import amenityIcon from '../assets/amenityIcon.png';
 import classIcon from '../assets/classIcon.png';
 import sectionIcon from '../assets/sectionIcon.png'
+import subjectIcon from '../assets/subjectIcon.png'
+import roleIcon from '../assets/roleIcon.png'
 
 import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
@@ -351,7 +353,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Subject"
                 to="/subject/listing"
-                icon={<BorderColorIcon />}
+                icon={<img src={subjectIcon} height={25} width={25} />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -360,7 +362,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Role"
                 to="/role/listing"
-                icon={<BorderColorIcon />}
+                icon={<img src={roleIcon} height={25} width={25} />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
