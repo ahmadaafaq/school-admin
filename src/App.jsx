@@ -182,6 +182,18 @@ function App() {
                       <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
+
+                      <Route exact path="/employee/create" element={<EmployeeFormComponent  />} />
+                      <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
+                      <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
+
+                      <Route exact path="/holiday/create" element={<HolidayFormComponent  />} />
+                      <Route exact path="/holiday/update/:id" element={<HolidayFormComponent />} />
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
+
+                      <Route exact path="/payment/create" element={<PaymentFormComponent  />} />
+                      <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
+                      <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
                     </>}
                   {userRole.priority === 3 &&
                     <>
@@ -204,6 +216,18 @@ function App() {
                       <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
+
+                      <Route exact path="/employee/create" element={<EmployeeFormComponent  />} />
+                      <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
+                      <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
+
+                      <Route exact path="/holiday/create" element={<HolidayFormComponent  />} />
+                      <Route exact path="/holiday/update/:id" element={<HolidayFormComponent />} />
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
+
+                      <Route exact path="/payment/create" element={<PaymentFormComponent  />} />
+                      <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
+                      <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
                     </>}
                   {userRole.priority === 4 &&
                     <>
