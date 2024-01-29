@@ -168,6 +168,7 @@ const FormComponent = () => {
         API.ClassAPI.getClassSectionList()
             .then(data => {
                 if (data.status === 'Success') {
+                    console.log('joined classData', data.data)
                     setCombinedClass(data.data);
                 } else {
                     console.error("Error fetching classes. Please Try Again");

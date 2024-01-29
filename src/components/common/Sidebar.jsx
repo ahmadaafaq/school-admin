@@ -7,7 +7,7 @@
 */
 
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar/dist";
 import "react-pro-sidebar/dist/css/styles.css";
@@ -32,10 +32,9 @@ import subjectIcon from '../assets/subjectIcon.png'
 import roleIcon from '../assets/roleIcon.png'
 
 import API from "../../apis";
-import { setClasses } from "../../redux/actions/ClassAction";
+import { setFormClasses } from "../../redux/actions/ClassAction";
 import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import "../common/index.css";
@@ -46,15 +45,15 @@ const Sidebar = ({ rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
   const selected = useSelector(state => state.menuItems.selected);
-  const classesInRedux = useSelector(state => state.allClasses);
+  const formClassesInRedux = useSelector(state => state.allFormClasses);
 
+  const dispatch = useDispatch();
   const location = useLocation();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
-  const { getPaginatedData } = useCommon();
   const isTab = useMediaQuery("(max-width:920px)");
-  const { getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
+  const { customSort, createUniqueDataArray, getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
   const closeSubMenu = () => {
     if (isSubMenuOpen) {
@@ -70,24 +69,37 @@ const Sidebar = ({ rolePriority }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!classesInRedux?.listData?.rows?.length) {
-      getPaginatedData(0, 20, setClasses, API.ClassAPI);
+    if (!formClassesInRedux?.listData?.length) {
+      API.SchoolAPI.getSchoolClasses(5)
+        .then(classData => {
+          if (classData.status === 'Success') {
+            classData.data.sort(customSort);
+            const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+            dispatch(setFormClasses(uniqueClassDataArray));
+          } else {
+            console.log("Error Fetching ClassData, Please Try Again");
+          }
+        })
+        .catch(err => {
+          console.log("Error Fetching ClassData:", err);
+        });
     }
-  }, [classesInRedux?.listData?.rows?.length]);
+  }, [formClassesInRedux.listData.length]);
 
   useEffect(() => {
     setIsCollapsed(isMobile);
   }, [isMobile]);
+
   useEffect(() => {
     setIsCollapsed(isTab);
   }, [isTab]);
 
   const renderNotCollapsedStudents = () => {
-    return classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(classs => (
+    return formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(classs => (
       <SidebarItem
-        key={classs.id}
-        title={`${addClassKeyword(classs.name)}`}
-        to={`/student/listing/${classs.id}`}
+        key={classs.class_id}
+        title={`${addClassKeyword(classs.class_name)}`}
+        to={`/student/listing/${classs.class_id}`}
         icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
         selected={selected}
         rolePriority={rolePriority}

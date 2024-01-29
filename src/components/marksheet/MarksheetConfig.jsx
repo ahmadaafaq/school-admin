@@ -7,15 +7,15 @@
  */
 
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setFormSections } from "../../redux/actions/SectionAction";
 import { setSubjects } from "../../redux/actions/SubjectAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
@@ -23,32 +23,42 @@ import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
     const subjectsInRedux = useSelector(state => state.allSubjects);
     const studentsInRedux = useSelector(state => state.allStudents);
 
+    const dispatch = useDispatch();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const navigateTo = useNavigate();
     const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
+    const { appendSuffix, customSort, createUniqueDataArray, findById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/marksheet/update/${id}`, { state: { id: id } });
     };
 
-    useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
-        }
-    }, [classesInRedux?.listData?.rows?.length]);
+    // to be refactored
+    // useEffect(() => {
+    //     if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+    //         API.SchoolAPI.getSchoolClasses(5)
+    //             .then(classData => {
+    //                 if (classData.status === 'Success') {
+    //                     classData.data.sort(customSort);
 
-    useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
-        }
-    }, [sectionsInRedux?.listData?.rows?.length]);
+    //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+    //                     dispatch(setFormClasses(uniqueClassDataArray));
+
+    //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+    //                     dispatch(setFormSections(uniqueSectionDataArray));
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 console.log("Error Fetching ClassData:", err);
+    //             });
+    //     }
+    // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     useEffect(() => {
         if (!subjectsInRedux?.listData?.rows?.length) {
@@ -95,11 +105,11 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = params?.row?.class_id > 0 ? findById(params?.row?.class_id, classesInRedux?.listData?.rows) : '/';
-                let sectionName = params?.row?.section_id > 0 ? findById(params?.row?.section_id, sectionsInRedux?.listData?.rows) : '/';
+                let className = findById(params?.row?.class, formClassesInRedux?.listData)?.class_name;
+                let sectionName = findById(params?.row?.section, formSectionsInRedux?.listData)?.name;
                 return (
                     <div>
-                        {appendSuffix(className.name)} {sectionName.name}
+                        {className ? appendSuffix(className) : '/'} {sectionName}
                     </div>
                 );
             }
@@ -112,10 +122,10 @@ export const datagridColumns = () => {
             flex: 2,
             minWidth: 120,
             renderCell: (params) => {
-                let subjectName = params?.row?.subject_id > 0 ? findById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows) : '/';
+                let subjectName = findById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows)?.name;
                 return (
                     <div>
-                        {subjectName.name}
+                        {subjectName}
                     </div>
                 );
             }

@@ -10,7 +10,14 @@ import { ActionTypes } from "../constants/action-types";
 
 export const setClasses = (classes) => {
     return {
-        type: ActionTypes.SET_CLASSES,
+        type: ActionTypes.SET_LISTING_CLASSES,
+        payload: classes
+    };
+};
+
+export const setFormClasses = (classes) => {
+    return {
+        type: ActionTypes.SET_FORM_CLASSES,
         payload: classes
     };
 };

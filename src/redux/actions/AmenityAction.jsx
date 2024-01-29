@@ -10,7 +10,14 @@ import { ActionTypes } from "../constants/action-types";
 
 export const setAmenities = (amenities) => {
     return {
-        type: ActionTypes.SET_AMENITIES,
+        type: ActionTypes.SET_LISTING_AMENITIES,
+        payload: amenities
+    };
+};
+
+export const setFormAmenities = (amenities) => {
+    return {
+        type: ActionTypes.SET_FORM_AMENITIES,
         payload: amenities
     };
 };

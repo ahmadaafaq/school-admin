@@ -7,33 +7,31 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import Modal from '@mui/material/Modal';
 import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+import BasicModal from "../common/CustomModal";
+
+import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setFormSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
-import BasicModal from "../common/CustomModal";
 
 export const datagridColumns = () => {
     const [open, setOpen] = useState(false);
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
 
+    const dispatch = useDispatch();
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
+    const { appendSuffix, findById, customSort, createUniqueDataArray } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/student/update/${id}`, { state: { id: id } });
@@ -45,16 +43,26 @@ export const datagridColumns = () => {
     };
 
     useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
-        }
-    }, [classesInRedux?.listData?.rows?.length]);
+        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+            API.SchoolAPI.getSchoolClasses(5)
+                .then(classData => {
+                    if (classData.status === 'Success') {
+                        classData.data.sort(customSort);
 
-    useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setFormClasses(uniqueClassDataArray));
+                        console.log(uniqueClassDataArray, 'config dataset')
+
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        dispatch(setFormSections(uniqueSectionDataArray));
+                        console.log(uniqueSectionDataArray, 'config sections');
+                    }
+                })
+                .catch(err => {
+                    console.log("Error Fetching ClassData:", err);
+                });
         }
-    }, [sectionsInRedux?.listData?.rows?.length]);
+    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     const columns = [
         {
@@ -75,8 +83,8 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findById(params?.row?.class, classesInRedux?.listData?.rows)?.name;
-                let sectionName = findById(params?.row?.section, sectionsInRedux?.listData?.rows)?.name;
+                let className = findById(params?.row?.class, formClassesInRedux?.listData)?.class_name;
+                let sectionName = findById(params?.row?.section, formSectionsInRedux?.listData)?.name;
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}
@@ -151,6 +159,7 @@ export const datagridColumns = () => {
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
                         </Button>
+
                         <Button color="info" variant="contained"
                             onClick={() => handleActionShow(id)}
                             sx={{ minWidth: "50px" }}

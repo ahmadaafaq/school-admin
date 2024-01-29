@@ -14,13 +14,13 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 export const datagridColumns = (handleDialogOpen) => {
-    const subjectsInRedux = useSelector(state => state.allSubjects);
+    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -33,10 +33,10 @@ export const datagridColumns = (handleDialogOpen) => {
     };
 
     useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        if (!formSubjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
         }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    }, [formSubjectsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -56,13 +56,15 @@ export const datagridColumns = (handleDialogOpen) => {
             minWidth: 120,
             renderCell: (params) => {
                 const subjectIds = params?.row.subjects;
-                const subjectNames = findMultipleById(subjectIds, subjectsInRedux?.listData?.rows).map(subject => subject.name);
+                const subjectNames = findMultipleById(subjectIds, formSubjectsInRedux?.listData?.rows);
+                console.log(subjectIds, subjectNames, 'class')
                 return (
                     <div style={{ width: '100%', height: "40px" }}>
                         {subjectNames.map((subject, index) => (
                             <React.Fragment key={index}>
                                 {index > 0 && ','}
-                                {index > 0 && index % 3 === 0 && <br />}{subject}
+                                {subject.name}
+                                {index > 0 && index % 4 === 0 && <br />}
                             </React.Fragment>
                         ))}
                     </div>

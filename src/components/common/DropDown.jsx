@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/material";
 
 import API from "../../apis";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setFormSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
@@ -22,49 +22,67 @@ import { Utility } from "../utility";
 function DropDown({ onSelectClass, onSelectSection }) {
     const [selectedClass, setSelectedClass] = useState('');
     const [selectedSection, setSelectedSection] = useState('');
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
 
     const theme = useTheme();
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
-    const { getPaginatedData,getStudents } = useCommon();
-    const { findById } = Utility();
+    const { getStudents } = useCommon();
+    const { customSort, createUniqueDataArray, findById } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedClass = findById(event.target.value, classesInRedux?.listData?.rows);
+        const selectedClass = findById(event.target.value, formClassesInRedux?.listData);
+        console.log(selectedClass, 'selected dropdown')
         setSelectedClass(event.target.value);
         onSelectClass(selectedClass);
         dispatch(setMarksheetClass(selectedClass));
     };
 
     const handleSectionChange = (event) => {
-        const selectedSection = findById(event.target.value, sectionsInRedux?.listData?.rows);
+        const selectedSection = findById(event.target.value, formSectionsInRedux?.listData);
         setSelectedSection(event.target.value);
         onSelectSection(selectedSection?.name);
         dispatch(setMarksheetSection(selectedSection?.name));
     };
 
     useEffect(() => {
-        getPaginatedData(0, 20, setClasses, API.ClassAPI);
-        getPaginatedData(0, 20, setSections, API.SectionAPI);
-    }, []);
+        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+            API.SchoolAPI.getSchoolClasses(5)
+                .then(classData => {
+                    if (classData.status === 'Success') {
+                        classData.data.sort(customSort);
 
-    // useEffect(() => {
-    //     // Fetch students based on the selected class and section
-    //     if (selectedClass && selectedSection) {
-    //         API.StudentAPI.getStudentsByClass(selectedClass, selectedSection)
-    //             .then(data => {
-    //                 console.log(data, 'student marksheet data')
-    //                 // dispatch(setMarksheetStudents(data));
-    //             })
-    //             .catch(err => {
-    //                 console.error('Error fetching students:', err);
-    //             })
-    //     }
-    // }, [selectedClass, selectedSection]);
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name', 'class_subjects');
+                        dispatch(setFormClasses(uniqueClassDataArray));
+                        console.log(uniqueClassDataArray, 'config dataset');
+
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        dispatch(setFormSections(uniqueSectionDataArray));
+                    }
+                })
+                .catch(err => {
+                    console.log("Error Fetching ClassData:", err);
+                });
+        }
+    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+
     useEffect(() => {
-        getStudents(selectedClass,selectedSection , setStudents, API);
+        // Fetch students based on the selected class and section
+        if (selectedClass && selectedSection) {
+            API.StudentAPI.getStudentsByClass(selectedClass, selectedSection)
+                .then(data => {
+                    console.log(data, 'student marksheet data')
+                    // dispatch(setMarksheetStudents(data));
+                })
+                .catch(err => {
+                    console.log("Error Fetching ClassData:", err);
+                });
+        }
+    }, [selectedClass, selectedSection]);
+
+    useEffect(() => {
+        getStudents(selectedClass, selectedSection, setStudents, API);
     }, [selectedClass, selectedSection]);
 
     return (
@@ -88,9 +106,9 @@ function DropDown({ onSelectClass, onSelectSection }) {
                         height: "12vh",
                         backgroundColor: colors.blueAccent[800]
                     }}>
-                    {classesInRedux?.listData?.rows?.length && classesInRedux.listData.rows.map(item => (
-                        <MenuItem value={item.id} key={item.name}>
-                            {item.name}
+                    {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
+                        <MenuItem value={cls.class_id} key={cls.class_name}>
+                            {cls.class_name}
                         </MenuItem>
                     ))}
                 </Select>
@@ -115,9 +133,9 @@ function DropDown({ onSelectClass, onSelectSection }) {
                         backgroundColor: colors.greenAccent[600]
                     }}
                 >
-                    {sectionsInRedux?.listData?.rows?.length && sectionsInRedux.listData.rows.map(item => (
-                        <MenuItem value={item.id} key={item.name}>
-                            {item.name}
+                    {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
+                        <MenuItem value={section.id} key={section.name}>
+                            {section.name}
                         </MenuItem>
                     ))}
                 </Select>

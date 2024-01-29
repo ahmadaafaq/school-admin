@@ -9,11 +9,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Formik } from "formik";
 
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography, Autocomplete } from "@mui/material";
 import { Button, Dialog, Select, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
-import { Formik } from "formik";
 
 import API from "../../apis";
 import classValidation from "./Validation";
@@ -21,7 +21,7 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -47,17 +47,17 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [initialState, setInitialState] = useState(initialValues);
-    const subjectsInRedux = useSelector(state => state.allSubjects);
 
-    const navigateTo = useNavigate();
-    const dispatch = useDispatch();
+    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
+    const navigateTo = useNavigate();
+    const dispatch = useDispatch();
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
     const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects } = Utility();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObject, getValuesFromArray } = Utility();
 
     let id = state?.id;
 
@@ -77,17 +77,17 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         const dataFields = [
             {
                 ...values,
-                subjects: getSelectedSubjects(values.subjects),
+                subjects: getIdsFromObject(values.subjects)
             },
         ];
         const paths = ["/update-class"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
+            .then(response => {
                 let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
+                response.forEach(resp => {
+                    if (resp.data.status !== "Success") {
                         status = false;
                     }
                 });
@@ -106,13 +106,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             });
     }, []);
 
-    const getSelectedSubjectsByName = (dataObj) => {
-        const objId = dataObj?.split(",");
-        if (objId) {
-            return subjectsInRedux?.listData?.rows.filter(subject => objId.includes(subject.id.toString()));
-        }
-    };
-
     const populateData = (id) => {
         setLoading(true);
         const path = [`/get-by-pk/class/${id}`];
@@ -120,7 +113,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 if (response[0].data.status === "Success") {
-                    response[0].data.data.subjects = getSelectedSubjectsByName(response[0].data.data?.subjects);
+                    response[0].data.data.subjects = getValuesFromArray(response[0].data.data?.subjects, formSubjectsInRedux?.listData?.rows);
                     setInitialState(response[0].data.data);
                     setLoading(false);
                 }
@@ -141,7 +134,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         setLoading(true);
         values = {
             ...values,
-            subjects: getIdsFromObjects(values?.subjects),
+            subjects: getIdsFromObject(values?.subjects)
         }
         API.ClassAPI.createClass(values)
             .then(({ data: classs }) => {
@@ -165,10 +158,10 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     };
 
     useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        if (!formSubjectsInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
         }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    }, [formSubjectsInRedux?.listData?.rows?.length]);
 
     return (
         <div>
@@ -247,7 +240,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
                                 <Autocomplete
                                     multiple
-                                    options={subjects}
+                                    options={formSubjectsInRedux?.listData?.rows || []}
                                     getOptionLabel={option => option.name}
                                     disableCloseOnSelect
                                     value={values.subjects}
@@ -259,7 +252,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                             variant="filled"
                                             type="text"
                                             name="subjects"
-                                            label="subjects"
+                                            label="Subjects"
                                             error={!!touched.subjects && !!errors.subjects}
                                             helperText={touched.subjects && errors.subjects}
                                         />

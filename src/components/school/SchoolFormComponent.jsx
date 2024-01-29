@@ -10,7 +10,6 @@ import React, { useState, useEffect } from "react";
 
 import { Box, Checkbox, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
 import { Autocomplete, Divider, Select, TextField, useMediaQuery } from "@mui/material";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useFormik } from "formik";
 
 import schoolValidation from "./Validation";
@@ -254,7 +253,7 @@ const SchoolFormComponent = ({
                     />
                     <Autocomplete
                         multiple
-                        options={amenities}
+                        options={amenities || []}
                         getOptionLabel={option => option.name}
                         disableCloseOnSelect
                         value={formik.values.amenities}
@@ -319,9 +318,7 @@ const SchoolFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="typeField"
-                            label="Type"
                             name="type"
-                            autoComplete="new-type"
                             value={formik.values.type}
                             onChange={formik.handleChange}
                         >
@@ -338,9 +335,7 @@ const SchoolFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="sub_typeField"
-                            label="sub_type"
                             name="sub_type"
-                            autoComplete="new-sub_type"
                             value={formik.values.sub_type}
                             onChange={event => formik.setFieldValue("sub_type", event.target.value)}
                         >
@@ -359,9 +354,7 @@ const SchoolFormComponent = ({
                         <Select
                             variant="filled"
                             labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
@@ -403,19 +396,6 @@ const SchoolFormComponent = ({
                     padding='10px'
                     marginBottom='40px'
                 >
-                    {/* <Box
-                        onClick={handleAddClick}
-                        sx={{
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
-                        }}
-                    >
-                        <AddCircleIcon sx={{ fontSize: '22px' }} />
-                        <span style={{
-                            color: "rgb(97,97,97)", fontWeight: "300", fontSize: "16px", lineHeight: "30px", letterSpacing: "0.015em"
-                        }}> Add Classes </span>
-                    </Box> */}
-
-
                     {formik.values.classes.map((field, index) => {
                         let key = index + 1;
                         return (
@@ -433,7 +413,7 @@ const SchoolFormComponent = ({
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.classes];
                                             subArr[index] = value.props.value;
-                                            formik.setFieldValue("classes", subArr)
+                                            formik.setFieldValue("classes", subArr);
                                         }}
                                     >
                                         {classesInRedux?.length && classesInRedux.map(cls => (
@@ -486,14 +466,16 @@ const SchoolFormComponent = ({
                                 onChange={(event, value) => {
                                     const subArr = [...formik.values.classes];
                                     subArr[formik.values.classes.length] = value.props.value;
-                                    formik.setFieldValue("classes", subArr)
+                                    formik.setFieldValue("classes", subArr);
                                 }}
                             >
-                                {classesInRedux?.length && classesInRedux.map(cls => (
-                                    <MenuItem value={cls.id} name={cls.name} key={cls.name}>
-                                        {cls.name}
-                                    </MenuItem>
-                                ))}
+                                {classesInRedux?.length && classesInRedux
+                                    .filter(cls => !formik.values.classes.includes(cls.id)) // Exclude the selected class
+                                    .map(cls => (
+                                        <MenuItem value={cls.id} name={cls.name} key={cls.name}>
+                                            {cls.name}
+                                        </MenuItem>
+                                    ))}
                             </Select>
                             <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
                         </FormControl>

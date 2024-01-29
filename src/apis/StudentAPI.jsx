@@ -66,18 +66,19 @@ export const StudentAPI = {
     });
   },
 
-  // /** */
-  // getStudentsByClass: async (classId, sectionId, cancel = false) => {
-  //   const { data: response } = await api.request({
-  //     url: `/get-students-by-class/${classId}/${sectionId}`,
-  //     headers: {
-  //       "x-access-token": getLocalStorage("auth")?.token
-  //     },
-  //     method: "GET",
-  //     signal: cancel ? cancelApiObject[StudentAPI.getStudentsByClass.name].handleRequestCancellation().signal : undefined,
-  //   });
-  //   return response;
-  // }
+  /** Retrieves a list of students belonging to a specific class and section.
+   */
+  getStudentsByClass: async (classId, sectionId, cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-students-by-class/${classId}/${sectionId}`,
+      headers: {
+        "x-access-token": getLocalStorage("auth")?.token
+      },
+      method: "GET",
+      signal: cancel ? cancelApiObject[StudentAPI.getStudentsByClass.name].handleRequestCancellation().signal : undefined,
+    });
+    return response;
+  }
 };
 
 // defining the cancel API object for StudentAPI

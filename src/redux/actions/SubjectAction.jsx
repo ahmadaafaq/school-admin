@@ -10,7 +10,14 @@ import { ActionTypes } from "../constants/action-types";
 
 export const setSubjects = (subjects) => {
     return {
-        type: ActionTypes.SET_SUBJECTS,
+        type: ActionTypes.SET_LISTING_SUBJECTS,
+        payload: subjects
+    };
+};
+
+export const setFormSubjects = (subjects) => {
+    return {
+        type: ActionTypes.SET_FORM_SUBJECTS,
         payload: subjects
     };
 };

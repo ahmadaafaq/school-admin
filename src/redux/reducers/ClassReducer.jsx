@@ -13,13 +13,29 @@ const initialState = {
     loading: true
 };
 
+const initialFormState = {
+    listData: []
+};
+
 export const setClassesReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_CLASSES:
+        case ActionTypes.SET_LISTING_CLASSES:
             return {
                 ...state,
                 listData: action.payload.listData,
                 loading: action.payload.loading
+            };
+        default:
+            return state;
+    };
+};
+
+export const setFormClassesReducer = (state = initialFormState, action) => {
+    switch (action.type) {
+        case ActionTypes.SET_FORM_CLASSES:
+            return {
+                ...state,
+                listData: action.payload
             };
         default:
             return state;

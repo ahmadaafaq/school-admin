@@ -25,6 +25,7 @@ import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+import ICardModal from "../id_card/ICardModal";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
@@ -40,6 +41,7 @@ const FormComponent = () => {
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
+    const [openDialog, setOpenDialog] = useState(false);
 
     const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
@@ -61,6 +63,7 @@ const FormComponent = () => {
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
+    const showIdCard = !id || (id && !updatedValues?.studentData?.id_card);
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -154,6 +157,12 @@ const FormComponent = () => {
             });
     };
 
+
+    const handleSubmitDialog = (folderName, fileName, blobName) => {
+        API.UserAPI.update({ id: auth.id, agreement: 1 });
+        uploadDocumentToAzure(folderName, fileName, blobName);
+    };
+
     useEffect(() => {
         if (!subjectsInRedux?.listData?.rows?.length) {
             getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
@@ -241,7 +250,16 @@ const FormComponent = () => {
             // ENV={ENV}
             />
 
-            <Box display="flex" justifyContent="end" m="20px">
+            <Box display="flex" justifyContent="end" m="20px" pb="20px">
+
+                {showIdCard && <>
+                    <Button color="info" variant="contained" sx={{ mr: 30 }}
+                        onClick={() => setOpenDialog(!openDialog)}
+                    >
+                        Generate ICard
+                    </Button>
+                    <ICardModal handleSubmitDialog={handleSubmitDialog} openDialog={openDialog} setOpenDialog={setOpenDialog} />
+                </>}
                 {   //hide reset button on student update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
