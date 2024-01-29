@@ -6,14 +6,16 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { Box, useTheme } from "@mui/material";
+import { Box, useTheme,useMediaQuery} from "@mui/material";
 
 import { tokens } from "../../theme";
 
-const ProgressCircle = ({ progress = "0.75", size = "40", yellowColor }) => {
+const ProgressCircle = ({ progress = "0.75", size ="40", yellowColor }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const angle = progress * 360;
+    const isMobile = useMediaQuery("(max-width:480px)");
+
 
     return (
         <Box
@@ -22,8 +24,8 @@ const ProgressCircle = ({ progress = "0.75", size = "40", yellowColor }) => {
             conic-gradient(transparent 0deg ${angle}deg, ${colors.primary[500]} ${angle}deg 360deg),
             ${colors.greenAccent[500]}`,
                 borderRadius: "50%",
-                width: `${size}px`,
-                height: `${size}px`,
+                width:isMobile?"30px" : `${size}px`,
+                height:isMobile?"30px" : `${size}px`,
             }}
         />
     );

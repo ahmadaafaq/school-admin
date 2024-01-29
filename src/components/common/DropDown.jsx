@@ -12,6 +12,8 @@ import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/m
 import API from "../../apis";
 import { setFormClasses } from "../../redux/actions/ClassAction";
 import { setFormSections } from "../../redux/actions/SectionAction";
+import { setStudents } from "../../redux/actions/StudentAction";
+
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -26,6 +28,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
     const theme = useTheme();
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
+    const { getStudents } = useCommon();
     const { customSort, createUniqueDataArray, findById } = Utility();
 
     const handleClassChange = (event) => {
@@ -44,16 +47,15 @@ function DropDown({ onSelectClass, onSelectSection }) {
     };
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length || !formClassesInRedux?.listData[0]?.class_subjects) {
-            console.log('inside dropdown component')
+        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
             API.SchoolAPI.getSchoolClasses(5)
                 .then(classData => {
                     if (classData.status === 'Success') {
                         classData.data.sort(customSort);
-                        console.log(classData.data, 'dropdown data')
 
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name', 'class_subjects');
                         dispatch(setFormClasses(uniqueClassDataArray));
+                        console.log(uniqueClassDataArray, 'config dataset');
 
                         const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
                         dispatch(setFormSections(uniqueSectionDataArray));
@@ -74,9 +76,13 @@ function DropDown({ onSelectClass, onSelectSection }) {
                     // dispatch(setMarksheetStudents(data));
                 })
                 .catch(err => {
-                    console.error('Error fetching students:', err);
-                })
+                    console.log("Error Fetching ClassData:", err);
+                });
         }
+    }, [selectedClass, selectedSection]);
+
+    useEffect(() => {
+        getStudents(selectedClass, selectedSection, setStudents, API);
     }, [selectedClass, selectedSection]);
 
     return (
@@ -92,8 +98,8 @@ function DropDown({ onSelectClass, onSelectSection }) {
                     variant="filled"
                     labelId="classfield"
                     label="class"
-                    name="class"
-                    autoComplete="new-class"
+                    name="class_id"
+                    autoComplete="new-class_id"
                     onChange={handleClassChange}
                     value={selectedClass}
                     sx={{
