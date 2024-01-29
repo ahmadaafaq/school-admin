@@ -254,7 +254,7 @@ export const Utility = () => {
                 return err;
             });
     };
-
+   
     return {
         addClassKeyword,
         appendSuffix,

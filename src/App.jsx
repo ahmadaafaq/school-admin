@@ -46,6 +46,15 @@ const TeacherListingComponent = lazy(() => import("./components/teacher/ListingC
 const UserFormComponent = lazy(() => import("./components/user/FormComponent"));
 const UserListingComponent = lazy(() => import("./components/user/ListingComponent"));
 
+const EmployeeFormComponent = lazy(() => import("./components/employee/FormComponent"));
+const EmployeeListingComponent = lazy(() => import("./components/employee/ListingComponent"));
+
+const HolidayFormComponent = lazy(() => import("./components/holiday/FormComponent"));
+const HolidayListingComponent = lazy(() => import("./components/holiday/ListingComponent"));
+
+const PaymentFormComponent = lazy(() => import("./components/payment/FormComponent"));
+const PaymentListingComponent = lazy(() => import("./components/payment/ListingComponent"));
+
 const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"));
 
 function App() {
@@ -132,6 +141,18 @@ function App() {
                       <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
+
+                      <Route exact path="/employee/create" element={<EmployeeFormComponent  />} />
+                      <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
+                      <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
+
+                      <Route exact path="/holiday/create" element={<HolidayFormComponent  />} />
+                      <Route exact path="/holiday/update/:id" element={<HolidayFormComponent />} />
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
+
+                      <Route exact path="/payment/create" element={<PaymentFormComponent  />} />
+                      <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
+                      <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
 
                       <Route exact path="/role/listing" element={<UserRoleListingComponent />} />
                     </>}

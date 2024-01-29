@@ -18,10 +18,10 @@ import AddressFormComponent from "../address/AddressFormComponent";
 import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import StudentFormComponent from "./StudentFormComponent";
+import EmployeeFormComponent from "./EmployeeFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -30,7 +30,7 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        studentData: { values: null, validated: false },
+        employeeData: { values: null, validated: false },
         addressData: { values: null, validated: false },
         imageData: { values: null, validated: true }
     });
@@ -41,11 +41,11 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const subjectsInRedux = useSelector(state => state.allSubjects);
+  //  const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
-    const studentFormRef = useRef();
+    const employeeFormRef = useRef();
     const addressFormRef = useRef();
     const imageFormRef = useRef();
 
@@ -59,7 +59,7 @@ const FormComponent = () => {
     const { getPaginatedData } = useCommon();
     const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting student id from url params
+    //after page refresh the id in router state becomes undefined, so getting employee id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -67,13 +67,13 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateStudentAndAddress = useCallback(formData => {
+    const updateEmployeeAndAddress = useCallback(formData => {
         console.log("formdataABCD", formData)
         const dataFields = [
-            { ...formData.studentData.values },
+            { ...formData.employeeData.values },
             { ...formData.addressData.values }
         ];
-        const paths = ["/update-student", "/update-address"];
+        const paths = ["/update-employee", "/update-address"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -86,7 +86,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/employee/listing/${getLocalStorage('class')}`);
                 };
                 setLoading(false);
             })
@@ -97,19 +97,18 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateStudentData = (id) => {
-        console.log('qwertyuihgfdxc=>>>>',id);
+    const populateEmployeeData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
+        const paths = [`/get-by-pk/employee/${id}`, `/get-address/employee/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+                   // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
                 const dataObj = {
-                    studentData: responses[0].data.data,
+                    employeeData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
                 };
                 setUpdatedValues(dataObj);
@@ -122,23 +121,19 @@ const FormComponent = () => {
             });
     };
 
-    const createStudent = () => {
+    const createEmployee = () => {
         setLoading(true);
-        formData.studentData.values = {
-            ...formData.studentData.values,
-            subjects: getIdsFromObjects(formData.studentData.values?.subjects)
-        }
-        API.StudentAPI.createStudent({ ...formData.studentData.values })
-            .then(({ data: student }) => {
-                if (student?.status === 'Success') {
+        API.EmployeeAPI.createEmployee({ ...formData.employeeData.values })
+            .then(({ data: employee }) => {
+                if (employee?.status === 'Success') {
                     API.AddressAPI.createAddress({
                         ...formData.addressData.values,
-                        parent_id: student.data.id,
-                        parent: 'student',
+                        parent_id: employee.data.id,
+                        parent: 'employee',
                     })
                         .then(address => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/employee/listing`);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -154,40 +149,41 @@ const FormComponent = () => {
             });
     };
 
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!subjectsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+    //     }
+    // }, [subjectsInRedux?.listData?.rows?.length]);
 
-    //Create/Update/Populate student
+    //Create/Update/Populate employee
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateStudentData(id);
+            populateEmployeeData(id);
         }
-        if (formData.studentData.validated && formData.addressData.validated) {
-            formData.studentData.values?.id ? updateStudentAndAddress(formData) : createStudent();
+        if (formData.employeeData.validated && formData.addressData.validated) {
+            formData.employeeData.values?.id ? updateEmployeeAndAddress(formData) : createEmployee();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await studentFormRef.current.Submit();
+        await employeeFormRef.current.Submit();
         await addressFormRef.current.Submit();
-        await imageFormRef.current.Submit();
+        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        if (form === 'student') {
-            setFormData({ ...formData, studentData: data });
-        } else if (form === 'address') {
+        if (form === 'employee') {
+            setFormData({ ...formData, employeeData: data });
+        } else if(form === 'address') {
             setFormData({ ...formData, addressData: data });
-        } else if (form === 'parent') {
-            setFormData({ ...formData, imageData: data });
         }
+        // } else if (form === 'parent') {
+        //     setFormData({ ...formData, imageData: data });
+        // }
     };
 
     return (
@@ -202,16 +198,16 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <StudentFormComponent
+            <EmployeeFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'student');
+                    handleFormChange(data, 'employee');
                 }}
-                refId={studentFormRef}
+                refId={employeeFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                updatedValues={updatedValues?.studentData}
+                updatedValues={updatedValues?.employeeData}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -224,7 +220,7 @@ const FormComponent = () => {
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
             />
-            <ImagePicker
+            {/* <ImagePicker
                 key="image"
                 onChange={data => handleFormChange(data, 'parent')}
                 refId={imageFormRef}
@@ -239,10 +235,10 @@ const FormComponent = () => {
                 imageType="Guardian"
             // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
             // ENV={ENV}
-            />
+            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on student update
+                {   //hide reset button on employee update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}
@@ -256,7 +252,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/student/listing/${getLocalStorage('class') || ''}`)}>
+                    onClick={() => navigateTo(`/employee/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

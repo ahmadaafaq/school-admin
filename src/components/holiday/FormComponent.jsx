@@ -18,10 +18,10 @@ import AddressFormComponent from "../address/AddressFormComponent";
 import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import StudentFormComponent from "./StudentFormComponent";
+import HolidayFormComponent from "./HolidayFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -30,7 +30,7 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        studentData: { values: null, validated: false },
+        holidayData: { values: null, validated: false },
         addressData: { values: null, validated: false },
         imageData: { values: null, validated: true }
     });
@@ -41,11 +41,11 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const subjectsInRedux = useSelector(state => state.allSubjects);
+  //  const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
-    const studentFormRef = useRef();
+    const holidayFormRef = useRef();
     const addressFormRef = useRef();
     const imageFormRef = useRef();
 
@@ -59,7 +59,7 @@ const FormComponent = () => {
     const { getPaginatedData } = useCommon();
     const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting student id from url params
+    //after page refresh the id in router state becomes undefined, so getting Holiday id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -67,13 +67,13 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateStudentAndAddress = useCallback(formData => {
+    const updateHolidayAndAddress = useCallback(formData => {
         console.log("formdataABCD", formData)
         const dataFields = [
-            { ...formData.studentData.values },
+            { ...formData.holidayData.values },
             { ...formData.addressData.values }
         ];
-        const paths = ["/update-student", "/update-address"];
+        const paths = ["/update-holiday", "/update-address"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -86,7 +86,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/holiday/listing/${getLocalStorage('class')}`);
                 };
                 setLoading(false);
             })
@@ -97,19 +97,18 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateStudentData = (id) => {
-        console.log('qwertyuihgfdxc=>>>>',id);
+    const populateHolidayData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
+        const paths = [`/get-by-pk/holiday/${id}`, `/get-address/holiday/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+                   // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
                 const dataObj = {
-                    studentData: responses[0].data.data,
+                    holidayData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
                 };
                 setUpdatedValues(dataObj);
@@ -122,23 +121,19 @@ const FormComponent = () => {
             });
     };
 
-    const createStudent = () => {
+    const createHoliday = () => {
         setLoading(true);
-        formData.studentData.values = {
-            ...formData.studentData.values,
-            subjects: getIdsFromObjects(formData.studentData.values?.subjects)
-        }
-        API.StudentAPI.createStudent({ ...formData.studentData.values })
-            .then(({ data: student }) => {
-                if (student?.status === 'Success') {
+        API.HolidayAPI.createHoliday({ ...formData.holidayData.values })
+            .then(({ data: holiday }) => {
+                if (holiday?.status === 'Success') {
                     API.AddressAPI.createAddress({
                         ...formData.addressData.values,
-                        parent_id: student.data.id,
-                        parent: 'student',
+                        parent_id: holiday.data.id,
+                        parent: 'holiday',
                     })
                         .then(address => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/holiday/listing`);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -154,40 +149,41 @@ const FormComponent = () => {
             });
     };
 
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!subjectsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+    //     }
+    // }, [subjectsInRedux?.listData?.rows?.length]);
 
-    //Create/Update/Populate student
+    //Create/Update/Populate Holiday
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateStudentData(id);
+            populateHolidayData(id);
         }
-        if (formData.studentData.validated && formData.addressData.validated) {
-            formData.studentData.values?.id ? updateStudentAndAddress(formData) : createStudent();
+        if (formData.holidayData.validated && formData.addressData.validated) {
+            formData.holidayData.values?.id ? updateHolidayAndAddress(formData) : createHoliday();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await studentFormRef.current.Submit();
+        await holidayFormRef.current.Submit();
         await addressFormRef.current.Submit();
-        await imageFormRef.current.Submit();
+        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        if (form === 'student') {
-            setFormData({ ...formData, studentData: data });
-        } else if (form === 'address') {
+        if (form === 'holiday') {
+            setFormData({ ...formData, holidayData: data });
+        } else if(form === 'address') {
             setFormData({ ...formData, addressData: data });
-        } else if (form === 'parent') {
-            setFormData({ ...formData, imageData: data });
         }
+        // } else if (form === 'parent') {
+        //     setFormData({ ...formData, imageData: data });
+        // }
     };
 
     return (
@@ -202,16 +198,16 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <StudentFormComponent
+            <HolidayFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'student');
+                    handleFormChange(data, 'holiday');
                 }}
-                refId={studentFormRef}
+                refId={holidayFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                updatedValues={updatedValues?.studentData}
+                updatedValues={updatedValues?.holidayData}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -224,7 +220,7 @@ const FormComponent = () => {
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
             />
-            <ImagePicker
+            {/* <ImagePicker
                 key="image"
                 onChange={data => handleFormChange(data, 'parent')}
                 refId={imageFormRef}
@@ -239,10 +235,10 @@ const FormComponent = () => {
                 imageType="Guardian"
             // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
             // ENV={ENV}
-            />
+            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on student update
+                {   //hide reset button on Holiday update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}
@@ -256,7 +252,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/student/listing/${getLocalStorage('class') || ''}`)}>
+                    onClick={() => navigateTo(`/holiday/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

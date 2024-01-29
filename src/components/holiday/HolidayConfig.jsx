@@ -6,25 +6,21 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
+// import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import Modal from '@mui/material/Modal';
-import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-import API from "../../apis";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+//import API from "../../apis";
+// import { setClasses } from "../../redux/actions/ClassAction";
+// import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
-import BasicModal from "../common/CustomModal";
 
 export const datagridColumns = () => {
-    const [open, setOpen] = useState(false);
     const classesInRedux = useSelector(state => state.allClasses);
     const sectionsInRedux = useSelector(state => state.allSections);
 
@@ -36,78 +32,54 @@ export const datagridColumns = () => {
     const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/student/update/${id}`, { state: { id: id } });
+        navigateTo(`/holiday/update/${id}`, { state: { id: id } });
     };
 
-    const handleActionShow = (id) => {
-        setOpen(true);
-        navigateTo("#", { state: { id: id } });
-    };
+    // useEffect(() => {
+    //     if (!classesInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
+    //     }
+    // }, [classesInRedux?.listData?.rows?.length]);
 
-    useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
-        }
-    }, [classesInRedux?.listData?.rows?.length]);
-
-    useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
-        }
-    }, [sectionsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!sectionsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
+    //     }
+    // }, [sectionsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
-            field: "fullname",
-            headerName: "NAME",
+            field: "title",
+            headerName: "Title",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
-            // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname || ''} ${params.row.lastname || ''}`
         },
         {
-            field: "class",
-            headerName: "CLASS",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100,
-            renderCell: (params) => {
-                let className = findById(params?.row?.class, classesInRedux?.listData?.rows)?.name;
-                let sectionName = findById(params?.row?.section, sectionsInRedux?.listData?.rows)?.name;
-                return (
-                    <div>
-                        {className ? appendSuffix(className) : '/'} {sectionName}
-                    </div>
-                );
-            }
-        },
-        {
-            field: "blood_group",
-            headerName: "Blood Group",
+            field: "date",
+            headerName: "Date",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "dob",
-            headerName: "DATE OF BIRTH",
+            field: "note",
+            headerName: "Notes",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "status",
-            headerName: "STATUS",
+            field: "type",
+            headerName: "Type",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
-            renderCell: ({ row: { status } }) => {
+            renderCell: ({ row: { type } }) => {
                 return (
                     <Box
                         width="60%"
@@ -116,16 +88,18 @@ export const datagridColumns = () => {
                         display="flex"
                         justifyContent="center"
                         backgroundColor={
-                            status === "active"
+                            type === "school_closure"
                                 ? colors.greenAccent[600]
-                                : status === "inactive"
+                                : type === "partial_closure"
                                     ? colors.redAccent[700]
-                                    : colors.redAccent[700]
+                                    : type === "staff_only"
+                                        ? colors.blueAccent[800]
+                                        : colors.blueAccent[800]
                         }
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                            {type}
                         </Typography>
                     </Box>
                 );
@@ -140,24 +114,17 @@ export const datagridColumns = () => {
             minWidth: 75,
             renderCell: ({ row: { id } }) => {
                 return (
-                    <Box width="85%"
+                    <Box width="30%"
                         m="0 auto"
                         p="5px"
                         display="flex"
-                        justifyContent="space-around">
+                        justifyContent="center">
                         <Button color="info" variant="contained"
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
                         </Button>
-                        <Button color="info" variant="contained"
-                            onClick={() => handleActionShow(id)}
-                            sx={{ minWidth: "50px" }}
-                        >
-                            <PreviewIcon />
-                        </Button>
-                        <BasicModal open={open} setOpen={setOpen} />
                     </Box>
                 );
             },

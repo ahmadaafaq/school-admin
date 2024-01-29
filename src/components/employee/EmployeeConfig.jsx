@@ -6,25 +6,21 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
+// import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import Modal from '@mui/material/Modal';
-import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-import API from "../../apis";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+//import API from "../../apis";
+// import { setClasses } from "../../redux/actions/ClassAction";
+// import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
-import BasicModal from "../common/CustomModal";
 
 export const datagridColumns = () => {
-    const [open, setOpen] = useState(false);
     const classesInRedux = useSelector(state => state.allClasses);
     const sectionsInRedux = useSelector(state => state.allSections);
 
@@ -36,25 +32,20 @@ export const datagridColumns = () => {
     const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/student/update/${id}`, { state: { id: id } });
+        navigateTo(`/employee/update/${id}`, { state: { id: id } });
     };
 
-    const handleActionShow = (id) => {
-        setOpen(true);
-        navigateTo("#", { state: { id: id } });
-    };
+    // useEffect(() => {
+    //     if (!classesInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
+    //     }
+    // }, [classesInRedux?.listData?.rows?.length]);
 
-    useEffect(() => {
-        if (!classesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setClasses, API.ClassAPI);
-        }
-    }, [classesInRedux?.listData?.rows?.length]);
-
-    useEffect(() => {
-        if (!sectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setSections, API.SectionAPI);
-        }
-    }, [sectionsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!sectionsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
+    //     }
+    // }, [sectionsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -68,25 +59,24 @@ export const datagridColumns = () => {
             valueGetter: (params) => `${params.row.firstname || ''} ${params.row.lastname || ''}`
         },
         {
-            field: "class",
-            headerName: "CLASS",
+            field: "email",
+            headerName: "Email",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            renderCell: (params) => {
-                let className = findById(params?.row?.class, classesInRedux?.listData?.rows)?.name;
-                let sectionName = findById(params?.row?.section, sectionsInRedux?.listData?.rows)?.name;
-                return (
-                    <div>
-                        {className ? appendSuffix(className) : '/'} {sectionName}
-                    </div>
-                );
-            }
+            minWidth: 100
         },
         {
-            field: "blood_group",
-            headerName: "Blood Group",
+            field: "contact_no",
+            headerName: "Contact No",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "role",
+            headerName: "Role",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -95,6 +85,14 @@ export const datagridColumns = () => {
         {
             field: "dob",
             headerName: "DATE OF BIRTH",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "gender",
+            headerName: "Gender",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -140,24 +138,17 @@ export const datagridColumns = () => {
             minWidth: 75,
             renderCell: ({ row: { id } }) => {
                 return (
-                    <Box width="85%"
+                    <Box width="30%"
                         m="0 auto"
                         p="5px"
                         display="flex"
-                        justifyContent="space-around">
+                        justifyContent="center">
                         <Button color="info" variant="contained"
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
                         </Button>
-                        <Button color="info" variant="contained"
-                            onClick={() => handleActionShow(id)}
-                            sx={{ minWidth: "50px" }}
-                        >
-                            <PreviewIcon />
-                        </Button>
-                        <BasicModal open={open} setOpen={setOpen} />
                     </Box>
                 );
             },

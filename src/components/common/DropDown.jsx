@@ -12,6 +12,8 @@ import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/m
 import API from "../../apis";
 import { setClasses } from "../../redux/actions/ClassAction";
 import { setSections } from "../../redux/actions/SectionAction";
+import { setStudents } from "../../redux/actions/StudentAction";
+
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -26,7 +28,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
     const theme = useTheme();
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
-    const { getPaginatedData } = useCommon();
+    const { getPaginatedData,getStudents } = useCommon();
     const { findById } = Utility();
 
     const handleClassChange = (event) => {
@@ -48,18 +50,21 @@ function DropDown({ onSelectClass, onSelectSection }) {
         getPaginatedData(0, 20, setSections, API.SectionAPI);
     }, []);
 
+    // useEffect(() => {
+    //     // Fetch students based on the selected class and section
+    //     if (selectedClass && selectedSection) {
+    //         API.StudentAPI.getStudentsByClass(selectedClass, selectedSection)
+    //             .then(data => {
+    //                 console.log(data, 'student marksheet data')
+    //                 // dispatch(setMarksheetStudents(data));
+    //             })
+    //             .catch(err => {
+    //                 console.error('Error fetching students:', err);
+    //             })
+    //     }
+    // }, [selectedClass, selectedSection]);
     useEffect(() => {
-        // Fetch students based on the selected class and section
-        if (selectedClass && selectedSection) {
-            API.StudentAPI.getStudentsByClass(selectedClass, selectedSection)
-                .then(data => {
-                    console.log(data, 'student marksheet data')
-                    // dispatch(setMarksheetStudents(data));
-                })
-                .catch(err => {
-                    console.error('Error fetching students:', err);
-                })
-        }
+        getStudents(selectedClass,selectedSection , setStudents, API);
     }, [selectedClass, selectedSection]);
 
     return (
@@ -75,8 +80,8 @@ function DropDown({ onSelectClass, onSelectSection }) {
                     variant="filled"
                     labelId="classfield"
                     label="class"
-                    name="class"
-                    autoComplete="new-class"
+                    name="class_id"
+                    autoComplete="new-class_id"
                     onChange={handleClassChange}
                     value={selectedClass}
                     sx={{
