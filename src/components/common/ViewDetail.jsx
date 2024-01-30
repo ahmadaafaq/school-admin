@@ -8,7 +8,7 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
     const formSectionsInRedux = useSelector(state => state.allFormSections);
     const formClassesInRedux = useSelector(state => state.allFormClasses);
 
-    const { findById } = Utility();
+    const { findById, appendSuffix } = Utility();
 
     const countryName = findById(detail?.addressData?.country, countryData)?.name;
     const stateName = findById(detail?.addressData?.state, stateData)?.name;
@@ -27,45 +27,58 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
                 title={<Typography variant="h3" component="h2" sx={{ fontWeight: 'bold' }}>Student Details</Typography>}
                 sx={{ backgroundColor: "lightblue", margin: "5px", borderRadius: "5px" }}
             />
-            <CardMedia
+            {/* <CardMedia
                 component="img"
                 height="200"
                 image="path/to/student/image"
                 alt={detail?.studentData?.firstname}
                 sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
-            />
+            /> */}
             <CardContent>
-                <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold', fontSize: "30px" }}>
-                    Name : {detail?.studentData?.firstname} {detail?.studentData?.lastname}
-                </Typography>
-                <Divider />
-                <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    Class : {className}th {sectionName}
-                </Typography>
-                {/* <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    Roll No. : {detail?.studentData.roll_no}
-                </Typography>           */}
-                <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    Blood Group : {detail?.studentData?.blood_group}
-                </Typography>
-                <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    Birth Date : {detail?.studentData?.dob}
-                </Typography>
-                <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    Addmission Date : {detail?.studentData?.admission_date}
-                </Typography>
-                <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                    Address : {detail?.addressData?.street}, {detail?.addressData?.landmark}, {cityName}, {stateName}, {countryName} - {detail?.addressData?.zipcode}
-                </Typography>
-                <Divider />
-                <Box sx={{ display: 'flex', justifyContent: "space-between" }}>
+                <CardMedia
+                    component="img"
+                    height="230"
+                    image="path/to/student/image"
+                    alt={detail?.studentData?.firstname}
+                    sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
+                />
+                <Box >
+                    <Typography gutterBottom variant="h5" component="h2" sx={{ fontWeight: 'bold', fontSize: "30px" }}>
+                        Name : {detail?.studentData?.firstname} {detail?.studentData?.lastname}
+                    </Typography>
+                    <Divider sx={{ marginBottom: "20px" }} />
+                    <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                        Class : {className ? appendSuffix(className) : ""} {sectionName}
+                    </Typography>
+                    <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                        Blood Group : {detail?.studentData?.blood_group}
+                    </Typography>
+                    <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                        Birth Date : {detail?.studentData?.dob}
+                    </Typography>
+                    <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                        Addmission Date : {detail?.studentData?.admission_date}
+                    </Typography>
+                    <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                        Address : {detail?.addressData?.street}, {detail?.addressData?.landmark}, {cityName}, {stateName}, {countryName} - {detail?.addressData?.zipcode}
+                    </Typography>
+                </Box>
+                <Divider sx={{ margin: "20px" }} />
+                <Box sx={{ display: 'flex', justifyContent: "space-between",marginLeft:"20px" }}>
                     <Box>
-                        <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                            Father Name : {detail?.studentData?.father_name}
-                        </Typography>
-                        <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                            Mother Name : {detail?.studentData?.mother_name}
-                        </Typography>
+                        {detail?.studentData?.father_name &&
+                            <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                                Father Name : {detail?.studentData?.father_name}
+                            </Typography>
+                        }{detail?.studentData?.mother_name &&
+                            <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                                Mother Name : {detail?.studentData?.mother_name}
+                            </Typography>
+                        }{detail?.studentData?.guardian &&
+                            <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
+                                Guardian : {detail?.studentData?.guardian}
+                            </Typography>
+                        }
                         <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
                             Phone : {detail?.studentData?.contact_no}
                         </Typography>
@@ -74,9 +87,6 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
                         </Typography>
                     </Box>
                     <Box>
-                        <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
-                            Gurdian : {detail?.studentData?.gurdian}
-                        </Typography>
                         <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>
                             Religion : {detail?.studentData?.religion}
                         </Typography>
