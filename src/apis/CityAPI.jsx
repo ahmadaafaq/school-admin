@@ -25,6 +25,17 @@ export const CityAPI = {
             signal: cancel ? cancelApiObject[this.getCities.name].handleRequestCancellation().signal : undefined,
         });
         return response;
+    },
+    getAllCities: async ( cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-all-cities`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getCities.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
     }
 };
 

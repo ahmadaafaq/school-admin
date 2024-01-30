@@ -67,7 +67,7 @@ export const datagridColumns = () => {
     const columns = [
         {
             field: "fullname",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -77,7 +77,7 @@ export const datagridColumns = () => {
         },
         {
             field: "class",
-            headerName: "CLASS",
+            headerName: "Class",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -102,7 +102,7 @@ export const datagridColumns = () => {
         },
         {
             field: "dob",
-            headerName: "DATE OF BIRTH",
+            headerName: "Date Of Birth",
             headerAlign: "center",
             align: "center",
             flex: 1,

@@ -25,6 +25,17 @@ export const StateAPI = {
             signal: cancel ? cancelApiObject[this.getStates.name].handleRequestCancellation().signal : undefined,
         });
         return response;
+    },
+    getAllStates: async (cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-all-states`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getStates.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
     }
 };
 

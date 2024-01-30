@@ -82,7 +82,7 @@ const ServerPaginationGrid = ({
         );
     }, [count, setRowCountState]);
 
-    // console.log('pagina=>', paginationModel);
+    // console.log({rows});
 
     return (
         <Box

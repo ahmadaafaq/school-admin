@@ -59,7 +59,7 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObject, findMultipleById } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -129,7 +129,7 @@ const FormComponent = () => {
         setLoading(true);
         formData.studentData.values = {
             ...formData.studentData.values,
-            subjects: getIdsFromObjects(formData.studentData.values?.subjects)
+            subjects: getIdsFromObject(formData.studentData.values?.subjects)
         }
         API.StudentAPI.createStudent({ ...formData.studentData.values })
             .then(({ data: student }) => {
