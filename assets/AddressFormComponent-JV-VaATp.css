@@ -1,1 +1,0 @@
-#box-shadow:before{content:"";position:absolute;top:-2px;right:-2px;bottom:-2px;left:-2px;transform:translateZ(-1px);background:conic-gradient(from 90deg at 40% -25%,#fff,#fff,#fff);border:2px solid black;z-index:1;filter:blur(2px);clip-path:polygon(-100vmax -100vmax,100vmax -100vmax,100vmax 100vmax,-100vmax 100vmax,-100vmax -100vmax,0 0,0 100%,100% 100%,100% 0,0 0)}
