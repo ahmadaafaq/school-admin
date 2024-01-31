@@ -27,7 +27,7 @@ import { Utility } from "../utility";
 
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = () => {
+const ListingComponent = ({ rolePriority = null }) => {
     const [selectedClass, setSelectedClass] = useState(null);
     const [selectedSection, setSelectedSection] = useState(null);
     const [conditionObj, setConditionObj] = useState({});
@@ -133,7 +133,6 @@ const ListingComponent = () => {
                         type="submit"
                         color="success"
                         variant="contained"
-
                         onClick={() => { navigateTo(`/marksheet/create`) }}
                         disabled={!selectedClass || !selectedSection} // Disable if either class or section is not selected
                         sx={{ height: isTab ? "4vh" : "auto" }}
@@ -164,7 +163,7 @@ const ListingComponent = () => {
                 action={setMarksheets}
                 api={API.MarksheetAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns(rolePriority)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}

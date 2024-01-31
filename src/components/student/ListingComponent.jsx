@@ -27,7 +27,7 @@ import { Utility } from "../utility";
 
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = () => {
+const ListingComponent = ({ rolePriority = null }) => {
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -51,6 +51,15 @@ const ListingComponent = () => {
     let classConditionObj = classId ? {
         classId: classId,
     } : null;
+
+    // Logged in with parent role
+    if (rolePriority === 5) {
+        const parentId = getLocalStorage('auth').id;
+        classConditionObj = {
+            ...classConditionObj,
+            parentId: parentId
+        }
+    }
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -106,6 +115,7 @@ const ListingComponent = () => {
                         type="submit"
                         color="success"
                         variant="contained"
+                        disabled={rolePriority}
                         onClick={() => { navigateTo(`/student/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
@@ -135,7 +145,7 @@ const ListingComponent = () => {
                 action={setStudents}
                 api={API.StudentAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns(rolePriority)}
                 condition={classConditionObj}
                 rows={listData.rows}
                 count={listData.count}

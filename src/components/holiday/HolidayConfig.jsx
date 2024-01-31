@@ -20,7 +20,7 @@ import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
     const classesInRedux = useSelector(state => state.allClasses);
     const sectionsInRedux = useSelector(state => state.allSections);
 
@@ -120,6 +120,7 @@ export const datagridColumns = () => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
+                            disabled={rolePriority}
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >

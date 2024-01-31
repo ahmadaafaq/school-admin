@@ -103,7 +103,7 @@ const Sidebar = ({ rolePriority }) => {
         icon={<SchoolIcon sx={{ verticalAlign: "sub", marginLeft: "-1px", marginRight: "5px" }} />}
         selected={selected}
         rolePriority={rolePriority}
-        menuVisibility={4}
+        menuVisibility={5}
         isSubMenu={true}
       />
     ));
@@ -124,7 +124,7 @@ const Sidebar = ({ rolePriority }) => {
         icon={<span>{mapping[classs.class_name] || classs.class_name}</span>}
         selected={selected}
         rolePriority={rolePriority}
-        menuVisibility={4}
+        menuVisibility={5}
         isSubMenu={true}
       />
     ));
@@ -214,7 +214,6 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={2}
             />
-            <Divider />
             <SidebarItem
               title="School"
               to="/school/listing"
@@ -223,37 +222,12 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={1}
             />
-            <Divider />
-
-            <Box>
-              {isCollapsed && isSubMenuOpen ? (
-                <SubMenu onClick={(event) => event.stopPropagation()}
-                  title="Student"
-                  icon={<PeopleOutlinedIcon />}
-                >
-                  <SidebarItem
+            {rolePriority < 5 ? (
+              <Box>
+                {isCollapsed && isSubMenuOpen ? (
+                  <SubMenu onClick={(event) => event.stopPropagation()}
                     title="Student"
-                    to="/student/listing"
                     icon={<PeopleOutlinedIcon />}
-                    selected={selected}
-                    rolePriority={rolePriority}
-                    menuVisibility={4}
-                    isSubMenu={true}
-                  />
-                  {renderCollapsedStudents()}
-                </SubMenu>
-              ) :
-                (
-                  <SubMenu
-                    title="All Students"
-                    onClick={(event) => {
-                      isSubMenuOpen ? setIsubMenuOpen(false) :
-                        setIsubMenuOpen(true);
-                      event.stopPropagation();
-                    }}
-                    open={isSubMenuOpen}
-                    icon={<PeopleOutlinedIcon />
-                    }
                   >
                     <SidebarItem
                       title="Student"
@@ -261,15 +235,49 @@ const Sidebar = ({ rolePriority }) => {
                       icon={<PeopleOutlinedIcon />}
                       selected={selected}
                       rolePriority={rolePriority}
-                      menuVisibility={4}
+                      menuVisibility={5}
                       isSubMenu={true}
                     />
-                    {renderNotCollapsedStudents()}
+                    {renderCollapsedStudents()}
                   </SubMenu>
-                )}
-              <Divider />
-            </Box>
+                ) :
+                  (
+                    <SubMenu
+                      title="All Students"
+                      onClick={(event) => {
+                        isSubMenuOpen ? setIsubMenuOpen(false) :
+                          setIsubMenuOpen(true);
+                        event.stopPropagation();
+                      }}
+                      open={isSubMenuOpen}
+                      icon={<PeopleOutlinedIcon />
+                      }
+                    >
+                      <SidebarItem
+                        title="Student"
+                        to="/student/listing"
+                        icon={<PeopleOutlinedIcon />}
+                        selected={selected}
+                        rolePriority={rolePriority}
+                        menuVisibility={5}
+                        isSubMenu={true}
+                      />
+                      {renderNotCollapsedStudents()}
+                    </SubMenu>
+                  )}
 
+              </Box>
+            ) : (
+              <SidebarItem
+                title="Student"
+                to="/student/listing"
+                icon={<PeopleOutlinedIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={5}
+              />
+            )}
+            <Divider />
             <SidebarItem
               title="Teacher"
               to="/teacher/listing"
@@ -278,7 +286,6 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
-            <Divider />
             <SidebarItem
               title="User"
               to="/user/listing"
@@ -287,7 +294,6 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
-            <Divider />
             <SidebarItem
               title="Employee"
               to="/employee/listing"
@@ -296,16 +302,6 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
-            <Divider />
-            <SidebarItem
-              title="Holiday"
-              to="/holiday/listing"
-              icon={<EventIcon />}
-              selected={selected}
-              rolePriority={rolePriority}
-              menuVisibility={3}
-            />
-            <Divider />
             <SidebarItem
               title="Payment"
               to="/payment/listing"
@@ -314,16 +310,6 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
-            <Divider />
-            <SidebarItem
-              title="Marksheet"
-              to="/marksheet/listing"
-              icon={<FormatListBulletedIcon />}
-              selected={selected}
-              rolePriority={rolePriority}
-              menuVisibility={3}
-            />
-            <Divider />
             <SidebarItem
               title="Bus"
               to="/bus/listing"
@@ -332,7 +318,22 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={3}
             />
-            <Divider />
+            <SidebarItem
+              title="Holiday"
+              to="/holiday/listing"
+              icon={<EventIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={5}
+            />
+            <SidebarItem
+              title="Marksheet"
+              to="/marksheet/listing"
+              icon={<FormatListBulletedIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
             {rolePriority < 2 && <>
               < Typography
                 variant="h6"
@@ -349,7 +350,6 @@ const Sidebar = ({ rolePriority }) => {
                 rolePriority={rolePriority}
                 menuVisibility={1}
               />
-              <Divider />
               <SidebarItem
                 title="Class"
                 to="/class/listing"
@@ -358,7 +358,6 @@ const Sidebar = ({ rolePriority }) => {
                 rolePriority={rolePriority}
                 menuVisibility={1}
               />
-              <Divider />
               <SidebarItem
                 title="Section"
                 to="/section/listing"
@@ -367,7 +366,6 @@ const Sidebar = ({ rolePriority }) => {
                 rolePriority={rolePriority}
                 menuVisibility={1}
               />
-              <Divider />
               <SidebarItem
                 title="Subject"
                 to="/subject/listing"
@@ -376,7 +374,6 @@ const Sidebar = ({ rolePriority }) => {
                 rolePriority={rolePriority}
                 menuVisibility={1}
               />
-              <Divider />
               <SidebarItem
                 title="Role"
                 to="/role/listing"
@@ -385,7 +382,6 @@ const Sidebar = ({ rolePriority }) => {
                 rolePriority={rolePriority}
                 menuVisibility={1}
               />
-              <Divider />
             </>}
           </Box>
         </Menu>

@@ -166,17 +166,17 @@ function App() {
 
                   {userRole.priority === 4 &&
                     <>
-                    {/* Disable create/update button for priority > 3 only enable view */}
-                      <Route exact path="/student/listing" element={<StudentListingComponent />} />
-                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
-                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
+                      <Route exact path="/student/listing" element={<StudentListingComponent rolePriority={userRole.priority} />} />
+                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent rolePriority={userRole.priority} />} />
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent rolePriority={userRole.priority} />} />
+                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent rolePriority={userRole.priority} />} />
                     </>}
-                    {userRole.priority === 5 &&
+                  {userRole.priority === 5 &&
                     <>
-                    {/* Disable create button and update button for priority > 4 only enable view */}
-                      <Route exact path="/student/listing/parent/:parentId" element={<StudentListingComponent />} />
-                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
+                      {/* Disable create button and update button for priority > 4 only enable view */}
+                      <Route exact path="/student/listing" element={<StudentListingComponent rolePriority={userRole.priority} />} />
+                      {/* <Route exact path="/student/listing/parent/:parentId" element={<StudentListingComponent rolePriority={userRole.priority} />} /> */}
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent rolePriority={userRole.priority} />} />
                     </>}
                 </Routes>
               </main>

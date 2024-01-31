@@ -20,7 +20,7 @@ import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
     const formClassesInRedux = useSelector(state => state.allFormClasses);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
     const subjectsInRedux = useSelector(state => state.allSubjects);
@@ -186,7 +186,8 @@ export const datagridColumns = () => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            onClick={() => handleActionEdit(id, student_id)}
+                            disabled={rolePriority}
+                            onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
