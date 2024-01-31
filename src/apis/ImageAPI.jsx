@@ -27,7 +27,8 @@ export const ImageAPI = {
             data: data,
             signal: cancel ? cancelApiObject[this.uploadImage.name].handleRequestCancellation().signal : undefined
         });
-    }
+    },
+    // http://localhost:8080/api/v1/get-image/splash1.png
 };
 
 // defining the cancel API object for ImageAPI

@@ -123,7 +123,7 @@ const UserFormComponent = ({
         })
         if (classSubjects.length) {
             setFilteredSubjects(classSubjects);
-            initialValues.class = marksheetClass?.name;
+            initialValues.class = marksheetClass?.class_name;
             initialValues.section = marksheetSection;
             // initialValues.subjects = marksheetClass?.subjects?.split(',');
             // initialValues.school_id = students?.data[0]?.school_id;
@@ -161,10 +161,6 @@ const UserFormComponent = ({
                         name="class"
                         label="Class"
                         value={formik.values.class}
-                    // onBlur={formik.handleBlur}
-                    // onChange={formik.handleChange}
-                    // error={!!formik.touched.class_id && !!formik.errors.class_id}
-                    // helperText={formik.touched.class_id && formik.errors.class_id}
                     />
 
                     <TextField
@@ -174,10 +170,6 @@ const UserFormComponent = ({
                         name="section"
                         label="Section"
                         value={formik.values.section}
-                    // onBlur={formik.handleBlur}
-                    // onChange={formik.handleChange}
-                    // error={!!formik.touched.section && !!formik.errors.section}
-                    // helperText={formik.touched.section && formik.errors.section}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}>
                         <InputLabel id="studentField">Student</InputLabel>

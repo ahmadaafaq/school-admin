@@ -39,7 +39,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
     let uploadedImages = [];
-    const { findById } = Utility();
+    const { appendSuffix, findById } = Utility();
 
     const className = findById(iCardDetails?.class, formClassesInRedux?.listData)?.class_name;
     const sectionName = findById(iCardDetails?.section, formSectionsInRedux?.listData)?.name;
@@ -179,7 +179,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
                             <span className='normal-text'> {iCardDetails.father_name ? iCardDetails.father_name : ''} </span>
 
                             <span className='heading-text'>Class:</span>
-                            <span className='normal-text'>{className ? `${className} ${sectionName}` : ''}</span>
+                            <span className='normal-text'>{className ? `${appendSuffix(className)} ${sectionName}` : ''}</span>
 
                             <span className='heading-text'>DOB:</span>
                             <span className='normal-text'>{iCardDetails.dob ? iCardDetails.dob.format('YYYY-MM-DD') : ''}</span>
