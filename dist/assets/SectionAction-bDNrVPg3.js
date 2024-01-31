@@ -1,1 +1,0 @@
-import{q as o}from"./index-wJj9abeo.js";const e=t=>({type:o.SET_LISTING_SECTIONS,payload:t}),S=t=>({type:o.SET_FORM_SECTIONS,payload:t});export{e as a,S as s};
