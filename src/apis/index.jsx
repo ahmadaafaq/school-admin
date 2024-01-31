@@ -13,6 +13,7 @@ import { CityAPI } from "./CityAPI";
 import { ClassAPI } from "./ClassAPI";
 import { CommonAPI } from "./CommonAPI";
 import { CountryAPI } from "./CountryAPI";
+import { ImageAPI } from "./ImageAPI";
 import { MarksheetAPI } from "./MarksheetAPI";
 import { SchoolAPI } from "./SchoolAPI";
 import { SectionAPI } from "./SectionAPI";
@@ -34,6 +35,7 @@ export default {
     ClassAPI,
     CommonAPI,
     CountryAPI,
+    ImageAPI,
     MarksheetAPI,
     SchoolAPI,
     SectionAPI,

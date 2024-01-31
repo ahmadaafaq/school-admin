@@ -35,7 +35,7 @@ const ListingComponent = () => {
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allSubjects);
+    const { listData, loading } = useSelector(state => state.allSubjects);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -137,6 +137,7 @@ const ListingComponent = () => {
                 columns={datagridColumns(handleDialogOpen)}
                 rows={listData.rows}
                 count={listData.count}
+                loading={loading}
                 selected={selected}
                 pageSizeOptions={pageSizeOptions}
                 setOldPagination={setOldPagination}

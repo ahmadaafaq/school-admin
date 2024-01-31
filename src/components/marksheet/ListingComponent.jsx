@@ -31,7 +31,7 @@ const ListingComponent = () => {
     const [selectedClass, setSelectedClass] = useState(null);
     const [selectedSection, setSelectedSection] = useState(null);
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allMarksheets);
+    const { listData, loading } = useSelector(state => state.allMarksheets);
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -139,6 +139,7 @@ const ListingComponent = () => {
                 columns={datagridColumns()}
                 rows={listData.rows}
                 count={listData.count}
+                loading={loading}
                 selected={selected}
                 pageSizeOptions={pageSizeOptions}
                 setOldPagination={setOldPagination}

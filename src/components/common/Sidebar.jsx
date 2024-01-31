@@ -109,21 +109,27 @@ const Sidebar = ({ rolePriority }) => {
     ));
   };
 
-  const renderCollapsedStudents = () => {
-    const classNames = ["PN", "NS", "LKG", "UKG", "KG", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  const mapping = {
+    'Pre Nursery': 'PN',
+    'Nursery': 'N',
+    'Upper Kindergarten': 'UKG',
+    'Lower Kindergarten': 'LKG'
+  };
 
-    return classNames.map((className, index) => (
+  const renderCollapsedStudents = () => {
+    return formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(classs => (
       <SidebarItem
-        key={index}
-        title={`${className}`}
+        key={classs.class_id}
+        to={`/student/listing/${classs.class_id}`}
+        icon={<span>{mapping[classs.class_name] || classs.class_name}</span>}
         selected={selected}
         rolePriority={rolePriority}
         menuVisibility={4}
-        className={className}
+        isSubMenu={true}
       />
     ));
   };
-  // console.log("submenu",isSubMenuOpen)
+
   return (
     <Box
       sx={{
@@ -226,12 +232,13 @@ const Sidebar = ({ rolePriority }) => {
                   icon={<PeopleOutlinedIcon />}
                 >
                   <SidebarItem
-                    title="All"
+                    title="Student"
                     to="/student/listing"
+                    icon={<PeopleOutlinedIcon />}
                     selected={selected}
                     rolePriority={rolePriority}
                     menuVisibility={4}
-                    className="All"
+                    isSubMenu={true}
                   />
                   {renderCollapsedStudents()}
                 </SubMenu>
@@ -259,8 +266,7 @@ const Sidebar = ({ rolePriority }) => {
                     />
                     {renderNotCollapsedStudents()}
                   </SubMenu>
-                )
-              }
+                )}
               <Divider />
             </Box>
 

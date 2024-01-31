@@ -34,16 +34,16 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allSchools);
+    const { listData, loading } = useSelector(state => state.allSchools);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
 
-    const { getPaginatedData } = useCommon();
-    const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
+    const { getPaginatedData } = useCommon();
+    const { getLocalStorage } = Utility();
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -128,6 +128,7 @@ const ListingComponent = () => {
                 columns={datagridColumns()}
                 rows={listData.rows}
                 count={listData.count}
+                loading={loading}
                 selected={selected}
                 pageSizeOptions={pageSizeOptions}
                 setOldPagination={setOldPagination}

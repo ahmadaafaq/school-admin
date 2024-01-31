@@ -51,11 +51,9 @@ export const datagridColumns = () => {
 
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
                         dispatch(setFormClasses(uniqueClassDataArray));
-                        console.log(uniqueClassDataArray, 'config dataset')
 
                         const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
                         dispatch(setFormSections(uniqueSectionDataArray));
-                        console.log(uniqueSectionDataArray, 'config sections');
                     }
                 })
                 .catch(err => {

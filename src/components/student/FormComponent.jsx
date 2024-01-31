@@ -42,6 +42,7 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [iCardDetails, setICardDetails] = useState({});
 
     const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
@@ -101,7 +102,6 @@ const FormComponent = () => {
     }, [formData]);
 
     const populateStudentData = (id) => {
-        console.log('qwertyuihgfdxc=>>>>',id);
         setLoading(true);
         const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
@@ -126,6 +126,7 @@ const FormComponent = () => {
     };
 
     const createStudent = () => {
+        let promises;
         setLoading(true);
         formData.studentData.values = {
             ...formData.studentData.values,
@@ -140,19 +141,33 @@ const FormComponent = () => {
                         parent: 'student',
                     })
                         .then(address => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                            if (formData.imageData.values.Student?.length) {
+                                promises = Array.from(formData.imageData.values.Student).map(async (image) => {
+                                    console.log(image, 'front end image')
+                                    API.ImageAPI.uploadImage({ image: image });
+                                });
+                            }
+                            return Promise.all(promises)
+                                .then(data => {
+                                    setLoading(false);
+                                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                                })
+                                .catch(err => {
+                                    setLoading(false);
+                                    toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                                    throw err;
+                                });
                         })
                         .catch(err => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
+                            toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                             throw err;
                         });
-                };
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, 0);
                 throw err;
             });
     };
@@ -194,7 +209,7 @@ const FormComponent = () => {
             setFormData({ ...formData, studentData: data });
         } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
-        } else if (form === 'parent') {
+        } else if (form === 'student_image') {
             setFormData({ ...formData, imageData: data });
         }
     };
@@ -221,6 +236,8 @@ const FormComponent = () => {
                 setReset={setReset}
                 userId={id}
                 updatedValues={updatedValues?.studentData}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -232,33 +249,37 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
             />
             <ImagePicker
                 key="image"
-                onChange={data => handleFormChange(data, 'parent')}
+                onChange={data => handleFormChange(data, 'student_image')}
                 refId={imageFormRef}
                 reset={reset}
                 setReset={setReset}
                 setDirty={setDirty}
                 preview={preview}
                 setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
+                updatedValues={updatedValues?.imageData}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
-                imageType="Guardian"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
+                imageType="Student"
             />
 
             <Box display="flex" justifyContent="end" m="20px" pb="20px">
 
                 {showIdCard && <>
                     <Button color="info" variant="contained" sx={{ mr: 30 }}
+                        disabled={!dirty}
                         onClick={() => setOpenDialog(!openDialog)}
                     >
                         Generate ICard
                     </Button>
-                    <ICardModal handleSubmitDialog={handleSubmitDialog} openDialog={openDialog} setOpenDialog={setOpenDialog} />
+                    <ICardModal iCardDetails={iCardDetails} setICardDetails={setICardDetails}
+                        handleSubmitDialog={handleSubmitDialog} openDialog={openDialog} setOpenDialog={setOpenDialog} />
                 </>}
                 {   //hide reset button on student update
                     title === "Update" ? null :

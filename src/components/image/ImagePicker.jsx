@@ -22,6 +22,8 @@ const ImagePicker = ({
     setReset,
     preview,
     setPreview,
+    iCardDetails = null,
+    setICardDetails = null,
     updatedValues = null,
     deletedImage = [],
     setDeletedImage,
@@ -67,10 +69,20 @@ const ImagePicker = ({
     }, [reset]);
 
     useEffect(() => {
-        if (!formik.dirty) {
+        if (formik.dirty) {
             setDirty(true);
         }
     }, [formik.dirty]);
+
+
+    useEffect(() => {
+        if (iCardDetails) {
+            setICardDetails({
+                ...iCardDetails,
+                ...formik.values
+            });
+        }
+    }, [formik.values]);
 
     useEffect(() => {
         if (updatedValues) {

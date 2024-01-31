@@ -22,7 +22,6 @@ import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setUsers } from "../../redux/actions/UserAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
-import { useUser } from "../hooks/users";
 import { Utility } from "../utility";
 
 const pageSizeOptions = [5, 10, 20];
@@ -35,23 +34,16 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allUsers);
+    const { listData, loading } = useSelector(state => state.allUsers);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
 
     const { getPaginatedData } = useCommon();
-    const { getQueryParam } = useUser();
-
-    const colors = tokens(theme.palette.mode);
     const { getLocalStorage } = Utility();
+    const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-
-    let condition = getQueryParam() ? {
-        key: 'type',
-        value: getQueryParam()
-    } : false;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -136,6 +128,7 @@ const ListingComponent = () => {
                 columns={datagridColumns()}
                 rows={listData.rows}
                 count={listData.count}
+                loading={loading}
                 selected={selected}
                 pageSizeOptions={pageSizeOptions}
                 setOldPagination={setOldPagination}

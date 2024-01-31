@@ -23,6 +23,8 @@ const initialValues = {
     principal: "",
     board: "",
     area: "",
+    registered_by: "",
+    registration_year: 0,
     amenities: [],
     classes: [],
     sections: [],
@@ -113,7 +115,7 @@ const SchoolFormComponent = ({
                     console.log(section, 'section');
 
                     // Filter out elements from sectionsInRedux that have matching ids in the current section
-                    filteredSection = sectionsInRedux.filter(sectionItem =>
+                    filteredSection = sectionsInRedux?.filter(sectionItem =>
                         section.some(sect => sect.id === sectionItem.id)
                     );
                     console.log(filteredSection, 'filteredSection');
@@ -151,7 +153,6 @@ const SchoolFormComponent = ({
                         type="text"
                         name="name"
                         label="Name*"
-                        autoComplete="new-name"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.name}
@@ -165,7 +166,6 @@ const SchoolFormComponent = ({
                         type="text"
                         label="Email"
                         name="email"
-                        autoComplete="new-email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.email}
@@ -179,7 +179,6 @@ const SchoolFormComponent = ({
                         type="text"
                         label="Contact Number*"
                         name="contact_no_1"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.contact_no_1}
@@ -192,7 +191,6 @@ const SchoolFormComponent = ({
                         type="text"
                         label="Optional Contact Number"
                         name="contact_no_2"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.contact_no_2}
@@ -205,7 +203,6 @@ const SchoolFormComponent = ({
                         type="text"
                         name="director"
                         label="Director*"
-                        autoComplete="new-director"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.director}
@@ -218,7 +215,6 @@ const SchoolFormComponent = ({
                         type="text"
                         name="principal"
                         label="Principal*"
-                        autoComplete="new-principal"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.principal}
@@ -230,8 +226,7 @@ const SchoolFormComponent = ({
                         variant="filled"
                         type="text"
                         name="board"
-                        label="Board"
-                        autoComplete="new-board"
+                        label="Board*"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.board}
@@ -244,12 +239,35 @@ const SchoolFormComponent = ({
                         type="text"
                         name="area"
                         label="Area"
-                        autoComplete="new-area"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.area}
                         error={!!formik.touched.area && !!formik.errors.area}
                         helperText={formik.touched.area && formik.errors.area}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="registered_by"
+                        label="Registered By"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.registered_by}
+                        error={!!formik.touched.registered_by && !!formik.errors.registered_by}
+                        helperText={formik.touched.registered_by && formik.errors.registered_by}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="registration_year"
+                        label="Registration Year"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.registration_year}
+                        error={!!formik.touched.registration_year && !!formik.errors.registration_year}
+                        helperText={formik.touched.registration_year && formik.errors.registration_year}
                     />
                     <Autocomplete
                         multiple
@@ -277,7 +295,6 @@ const SchoolFormComponent = ({
                         type="text"
                         name="capacity"
                         label="Capacity"
-                        autoComplete="new-capacity"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.capacity}
@@ -290,7 +307,6 @@ const SchoolFormComponent = ({
                         type="text"
                         name="founding_year"
                         label="Founding Year"
-                        autoComplete="new-founding_year"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.founding_year}
@@ -303,7 +319,6 @@ const SchoolFormComponent = ({
                         type="text"
                         name="affiliation_no"
                         label="Affiliation No"
-                        autoComplete="new-affiliation_no"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.affiliation_no}
@@ -378,7 +393,6 @@ const SchoolFormComponent = ({
                             type="text"
                             name="boarding_capacity"
                             label="Specify Boarding Capacity"
-                            autoComplete="new-boarding_capacity"
                             onBlur={formik.handleBlur}
                             onChange={formik.handleChange}
                             value={formik.values.boarding_capacity}
@@ -417,8 +431,8 @@ const SchoolFormComponent = ({
                                         }}
                                     >
                                         {classesInRedux?.length && classesInRedux.map(cls => (
-                                            <MenuItem value={cls.id} name={cls.name} key={cls.name}>
-                                                {cls.name}
+                                            <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                                {cls.class_name}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -470,10 +484,10 @@ const SchoolFormComponent = ({
                                 }}
                             >
                                 {classesInRedux?.length && classesInRedux
-                                    .filter(cls => !formik.values.classes.includes(cls.id)) // Exclude the selected class
+                                    .filter(cls => !formik.values.classes.includes(cls.class_id)) // Exclude the selected class
                                     .map(cls => (
-                                        <MenuItem value={cls.id} name={cls.name} key={cls.name}>
-                                            {cls.name}
+                                        <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                            {cls.class_name}
                                         </MenuItem>
                                     ))}
                             </Select>

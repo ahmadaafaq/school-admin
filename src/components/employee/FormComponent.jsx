@@ -41,7 +41,7 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-  //  const subjectsInRedux = useSelector(state => state.allSubjects);
+    //  const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -103,7 +103,7 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                   // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+                    // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
@@ -178,7 +178,7 @@ const FormComponent = () => {
     const handleFormChange = (data, form) => {
         if (form === 'employee') {
             setFormData({ ...formData, employeeData: data });
-        } else if(form === 'address') {
+        } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
         }
         // } else if (form === 'parent') {
