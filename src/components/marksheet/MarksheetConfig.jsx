@@ -14,8 +14,6 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import { setFormClasses } from "../../redux/actions/ClassAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
 import { setSubjects } from "../../redux/actions/SubjectAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
@@ -33,10 +31,10 @@ export const datagridColumns = (rolePriority = null) => {
     const colors = tokens(theme.palette.mode);
     const navigateTo = useNavigate();
     const { getPaginatedData } = useCommon();
-    const { appendSuffix, customSort, createUniqueDataArray, findById } = Utility();
+    const { appendSuffix, findById } = Utility();
 
-    const handleActionEdit = (id) => {
-        navigateTo(`/marksheet/update/${id}`, { state: { id: id } });
+    const handleActionEdit = (id, student_id) => {
+        navigateTo(`/marksheet/update/${id}`, { state: { id: id, student_id: student_id } });
     };
 
     // to be refactored
@@ -105,8 +103,10 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findById(params?.row?.class, formClassesInRedux?.listData)?.class_name;
-                let sectionName = findById(params?.row?.section, formSectionsInRedux?.listData)?.name;
+                let className = findById(params?.row?.class_id, formClassesInRedux?.listData)?.class_name;
+                let sectionName = findById(params?.row?.section_id, formSectionsInRedux?.listData)?.name;
+                // handleClassChange(params?.row?.class_id);
+                // handleSectionChange(params?.row?.section_id);
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}
@@ -178,7 +178,7 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id } }) => {
+            renderCell: ({ row: { id, student_id } }) => {
                 return (
                     <Box width="30%"
                         m="0 auto"

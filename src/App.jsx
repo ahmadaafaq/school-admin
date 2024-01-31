@@ -139,8 +139,9 @@ function App() {
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
                       <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
                       <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
+                      <Route exact path="/marksheet/update/:id" element={<MarksheetFormComponent />} />
+                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
 
                       <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
                       <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />

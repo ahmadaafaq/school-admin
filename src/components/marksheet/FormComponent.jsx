@@ -11,7 +11,6 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
-import dayjs from "dayjs";
 
 import API from "../../apis";
 import Loader from "../common/Loader";
@@ -27,13 +26,16 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        marksheetData: { values: null, validated: false },
+        marksheetData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
+    const { marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
+    const selected = useSelector((state) => state.menuItems.selected);
+    const toastInfo = useSelector((state) => state.toastInfo);
     const marksheetFormRef = useRef();
 
     const navigateTo = useNavigate();
@@ -41,14 +43,13 @@ const FormComponent = () => {
     const userParams = useParams();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { typography } = themeSettings(theme.palette.mode);
 
-    const selected = useSelector((state) => state.menuItems.selected);
-    const toastInfo = useSelector((state) => state.toastInfo);
+    const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { toastAndNavigate, getLocalStorage } = Utility();
 
     let id = state?.id || userParams?.id;
+    let student_id = state?.student_id;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -78,38 +79,38 @@ const FormComponent = () => {
             });
     }, []);
 
-    const populateMarksheetData = (id) => {
+    const populateMarksheetData = (id, student_id) => {
         setLoading(true);
-        // API.MarksheetAPI.getMarksheetById(id)
-        //     .then((response) => {
-        //         if (response.data.data) {
-        //             response.data.data.dob = dayjs(response.data.data.dob);
-        //             response.data.data.admission_date = dayjs(response.data.data.admission_date);
-        //         }
-        //         const dataObj = {
-        //             marksheetData: response.data.data,
-        //         };
-        //         setUpdatedValues(dataObj);
-        //         setLoading(false);
-        //     })
-        //     .catch((err) => {
-        //         setLoading(false);
-        //         toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-        //         throw err;
-        //     });
+        const path = [`/get-marksheet/?page=0&size=15&student=${student_id}`];
+        API.CommonAPI.multipleAPICall("GET", path)
+            .then(response => {
+                console.log("response>>>>", response);
+                const dataObj = {
+                    marksheetData: response[0].data.data
+                };
+                setUpdatedValues(dataObj);
+                setLoading(false);
+            })
+            .catch((err) => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                throw err;
+            });
     };
 
     const createMarksheet = () => {
         let promises = [];
+        setLoading(true);
         console.log("submitted data", formData);
-        let payload = {
-            school_id: formData.marksheetData.values.school_id,
-            student_id: formData.marksheetData.values.student,
-            class_id: formData.marksheetData.values.class_id,
-            section_id: formData.marksheetData.values.section_id,
-        };
 
-        formData.marksheetData.values.subjects.map((subjectId, index) => {
+        let payload = {
+            student_id: formData.marksheetData.values.student,
+            class_id: marksheetClass?.class_id,
+            section_id: marksheetSection?.id,
+            term: formData.marksheetData.values.term
+        };
+        console.log('payload', payload)
+        promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
             payload = {
                 ...payload,
                 subject_id: subjectId,
@@ -119,9 +120,10 @@ const FormComponent = () => {
                 remark: formData.marksheetData.values[`remark_${index}`] ? formData.marksheetData.values[`remark_${index}`] : '',
                 result: formData.marksheetData.values.result
             }
-            let promise = API.MarksheetAPI.createMarksheet(payload);
-            promises.push(promise);
+            console.log('loop', subjectId, payload)
+            API.MarksheetAPI.createMarksheet(payload);
         });
+
 
         return Promise.all(promises)
             .then((responses) => {
@@ -147,14 +149,14 @@ const FormComponent = () => {
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateMarksheetData(id);
+            populateMarksheetData(id, student_id);
         }
         if (formData.marksheetData.validated) {
             formData.marksheetData.values?.id ? updateMarksheet(formData) : createMarksheet();
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [id, submitted, student_id]);
 
     const handleSubmit = async () => {
         await marksheetFormRef.current.Submit();
@@ -166,6 +168,8 @@ const FormComponent = () => {
             setFormData({ ...formData, marksheetData: data });
         }
     };
+
+    console.log('updatedValues', updatedValues)
 
     return (
         <Box m="10px" >
@@ -188,6 +192,7 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 userId={id}
+                student_id={student_id}
                 updatedValues={updatedValues?.marksheetData}
             />
             <Box display="flex" justifyContent="end" m="20px 20px 70px 0" >
