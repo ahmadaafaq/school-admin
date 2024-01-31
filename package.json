@@ -48,9 +48,7 @@
     "gh-pages": "^6.1.1",
     "vite": "^5.0.8"
   },
-  "overrides": {
-    "vite": {
-      "rollup": "npm:@rollup/wasm-node"
-    }
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }
