@@ -30,8 +30,9 @@ const pageSizeOptions = [5, 10, 20];
 const ListingComponent = () => {
     const [selectedClass, setSelectedClass] = useState(null);
     const [selectedSection, setSelectedSection] = useState(null);
+    const [conditionObj, setConditionObj] = useState({});
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allMarksheets);
+    const { listData, loading, marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -48,10 +49,35 @@ const ListingComponent = () => {
     const { getPaginatedData } = useCommon();
     const { getLocalStorage } = Utility();
 
+    let classConditionObj = marksheetClass.class_id ? {
+        classId: marksheetClass.class_id,
+    } : null;
+
+    classConditionObj = marksheetSection.id ? {
+        ...classConditionObj,
+        sectionId: marksheetSection.id
+    } : null;
+
+    useEffect(() => {
+        if (classConditionObj?.classId && classConditionObj?.sectionId) {
+            getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
+            setConditionObj(classConditionObj);
+        }
+    }, [classConditionObj?.classId, classConditionObj?.sectionId]);
+
+
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
+
+    useEffect(() => {
+        if (listData?.rows?.length) {
+            setSelectedClass(listData.rows[0].class_id);
+            setSelectedSection(listData.rows[0].section_id);
+            console.log('SET DEFAYKT CLASS AND SECTION');
+        }
+    }, [listData?.rows]);
 
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
@@ -62,7 +88,7 @@ const ListingComponent = () => {
             oldPagination
         });
     };
-
+    console.log('selec=>', listData)
     return (
         <Box m="8px" position="relative">
             <Box
@@ -99,6 +125,8 @@ const ListingComponent = () => {
                     <DropDown
                         onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
                         onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
+                        selectedClass={selectedClass}
+                        selectedSection={selectedSection}
                     />
 
                     <Button
@@ -145,6 +173,7 @@ const ListingComponent = () => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
+                condition={conditionObj}
             />
         </Box>
     );

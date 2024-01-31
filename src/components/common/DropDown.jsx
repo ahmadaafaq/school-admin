@@ -18,9 +18,8 @@ import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
-function DropDown({ onSelectClass, onSelectSection }) {
-    const [selectedClass, setSelectedClass] = useState('');
-    const [selectedSection, setSelectedSection] = useState('');
+//change name of dropdown to classsecdropdown
+function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSection }) {
     const formClassesInRedux = useSelector(state => state.allFormClasses);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
 
@@ -32,19 +31,16 @@ function DropDown({ onSelectClass, onSelectSection }) {
 
     const handleClassChange = (event) => {
         const selectedClass = findById(event.target.value, formClassesInRedux?.listData);
-        console.log(selectedClass, 'selected dropdown')
-        setSelectedClass(event.target.value);
-        onSelectClass(selectedClass);
+        onSelectClass(selectedClass.class_id);
         dispatch(setMarksheetClass(selectedClass));
     };
 
     const handleSectionChange = (event) => {
         const selectedSection = findById(event.target.value, formSectionsInRedux?.listData);
-        setSelectedSection(event.target.value);
-        onSelectSection(selectedSection?.name);
-        dispatch(setMarksheetSection(selectedSection?.name));
+        onSelectSection(selectedSection.id);
+        dispatch(setMarksheetSection(selectedSection));
     };
-
+    
     useEffect(() => {
         if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
             API.SchoolAPI.getSchoolClasses(5)
@@ -66,9 +62,10 @@ function DropDown({ onSelectClass, onSelectSection }) {
     }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     useEffect(() => {
-        getStudents(selectedClass, selectedSection, setStudents, API);
+        if (selectedClass && selectedSection) {
+            getStudents(selectedClass, selectedSection, setStudents, API);
+        }
     }, [selectedClass, selectedSection]);
-
     return (
         <Box sx={{ display: "flex", marginRight: "10px", marginLeft: "10px" }}>
             <FormControl variant="filled" sx={{
@@ -85,7 +82,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
                     name="class_id"
                     autoComplete="new-class_id"
                     onChange={handleClassChange}
-                    value={selectedClass}
+                    value={selectedClass || ''}
                     sx={{
                         height: "12vh",
                         backgroundColor: colors.blueAccent[800]
@@ -112,7 +109,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
                     name="section_id"
                     autoComplete="new-section_id"
                     onChange={handleSectionChange}
-                    value={selectedSection}
+                    value={selectedSection || ''}
                     sx={{
                         backgroundColor: colors.greenAccent[600]
                     }}
