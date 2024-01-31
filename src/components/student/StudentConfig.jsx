@@ -22,7 +22,7 @@ import { setFormSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
     const [open, setOpen] = useState(false);
     const formClassesInRedux = useSelector(state => state.allFormClasses);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
@@ -152,6 +152,7 @@ export const datagridColumns = () => {
                         display="flex"
                         justifyContent="space-around">
                         <Button color="info" variant="contained"
+                            disabled={rolePriority}
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >

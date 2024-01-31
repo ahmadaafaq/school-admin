@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import { MenuItem } from "react-pro-sidebar/dist";
-import { Typography, useTheme } from "@mui/material";
+import { Typography, useTheme, Divider } from "@mui/material";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens } from "../../theme";
@@ -38,26 +38,29 @@ export const SidebarItem = ({
     }
 
     return (
-        <MenuItem
-            active={title === selected}
-            style={{
-                color: colors.grey[100],
-                marginLeft: className ? '-15px' : 'auto',
-                marginRight: className ? '-15px' : 'auto'
-            }}
-            onClick={(e) => {
-                if (isSubMenu) {
-                    e.stopPropagation();
+        <>
+            <MenuItem
+                active={title === selected}
+                style={{
+                    color: colors.grey[100],
+                    marginLeft: className ? '-15px' : 'auto',
+                    marginRight: className ? '-15px' : 'auto'
+                }}
+                onClick={(e) => {
+                    if (isSubMenu) {
+                        e.stopPropagation();
+                    }
+                    handleClassClick ? handleClassClick() : null;
+                    dispatch(setMenuItem(title));
+                    setLocalStorage("menu", { selected: title });
                 }
-                handleClassClick ? handleClassClick() : null;
-                dispatch(setMenuItem(title));
-                setLocalStorage("menu", { selected: title });
-            }
-            }
-            icon={icon}
-        >
-            <Typography>{title}</Typography>
-            <Link to={to} />
-        </MenuItem>
+                }
+                icon={icon}
+            >
+                <Typography>{title}</Typography>
+                <Link to={to} />
+            </MenuItem>
+            <Divider />
+        </>
     );
 };
