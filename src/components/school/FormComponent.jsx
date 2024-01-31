@@ -125,7 +125,6 @@ const FormComponent = () => {
                     },
                     addressData: responses[1]?.data?.data
                 };
-                console.log('form component', dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -146,7 +145,6 @@ const FormComponent = () => {
             school_code: createSchoolCode(formData.schoolData.values.name),
             amenities: getIdsFromObject(formData.schoolData.values?.amenities)
         };
-        // console.log(formData.schoolData.values, 'school values')
 
         API.SchoolAPI.createSchool({ ...formData.schoolData.values })
             .then(({ data: school }) => {
@@ -202,11 +200,9 @@ const FormComponent = () => {
 
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
                         dispatch(setFormClasses(uniqueClassDataArray));
-                        console.log(uniqueClassDataArray, 'config dataset')
 
                         const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
                         dispatch(setFormSections(uniqueSectionDataArray));
-                        console.log(uniqueSectionDataArray, 'config sections');
                     }
                 })
                 .catch(err => {
@@ -217,7 +213,7 @@ const FormComponent = () => {
 
     //Create/Update/Populate School
     useEffect(() => {
-        if (id && !submitted) {
+        if (id && !submitted && formAmenitiesInRedux?.listData?.rows?.length) {
             setTitle("Update");
             populateSchoolData(id);
         }
@@ -226,7 +222,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [id, submitted, formAmenitiesInRedux?.listData?.rows?.length]);
 
     const handleSubmit = async () => {
         await schoolFormRef.current.Submit();

@@ -26,7 +26,7 @@ import { Utility } from "../utility";
 
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = () => {
+const ListingComponent = ({ rolePriority = null }) => {
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -96,6 +96,7 @@ const ListingComponent = () => {
                         type="submit"
                         color="success"
                         variant="contained"
+                        disabled={rolePriority}
                         onClick={() => { navigateTo(`/holiday/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
@@ -125,7 +126,7 @@ const ListingComponent = () => {
                 action={setHolidays}
                 api={API.HolidayAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns(rolePriority)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}

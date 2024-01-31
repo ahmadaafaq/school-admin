@@ -168,7 +168,10 @@ const FormComponent = () => {
         API.ClassAPI.getClassSectionList()
             .then(data => {
                 if (data.status === 'Success') {
-                    console.log('joined classData', data.data)
+                    data.data.map(item => {
+                        delete item.class_subjects;
+                    })
+                    console.log('joined classData', data.data);
                     setCombinedClass(data.data);
                 } else {
                     console.error("Error fetching classes. Please Try Again");

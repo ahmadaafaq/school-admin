@@ -106,6 +106,8 @@ const TeacherFormComponent = ({
         ]);
     };
 
+    console.log('formik.values.combinedclssect', formik.values.combinedClsSect)
+
     useEffect(() => {
         if (reset) {
             formik.resetForm();
@@ -123,6 +125,8 @@ const TeacherFormComponent = ({
         if (updatedValues) {
             const updatedArrHelper = updatedValues.selectedClass.reduce((acc, obj) => {
                 const key = obj.subject_id;
+                delete obj.subject_id;
+                delete obj.subject_name;
                 if (!acc[key]) {
                     acc[key] = [];
                 }
@@ -130,27 +134,7 @@ const TeacherFormComponent = ({
                 return acc;
             }, {});
             setUpdatedArr(updatedArrHelper);
-            // console.log('updatedArrHelper', updatedArrHelper)
-
-
-            const assignUpdatedClass = (classData) => {
-                let filteredClass;
-                let filteredClassArray = [];
-                classData.map(cls => {
-                    console.log(cls, 'cls');
-
-                    // Filter out elements from sectionsInRedux that have matching ids in the current section
-                    filteredClass = combinedClass.filter(clsItem =>
-                        cls.some(cl => cl.id === clsItem.id)
-                    );
-                    console.log(filteredClass, 'filteredClass');
-                    filteredClassArray.push(filteredClass);
-                });
-
-                console.log(filteredClassArray, 'filteredSectioArrayn');
-                return filteredClassArray;
-            };
-            assignUpdatedClass(Object.values(updatedArrHelper));
+            console.log('updatedArrHelper', updatedArrHelper, Object.values(updatedArrHelper));
 
             // Check if updatedArrHelper is not empty and has keys
             const hasData = updatedArrHelper && Object.keys(updatedArrHelper).length > 0;
@@ -162,8 +146,6 @@ const TeacherFormComponent = ({
             });
         }
     }, [updatedValues]);
-    // console.log("modified combinedClass query>", combinedClass)
-
 
     useEffect(() => {
         if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
@@ -192,7 +174,6 @@ const TeacherFormComponent = ({
             getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
         }
     }, [formSubjectsInRedux?.listData?.rows?.length]);
-    console.log(formSubjectsInRedux?.listData, 'formSubjectsinredux')
 
     return (
         <Box m="20px">
@@ -560,6 +541,7 @@ const TeacherFormComponent = ({
                     {/* Update */}
                     {teacherId && Object.values(updatedArr).map((field, index) => {
                         let key = index + 1;
+                        console.log(field, 'inside combined class loop')
                         return (
                             <React.Fragment key={key}>
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
@@ -591,7 +573,7 @@ const TeacherFormComponent = ({
                                     options={combinedClass || []}
                                     getOptionLabel={option => `${appendSuffix(option.class_name)} ${option.section_name}`}
                                     disableCloseOnSelect
-                                    value={formik.values.combinedClsSect[index] || []}
+                                    value={formik.values?.combinedClsSect[index] || []}
                                     onChange={(event, value) => {
                                         const clsArr = [...formik.values.combinedClsSect];
                                         clsArr[key - 1] = value;
