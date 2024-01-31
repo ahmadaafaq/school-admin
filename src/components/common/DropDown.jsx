@@ -13,7 +13,6 @@ import API from "../../apis";
 import { setFormClasses } from "../../redux/actions/ClassAction";
 import { setFormSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
-
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -47,7 +46,7 @@ function DropDown({ onSelectClass, onSelectSection }) {
     };
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+        if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
             API.SchoolAPI.getSchoolClasses(5)
                 .then(classData => {
                     if (classData.status === 'Success') {
@@ -55,7 +54,6 @@ function DropDown({ onSelectClass, onSelectSection }) {
 
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name', 'class_subjects');
                         dispatch(setFormClasses(uniqueClassDataArray));
-                        console.log(uniqueClassDataArray, 'config dataset');
 
                         const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
                         dispatch(setFormSections(uniqueSectionDataArray));
@@ -66,20 +64,6 @@ function DropDown({ onSelectClass, onSelectSection }) {
                 });
         }
     }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
-
-    useEffect(() => {
-        // Fetch students based on the selected class and section
-        if (selectedClass && selectedSection) {
-            API.StudentAPI.getStudentsByClass(selectedClass, selectedSection)
-                .then(data => {
-                    console.log(data, 'student marksheet data')
-                    // dispatch(setMarksheetStudents(data));
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
-        }
-    }, [selectedClass, selectedSection]);
 
     useEffect(() => {
         getStudents(selectedClass, selectedSection, setStudents, API);

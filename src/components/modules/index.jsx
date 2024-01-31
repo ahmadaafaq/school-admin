@@ -7,9 +7,8 @@
  */
 
 const classNames = [
-    "All", "Student", "Pre-Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "PN", "NS", "LKG", "UKG", "KG", "Ist",
-    "IInd", "IIIrd", "IVth", "Vth", "VIth", "VIIth", "VIIIth", "IXth", "Xth", "XIth", "XIIth", "Class 1", "Class 2", "Class 3",
-    "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"
+    "All", "Student", "Pre Nursery", "Nursery", "Lower Kindergarten", "Upper Kindergarten", "PN", "NS", "LKG", "UKG", "KG", "Ist",
+    "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12"
 ];
 
 export default classNames;

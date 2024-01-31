@@ -122,11 +122,10 @@ export const Utility = () => {
      * @returns {Object|string} - The found object with the specified ID, or an empty string if not found.
      */
     const findById = (id, model) => {
-        let found = '';
-        if (model) {
-            found = model.find((obj => obj.id === id || obj.class_id === id));
+        if (!model || !id) {
+            return [];
         }
-        return found;
+        return model.find((obj => obj.id === id || obj.class_id === id));
     };
 
     /** Finds multiple objects in a collection by their IDs.
@@ -310,7 +309,7 @@ export const Utility = () => {
                 return err;
             });
     };
-   
+
     return {
         addClassKeyword,
         appendSuffix,

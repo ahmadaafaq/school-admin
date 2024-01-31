@@ -23,7 +23,6 @@ export const StudentAPI = {
         queryParam += `&${key}=${conditionObj[key]}`
       })
     }
-
     // Send the data that is used in listing page search
     const searchParam = search ? `&search=${search}` : '';
 
@@ -64,20 +63,6 @@ export const StudentAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateStudent.name].handleRequestCancellation().signal : undefined,
     });
-  },
-
-  /** Retrieves a list of students belonging to a specific class and section.
-   */
-  getStudentsByClass: async (classId, sectionId, cancel = false) => {
-    const { data: response } = await api.request({
-      url: `/get-students-by-class/${classId}/${sectionId}`,
-      headers: {
-        "x-access-token": getLocalStorage("auth")?.token
-      },
-      method: "GET",
-      signal: cancel ? cancelApiObject[StudentAPI.getStudentsByClass.name].handleRequestCancellation().signal : undefined,
-    });
-    return response;
   }
 };
 

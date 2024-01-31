@@ -43,6 +43,7 @@ const initialValues = {
     religion: "",
     nationality: "",
     age: "",
+    aadhaar_no: "",
     caste_group: "",
     gender: "",
     status: "inactive"
@@ -55,6 +56,8 @@ const UserFormComponent = ({
     reset,
     setReset,
     userId,
+    iCardDetails,
+    setICardDetails,
     updatedValues = null
 }) => {
 
@@ -135,6 +138,13 @@ const UserFormComponent = ({
                 });
         }
     }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+
+    useEffect(() => {
+        setICardDetails({
+            ...iCardDetails,
+            ...formik.values
+        });
+    }, [formik.values]);
 
 
     const getSubjectsByClass = (classId) => {
@@ -419,6 +429,18 @@ const UserFormComponent = ({
                         value={formik.values.age}
                         error={!!formik.touched.age && !!formik.errors.age}
                         helperText={formik.touched.age && formik.errors.age}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="aadhaar_no"
+                        label="Aadhaar Number"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.aadhaar_no}
+                        error={!!formik.touched.aadhaar_no && !!formik.errors.aadhaar_no}
+                        helperText={formik.touched.aadhaar_no && formik.errors.aadhaar_no}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.caste_group && !!formik.errors.caste_group}

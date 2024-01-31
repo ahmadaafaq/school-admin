@@ -14,6 +14,7 @@ import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextFie
 import './index.css';
 import API from "../../apis";
 import addressValidation from "./Validation";
+
 const initialValues = {
     street: "",
     landmark: "",
@@ -30,6 +31,8 @@ const AddressFormComponent = ({
     setDirty,
     reset,
     setReset,
+    iCardDetails = null,
+    setICardDetails = null,
     updatedValues = null
 }) => {
 
@@ -85,6 +88,15 @@ const AddressFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
+
+    useEffect(() => {
+        if (iCardDetails) {
+            setICardDetails({
+                ...iCardDetails,
+                ...formik.values
+            });
+        }
+    }, [formik.values]);
 
     useEffect(() => {
         const getCountry = () => {

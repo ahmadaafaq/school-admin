@@ -16,7 +16,6 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
-import classNames from "../modules";
 
 import { datagridColumns } from "./EmployeeConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
@@ -36,7 +35,7 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allEmployees);
+    const { listData, loading } = useSelector(state => state.allEmployees);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -46,22 +45,11 @@ const ListingComponent = () => {
     const { getLocalStorage, setLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-    const classes = classNames;
-    const classId = URLParams ? URLParams.classId : null;       // grab class id from url
-
-    let classConditionObj = classId ? {
-        key: 'classId',
-        value: classId
-    } : null;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
-
-    useEffect(() => {
-        classId ? setLocalStorage('class', classId) : null;
-    }, [classId]);
 
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
@@ -111,7 +99,7 @@ const ListingComponent = () => {
                         onClick={() => { navigateTo(`/employee/create`) }}
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
-                        {classes.includes(selected) ? 'Admission' : `Create New ${selected}`}
+                        Create New {selected}
                     </Button>
                 </Box>
             </Box>
@@ -140,6 +128,7 @@ const ListingComponent = () => {
                 columns={datagridColumns()}
                 rows={listData.rows}
                 count={listData.count}
+                loading={loading}
                 selected={selected}
                 pageSizeOptions={pageSizeOptions}
                 setOldPagination={setOldPagination}

@@ -112,25 +112,11 @@ const PaymentFormComponent = ({
         }
     }, [sectionInRedux?.listData?.rows]);
 
-    // const getStudents = useCallback(() => {
-    //     console.log('call getStudents', formik.values.class_id, formik.values.section_id)
-    //     if (formik.values.class_id && formik.values.section_id) {
-    //         const condition = {
-    //             classId: formik.values.class_id,
-    //             sectionId: formik.values.section_id
-    //         };
-
-    //         // call api to get students
-    //         getPaginatedData(0, 100, setStudents, API.StudentAPI, condition);
-    //     }
-    // }, [formik.values.class_id, formik.values.section_id]);
-
     useEffect(() => {
         getStudents(formik.values.class_id, formik.values.section_id, setStudents, API);
     }, [formik.values.class_id, formik.values.section_id]);
 
 
-    console.log('studentInRedux=>', studentInRedux)
     return (
         <Box m="20px">
             <form ref={refId}>

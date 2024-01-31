@@ -112,21 +112,26 @@ function App() {
                     <>
                       <Route exact path="/" element={<Dashboard />} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
-                      <Route exact path="/bus/listing" element={<BusListingComponent />} />
-                      <Route exact path="/bus/create" element={<BusFormComponent />} />
-                      <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
-
-                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
-
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
-                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
+                      <Route exact path="/role/listing" element={<UserRoleListingComponent />} />
 
                       <Route exact path="/school/create" element={<SchoolFormComponent />} />
                       <Route exact path="/school/update/:id" element={<SchoolFormComponent />} />
                       <Route exact path="/school/listing" element={<SchoolListingComponent />} />
 
+                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
                       <Route exact path="/section/listing" element={<SectionListingComponent />} />
                       <Route exact path="/subject/listing" element={<SubjectListingComponent />} />
+
+                    </>}
+                  {
+                    userRole.priority <= 2 &&
+                    <Route exact path="/" element={<Dashboard />} />
+                  }
+                  {userRole.priority <= 3 &&
+                    <>
+                      <Route exact path="/bus/listing" element={<BusListingComponent />} />
+                      <Route exact path="/bus/create" element={<BusFormComponent />} />
+                      <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
 
                       <Route exact path="/student/create" element={<StudentFormComponent />} />
                       <Route exact path="/student/create/:id" element={<StudentFormComponent />} />
@@ -134,44 +139,6 @@ function App() {
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
                       <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
-                      <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
-                      <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
-                      <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
-
-                      <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
-                      <Route exact path="/user/update/:id" element={<UserFormComponent />} />
-                      <Route exact path="/user/listing" element={<UserListingComponent />} />
-
-                      <Route exact path="/employee/create" element={<EmployeeFormComponent  />} />
-                      <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
-                      <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
-
-                      <Route exact path="/holiday/create" element={<HolidayFormComponent  />} />
-                      <Route exact path="/holiday/update/:id" element={<HolidayFormComponent />} />
-                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
-
-                      <Route exact path="/payment/create" element={<PaymentFormComponent  />} />
-                      <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
-                      <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
-
-                      <Route exact path="/role/listing" element={<UserRoleListingComponent />} />
-                    </>}
-                  {userRole.priority === 2 &&
-                    <>
-                      <Route exact path="/" element={<Dashboard />} />
-                      <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
-
-                      <Route exact path="/bus/listing" element={<BusListingComponent />} />
-                      <Route exact path="/bus/create" element={<BusFormComponent />} />
-                      <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
-
-                      <Route exact path="/class/listing" element={<ClassListingComponent />} />
-
-                      <Route exact path="/student/create" element={<StudentFormComponent />} />
-                      <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
-                      <Route exact path="/student/listing" element={<StudentListingComponent />} />
-                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
-
                       <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
                       <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
 
@@ -183,62 +150,32 @@ function App() {
                       <Route exact path="/user/update/:id" element={<UserFormComponent />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
 
-                      <Route exact path="/employee/create" element={<EmployeeFormComponent  />} />
+                      <Route exact path="/employee/create" element={<EmployeeFormComponent />} />
                       <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
                       <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
 
-                      <Route exact path="/holiday/create" element={<HolidayFormComponent  />} />
+                      <Route exact path="/holiday/create" element={<HolidayFormComponent />} />
                       <Route exact path="/holiday/update/:id" element={<HolidayFormComponent />} />
                       <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
 
-                      <Route exact path="/payment/create" element={<PaymentFormComponent  />} />
+                      <Route exact path="/payment/create" element={<PaymentFormComponent />} />
                       <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
                       <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
                     </>}
-                  {userRole.priority === 3 &&
-                    <>
-                      <Route exact path="/student/create" element={<StudentFormComponent />} />
-                      <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
-                      <Route exact path="/student/listing" element={<StudentListingComponent />} />
-                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
 
-                      <Route exact path="/bus/listing" element={<BusListingComponent />} />
-                      <Route exact path="/bus/create" element={<BusFormComponent />} />
-                      <Route exact path="/bus/update/:id" element={<BusFormComponent />} />
-
-                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
-                      <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
-
-                      <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
-                      <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
-                      <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
-
-                      <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
-                      <Route exact path="/user/update/:id" element={<UserFormComponent />} />
-                      <Route exact path="/user/listing" element={<UserListingComponent />} />
-
-                      <Route exact path="/employee/create" element={<EmployeeFormComponent  />} />
-                      <Route exact path="/employee/update/:id" element={<EmployeeFormComponent />} />
-                      <Route exact path="/employee/listing" element={<EmployeeListingComponent />} />
-
-                      <Route exact path="/holiday/create" element={<HolidayFormComponent  />} />
-                      <Route exact path="/holiday/update/:id" element={<HolidayFormComponent />} />
-                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
-
-                      <Route exact path="/payment/create" element={<PaymentFormComponent  />} />
-                      <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
-                      <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
-                    </>}
                   {userRole.priority === 4 &&
                     <>
-                      <Route exact path="/student/create" element={<StudentFormComponent />} />
-                      <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
+                    {/* Disable create/update button for priority > 3 only enable view */}
                       <Route exact path="/student/listing" element={<StudentListingComponent />} />
                       <Route exact path="/student/listing/:classId" element={<StudentListingComponent />} />
-
-                      <Route exact path="/teacher/create" element={<TeacherFormComponent />} />
-                      <Route exact path="/teacher/update/:id" element={<TeacherFormComponent />} />
-                      <Route exact path="/teacher/listing" element={<TeacherListingComponent />} />
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
+                      <Route exact path="/marksheet/listing" element={<MarksheetListingComponent />} />
+                    </>}
+                    {userRole.priority === 5 &&
+                    <>
+                    {/* Disable create button and update button for priority > 4 only enable view */}
+                      <Route exact path="/student/listing/parent/:parentId" element={<StudentListingComponent />} />
+                      <Route exact path="/holiday/listing" element={<HolidayListingComponent />} />
                     </>}
                 </Routes>
               </main>

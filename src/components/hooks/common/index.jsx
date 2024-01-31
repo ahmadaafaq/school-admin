@@ -9,7 +9,6 @@
 import { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import API from "../../../apis";
 import { Utility } from "../../utility";
 
 export const useCommon = () => {
@@ -17,7 +16,6 @@ export const useCommon = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const { getLocalStorage } = Utility();
     const authInfo = getLocalStorage("auth");
-
 
     /**
      * Fetches paginated data from an API based on the given parameters.
@@ -48,7 +46,6 @@ export const useCommon = () => {
 
 
     const getStudents = useCallback((class_id, section_id, setStudents, API) => {
-        console.log('call getStudents', class_id, section_id)
         if (class_id && section_id) {
             const condition = {
                 classId: class_id,
@@ -56,7 +53,7 @@ export const useCommon = () => {
             };
 
             // call api to get students
-            getPaginatedData(0, 100, setStudents, API.StudentAPI, condition);
+            getPaginatedData(0, 20, setStudents, API.StudentAPI, condition);
         }
     }, []);
 

@@ -26,6 +26,7 @@ const ServerPaginationGrid = ({
     rows,
     count,
     loading,
+    selected,
     pageSizeOptions,
     searchFlag,
     setOldPagination
@@ -37,22 +38,6 @@ const ServerPaginationGrid = ({
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
-    const amenityLoading = useSelector(state => state.allAmenities.loading);
-    const busLoading = useSelector(state => state.allBuses.loading);
-    const marksheetLoading = useSelector(state => state.allMarksheets.loading);
-    const classLoading = useSelector(state => state.allClasses.loading);
-    const sectionLoading = useSelector(state => state.allSections.loading);
-    const schoolLoading = useSelector(state => state.allSchools.loading);
-    const studentLoading = useSelector(state => state.allStudents.loading);
-    const subjectLoading = useSelector(state => state.allSubjects.loading);
-    const teacherLoading = useSelector(state => state.allTeachers.loading);
-    const userLoading = useSelector(state => state.allUsers.loading);
-    const userRoleLoading = useSelector(state => state.allUserRoles.loading);
-    const employeeLoading = useSelector(state => state.allEmployees.loading);
-    const holidayLoading = useSelector(state => state.allHolidays.loading);
-    const paymentLoading = useSelector(state => state.allPayments.loading);
-    const selected = useSelector(state => state.menuItems.selected);
-    const classes = classNames;
 
     useEffect(() => {
         //TO BE REFACTORED
@@ -136,11 +121,7 @@ const ServerPaginationGrid = ({
                 disableRowSelectionOnClick
                 rows={rows || []}
                 columns={columns}
-                loading={selected === "Amenity" ? amenityLoading : selected === "Bus" ? busLoading : selected === "Marksheet" ? marksheetLoading : selected === "Class" ? classLoading
-                    : selected === "Section" ? sectionLoading : selected === "School" ? schoolLoading : classNames.includes(selected) ?
-                        studentLoading : selected === "Teacher" ? teacherLoading : selected === "Subject" ? subjectLoading
-                            : selected === "Role" ? userRoleLoading : selected === "Employee" ? employeeLoading : selected === "Holiday" ? holidayLoading : selected === "Payment" ? paymentLoading: userLoading}
-                // loading={loading}
+                loading={classNames.includes(selected) ? loading : loading}
                 rowCount={rowCountState}
                 components={{
                     Toolbar: GridToolbar,

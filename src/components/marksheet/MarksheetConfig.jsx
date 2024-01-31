@@ -89,10 +89,10 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let studentName = params?.row?.student_id !== 0 ? findById(params?.row?.student_id, studentsInRedux?.listData?.rows) : '/';
+                let studentName = findById(params?.row?.student_id, studentsInRedux?.listData?.rows);
                 return (
                     <div>
-                        {`${studentName.firstname} ${studentName.lastname}`}
+                        {studentName ? `${studentName.firstname} ${studentName.lastname}` : '/'}
                     </div>
                 );
             }

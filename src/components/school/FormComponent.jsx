@@ -66,7 +66,8 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { createSchoolCode, getLocalStorage, getIdsFromObject, getValuesFromArray, toastAndNavigate } = Utility();
+    const { createSchoolCode, customSort, createUniqueDataArray, getLocalStorage,
+        getIdsFromObject, getValuesFromArray, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -193,16 +194,26 @@ const FormComponent = () => {
     }, [formAmenitiesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setFormClasses, API.ClassAPI);
-        }
-    }, [formClassesInRedux?.listData?.rows?.length]);
+        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+            API.SchoolAPI.getSchoolClasses(5)
+                .then(classData => {
+                    if (classData.status === 'Success') {
+                        classData.data.sort(customSort);
 
-    useEffect(() => {
-        if (!formSectionsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 20, setFormSections, API.SectionAPI);
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setFormClasses(uniqueClassDataArray));
+                        console.log(uniqueClassDataArray, 'config dataset')
+
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        dispatch(setFormSections(uniqueSectionDataArray));
+                        console.log(uniqueSectionDataArray, 'config sections');
+                    }
+                })
+                .catch(err => {
+                    console.log("Error Fetching ClassData:", err);
+                });
         }
-    }, [formSectionsInRedux?.listData?.rows?.length]);
+    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     //Create/Update/Populate School
     useEffect(() => {
@@ -259,8 +270,8 @@ const FormComponent = () => {
                 setReset={setReset}
                 schoolId={id}
                 amenities={formAmenitiesInRedux?.listData?.rows}
-                classesInRedux={formClassesInRedux?.listData?.rows}
-                sectionsInRedux={formSectionsInRedux?.listData?.rows}
+                classesInRedux={formClassesInRedux?.listData}
+                sectionsInRedux={formSectionsInRedux?.listData}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent

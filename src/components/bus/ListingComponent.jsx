@@ -34,7 +34,7 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData } = useSelector(state => state.allBuses);
+    const { listData, loading } = useSelector(state => state.allBuses);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -127,6 +127,7 @@ const ListingComponent = () => {
                 columns={datagridColumns()}
                 rows={listData.rows}
                 count={listData.count}
+                loading={loading}
                 selected={selected}
                 pageSizeOptions={pageSizeOptions}
                 setOldPagination={setOldPagination}

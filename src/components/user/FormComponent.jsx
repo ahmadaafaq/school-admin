@@ -20,7 +20,6 @@ import UserFormComponent from "./UserFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
-import { useUser } from "../hooks/users";
 import { Utility } from "../utility";
 
 const FormComponent = ({ rolePriority }) => {
@@ -48,7 +47,6 @@ const FormComponent = ({ rolePriority }) => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { getQueryParam } = useUser();
     const { toastAndNavigate, getLocalStorage } = Utility();
     //after page refresh the id in router state becomes undefined, so getting user id from url params
     let id = state?.id || userParams?.id;
@@ -111,7 +109,6 @@ const FormComponent = ({ rolePriority }) => {
 
     const registerUser = () => {
         setLoading(true);
-        const userType = getQueryParam();
         API.UserAPI.register({ ...formData.userData.values })
             .then(({ data: user }) => {
                 if (user?.status === 'Success') {
