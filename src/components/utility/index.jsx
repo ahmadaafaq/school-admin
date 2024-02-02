@@ -140,10 +140,24 @@ export const Utility = () => {
         return model.filter(obj => ids.split(',').indexOf(obj.id.toString()) > -1);
     };
 
+    /** Formats an image name by appending a random number and removing special characters.
+     * @param {string} name - The original image name.
+     * @returns {string} - The formatted image name.
+     */
+    const formatImageName = (name) => {
+        const formattedName = Math.ceil(Math.random() * 100000000) + name
+            .toLowerCase()
+            .trim()
+            .replace(/[!@#$%^&*();:'"`~`'$]/g, "")
+            .replace(/\s+/g, "_");
+        return formattedName;
+    };
+
     /** Gets user initials from the first and last name stored in auth information.
      * @returns {string} - User initials.
      */
     const getInitials = () => {
+        6
         const authInfo = getLocalStorage("auth");
         if (authInfo?.username) {
             const [firstName, lastName] = authInfo.username.split(" ");
@@ -319,6 +333,7 @@ export const Utility = () => {
         createUniqueDataArray,
         findById,
         findMultipleById,
+        formatImageName,
         getInitials,
         getNameAndType,
         getLocalStorage,

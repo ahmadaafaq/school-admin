@@ -13,7 +13,63 @@ import { Utility } from "../components/utility";
 const { getLocalStorage } = Utility();
 
 export const ImageAPI = {
-    /** Upload image to the backend
+    /** Get image from the database based on parent and parent_id
+     */
+    getImage: async (parent, parent_id, cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-image/${parent}/${parent_id}`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getImage.name].handleRequestCancellation().signal : undefined
+        });
+        return response;
+    },
+
+    /** Store image name in the database
+     */
+    createImage: async (image_src, cancel = false) => {
+        return await api.request({
+            url: `/create-image`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "POST",
+            data: image_src,
+            signal: cancel ? cancelApiObject[this.createImage.name].handleRequestCancellation().signal : undefined
+        });
+    },
+
+    /** Update the image in the database
+     */
+    updateImage: async (fields, cancel = false) => {
+        return await api.request({
+            url: `/update-image`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "PATCH",
+            data: fields,
+            signal: cancel ? cancelApiObject[this.updateImage.name].handleRequestCancellation().signal : undefined
+        });
+    },
+
+    /** Delete all the images from db on every update
+     */
+    deleteImage: async (fields, cancel = false) => {
+        return await api.request({
+            url: `/delete-image`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "DELETE",
+            data: fields,
+            signal: cancel ? cancelApiObject[this.deleteImage.name].handleRequestCancellation().signal : undefined
+        });
+    },
+
+    /** Upload image to the folder created by nodejs
      */
     uploadImage: async (data, cancel = false) => {
         console.log(data, 'api image file')

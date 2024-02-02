@@ -27,6 +27,8 @@ import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 import ICardModal from "../id_card/ICardModal";
 
+const ENV = import.meta.env;
+
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObject, findMultipleById } = Utility();
+    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -103,7 +105,7 @@ const FormComponent = () => {
 
     const populateStudentData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
+        const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
@@ -113,7 +115,8 @@ const FormComponent = () => {
                 }
                 const dataObj = {
                     studentData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
+                    addressData: responses[1]?.data?.data,
+                    imageData: responses[2]?.data?.data
                 };
                 setUpdatedValues(dataObj);
                 setLoading(false);
@@ -126,28 +129,53 @@ const FormComponent = () => {
     };
 
     const createStudent = () => {
-        let promises;
+        let promise1;
+        let promise2;
         setLoading(true);
+        const username = formData.studentData.values?.father_name || formData.studentData.values?.mother_name ||
+            formData.studentData.values?.guardian;
+        const password = `${username}${ENV.VITE_SECRET_CODE}`;
         formData.studentData.values = {
             ...formData.studentData.values,
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
         }
-        API.StudentAPI.createStudent({ ...formData.studentData.values })
-            .then(({ data: student }) => {
-                if (student?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: student.data.id,
-                        parent: 'student',
+
+        API.UserAPI.register({
+            username: username,
+            password: password,
+            email: formData.studentData.values.email,
+            contact_no: formData.studentData.values.contact_no,
+            role: 5,
+            designation: 'parent',
+            status: 'active'
+        })
+            .then(({ data: user }) => {
+                if (user?.status === 'Success') {
+                    API.StudentAPI.createStudent({
+                        ...formData.studentData.values,
+                        parent_id: user.data.id
                     })
-                        .then(address => {
+                        .then(({ data: student }) => {
+                            promise1 = API.AddressAPI.createAddress({
+                                ...formData.addressData.values,
+                                parent_id: student.data.id,
+                                parent: 'student'
+                            });
+
                             if (formData.imageData.values.Student?.length) {
-                                promises = Array.from(formData.imageData.values.Student).map(async (image) => {
-                                    console.log(image, 'front end image')
-                                    API.ImageAPI.uploadImage({ image: image });
+                                promise2 = Array.from(formData.imageData.values.Student).map(async (image) => {
+                                    let formattedName = formatImageName(image.name);
+                                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                                    API.ImageAPI.createImage({
+                                        image_src: formattedName,
+                                        parent_id: student.data.id,
+                                        parent: 'student',
+                                        type: 'normal'
+                                    })
                                 });
                             }
-                            return Promise.all(promises)
+
+                            return Promise.all([promise1, promise2])
                                 .then(data => {
                                     setLoading(false);
                                     toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
@@ -160,7 +188,7 @@ const FormComponent = () => {
                         })
                         .catch(err => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                            toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, 0);
                             throw err;
                         });
                 }
@@ -174,8 +202,7 @@ const FormComponent = () => {
 
 
     const handleSubmitDialog = (folderName, fileName, blobName) => {
-        API.UserAPI.update({ id: auth.id, agreement: 1 });
-        uploadDocumentToAzure(folderName, fileName, blobName);
+        console.log('inside handle submit')
     };
 
     useEffect(() => {
@@ -261,12 +288,13 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={preview}
                 setPreview={setPreview}
+                deletedImage={deletedImage}
+                setDeletedImage={setDeletedImage}
                 updatedValues={updatedValues?.imageData}
                 iCardDetails={iCardDetails}
                 setICardDetails={setICardDetails}
-                deletedImage={deletedImage}
-                setDeletedImage={setDeletedImage}
                 imageType="Student"
+                ENV={ENV}
             />
 
             <Box display="flex" justifyContent="end" m="20px" pb="20px">

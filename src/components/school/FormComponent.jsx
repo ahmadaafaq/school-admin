@@ -27,6 +27,8 @@ import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
+const ENV = import.meta.env;
+
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
@@ -158,10 +160,11 @@ const FormComponent = () => {
 
                     promise2 = formData.schoolData.values.sections.map((innerArray, index) => {
                         const schoolClass = formData.schoolData.values.classes[index] || 0;
+                        // const subjectIds = formData.schoolData.values.subjects[index] || 0;
                         // Associating each inner array with a class
                         innerArray.map(sectionData => {
                             API.SchoolAPI.insertIntoMappingTable(
-                                [school.data.id, schoolClass, sectionData.id]
+                                [school.data.id, schoolClass, sectionData.id] //also include subject_ids
                             )
                         })
                     })
@@ -290,12 +293,11 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={preview}
                 setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
+                updatedValues={updatedValues?.imageData?.filter(img => img.type === "display")}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
                 imageType="Display"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
+                ENV={ENV}
             />
             <ImagePicker
                 key="banner"
@@ -306,12 +308,11 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={previewBanner}
                 setPreview={setPreviewBanner}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "banner")}
+                updatedValues={updatedValues?.imageData?.filter(img => img.type === "banner")}
                 deletedImage={deletedBannerImage}
                 setDeletedImage={setDeletedBannerImage}
                 imageType="Banner"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}/banner`}
-            // ENV={ENV}
+                ENV={ENV}
             />
 
             <Box display="flex" justifyContent="end" m="20px">

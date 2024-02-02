@@ -3,11 +3,11 @@ import { Card, CardContent, CardMedia, Typography, Grid, Divider, CardHeader, Av
 import { Utility } from '../utility';
 import { useSelector } from "react-redux";
 
+const ENV = import.meta.env;
+
 const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
-    console.log('detail=>', detail);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
     const formClassesInRedux = useSelector(state => state.allFormClasses);
-
     const { findById, appendSuffix } = Utility();
 
     const countryName = findById(detail?.addressData?.country, countryData)?.name;
@@ -15,30 +15,24 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
     const cityName = findById(detail?.addressData?.city, cityData)?.name;
     const sectionName = findById(detail?.studentData?.section, formSectionsInRedux?.listData)?.name;
     const className = findById(detail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
+    console.log('detail=>', detail);
 
     return (
         <Card>
             <CardHeader
                 avatar={
                     <Avatar sx={{ background: "darkcyan" }} aria-label="recipe">
-                        i
+                        Yo
                     </Avatar>
                 }
                 title={<Typography variant="h3" component="h2" sx={{ fontWeight: 'bold' }}>Student Details</Typography>}
                 sx={{ backgroundColor: "lightblue", margin: "5px", borderRadius: "5px" }}
             />
-            {/* <CardMedia
-                component="img"
-                height="200"
-                image="path/to/student/image"
-                alt={detail?.studentData?.firstname}
-                sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
-            /> */}
             <CardContent>
                 <CardMedia
                     component="img"
                     height="230"
-                    image="path/to/student/image"
+                    image={`${ENV.VITE_BASE_URL}/get-image/${detail?.imageData[0]?.image_src}`}
                     alt={detail?.studentData?.firstname}
                     sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
                 />
@@ -64,7 +58,7 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
                     </Typography>
                 </Box>
                 <Divider sx={{ margin: "20px" }} />
-                <Box sx={{ display: 'flex', justifyContent: "space-between",marginLeft:"20px" }}>
+                <Box sx={{ display: 'flex', justifyContent: "space-between", marginLeft: "20px" }}>
                     <Box>
                         {detail?.studentData?.father_name &&
                             <Typography gutterBottom variant="body1" component="p" sx={{ fontWeight: "500", fontSize: "20px" }}>

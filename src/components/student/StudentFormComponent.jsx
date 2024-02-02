@@ -20,7 +20,6 @@ import studentValidation from "./Validation";
 
 import { setFormClasses } from "../../redux/actions/ClassAction";
 import { setFormSections } from "../../redux/actions/SectionAction";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -71,8 +70,7 @@ const UserFormComponent = ({
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData } = useCommon();
-    const { createSession, customSort, createUniqueDataArray } = Utility();
+    const { createSession, customSort, createUniqueDataArray, getLocalStorage } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -146,6 +144,13 @@ const UserFormComponent = ({
         });
     }, [formik.values]);
 
+    useEffect(() => {
+        const selectedClassId = parseInt(getLocalStorage("class"));
+        if (selectedClassId) {
+            formik.setFieldValue("class", selectedClassId);
+            getSubjectsByClass(selectedClassId);
+        }
+    }, [getLocalStorage("class")]);
 
     const getSubjectsByClass = (classId) => {
         API.SubjectAPI.getSubjectsByClass(classId)
@@ -494,8 +499,8 @@ const UserFormComponent = ({
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
-            </form >
-        </Box >
+            </form>
+        </Box>
     );
 }
 
