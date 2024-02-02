@@ -28,7 +28,6 @@ const ImagePicker = ({
     deletedImage = [],
     setDeletedImage,
     imageType,
-    azurePath,
     ENV
 }) => {
     const initialValues = {};
@@ -156,7 +155,6 @@ const ImagePicker = ({
                     preview={preview}
                     setPreview={setPreview}
                     imageType={imageType}
-                    azurePath={azurePath}
                     ENV={ENV}
                     setInitialState={setInitialState}
                 />

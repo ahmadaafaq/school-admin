@@ -22,7 +22,6 @@ const PreviewImage = ({
     imageFiles,
     imageType,
     updatedValues,
-    azurePath,
     ENV,
     setInitialState
 }) => {
@@ -36,11 +35,10 @@ const PreviewImage = ({
         if (updatedValues) {
             updatedValues.map(img => {
                 if (img.image_src) {
-                    srcArray.push(`${azurePath}/${img.image_src}?${ENV.VITE_SAS_TOKEN}`);
+                    srcArray.push(`${ENV.VITE_BASE_URL}/get-image/${img.image_src}`);
                 }
             });
         }
-
         setPreview([
             ...srcArray,         //We are not doing ...preview because in imagePicker file we have already
         ]);
@@ -55,7 +53,7 @@ const PreviewImage = ({
             if (updatedValues) {
                 updatedValues.map(img => {
                     if (img.image_src) {
-                        srcArray.push(`${azurePath}/${img.image_src}?${ENV.VITE_SAS_TOKEN}`);
+                        srcArray.push(`${ENV.VITE_BASE_URL}/get-image/${img.image_src}`);
                     }
                 });
             }

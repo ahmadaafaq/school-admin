@@ -28,6 +28,7 @@ const initialValues = {
     amenities: [],
     classes: [],
     sections: [],
+    // subjects: [], to be done
     is_boarding: false,
     boarding_capacity: 0,
     capacity: 0,

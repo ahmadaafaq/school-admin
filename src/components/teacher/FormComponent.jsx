@@ -24,6 +24,8 @@ import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
+const ENV = import.meta.env;
+
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
@@ -54,7 +56,7 @@ const FormComponent = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { formatImageName, getLocalStorage, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting teacher id from url params
     let id = state?.id || userParams?.id;
@@ -95,7 +97,7 @@ const FormComponent = () => {
 
     const populateTeacherData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`, `/get-teacher-detail/${id}`];
+        const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`, `/get-teacher-detail/${id}`, `/get-image/teacher/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 console.log('res=>', responses)
@@ -108,6 +110,7 @@ const FormComponent = () => {
                         selectedClass: responses[2]?.data?.data,
                     },
                     addressData: responses[1]?.data?.data,
+                    imageData: responses[3]?.data?.data
                 };
                 console.log('teacher dataobj', dataObj)
                 setUpdatedValues(dataObj);
@@ -123,6 +126,7 @@ const FormComponent = () => {
     const createTeacher = () => {
         let promise1;
         let promise2;
+        let promise3;
         setLoading(true);
 
         API.TeacherAPI.createTeacher({ ...formData.teacherData.values })
@@ -145,7 +149,20 @@ const FormComponent = () => {
                         })
                     });
 
-                    return Promise.all([promise1, promise2])
+                    if (formData.imageData.values.Teacher?.length) {
+                        promise3 = Array.from(formData.imageData.values.Teacher).map(async (image) => {
+                            let formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                parent_id: teacher.data.id,
+                                parent: 'teacher',
+                                type: 'normal'
+                            })
+                        });
+                    }
+
+                    return Promise.all([promise1, promise2, promise3])
                         .then(data => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
@@ -155,7 +172,7 @@ const FormComponent = () => {
                             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                             throw err;
                         });
-                };
+                }
             })
             .catch(err => {
                 setLoading(false);
@@ -257,12 +274,11 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={preview}
                 setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
+                updatedValues={updatedValues?.imageData}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
-                imageType=""
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
+                imageType="Teacher"
+                ENV={ENV}
             />
 
             <Box display="flex" justifyContent="end" m="20px">
