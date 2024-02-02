@@ -92,7 +92,7 @@ function App() {
       .then(result => {
         if (!result && pathname !== '/login') {
           localStorage.clear();
-          navigateTo('../login', { replace: true });
+          navigateTo('/login', { replace: true });
         }
       })
   }, []);
