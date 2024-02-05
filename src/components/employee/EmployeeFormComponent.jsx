@@ -7,20 +7,14 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
-import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
+import { Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
-import API from "../../apis";
 import employeeValidation from "./Validation";
-
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
-import { useCommon } from "../hooks/common";
 
 const initialValues = {
     firstname: "",
@@ -44,15 +38,9 @@ const EmployeeFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-   // const [subjects, setSubjects] = useState([]);
 
-    // const classesInRedux = useSelector(state => state.allClasses);
-    // const sectionsInRedux = useSelector(state => state.allSections);
-
-    // const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    // const { getPaginatedData } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -96,33 +84,6 @@ const EmployeeFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
-
-    // const getSubjectsByClass = (classId) => {
-    //     API.SubjectAPI.getSubjectsByClass(classId)
-    //         .then(subjects => {
-    //             console.log("subjects", subjects)
-    //             if (subjects.status === 'Success') {
-    //                 setSubjects(subjects.data);
-    //             } else {
-    //                 console.log("Error, Please Try Again");
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log("Error, Fetching Subjects:", err);
-    //         })
-    // };
 
     return (
         <Box m="20px">
@@ -174,7 +135,7 @@ const EmployeeFormComponent = ({
                         value={formik.values.email}
                         error={!!formik.touched.email && !!formik.errors.email}
                         helperText={formik.touched.email && formik.errors.email}
-                       
+
                     />
                     <TextField
                         fullWidth

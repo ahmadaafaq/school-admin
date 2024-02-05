@@ -7,12 +7,12 @@
 */
 
 import { useEffect, useState } from "react";
-import { useSelector} from 'react-redux'
+import { useSelector } from 'react-redux'
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Groups3Icon from "@mui/icons-material/Groups3";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
+import ApartmentIcon from '@mui/icons-material/Apartment';
 import EngineeringSharpIcon from '@mui/icons-material/EngineeringSharp';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -36,8 +36,6 @@ const Dashboard = () => {
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
 
-
-
   const options1 = {
     chart: {
       type: 'spline',
@@ -46,7 +44,7 @@ const Dashboard = () => {
       width: null,
     },
     title: {
-      text: 'Student Data',
+      text: 'RESULT %',
       style: {
         color: colors.blueAccent[100],
         fontSize: `${typography.h3.fontSize}px`,
@@ -69,12 +67,12 @@ const Dashboard = () => {
     },
     series: [
       {
-        name: 'Total Students',
+        name: 'Passing %',
         data: studentData.map(dataPoint => dataPoint.students),
         color: colors.greenAccent[800],
       },
       {
-        name: 'New Students',
+        name: 'Failing %',
         data: studentData.map(dataPoint => dataPoint.newStudents),
         color: colors.redAccent[900],
       },
@@ -137,40 +135,42 @@ const Dashboard = () => {
       color: colors.blueAccent[600],
     }],
   };
-   
- useEffect(() => {
-  API.StudentAPI.getAll()
-  .then(students => {
-   setStudentData(students.data.rows.length)
-  })
-  .catch(err => {
-    throw err;
-  });
 
-  API.TeacherAPI.getAll()
-  .then(teachers => {
-   setTeacherData(teachers.data.rows.length)
-  })
-  .catch(err => {
-    throw err;
-  });
+  useEffect(() => {
+    API.StudentAPI.getAll()
+      .then(students => {
+        setStudentData(students.data.rows.length)
+      })
+      .catch(err => {
+        throw err;
+      });
 
-  API.EmployeeAPI.getAll()
-  .then(employees => {
-   setEmployeeData(employees.data.rows.length)
-  })
-  .catch(err => {
-    throw err;
-  });
+    API.TeacherAPI.getAll()
+      .then(teachers => {
+        setTeacherData(teachers.data.rows.length)
+      })
+      .catch(err => {
+        throw err;
+      });
 
-  API.SchoolAPI.getAll()
-  .then(schools => {
-    setSchoolData(schools.data.rows.length)
-  })
-  .catch(err => {
-    throw err;
-  });
- }, [])
+    API.EmployeeAPI.getAll()
+      .then(employees => {
+        setEmployeeData(employees.data.rows.length)
+      })
+      .catch(err => {
+        throw err;
+      });
+
+    API.SchoolAPI.getAll()
+      .then(schools => {
+        setSchoolData(schools.data.rows.length)
+      })
+      .catch(err => {
+        throw err;
+      });
+  }, [])
+
+  console.log('School>>>>=', schoolData);
 
   return (
     <Box m="10px"  >
@@ -214,8 +214,8 @@ const Dashboard = () => {
           <StatBox
             title={studentDataa}
             subtitle="Students"
-            progress="0.75"
-            increase="+14%"
+            progress={`${(studentDataa/5000)}`}
+            increase={`${(studentDataa/5000)*100}%`}
             yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
@@ -235,12 +235,12 @@ const Dashboard = () => {
         >
           <StatBox
             title={schoolData}
-            subtitle="schools"
-            progress="0.30"
-            increase="+5%"
+            subtitle="Schools"
+            progress={`${(schoolData/500)}`}
+            increase={`${(schoolData/500)*100}%`}
             yellowColor={colors.greenAccent[700]}
             icon={
-              <PersonAddIcon
+              <ApartmentIcon
                 sx={{ color: colors.primary[500], fontSize: isMobile ? "10px" : "26px" }}
               />
             }
@@ -258,8 +258,8 @@ const Dashboard = () => {
           <StatBox
             title={teacherData}
             subtitle="Teachers"
-            progress="0.80"
-            increase="+43%"
+            progress={`${(teacherData/500)}`}
+            increase={`${(teacherData/500)*100}%`}
             yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
@@ -281,8 +281,8 @@ const Dashboard = () => {
 
             title={employeeData}
             subtitle="employees"
-            progress="0.80"
-            increase="+5%"
+            progress={`${(employeeData/500)}`}
+            increase={`${(employeeData/500)*100}%`}
             yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon

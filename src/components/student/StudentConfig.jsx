@@ -15,7 +15,7 @@ import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import BasicModal from "../common/CustomModal";
+import BasicModal from "../models/CustomModal";
 
 import { setFormClasses } from "../../redux/actions/ClassAction";
 import { setFormSections } from "../../redux/actions/SectionAction";

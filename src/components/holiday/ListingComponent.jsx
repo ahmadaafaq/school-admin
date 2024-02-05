@@ -52,7 +52,6 @@ const ListingComponent = ({ rolePriority = null }) => {
     }, []);
 
     const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
         reloadBtn.style.display = "none";
         setSearchFlag({
             search: false,

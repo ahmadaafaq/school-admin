@@ -25,7 +25,7 @@ import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
-import ICardModal from "../id_card/ICardModal";
+import ICardModal from "../models/ICardModal";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");

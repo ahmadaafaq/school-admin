@@ -1,33 +1,38 @@
+/**
+ * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
+ *
+ * This software is the confidential information of School CRM Inc., and is licensed as
+ * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restrictions set forth in your license agreement with School CRM.
+ */
+
 import * as React from 'react';
-import { Dialog, Box} from '@mui/material';
+import { Dialog, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import dayjs from "dayjs";
-
 import API from '../../apis';
 import { Utility } from "../utility";
-import ViewDetail from "../common/ViewDetail"
+import ViewDetail from "./ViewDetail"
 
 
 export default function BasicModal({ open, setOpen }) {
   // const [open, setOpen] = React.useState(false);
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
   const [detail, setDetail] = useState(null);
   const [countryData, setCountryData] = useState([]);
   const [stateData, setStateData] = useState([]);
   const [cityData, setCityData] = useState([]);
-
-  const { toastAndNavigate, findMultipleById } = Utility();
-  const dispatch = useDispatch();
-  const { state } = useLocation();
-
   const subjectsInRedux = useSelector(state => state.allSubjects);
 
+  const dispatch = useDispatch();
+  const { state } = useLocation();
+  const { toastAndNavigate, findMultipleById } = Utility();
   let id = state?.id;
+
+  const handleClose = () => {
+    setOpen(false)
+  };
 
   const populateData = (id) => {
     console.log('id=', id);
@@ -104,7 +109,7 @@ export default function BasicModal({ open, setOpen }) {
         maxWidth='md'
       >
         <Box>
-          <ViewDetail detail={detail} countryData={countryData} stateData={stateData} cityData={cityData} />
+          <ViewDetail detail={detail} countryData={countryData} stateData={stateData} cityData={cityData} onClose={handleClose} />
         </Box>
       </Dialog>
     </React.Fragment>

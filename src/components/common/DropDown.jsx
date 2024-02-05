@@ -19,7 +19,7 @@ import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 //change name of dropdown to classsecdropdown
-function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSection }) {
+function DropDown({ marksheetClass = null, marksheetSection = null }) {
     const formClassesInRedux = useSelector(state => state.allFormClasses);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
 
@@ -27,20 +27,22 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
     const { getStudents } = useCommon();
-    const { customSort, createUniqueDataArray, findById } = Utility();
+    const { customSort, createUniqueDataArray, findById, setLocalStorage } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedClass = findById(event.target.value, formClassesInRedux?.listData);
-        onSelectClass(selectedClass.class_id);
-        dispatch(setMarksheetClass(selectedClass));
+        let localStorageValue = findById(event.target.value, formClassesInRedux?.listData);
+        setLocalStorage("dropdown class", localStorageValue);
+        console.log(localStorageValue, 'localclass');
+        dispatch(setMarksheetClass(findById(event.target.value, formClassesInRedux?.listData)));
     };
 
     const handleSectionChange = (event) => {
-        const selectedSection = findById(event.target.value, formSectionsInRedux?.listData);
-        onSelectSection(selectedSection.id);
-        dispatch(setMarksheetSection(selectedSection));
+        let localStorageValue = findById(event.target.value, formSectionsInRedux?.listData);
+        setLocalStorage("dropdown section", localStorageValue);
+        console.log(localStorageValue, 'localsection');
+        dispatch(setMarksheetSection(findById(event.target.value, formSectionsInRedux?.listData)));
     };
-    
+
     useEffect(() => {
         if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
             API.SchoolAPI.getSchoolClasses(5)
@@ -62,10 +64,11 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
     }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     useEffect(() => {
-        if (selectedClass && selectedSection) {
-            getStudents(selectedClass, selectedSection, setStudents, API);
+        if (marksheetClass?.class_id && marksheetSection?.id) {
+            getStudents(marksheetClass.class_id, marksheetSection.id, setStudents, API);
         }
-    }, [selectedClass, selectedSection]);
+    }, [marksheetClass?.class_id, marksheetSection?.id]);
+
     return (
         <Box sx={{ display: "flex", marginRight: "10px", marginLeft: "10px" }}>
             <FormControl variant="filled" sx={{
@@ -74,25 +77,27 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
                     height: "44px",
                 },
             }}>
-                <InputLabel id="classfield">Class</InputLabel>
-                <Select
-                    variant="filled"
-                    labelId="classfield"
-                    label="class"
-                    name="class_id"
-                    autoComplete="new-class_id"
-                    onChange={handleClassChange}
-                    value={selectedClass || ''}
-                    sx={{
-                        height: "12vh",
-                        backgroundColor: colors.blueAccent[800]
-                    }}>
-                    {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
-                        <MenuItem value={cls.class_id} key={cls.class_name}>
-                            {cls.class_name}
-                        </MenuItem>
-                    ))}
-                </Select>
+                {marksheetClass?.class_id &&
+                    <>
+                        <InputLabel id="classfield">Class</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="classfield"
+                            name="class_id"
+                            onChange={handleClassChange}
+                            value={marksheetClass?.class_id || ''}
+                            sx={{
+                                height: "12vh",
+                                backgroundColor: colors.blueAccent[800]
+                            }}>
+                            {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
+                                <MenuItem value={cls.class_id} key={cls.class_name}>
+                                    {cls.class_name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </>
+                }
             </FormControl>
             <FormControl variant="filled" sx={{
                 minWidth: 120, "& .MuiInputBase-root": {
@@ -101,25 +106,29 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
             }}
             // error={!!school_id && !!errors.school_id}
             >
-                <InputLabel id="sectionfield">Section</InputLabel>
-                <Select
-                    variant="filled"
-                    labelId="sectionfield"
-                    label="section"
-                    name="section_id"
-                    autoComplete="new-section_id"
-                    onChange={handleSectionChange}
-                    value={selectedSection || ''}
-                    sx={{
-                        backgroundColor: colors.greenAccent[600]
-                    }}
-                >
-                    {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
-                        <MenuItem value={section.id} key={section.name}>
-                            {section.name}
-                        </MenuItem>
-                    ))}
-                </Select>
+                {marksheetSection?.id &&
+                    <>
+                        <InputLabel id="sectionfield">Section</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="sectionfield"
+                            label="section"
+                            name="section_id"
+                            autoComplete="new-section_id"
+                            onChange={handleSectionChange}
+                            value={marksheetSection?.id || ''}
+                            sx={{
+                                backgroundColor: colors.greenAccent[600]
+                            }}
+                        >
+                            {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
+                                <MenuItem value={section.id} key={section.name}>
+                                    {section.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </>
+                }
             </FormControl>
         </Box>
     )
