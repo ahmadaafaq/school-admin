@@ -48,7 +48,7 @@ const ListingComponent = () => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage,findById } = Utility();
+    const { getLocalStorage, findById } = Utility();
 
     const selectedClass = getLocalStorage("dropdown class");
     const selectedSection = getLocalStorage("dropdown section");
@@ -63,7 +63,7 @@ const ListingComponent = () => {
     } : null;
 
     useEffect(() => {
-        console.log({classConditionObj});
+        console.log({ classConditionObj });
         if (classConditionObj?.classId && classConditionObj?.sectionId) {
             getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
             setConditionObj(classConditionObj);
@@ -95,7 +95,13 @@ const ListingComponent = () => {
     };
     console.log('selec=>', listData)
     return (
-        <Box m="8px" position="relative">
+        <Box m="8px" position="relative"
+            sx={{
+                borderRadius: "20px",
+                border: "0.5px solid black",
+                overflow: "hidden",
+                boxShadow: "1px 1px 10px black"
+            }}>
             <Box
                 height={isMobile ? "19vh" : isTab ? "8vh" : "11vh"}
                 borderRadius="4px"
@@ -127,8 +133,8 @@ const ListingComponent = () => {
                         setSearchFlag={setSearchFlag}
                     />
                     <DropDown
-                      marksheetClass={marksheetClass}
-                      marksheetSection={marksheetSection}
+                        marksheetClass={marksheetClass}
+                        marksheetSection={marksheetSection}
                     />
                     <Button
                         type="submit"

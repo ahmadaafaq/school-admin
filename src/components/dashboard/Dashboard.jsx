@@ -18,6 +18,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
 import DropDown from "../common/DropDown";
+import "../common/index.css"
 import StatBox from "../common/StatBox";
 import { tokens, themeSettings } from "../../theme";
 import { studentData, lineData } from "../common/CustomCharts";
@@ -185,10 +186,10 @@ const Dashboard = () => {
         >
           Dashboard
         </Typography>
-        <DropDown
+        {/* <DropDown
           onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
           onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
-        />
+        /> */}
       </Box>
       {/* GRID & CHARTS */}
       <Box
@@ -209,13 +210,14 @@ const Dashboard = () => {
           padding={isMobile ? "8px" : "15px"}
           borderRadius="6px"
           gridArea="box1"
+          boxShadow="1px 1px 5px black"
 
         >
           <StatBox
             title={studentDataa}
             subtitle="Students"
-            progress={`${(studentDataa/5000)}`}
-            increase={`${(studentDataa/5000)*100}%`}
+            progress={`${(studentDataa / 5000)}`}
+            increase={`${(studentDataa / 5000) * 100}%`}
             yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
@@ -232,12 +234,13 @@ const Dashboard = () => {
           borderRadius="6px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box2"
+          boxShadow="1px 1px 5px black"
         >
           <StatBox
             title={schoolData}
             subtitle="Schools"
-            progress={`${(schoolData/500)}`}
-            increase={`${(schoolData/500)*100}%`}
+            progress={`${(schoolData / 500)}`}
+            increase={`${(schoolData / 500) * 100}%`}
             yellowColor={colors.greenAccent[700]}
             icon={
               <ApartmentIcon
@@ -254,12 +257,13 @@ const Dashboard = () => {
           borderRadius="6px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box3"
+          boxShadow="1px 1px 5px black"
         >
           <StatBox
             title={teacherData}
             subtitle="Teachers"
-            progress={`${(teacherData/500)}`}
-            increase={`${(teacherData/500)*100}%`}
+            progress={`${(teacherData / 500)}`}
+            increase={`${(teacherData / 500) * 100}%`}
             yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
@@ -276,13 +280,14 @@ const Dashboard = () => {
           borderRadius="6px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box4"
+          boxShadow="1px 1px 5px black"
         >
           <StatBox
 
             title={employeeData}
             subtitle="employees"
-            progress={`${(employeeData/500)}`}
-            increase={`${(employeeData/500)*100}%`}
+            progress={`${(employeeData / 500)}`}
+            increase={`${(employeeData / 500) * 100}%`}
             yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon
@@ -292,10 +297,10 @@ const Dashboard = () => {
           />
         </Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "1px 1px 5px black", borderRadius: "10px" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "1px 1px 5px black", borderRadius: "10px" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>

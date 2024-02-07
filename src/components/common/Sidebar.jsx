@@ -134,23 +134,62 @@ const Sidebar = ({ rolePriority }) => {
     <Box
       sx={{
         "& .pro-sidebar-inner": {
-          background: theme.palette.mode === 'light' ? '#ffffff' : `${colors.primary[400]} !important`,
+          background: theme.palette.mode === 'light' ? `#6ac6ff !important` : '#141b2d',
+          boxShadow: "inset -5px 0 10px rgba(0, 0, 0, 0.3)",
           overflow: isMobile ? "hidden" : ""
         },
         "& .pro-icon-wrapper": {
           backgroundColor: `transparent !important`
         },
         "& .pro-inner-item": {
+          color: theme.palette.mode === 'light' ? `darkblue !important` : '',
           padding: `4px 35px 4px 15px !important`
         },
-        "& .pro-inner-item:hover": {
-          color: `#868dfb !important`
+        "& .pro-sidebar .pro-menu-item.active a::before": {
+          content: `''`,
+          position: "absolute",
+          top: "-50px",
+          right: "0px",
+          bottom: "100px",
+          left: "195px",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow: "35px 35px 0 10px white"
+        },
+        " .pro-sidebar .pro-menu-item.active a::after": {
+          content: `''`,
+          position: "absolute",
+          bottom: "-50px",
+          right: "0px",
+          top: "43px",
+          left: "195px",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow: "35px -35px 0 10px white"
         },
         "& .pro-menu-item.active": {
-          color: `#6870fa !important`
+          color: `#868dfb !important`,
+          backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#ffffff',
+          borderRadius: " 20px 0 0px 20px;",
+          boxShadow: "1px 1px 7px black",
+        },
+        "& .pro-menu-item:hover": {
+          color: `#868dfb !important`,
+          backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#ffffff',
+          borderRadius: " 20px 0 0px 20px;",
+          boxShadow: "1px 1px 7px black",
+        },
+        "& .pro-menu-item a.active": {
+          color: theme.palette.mode === 'light' ? `darkblue !important` : '',
         },
         "& .pro-arrow-wrapper": {
-          marginRight: "50px"
+          marginRight: "50px",
         },
         "& .pro-menu-item.pro-sub-menu": {
           color: `${colors.primary[100]}`
@@ -158,6 +197,7 @@ const Sidebar = ({ rolePriority }) => {
         "& .pro-inner-list-item": {
           height: `${isSubMenuOpen ? "115px" : "0"}` + " !important",
           overflowY: isSubMenuOpen ? "scroll" : "hidden",
+          overflowX: "hidden",
           transition: 'height 0.3s ease-in-out !important'
         }
       }}

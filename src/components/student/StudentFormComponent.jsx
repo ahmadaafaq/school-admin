@@ -146,7 +146,6 @@ const UserFormComponent = ({
         });
     }, [formik.values]);
 
-
     const getSubjectsByClass = (classId) => {
         API.SubjectAPI.getSubjectsByClass(classId)
             .then(subjects => {

@@ -49,7 +49,15 @@ const Topbar = ({ roleName }) => {
   return (
     <>
       {/* ICONS */}
-      <Box display="flex" textAlign="center" justifyContent="flex-end" p={2}>
+      <Box display="flex"
+        textAlign="center"
+        justifyContent="flex-end" p={2}
+        backgroundColor={ theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+        boxShadow="1px 1px 10px black"
+        position="sticky"
+        top="0px"
+        zIndex="1000"
+      >
         {/* <h1>delhi public</h1> */}
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (

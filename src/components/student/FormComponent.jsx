@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
 import ImagePicker from "../image/ImagePicker";
+import ICardModal from "../models/ICardModal";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
@@ -25,7 +26,8 @@ import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
-import ICardModal from "../models/ICardModal";
+
+import formBg from "../assets/formBg.png";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
@@ -215,7 +217,15 @@ const FormComponent = () => {
     };
 
     return (
-        <Box m="10px">
+        <Box ml="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize:"cover", 
+                backgroundAttachment:"fixed"
+            }}>
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -309,7 +319,7 @@ const FormComponent = () => {
                 />
             </Box>
             {loading === true ? <Loader /> : null}
-        </Box>
+        </Box >
     );
 };
 
