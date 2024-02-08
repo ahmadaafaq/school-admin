@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { Card, CardContent, CardMedia, Typography, Divider, CardHeader, Avatar, Box,IconButton } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Divider, CardHeader, Avatar, Box, IconButton, useTheme } from '@mui/material';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 
 import { Utility } from '../utility';
@@ -14,8 +14,10 @@ import { useSelector } from "react-redux";
 
 import './styles.css';
 
+import listBg from "../assets/listBG.jpg"
+
 const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose = null }) => {
-    console.log('detail=>', detail);
+    const theme = useTheme();
     const formSectionsInRedux = useSelector(state => state.allFormSections);
     const formClassesInRedux = useSelector(state => state.allFormClasses);
 
@@ -30,7 +32,16 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
     console.log("first", detail?.studentData?.session);
 
     return (
-        <Card>
+        <Card
+            sx={{
+                backgroundImage: theme.palette.mode === "light"
+                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover"
+            }}
+        >
             <CardHeader
                 avatar={
                     <Avatar sx={{ background: "darkcyan" }} aria-label="recipe">
@@ -38,12 +49,12 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                     </Avatar>
                 }
                 action={
-                    <IconButton aria-label="settings" onClick={onClose} sx={{padding:"13px"}}>
-                      <CloseOutlinedIcon />
+                    <IconButton aria-label="settings" onClick={onClose} sx={{ padding: "13px" }}>
+                        <CloseOutlinedIcon />
                     </IconButton>
-                  }
+                }
                 title={<Typography variant="h3" component="h2" sx={{ fontWeight: 'bold' }}>Student Details</Typography>}
-                sx={{ backgroundColor: "lightblue", margin: "5px", borderRadius: "5px" }}
+                sx={{ backgroundColor: "cyan", margin: "5px", borderRadius: "5px" }}
 
             />
             {/* <CardMedia

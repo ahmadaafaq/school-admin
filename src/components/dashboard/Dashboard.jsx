@@ -24,6 +24,8 @@ import { tokens, themeSettings } from "../../theme";
 import { studentData, lineData } from "../common/CustomCharts";
 import API from "../../apis";
 
+import dashBg from "../assets/formBg.png"
+
 const Dashboard = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('');
@@ -174,15 +176,29 @@ const Dashboard = () => {
   console.log('School>>>>=', schoolData);
 
   return (
-    <Box m="10px"  >
+    <Box ml="10px"
+      sx={{
+        backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), url(${dashBg})`
+          : `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${dashBg})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "start",
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
+        height: "100vh"
+      }}
+    >
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography
           fontFamily={typography.fontFamily}
           fontSize={isMobile ? typography.h4.fontSize : typography.h2.fontSize}
           color={colors.grey[100]}
-          fontWeight="bold"
+          fontWeight="600"
           display="inline-block"
+          textShadow="1px 1px 10px white"
+          backgroundColor={theme.palette.mode==='light' ? "white" : "transparent"}
+          lineHeight="0.8"
+          pt="15px"
         >
           Dashboard
         </Typography>
@@ -208,9 +224,9 @@ const Dashboard = () => {
           alignItems="center"
           justifyContent="center"
           padding={isMobile ? "8px" : "15px"}
-          borderRadius="6px"
+          borderRadius="20px"
           gridArea="box1"
-          boxShadow="1px 1px 5px black"
+          boxShadow=" rgb(38, 57, 77) 0px 20px 30px -10px;"
 
         >
           <StatBox
@@ -231,10 +247,11 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          borderRadius="6px"
+          // "borderRadius="20% 80% 16% 84% / 80% 19% 81% 20%  "
+          borderRadius="20px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box2"
-          boxShadow="1px 1px 5px black"
+          boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
             title={schoolData}
@@ -254,10 +271,11 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          borderRadius="6px"
+          // borderRadius="20% 80% 16% 84% / 80% 19% 81% 20% "
+          borderRadius="20px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box3"
-          boxShadow="1px 1px 5px black"
+          boxShadow=" rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
             title={teacherData}
@@ -277,10 +295,11 @@ const Dashboard = () => {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          borderRadius="6px"
+          // borderRadius="20% 80% 16% 84% / 80% 19% 81% 20% "
+          borderRadius="20px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box4"
-          boxShadow="1px 1px 5px black"
+          boxShadow=" rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
 
@@ -297,10 +316,10 @@ const Dashboard = () => {
           />
         </Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "1px 1px 5px black", borderRadius: "10px" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "10px" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "1px 1px 5px black", borderRadius: "10px" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "10px" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>

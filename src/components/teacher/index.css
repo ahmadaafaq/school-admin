@@ -1,4 +1,4 @@
-.box-shadower:before {
+.box-shadow:before {
     content: "";
     position: absolute;
     inset: -10px;

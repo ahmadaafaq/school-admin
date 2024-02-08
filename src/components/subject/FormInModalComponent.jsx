@@ -24,6 +24,8 @@ import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 import subjectValidation from "./Validation";
 
+import formBg from "../assets/formBg.png";
+
 const initialValues = {
     name: "",
     status: "inactive"
@@ -143,7 +145,15 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 aria-labelledby="responsive-dialog-title"
                 sx={{
                     top: isMobile ? "33%" : isTab ? "25%" : "20%", height: isMobile ? "49%" : isTab ? "39%" : "60%",
-                    "& .MuiPaper-root": { width: "100%" }
+                    "& .MuiPaper-root":
+                    {
+                        width: "100%",
+                        backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                            : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                        backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
+                        backgroundSize: "cover"
+                    }
                 }}
             >
                 <Typography

@@ -22,6 +22,8 @@ import { setClasses } from "../../redux/actions/ClassAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";// ... (imports)
 
+import formBg from "../assets/formBg.png";
+
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
@@ -172,7 +174,16 @@ const FormComponent = () => {
     console.log('updatedValues', updatedValues)
 
     return (
-        <Box m="10px" >
+        <Box ml="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed"
+            }}
+        >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}

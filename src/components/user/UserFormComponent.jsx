@@ -185,7 +185,7 @@ const UserFormComponent = ({
                         value={formik.values.username}
                         error={!!formik.touched.username && !!formik.errors.username}
                         helperText={formik.touched.username && formik.errors.username}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px", boxShadow:"1px 1px 10px black", borderRadius:"10px"}}
+                        sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
                         fullWidth
