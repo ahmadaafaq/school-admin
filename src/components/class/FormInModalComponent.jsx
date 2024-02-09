@@ -238,7 +238,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                     </Select>
                                 </FormControl>
 
-                                <Autocomplete
+                                {/* <Autocomplete
                                     multiple
                                     options={formSubjectsInRedux?.listData?.rows || []}
                                     getOptionLabel={option => option.name}
@@ -257,7 +257,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                             helperText={touched.subjects && errors.subjects}
                                         />
                                     )}
-                                />
+                                /> */}
                             </Box>
                             <Divider />
                             <Box display="flex" justifyContent="end" p="20px">

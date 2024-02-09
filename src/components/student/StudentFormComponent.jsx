@@ -117,7 +117,7 @@ const UserFormComponent = ({
 
     useEffect(() => {
         if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses(5)
+            API.SchoolAPI.getSchoolClasses()
                 .then(classData => {
                     if (classData.status === 'Success') {
                         classData.data.sort(customSort);
@@ -125,7 +125,7 @@ const UserFormComponent = ({
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
                         dispatch(setFormClasses(uniqueClassDataArray));
 
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
                         dispatch(setFormSections(uniqueSectionDataArray));
                     } else {
                         console.log("Error Fetching ClassData, Please Try Again");
@@ -295,7 +295,7 @@ const UserFormComponent = ({
                             }}
                         >
                             {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
-                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
                                     {cls.class_name}
                                 </MenuItem>
                             ))}
@@ -314,8 +314,8 @@ const UserFormComponent = ({
                             onChange={event => formik.setFieldValue("section", event.target.value)}
                         >
                             {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
-                                <MenuItem value={section.id} name={section.name} key={section.name}>
-                                    {section.name}
+                                <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
+                                    {section.section_name}
                                 </MenuItem>
                             ))}
                         </Select>

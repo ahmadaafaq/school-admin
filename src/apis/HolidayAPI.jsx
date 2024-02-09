@@ -55,8 +55,8 @@ export const HolidayAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateHoliday.name].handleRequestCancellation().signal : undefined,
     });
-  },
+  }
+};
 
-}
 // defining the cancel API object for HolidayAPI
 const cancelApiObject = defineCancelApiObject(HolidayAPI);

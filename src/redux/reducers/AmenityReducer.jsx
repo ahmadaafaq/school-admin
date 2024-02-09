@@ -28,7 +28,7 @@ export const setAmenitiesReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };
 
 export const setFormAmenitiesReducer = (state = initialFormState, action) => {
@@ -41,5 +41,5 @@ export const setFormAmenitiesReducer = (state = initialFormState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

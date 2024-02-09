@@ -76,7 +76,7 @@ export const UserRoleAPI = {
             return { status: false };
         }
     }
-}
+};
 
 // defining the cancel API object for UserRoleAPI
 const cancelApiObject = defineCancelApiObject(UserRoleAPI);

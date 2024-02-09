@@ -25,5 +25,5 @@ export const displayToastReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

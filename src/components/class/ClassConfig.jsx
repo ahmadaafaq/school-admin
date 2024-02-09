@@ -13,30 +13,18 @@ import { useSelector } from "react-redux";
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-import API from "../../apis";
-import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { tokens } from "../../theme";
-import { useCommon } from "../hooks/common";
-import { Utility } from "../utility";
 
 export const datagridColumns = (handleDialogOpen) => {
     const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { getPaginatedData } = useCommon();
-    const { findMultipleById } = Utility();
 
     const handleActionEdit = (id) => {
         handleDialogOpen();
         navigateTo("#", { state: { id: id } });
     };
-
-    useEffect(() => {
-        if (!formSubjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
-        }
-    }, [formSubjectsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -46,30 +34,6 @@ export const datagridColumns = (handleDialogOpen) => {
             align: "center",
             flex: 1,
             minWidth: 120
-        },
-        {
-            field: "subjects",
-            headerName: "SUBJECTS",
-            headerAlign: "center",
-            align: "center",
-            flex: 2,
-            minWidth: 120,
-            renderCell: (params) => {
-                const subjectIds = params?.row.subjects;
-                const subjectNames = findMultipleById(subjectIds, formSubjectsInRedux?.listData?.rows);
-                console.log(subjectIds, subjectNames, 'class')
-                return (
-                    <div style={{ width: '100%', height: "40px" }}>
-                        {subjectNames.map((subject, index) => (
-                            <React.Fragment key={index}>
-                                {index > 0 && ','}
-                                {subject.name}
-                                {index > 0 && index % 4 === 0 && <br />}
-                            </React.Fragment>
-                        ))}
-                    </div>
-                );
-            },
         },
         {
             field: "status",
@@ -100,17 +64,17 @@ export const datagridColumns = (handleDialogOpen) => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        // {
-        //     field: "updated_at",
-        //     headerName: "UPDATED AT",
-        //     headerAlign: "center",
-        //     align: "center",
-        //     flex: 1,
-        //     minWidth: 100,
-        //     valueFormatter: params => params?.value.substring(0, 10)
-        // },
+        {
+            field: "updated_at",
+            headerName: "UPDATED AT",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100,
+            valueFormatter: params => params?.value.substring(0, 10)
+        },
         {
             field: "action",
             headerName: "ACTION",
@@ -133,7 +97,7 @@ export const datagridColumns = (handleDialogOpen) => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

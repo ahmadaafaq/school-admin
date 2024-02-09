@@ -44,7 +44,7 @@ export const datagridColumns = (rolePriority = null) => {
 
     useEffect(() => {
         if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses(5)
+            API.SchoolAPI.getSchoolClasses()
                 .then(classData => {
                     if (classData.status === 'Success') {
                         classData.data.sort(customSort);
@@ -52,7 +52,7 @@ export const datagridColumns = (rolePriority = null) => {
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
                         dispatch(setFormClasses(uniqueClassDataArray));
 
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
                         dispatch(setFormSections(uniqueSectionDataArray));
                     }
                 })
@@ -82,7 +82,7 @@ export const datagridColumns = (rolePriority = null) => {
             minWidth: 100,
             renderCell: (params) => {
                 let className = findById(params?.row?.class, formClassesInRedux?.listData)?.class_name;
-                let sectionName = findById(params?.row?.section, formSectionsInRedux?.listData)?.name;
+                let sectionName = findById(params?.row?.section, formSectionsInRedux?.listData)?.section_name;
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}

@@ -40,26 +40,27 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
         onSelectSection(selectedSection.id);
         dispatch(setMarksheetSection(selectedSection));
     };
-    
-    useEffect(() => {
-        if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses(5)
-                .then(classData => {
-                    if (classData.status === 'Success') {
-                        classData.data.sort(customSort);
 
-                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name', 'class_subjects');
-                        dispatch(setFormClasses(uniqueClassDataArray));
+    //to be dicsussed
+    // useEffect(() => {
+    //     if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+    //         API.SchoolAPI.getSchoolClasses()
+    //             .then(classData => {
+    //                 if (classData.status === 'Success') {
+    //                     classData.data.sort(customSort);
 
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
-                        dispatch(setFormSections(uniqueSectionDataArray));
-                    }
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
-        }
-    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+    //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+    //                     dispatch(setFormClasses(uniqueClassDataArray));
+
+    //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
+    //                     dispatch(setFormSections(uniqueSectionDataArray));
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 console.log("Error Fetching ClassData:", err);
+    //             });
+    //     }
+    // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     useEffect(() => {
         if (selectedClass && selectedSection) {
@@ -71,58 +72,47 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
             <FormControl variant="filled" sx={{
                 minWidth: 120, marginRight: "10px",
                 "& .MuiInputBase-root": {
-                    height: "44px",
-                },
+                    height: "44px"
+                }
             }}>
                 <InputLabel id="classfield">Class</InputLabel>
                 <Select
                     variant="filled"
                     labelId="classfield"
-                    label="class"
                     name="class_id"
-                    autoComplete="new-class_id"
-                    onChange={handleClassChange}
                     value={selectedClass || ''}
-                    sx={{
-                        height: "12vh",
-                        backgroundColor: colors.blueAccent[800]
-                    }}>
+                    onChange={handleClassChange}
+                    sx={{ backgroundColor: colors.blueAccent[800] }}>
                     {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
-                        <MenuItem value={cls.class_id} key={cls.class_name}>
+                        <MenuItem value={cls.class_id} key={cls.class_id}>
                             {cls.class_name}
                         </MenuItem>
                     ))}
                 </Select>
             </FormControl>
             <FormControl variant="filled" sx={{
-                minWidth: 120, "& .MuiInputBase-root": {
+                minWidth: 120,
+                "& .MuiInputBase-root": {
                     height: "44px"
-                },
-            }}
-            // error={!!school_id && !!errors.school_id}
-            >
+                }
+            }}>
                 <InputLabel id="sectionfield">Section</InputLabel>
                 <Select
                     variant="filled"
                     labelId="sectionfield"
-                    label="section"
                     name="section_id"
-                    autoComplete="new-section_id"
-                    onChange={handleSectionChange}
                     value={selectedSection || ''}
-                    sx={{
-                        backgroundColor: colors.greenAccent[600]
-                    }}
-                >
+                    onChange={handleSectionChange}
+                    sx={{ backgroundColor: colors.greenAccent[600] }}>
                     {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
-                        <MenuItem value={section.id} key={section.name}>
-                            {section.name}
+                        <MenuItem value={section.section_id} key={section.section_id}>
+                            {section.section_name}
                         </MenuItem>
                     ))}
                 </Select>
             </FormControl>
         </Box>
     )
-}
+};
 
 export default DropDown;

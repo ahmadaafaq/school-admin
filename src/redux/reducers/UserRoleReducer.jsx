@@ -23,5 +23,5 @@ export const setUserRolesReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

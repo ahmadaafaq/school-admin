@@ -13,9 +13,8 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData }) => {
     const countryName = findById(detail?.addressData?.country, countryData)?.name;
     const stateName = findById(detail?.addressData?.state, stateData)?.name;
     const cityName = findById(detail?.addressData?.city, cityData)?.name;
-    const sectionName = findById(detail?.studentData?.section, formSectionsInRedux?.listData)?.name;
     const className = findById(detail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
-    console.log('detail=>', detail);
+    const sectionName = findById(detail?.studentData?.section, formSectionsInRedux?.listData)?.section_name;
 
     return (
         <Card>

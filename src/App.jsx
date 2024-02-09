@@ -85,7 +85,8 @@ function App() {
           });
         }
       });
-  }, [getLocalStorage("auth")?.role])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getLocalStorage("auth")?.role]);
 
   useEffect(() => {
     verifyToken()
@@ -94,7 +95,8 @@ function App() {
           localStorage.clear();
           navigateTo('/login', { replace: true });
         }
-      })
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -188,6 +190,6 @@ function App() {
       </ThemeProvider>
     </ColorModeContext.Provider>
   );
-};
+}
 
 export default App;

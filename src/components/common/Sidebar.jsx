@@ -70,7 +70,7 @@ const Sidebar = ({ rolePriority }) => {
 
   useEffect(() => {
     if (!formClassesInRedux?.listData?.length) {
-      API.SchoolAPI.getSchoolClasses(5)
+      API.SchoolAPI.getSchoolClasses(16)
         .then(classData => {
           if (classData.status === 'Success') {
             classData.data.sort(customSort);

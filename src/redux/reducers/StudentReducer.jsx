@@ -23,5 +23,5 @@ export const setStudentsReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };
