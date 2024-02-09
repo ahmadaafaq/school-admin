@@ -41,5 +41,5 @@ export const setMarksheetsReducer = (state = initialState, action) => {
         //     };
         default:
             return state;
-    };
+    }
 };

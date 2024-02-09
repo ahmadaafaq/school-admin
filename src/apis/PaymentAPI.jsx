@@ -55,8 +55,8 @@ export const PaymentAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updatePayment.name].handleRequestCancellation().signal : undefined,
     });
-  },
+  }
+};
 
-}
 // defining the cancel API object for PaymentAPI
 const cancelApiObject = defineCancelApiObject(PaymentAPI);

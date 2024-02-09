@@ -23,5 +23,5 @@ export const setHolidaysReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

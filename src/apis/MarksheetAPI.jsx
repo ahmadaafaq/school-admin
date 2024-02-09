@@ -62,7 +62,7 @@ export const MarksheetAPI = {
             signal: cancel ? cancelApiObject[this.updateMarksheet.name].handleRequestCancellation().signal : undefined,
         });
     }
-}
+};
 
 // defining the cancel API object for marksheetAPI
 const cancelApiObject = defineCancelApiObject(MarksheetAPI);

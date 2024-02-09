@@ -9,7 +9,7 @@
 import * as yup from "yup";
 
 const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-const emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+const emailRegExp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
 const checkoutSchema = yup.object().shape({
     name: yup.string()
@@ -20,6 +20,12 @@ const checkoutSchema = yup.object().shape({
         .matches(emailRegExp, "Email Address is Not Valid"),
     contact_no_1: yup.string()
         .matches(phoneRegExp, "Phone Number Is Not Valid")
+        .required("This Field is Required"),
+    director: yup.string()
+        .required("This Field is Required"),
+    principal: yup.string()
+        .required("This Field is Required"),
+    board: yup.string()
         .required("This Field is Required"),
     status: yup.string()
 });

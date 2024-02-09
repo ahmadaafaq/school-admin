@@ -27,7 +27,7 @@ export const setClassesReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };
 
 export const setFormClassesReducer = (state = initialFormState, action) => {
@@ -39,5 +39,5 @@ export const setFormClassesReducer = (state = initialFormState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

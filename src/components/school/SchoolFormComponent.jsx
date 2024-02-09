@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,12 +8,14 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
-import { Box, Checkbox, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
-import { Autocomplete, Divider, Select, TextField, useMediaQuery } from "@mui/material";
+import { Autocomplete, Box, Checkbox, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
+import { Divider, InputLabel, MenuItem, Select, TextField, useMediaQuery } from "@mui/material";
 import { useFormik } from "formik";
 
 import schoolValidation from "./Validation";
+import { Utility } from "../utility";
 
 const initialValues = {
     name: "",
@@ -28,6 +31,7 @@ const initialValues = {
     amenities: [],
     classes: [],
     sections: [],
+    subjects: [[]],
     is_boarding: false,
     boarding_capacity: 0,
     capacity: 0,
@@ -44,18 +48,18 @@ const SchoolFormComponent = ({
     setDirty,
     reset,
     setReset,
-    schoolId,
+    allClasses,
+    allSections,
     amenities,
-    classesInRedux,
-    sectionsInRedux,
+    subjectsInRedux,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
+    const { getValuesFromArray } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -78,7 +82,7 @@ const SchoolFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -107,16 +111,16 @@ const SchoolFormComponent = ({
 
             // Check if splittedArray is not empty and has keys
             const hasData = splittedArray && Object.keys(splittedArray).length > 0;
+            console.log(splittedArray, 'splittedarray');
 
             const assignUpdatedSections = (sectionData) => {
-                let filteredSection;
                 let filteredSectionArray = [];
-                sectionData.map(section => {
-                    console.log(section, 'section');
+                sectionData.map(sections => {
+                    console.log(sections, 'section');
 
-                    // Filter out elements from sectionsInRedux that have matching ids in the current section
-                    filteredSection = sectionsInRedux?.filter(sectionItem =>
-                        section.some(sect => sect.id === sectionItem.id)
+                    // Filter out sections from allSections that have matching ids in the current section
+                    let filteredSection = allSections?.filter(obj =>
+                        sections.some(sect => sect.section_id === obj.id)
                     );
                     console.log(filteredSection, 'filteredSection');
                     filteredSectionArray.push(filteredSection);
@@ -126,11 +130,48 @@ const SchoolFormComponent = ({
                 return filteredSectionArray;
             };
 
+            // [
+            //     class 0: [
+            //          section 0: [
+            //              {sub_id, sub_name},
+            //          ],
+            //          1: [
+            //              {}
+            //          ],
+            //          2: [
+            //              {}, {}
+            //          ]
+            //      ],
+            //      1 : [
+            //          0 : [
+            //              {}
+            //          ],
+            //          1: [
+            //              {}, {}
+            //          ]
+            //      ]
+            //  ]
+
+            const assignUpdatedSubjects = (splittedArray) => {
+                const subArr = [[]];
+                Object.keys(splittedArray).map((field, index) => {
+                    Object.values(splittedArray)[index].map((section, sectionIndex) => {
+                        const value = getValuesFromArray(section.subject_ids, subjectsInRedux);
+                        if (index > 0 && sectionIndex === 0) {
+                            subArr[index] = [];
+                        }
+                        subArr[index][sectionIndex] = value;
+                    })
+                });
+                return subArr;
+            }
+
             setInitialState({
                 ...initialState,
                 ...updatedValues.schoolData,
                 classes: hasData ? Object.keys(splittedArray) : [],
-                sections: hasData ? assignUpdatedSections(Object.values(splittedArray)) : []
+                sections: hasData ? assignUpdatedSections(Object.values(splittedArray)) : [],
+                subjects: hasData ? assignUpdatedSubjects(splittedArray) : [[]]
             });
         }
     }, [updatedValues]);
@@ -406,7 +447,7 @@ const SchoolFormComponent = ({
                     borderRadius='12px'
                     display='grid'
                     gap="30px"
-                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     padding='10px'
                     marginBottom='40px'
                 >
@@ -421,8 +462,7 @@ const SchoolFormComponent = ({
                                     <Select
                                         variant="filled"
                                         labelId={`classesField_${key}`}
-                                        name={`classes${key}`}
-                                        autoComplete="new-classes"
+                                        name={`classes.${key}`}
                                         value={formik.values.classes[index]}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.classes];
@@ -430,25 +470,26 @@ const SchoolFormComponent = ({
                                             formik.setFieldValue("classes", subArr);
                                         }}
                                     >
-                                        {classesInRedux?.length && classesInRedux.map(cls => (
-                                            <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
-                                                {cls.class_name}
-                                            </MenuItem>
-                                        ))}
+                                        {!allClasses?.length ? null :
+                                            allClasses.map(cls => (
+                                                <MenuItem value={cls.id} name={cls.name} key={cls.name}>
+                                                    {cls.name}
+                                                </MenuItem>
+                                            ))}
                                     </Select>
                                     <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
                                 </FormControl>
 
                                 <Autocomplete
                                     multiple
-                                    options={sectionsInRedux || []}
+                                    options={allSections || []}
                                     getOptionLabel={option => option.name}
                                     disableCloseOnSelect
                                     value={formik.values.sections[index]}
                                     onChange={(event, value) => {
-                                        const clsArr = [...formik.values.sections];
-                                        clsArr[index] = value;
-                                        formik.setFieldValue("sections", clsArr)
+                                        const sectArr = [...formik.values.sections];
+                                        sectArr[index] = value;
+                                        formik.setFieldValue("sections", sectArr);
                                     }}
                                     sx={{ gridColumn: "span 2" }}
                                     renderInput={params => (
@@ -456,16 +497,48 @@ const SchoolFormComponent = ({
                                             {...params}
                                             variant="filled"
                                             type="text"
-                                            name={`sections${key}`}
+                                            name={`sections.${key}`}
                                             label="Section"
-                                        // error={`${!!formik.touched}.combinedClsSect_${field.id}` && !!formik.errors.{`combinedClsSect_${field.id}`}}
-                                        // helperText={formik.touched.{`combinedClsSect_${field.id}`} && formik.errors.{`combinedClsSect_${field.id}`}}
+                                            error={!!formik.touched.sections && !!formik.errors.sections}
+                                            helperText={formik.touched.sections && formik.errors.sections}
                                         />
                                     )}
                                 />
-                                {/* <Divider sx={{ borderBottomWidth: '0px' }} /> */}
+                                {formik?.values?.sections[index]?.map((section, sectionIndex) => (
+                                    <Autocomplete
+                                        multiple
+                                        key={key + sectionIndex}
+                                        options={subjectsInRedux || []}
+                                        getOptionLabel={option => option.name}
+                                        disableCloseOnSelect
+                                        value={formik.values.subjects[index] ?
+                                            formik.values.subjects[index][sectionIndex] || [] : []}
+                                        onChange={(event, value) => {
+                                            const subArr = [...formik.values.subjects];
+                                            if (index > 0 && sectionIndex === 0) {
+                                                subArr[index] = [];
+                                            }
+                                            subArr[index][sectionIndex] = value;
+                                            formik.setFieldValue('subjects', subArr);
+                                        }}
+                                        sx={{ gridColumn: "span 2" }}
+                                        renderInput={params => (
+                                            <TextField
+                                                {...params}
+                                                variant="filled"
+                                                type="text"
+                                                name={`subjects.${index}.${sectionIndex}`}
+                                                label="Subject"
+                                                error={!!formik.touched.subjects && !!formik.errors.subjects}
+                                                helperText={formik.touched.subjects && formik.errors.subjects}
+                                            />
+                                        )}
+                                    />
+                                ))}
+                                <Divider sx={{ borderBottomWidth: 0, gridColumn: 'span 4' }} />
                             </React.Fragment>)
                     })}
+
                     <React.Fragment key={formik.values.classes.length + 1}>
                         <FormControl variant="filled" sx={{ minWidth: 120 }}
                             error={!!formik.touched.classes && !!formik.errors.classes}
@@ -475,7 +548,6 @@ const SchoolFormComponent = ({
                                 variant="filled"
                                 labelId={`classesField_${formik.values.classes.length + 1}`}
                                 name={`classes${formik.values.classes.length + 1}`}
-                                autoComplete="new-classes"
                                 value={[]}
                                 onChange={(event, value) => {
                                     const subArr = [...formik.values.classes];
@@ -483,27 +555,28 @@ const SchoolFormComponent = ({
                                     formik.setFieldValue("classes", subArr);
                                 }}
                             >
-                                {classesInRedux?.length && classesInRedux
-                                    .filter(cls => !formik.values.classes.includes(cls.class_id)) // Exclude the selected class
-                                    .map(cls => (
-                                        <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
-                                            {cls.class_name}
-                                        </MenuItem>
-                                    ))}
+                                {!allClasses?.length ? null :
+                                    allClasses
+                                        .filter(cls => !formik.values.classes.includes(cls.id)) // Exclude the selected class
+                                        .map(cls => (
+                                            <MenuItem value={cls.id} name={cls.name} key={cls.id}>
+                                                {cls.name}
+                                            </MenuItem>
+                                        ))}
                             </Select>
                             <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
                         </FormControl>
 
                         <Autocomplete
                             multiple
-                            options={sectionsInRedux || []}
+                            options={allSections || []}
                             getOptionLabel={option => option.name}
                             disableCloseOnSelect
                             value={[]}
                             onChange={(event, value) => {
-                                const clsArr = [...formik.values.sections];
-                                clsArr[formik.values.classes.length] = value;
-                                formik.setFieldValue("sections", clsArr)
+                                const sectArr = [...formik.values.sections];
+                                sectArr[formik.values.classes.length] = value;
+                                formik.setFieldValue("sections", sectArr);
                             }}
                             sx={{ gridColumn: "span 2" }}
                             renderInput={params => (
@@ -513,12 +586,9 @@ const SchoolFormComponent = ({
                                     type="text"
                                     name={`sections${formik.values.classes.length + 1}`}
                                     label="Section"
-                                // error={`${!!formik.touched}.combinedClsSect_${field.id}` && !!formik.errors.{`combinedClsSect_${field.id}`}}
-                                // helperText={formik.touched.{`combinedClsSect_${field.id}`} && formik.errors.{`combinedClsSect_${field.id}`}}
                                 />
                             )}
                         />
-                        {/* <Divider sx={{ borderBottomWidth: '0px' }} /> */}
                     </React.Fragment>
 
                     {/* Update */}
@@ -542,7 +612,7 @@ const SchoolFormComponent = ({
                                             formik.setFieldValue("classes", subArr)
                                         }}
                                     >
-                                        {classesInRedux?.length && classesInRedux.map(cls => (
+                                        {allClasses?.length && allClasses.map(cls => (
                                             <MenuItem value={cls.id} name={cls.name} key={cls.name}>
                                                 {cls.name}
                                             </MenuItem>
@@ -553,7 +623,7 @@ const SchoolFormComponent = ({
 
                                 <Autocomplete
                                     multiple
-                                    options={sectionsInRedux || []}
+                                    options={allSections || []}
                                     getOptionLabel={option => option.name}
                                     disableCloseOnSelect
                                     value={formik.values.sections[key - 1] || []}
@@ -582,6 +652,21 @@ const SchoolFormComponent = ({
             </form>
         </Box>
     );
-}
+};
+
+SchoolFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    allClasses: PropTypes.array,
+    allSections: PropTypes.array,
+    amenities: PropTypes.array,
+    subjectsInRedux: PropTypes.array,
+    updatedValues: PropTypes.object
+};
 
 export default SchoolFormComponent;

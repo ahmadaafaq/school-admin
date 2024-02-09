@@ -36,7 +36,7 @@ export default function BasicModal({ open, setOpen }) {
 
   const populateData = (id) => {
     console.log('id=', id);
-    const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`];
+    const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
     API.CommonAPI.multipleAPICall("GET", paths)
       .then(responses => {
         if (responses[0].data.data) {
@@ -44,9 +44,9 @@ export default function BasicModal({ open, setOpen }) {
         }
         const dataObj = {
           studentData: responses[0].data.data,
-          addressData: responses[1]?.data?.data
+          addressData: responses[1]?.data?.data,
+          imageData: responses[2]?.data?.data
         };
-        console.log({ dataObj })
         setDetail(dataObj);
       })
       .catch(err => {

@@ -67,11 +67,11 @@ export const SubjectAPI = {
                 "x-access-token": getLocalStorage("auth")?.token
             },
             method: "GET",
-            signal: cancel ? cancelApiObject[StudentAPI.getSubjectsByClass.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.getSubjectsByClass.name].handleRequestCancellation().signal : undefined,
         });
         return response;
     }
-}
+};
 
 // defining the cancel API object for SubjectAPI
 const cancelApiObject = defineCancelApiObject(SubjectAPI);

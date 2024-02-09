@@ -23,5 +23,5 @@ export const setPaymentsReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

@@ -1,3 +1,18 @@
+.student-image {
+    height: 140px;
+    width: 120px !important;
+    margin: 10px auto;
+    border: 3px solid #ffffff;
+    box-shadow: 3px 3px 8px #043927;
+}
+
+.primary-text {
+    letter-spacing: 0.8px;
+    margin-bottom: 0 !important;
+    text-transform: capitalize;
+    text-align: center;
+}
+
 .heading-text {
     font-weight: 700;
     font-size: 14px;

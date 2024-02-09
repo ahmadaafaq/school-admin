@@ -23,5 +23,5 @@ export const setBusesReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

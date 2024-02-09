@@ -20,7 +20,6 @@ import studentValidation from "./Validation";
 
 import { setFormClasses } from "../../redux/actions/ClassAction";
 import { setFormSections } from "../../redux/actions/SectionAction";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -71,8 +70,7 @@ const UserFormComponent = ({
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData } = useCommon();
-    const { createSession, customSort, createUniqueDataArray } = Utility();
+    const { createSession, customSort, createUniqueDataArray, getLocalStorage } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -119,7 +117,7 @@ const UserFormComponent = ({
 
     useEffect(() => {
         if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses(5)
+            API.SchoolAPI.getSchoolClasses()
                 .then(classData => {
                     if (classData.status === 'Success') {
                         classData.data.sort(customSort);
@@ -127,7 +125,7 @@ const UserFormComponent = ({
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
                         dispatch(setFormClasses(uniqueClassDataArray));
 
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
                         dispatch(setFormSections(uniqueSectionDataArray));
                     } else {
                         console.log("Error Fetching ClassData, Please Try Again");
@@ -145,6 +143,14 @@ const UserFormComponent = ({
             ...formik.values
         });
     }, [formik.values]);
+
+    useEffect(() => {
+        const selectedClassId = parseInt(getLocalStorage("class"));
+        if (selectedClassId) {
+            formik.setFieldValue("class", selectedClassId);
+            getSubjectsByClass(selectedClassId);
+        }
+    }, [getLocalStorage("class")]);
 
     const getSubjectsByClass = (classId) => {
         API.SubjectAPI.getSubjectsByClass(classId)
@@ -289,7 +295,7 @@ const UserFormComponent = ({
                             }}
                         >
                             {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
-                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
                                     {cls.class_name}
                                 </MenuItem>
                             ))}
@@ -308,8 +314,8 @@ const UserFormComponent = ({
                             onChange={event => formik.setFieldValue("section", event.target.value)}
                         >
                             {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
-                                <MenuItem value={section.id} name={section.name} key={section.name}>
-                                    {section.name}
+                                <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
+                                    {section.section_name}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -493,8 +499,8 @@ const UserFormComponent = ({
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
-            </form >
-        </Box >
+            </form>
+        </Box>
     );
 }
 

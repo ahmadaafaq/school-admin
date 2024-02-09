@@ -55,8 +55,8 @@ export const EmployeeAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateEmployee.name].handleRequestCancellation().signal : undefined,
     });
-  },
+  }
+};
 
-}
 // defining the cancel API object for EmployeeAPI
 const cancelApiObject = defineCancelApiObject(EmployeeAPI);
