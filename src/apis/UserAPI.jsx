@@ -33,7 +33,6 @@ export const UserAPI = {
         "x-access-token": getLocalStorage("auth").token
       },
       method: "GET",
-      data: token,
       signal: cancel ? cancelApiObject[this.profile.name].handleRequestCancellation().signal : undefined
     });
   },

@@ -125,7 +125,7 @@ export const Utility = () => {
         if (!model || !id) {
             return [];
         }
-        return model.find((obj => obj.id === id || obj.class_id === id));
+        return model.find((obj => obj.id === id || obj.class_id === id || obj.section_id === id));
     };
 
     /** Finds multiple objects in a collection by their IDs.
@@ -187,15 +187,17 @@ export const Utility = () => {
     };
 
     /** Extracts and concatenates IDs from array of objects.
-     * @param {Array} object - The array of objects from which to extract IDs.
+     * @param {Array} array - The array of objects from which to extract IDs.
      * @returns {string} - A comma-separated string of IDs.
      */
-    const getIdsFromObject = (object) => {
-        let objectId = [];
-        object?.forEach(object => {
-            objectId.push(object.id);
-        });
-        return objectId.toString();
+    const getIdsFromObject = (array) => {
+        let arrayId = [];
+        if (Array.isArray(array)) {
+            array.forEach(arr => {
+                arrayId.push(arr.id);
+            });
+        }
+        return arrayId.toString();
     };
 
     /** Get selected values by matching IDs from a comma-separated string.

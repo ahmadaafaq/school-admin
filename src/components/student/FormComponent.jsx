@@ -200,11 +200,6 @@ const FormComponent = () => {
             });
     };
 
-
-    const handleSubmitDialog = (folderName, fileName, blobName) => {
-        console.log('inside handle submit')
-    };
-
     useEffect(() => {
         if (!subjectsInRedux?.listData?.rows?.length) {
             getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
@@ -307,7 +302,7 @@ const FormComponent = () => {
                         Generate ICard
                     </Button>
                     <ICardModal iCardDetails={iCardDetails} setICardDetails={setICardDetails}
-                        handleSubmitDialog={handleSubmitDialog} openDialog={openDialog} setOpenDialog={setOpenDialog} />
+                        openDialog={openDialog} setOpenDialog={setOpenDialog} />
                 </>}
                 {   //hide reset button on student update
                     title === "Update" ? null :

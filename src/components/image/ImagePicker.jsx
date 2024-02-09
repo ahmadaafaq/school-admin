@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,6 +8,7 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 import { useFormik } from "formik";
 import { Box, IconButton, TextField } from "@mui/material";
@@ -24,9 +26,10 @@ const ImagePicker = ({
     setPreview,
     iCardDetails = null,
     setICardDetails = null,
-    updatedValues = null,
+    image = null,
     deletedImage = [],
     setDeletedImage,
+    setImage,
     imageType,
     ENV
 }) => {
@@ -56,7 +59,7 @@ const ImagePicker = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -84,18 +87,18 @@ const ImagePicker = ({
     }, [formik.values]);
 
     useEffect(() => {
-        if (updatedValues) {
-            console.log("Updated Values=>", updatedValues)
-            setInitialState(updatedValues);
+        if (image) {
+            console.log("sssUpdated Values=>", image)
+            setInitialState(image);
             // const srcArray = [];
-            // updatedValues.map(img => {
+            // image.map(img => {
             //     if (img.image_src) {
             //         srcArray.push(`${azurePath}/${img.image_src}?${ENV.VITE_SAS_TOKEN}`);
             //     }
             // });
             // setPreview(srcArray);
         }
-    }, [updatedValues?.length]);
+    }, [image?.length]);
 
     // useEffect(() => {
     //     if (deletedImage) {
@@ -104,6 +107,7 @@ const ImagePicker = ({
     // }, [deletedImage?.length]);
 
     console.log(`imagepicker formik values ${imageType}=>`, formik.values);
+    console.log('sssTest updated', image);
     return (
         <Box m="10px">
             <form ref={refId} encType="multipart/form-data">
@@ -141,16 +145,17 @@ const ImagePicker = ({
                     }}
                     error={formik.touched[`${imageType}`] && Boolean(formik.errors[`${imageType}`])}
                     helperText={formik.touched[`${imageType}`] && formik.errors[`${imageType}`]}
-                    sx={{ m: 1, outline: "none", width: "15%" }}
+                    sx={{ m: 1, outline: "none", width: "13%" }}
                 />
             </form>
-            {formik.values[`${imageType}`] || updatedValues?.length ?
+            {formik.values[`${imageType}`] || image?.length ?
                 <PreviewImage
                     formik={formik}
                     deletedImage={deletedImage}
                     setDeletedImage={setDeletedImage}
                     setDirty={setDirty}
-                    updatedValues={updatedValues}
+                    image={image}
+                    setImage={setImage}
                     imageFiles={formik.values[`${imageType}`]}
                     preview={preview}
                     setPreview={setPreview}
@@ -162,5 +167,25 @@ const ImagePicker = ({
         </Box>
     );
 }
+
+ImagePicker.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    preview: PropTypes.array,
+    setPreview: PropTypes.func,
+    iCardDetails: PropTypes.array,
+    setICardDetails: PropTypes.func,
+    image: PropTypes.array,
+    deletedImage: PropTypes.array,
+    setDeletedImage: PropTypes.func,
+    setImage: PropTypes.func,
+    imageType: PropTypes.string,
+    ENV: PropTypes.object
+};
 
 export default ImagePicker;

@@ -27,7 +27,7 @@ export const setSectionsReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };
 
 export const setFormSectionsReducer = (state = initialFormState, action) => {
@@ -39,5 +39,5 @@ export const setFormSectionsReducer = (state = initialFormState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

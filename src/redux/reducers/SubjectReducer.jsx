@@ -28,7 +28,7 @@ export const setSubjectsReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };
 
 export const setFormSubjectsReducer = (state = initialFormState, action) => {
@@ -41,5 +41,5 @@ export const setFormSubjectsReducer = (state = initialFormState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

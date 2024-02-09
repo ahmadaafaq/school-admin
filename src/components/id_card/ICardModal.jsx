@@ -6,44 +6,58 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { usePDF } from 'react-to-pdf';
 
-import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
-import Avatar from '@mui/material/Avatar';
+import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Grid, IconButton } from '@mui/material';
+import { List, ListItem, ListItemText, TextField, useMediaQuery } from '@mui/material';
 import { green } from '@mui/material/colors';
-
-import { Button, Dialog, Box, DialogActions, IconButton, List, TextField } from '@mui/material';
-import { ImageListItem, Tooltip, ListItem, ListItemText, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 
 import './styles.css';
 import API from '../../apis';
 import { tokens } from "../../theme";
 import { Utility } from '../utility';
 
-import dummyImg from "../assets/school_stuff.png";
-
-const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDialog, setOpenDialog }) => {
-    const [imageFile, setImageFile] = useState([]);
+const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }) => {
+    const [signatureImage, setSignatureImage] = useState([]);
+    const [signatureImageChange, setSignatureImageChange] = useState([]);
     const formClassesInRedux = useSelector(state => state.allFormClasses);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const studentImageRef = useRef([]);
+    const { toPDF, targetRef } = usePDF({ filename: 'document.pdf' });
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
-    let uploadedImages = [];
     const { appendSuffix, findById } = Utility();
 
     const className = findById(iCardDetails?.class, formClassesInRedux?.listData)?.class_name;
-    const sectionName = findById(iCardDetails?.section, formSectionsInRedux?.listData)?.name;
-    console.log('imageFile=>', imageFile)
+    const sectionName = findById(iCardDetails?.section, formSectionsInRedux?.listData)?.section_name;
+
+    const readImageFiles = (file, onReadComplete) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onReadComplete(reader.result);
+        }
+        reader.readAsDataURL(file);
+    };
+
+    useEffect(() => {
+        if (iCardDetails?.Student) {
+            readImageFiles(iCardDetails.Student[0], result => {
+                studentImageRef.current.push(result);
+            });
+        }
+        if (signatureImage?.length) {
+            readImageFiles(signatureImage[0], setSignatureImageChange);
+        }
+    }, [iCardDetails.Student, signatureImage, signatureImageChange]);
+
     useEffect(() => {
         API.SchoolAPI.getDetailsForICard()
             .then(data => {
@@ -61,53 +75,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
                 console.log("Error Fetching SchoolData:", err);
             });
     }, []);
-    console.log(iCardDetails, 'formatted details in modal')
-
-
-    const readImageFiles = (file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            uploadedImages.push(reader.result);
-            setImageFile([
-                ...uploadedImages
-            ]);
-        }
-        reader.readAsDataURL(file);
-    };
-    useEffect(() => {
-        if (iCardDetails?.Student)
-            readImageFiles(iCardDetails.Student[0]);
-    }, [iCardDetails?.Student])
-
-
-    // const handleSubmit = () => {
-    //     try {
-    //         let datevar = new Date();
-    //         setOpenDialog(false);
-
-    //         //using jsPDF library to generate pdf file
-    //         let doc = new jsPDF();
-    //         doc.text(docText, 15, 20);
-    //         // Add new page
-    //         doc.addPage();
-    //         doc.text(docText2, 15, 20);
-
-    //         doc.setFont("times");
-    //         doc.setFontType("italic");
-    //         doc.setTextColor(0, 0, 255);
-    //         doc.text(`${getLocalStorage("auth")?.username}\n${datevar.toLocaleDateString()}`, 130, 180);
-    //         let output = doc.output();
-
-    //         handleSubmitDialog("agreement", `${getLocalStorage("auth")?.username}_Agreement${Math.ceil(Math.random() * 1000)}.pdf`, btoa(output));
-    //     } catch (error) {
-    //         throw error;
-    //     }
-    //     finally {
-    //         setTimeout(() => {
-    //             location.reload();
-    //         }, 2000);
-    //     }
-    // };
+    console.log(iCardDetails, 'formatted details in icard modal');
 
     return (
         <Dialog
@@ -116,7 +84,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
             aria-labelledby="responsive-dialog-title"
             id="dialog"
         >
-            <Card sx={{ width: '340px' }}>
+            <Card ref={targetRef} sx={{ width: '340px' }}>
                 <Box
                     sx={{
                         display: "grid", gridTemplateColumns: '0.3fr 1fr',
@@ -145,36 +113,33 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
                 </Box>
                 <CardMedia
                     component="img"
-                    image={imageFile}
+                    className='student-image'
+                    image={studentImageRef?.current}
                     alt="student-image"
-                    sx={{
-                        height: 140, width: 120, margin: '10px auto', border: '5px solid blue',
-                        boxShadow: "3px 3px 8px #043927"
-                    }}
                 />
                 <CardContent sx={{ paddingTop: '0' }}>
                     <List sx={{ width: '100%', padding: '0', bgcolor: 'background.paper' }}>
                         <ListItem sx={{ padding: '0 16px' }}>
                             <ListItemText
+                                className='primary-text'
                                 primary={iCardDetails?.firstname && iCardDetails?.lastname &&
                                     `${iCardDetails.firstname} ${iCardDetails.lastname}`}
                                 primaryTypographyProps={{
-                                    fontWeight: "400", fontSize: "14px", letterSpacing: "0.8px", textTransform: "capitalize",
-                                    textAlign: 'center'
+                                    fontSize: '16px', fontWeight: '700', color: colors.blueAccent[500]
                                 }}
                             />
                         </ListItem>
                         <ListItem sx={{ padding: "0 16px" }}>
                             <ListItemText
+                                className='primary-text'
                                 primary={iCardDetails?.session}
                                 primaryTypographyProps={{
-                                    fontWeight: "400", fontSize: "14px", letterSpacing: "0.8px", textTransform: "capitalize",
-                                    textAlign: 'center'
+                                    fontSize: '16px', fontWeight: '700', color: colors.blueAccent[500], margin: '-6px 0 8px 0'
                                 }}
                             />
                         </ListItem>
 
-                        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "10px" }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', columnGap: '10px', rowGap: '5px' }}>
                             <span className='heading-text'> Father's Name: </span>
                             <span className='normal-text'> {iCardDetails.father_name ? iCardDetails.father_name : ''} </span>
 
@@ -187,82 +152,59 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
                             <span className='heading-text'>Phone:</span>
                             <span className='normal-text'>{iCardDetails.contact_no ? iCardDetails.contact_no : ''}</span>
 
-                            {/* <span style={{ fontWeight: "700", fontSize: "14px", letterSpacing: "0.8px", textAlign: "end" }}>Address:</span>
-                            <span style={{ fontWeight: "400", fontSize: "14px", letterSpacing: "0.8px" }}>
-                                O, 44, Shastri Nagar, Izatnagar, Bareilly, Uttar Pradesh 243122</span> */}
+                            <span className='heading-text'>Address:</span>
+                            <span className='normal-text'>{`${iCardDetails?.street} ${iCardDetails?.landmark} ${iCardDetails?.city}
+                            ${iCardDetails?.state} ${iCardDetails?.country}-${iCardDetails?.zipcode}`}</span>
                         </Box>
                     </List>
                 </CardContent>
 
-                {/* <ImageListItem sx={{ gridColumn: 'span 2' }}>
-                    <IconButton
-                        sx={{
-                            position: "absolute",
-                            left: "87%",
-                            '@media screen and (max-width: 920px)': {
-                                left: '77%',
-                            },
-                            '@media screen and (max-width: 480px)': {
-                                left: '60%',
-                            },
-                            top: "-2%"
-                        }}
-                    >
-                        <Tooltip title="DELETE">
-                            <HighlightOffOutlinedIcon sx={{
-                                color: "#002147",
-                                "&:hover": {
-                                    color: "red", fontSize: "1.5rem", transition: "all 0.3s ease-in-out"
-                                }
-                            }}
+                <Grid container>
+                    {/* Column 1 - Image Picker */}
+                    {signatureImageChange.length ? null :
+                        <Grid item xs={12}>
+                            <TextField
+                                accept="image/*, application/pdf"
+                                label="Upload Digital Signature"
+                                value={undefined}
+                                size="small"
+                                sx={{ m: 1, ml: 2, outline: "none", width: '41%' }}
+                                InputProps={{
+                                    multiple: true,
+                                    startAdornment: (
+                                        <IconButton component="label" sx={{ width: "90%" }}>
+                                            <AddPhotoAlternateIcon />
+                                            <input
+                                                hidden
+                                                type="file"
+                                                name="file"
+                                                onChange={e => setSignatureImage(e.target.files)}
+                                            />
+                                        </IconButton>
+                                    )
+                                }}
                             />
-                        </Tooltip>
-                    </IconButton>
-                    <img
-                        src={imageFile}
-                        alt="This image is not available"
-                        loading="lazy"
-                        style={{
-                            objectFit: "cover",
-                            height: "100%",
-                            width: "100%",
-                            borderRadius: isMobile ? "6px" : "12px",
-                            boxShadow: "2px 2px 4px hsl(0, 0%, 30%)"
-                        }}
-                    />
-                </ImageListItem> */}
-                <Box sx={{}}>
-
-                    <TextField
-                        accept="image/*, application/pdf"
-                        label="Upload Digital Signature"
-                        value={undefined}
-                        size="small"
-                        InputProps={{
-                            multiple: true,
-                            startAdornment: (
-                                <IconButton component="label" sx={{ width: "88%" }}>
-                                    <AddPhotoAlternateIcon />
-                                    <input
-                                        hidden
-                                        multiple
-                                        type="file"
-                                        name="file"
-                                        onChange={e => {
-                                            console.log(e, 'image-path');
-                                            setImageFile(e.target.files);
-                                        }}
-                                    />
-                                </IconButton>
-                            )
-                        }}
-                        sx={{ m: 1, outline: "none", width: "45%", textAlign: 'end' }}
-                    />
-                    <p style={{ fontWeight: "700", fontSize: "14px", letterSpacing: "0.8px", margin: "0 45px", textAlign: 'end' }}> Principal </p>
-                </Box>
+                        </Grid>}
+                    {/* Column 2 - Image */}
+                    {!signatureImageChange.length ? null :
+                        <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <CardMedia
+                                component="img"
+                                image={signatureImageChange}
+                                sx={{ height: '50px', width: '130px', margin: '10px 20px 0 0' }}
+                                alt='principal-signature'
+                            />
+                        </Grid>}
+                    {/* Row 2 - Text */}
+                    <Grid item xs={12}>
+                        <p className='heading-text' style={{ margin: '0 50px 20px 0', fontSize: '15px' }}> Principal </p>
+                    </Grid>
+                </Grid>
             </Card>
             <DialogActions sx={{ padding: '8px 12px' }}>
-                <Button color='info' variant='outlined'>
+                <Button color='info' variant='outlined'
+                    onClick={() => toPDF()}
+                >
                     Download
                 </Button>
                 <Button color='warning' variant='outlined'
@@ -273,6 +215,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, handleSubmitDialog, openDia
             </DialogActions>
         </Dialog >
     );
-}
+};
 
 export default ICardModal;

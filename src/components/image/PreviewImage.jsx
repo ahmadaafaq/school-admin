@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,6 +8,8 @@
  */
 
 import { useEffect } from "react";
+import PropTypes from "prop-types";
+
 import { IconButton, ImageList, ImageListItem, Tooltip, useMediaQuery } from "@mui/material";
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 
@@ -21,19 +24,20 @@ const PreviewImage = ({
     setDirty,
     imageFiles,
     imageType,
-    updatedValues,
     ENV,
-    setInitialState
+    setInitialState,
+    image,
+    setImage
 }) => {
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
-    let uploadedImages = [];
+    // let uploadedImages = [];
 
     useEffect(() => {
-        console.log('USE EFFECT 2')
         const srcArray = [];
-        if (updatedValues) {
-            updatedValues.map(img => {
+        console.log('sssu[datedValues', image)
+        if (image) {
+            image.map(img => {
                 if (img.image_src) {
                     srcArray.push(`${ENV.VITE_BASE_URL}/get-image/${img.image_src}`);
                 }
@@ -42,70 +46,94 @@ const PreviewImage = ({
         setPreview([
             ...srcArray,         //We are not doing ...preview because in imagePicker file we have already
         ]);
-    }, [updatedValues?.length]);
+        setInitialState(image);
+    }, [image?.length]);
 
-    const readImageFiles = (file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            uploadedImages.push(reader.result);
+    // const readImageFiles = async (file) => {
+    //     const reader = new FileReader();
+    //     reader.onloadend = () => {
+    //         // uploadedImages.push(reader.result);
 
+
+
+    //         // setPreview([
+    //         //     ...srcArray,         //We are not doing ...preview because in imagePicker file we have already
+    //         //     ...uploadedImages   //done manual merge of formik.values in onchange of input
+    //         // ]);
+    //     }
+    //     reader.readAsDataURL(file);
+    // };
+
+    useEffect(() => {
+        console.log('USE EFFECTsss 1');
+        if (imageFiles) {
+            console.log('imageFilessss UEF 1', imageFiles);
+
+            const prev = [];
             const srcArray = [];
-            if (updatedValues) {
-                updatedValues.map(img => {
+
+            let arrayOfImages = Array.from(imageFiles);
+            console.log('arrayOfImagessss', arrayOfImages);
+            for (const file of arrayOfImages) {
+                prev.push(URL.createObjectURL(file));
+            }
+
+
+            console.log('new prevsss', prev);
+
+            if (image) {
+                image.map(img => {
                     if (img.image_src) {
                         srcArray.push(`${ENV.VITE_BASE_URL}/get-image/${img.image_src}`);
                     }
                 });
             }
-
+            // Merge the preview values with already populated values during update otherwise just show prev
             setPreview([
-                ...srcArray,         //We are not doing ...preview because in imagePicker file we have already
-                ...uploadedImages   //done manual merge of formik.values in onchange of input
+                ...srcArray,
+                ...prev
             ]);
-        }
-        reader.readAsDataURL(file);
-    };
-
-    useEffect(() => {
-        console.log('USE EFFECT 1');
-        if (imageFiles) {
-            console.log('imageFiles', imageFiles);
-            let arrayOfImages = Array.from(imageFiles);
-            arrayOfImages.forEach(item => readImageFiles(item));
+            // arrayOfImages.forEach(item => readImageFiles(item));
         }
     }, [imageFiles]);
-    console.log('preview=>', preview);
 
     const handleDeleteClick = (item) => {
         const index = preview.indexOf(item);
-
-        if (updatedValues) {
+        preview.splice(index, 1);
+        if (image) {
             setDeletedImage([
                 ...deletedImage,
-                updatedValues[index]?.image_src,
+                image[index]?.image_src,
             ]);
         }
-
         if (index > -1) {                   // only splice 1 item from array when it is found
-            preview.splice(index, 1);
-            if (updatedValues) {
-                updatedValues.splice(index, 1);
+            if (image) {
+                console.log('sssLength before', image.length)
+                image.splice(index, 1);
                 setInitialState({
-                    ...updatedValues
+                    ...image
                 });
-                console.log("Values after delete=>", updatedValues);
+                setImage(image);
+                console.log('sssLength after', image.length)
+                console.log('sssdelete from updated', image);
             }
+          
             // On update imageFiles is empty
             if (imageFiles) {
-                imageFiles.splice(index, 1);
-                formik.setFieldValue(imageType, imageFiles);
+                console.log('indexsss=>', index);
+                console.log('imageFilessss', imageFiles);
+                console.log('previewsss', preview);
+                const updatedFileList = Array.from(imageFiles);
+                updatedFileList.splice(index, 1);
+                console.log('updatedImgFilesss', updatedFileList);
+                // eslint-disable-next-line react/prop-types
+                formik.setFieldValue(imageType, updatedFileList);
             }
-            setPreview([...preview]);
             setDirty(true);     //to enable the submit button
         }
     };
-    console.log("TEST updatedValues =>", updatedValues);
 
+    console.log('sssLast length', image.length);
 
     return (
         <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit", marginBottom: "8%" }}
@@ -153,5 +181,23 @@ const PreviewImage = ({
         </ImageList>
     );
 }
+
+
+PreviewImage.propTypes = {
+    formik: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    preview: PropTypes.array,
+    setPreview: PropTypes.func,
+    imageFiles: PropTypes.object,
+    setInitialState: PropTypes.func,
+    image: PropTypes.array,
+    setImage: PropTypes.func,
+    deletedImage: PropTypes.array,
+    setDeletedImage: PropTypes.func,
+    imageType: PropTypes.string,
+    ENV: PropTypes.object
+};
 
 export default PreviewImage;
