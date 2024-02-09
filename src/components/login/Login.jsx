@@ -82,7 +82,8 @@ const Login = () => {
               token: response.data.token,
               role: response.data.role,
               designation: response.data.designation,
-              username: response.data.username
+              username: response.data.username,
+              school: response.data.school_name
             };
             setLocalStorage("auth", authInfo);
             response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;

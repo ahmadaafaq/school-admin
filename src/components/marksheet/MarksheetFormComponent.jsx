@@ -17,8 +17,6 @@ import { useFormik } from "formik";
 import API from "../../apis";
 import marksheetValidation from "./Validation";
 import { setSubjects } from "../../redux/actions/SubjectAction";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { useSelector } from "react-redux";
 import { Utility } from "../utility";
@@ -58,7 +56,9 @@ const MarksheetFormComponent = ({
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { getPaginatedData, getStudents } = useCommon();
-    const { findById } = Utility();
+    const { findById, getLocalStorage } = Utility();
+    const selectedClass = getLocalStorage("dropdown class");
+    const selectedSection = getLocalStorage("dropdown section");
 
     const [state, setState] = useState({
         vertical: 'top',
@@ -109,15 +109,32 @@ const MarksheetFormComponent = ({
 
     useEffect(() => {
         if (updatedValues) {
+            let subjectIds = [];
             updatedValues.rows.map((sub, index) => {
                 formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
                 formik.setFieldValue(`total_marks_${index}`, sub.total_marks);
                 formik.setFieldValue(`grade_${index}`, sub.grade);
                 formik.setFieldValue(`remark_${index}`, sub.remark);
+                subjectIds.push(sub.subject_id);
             })
+            console.log(subjectIds, 'subjectids')
+            let classSubjects = [];
+            subjectIds?.map(sub => {
+                classSubjects.push({
+                    subject_id: sub,
+                    subject_name: findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name
+                });
+            })
+            if (classSubjects.length) {
+                setFilteredSubjects(classSubjects);
+                formik.setFieldValue("class", updatedValues?.rows[0]?.class_id);
+                formik.setFieldValue("section", updatedValues?.rows[0]?.section_id);
+                formik.setFieldValue("student", updatedValues?.rows[0]?.student_id);
+                getStudents(selectedClass?.class_id, selectedSection?.id, setStudents, API);
+            }
+            console.log('updatedValues1=>', updatedValues, formik.values);
         }
     }, [updatedValues]);
-    console.log('updatedValues1=>', updatedValues);
 
     useEffect(() => {
         if (!subjectsInRedux?.listData?.rows?.length) {
@@ -125,11 +142,11 @@ const MarksheetFormComponent = ({
         }
     }, [subjectsInRedux?.listData?.rows?.length]);
 
-    console.log('class and students=', marksheetClass, marksheetSection)
+    console.log('class and students=', marksheetClass, marksheetSection, selectedSection, selectedClass)
 
     useEffect(() => {
         let classSubjects = [];
-        marksheetClass?.class_subjects?.split(',').map(sub => {
+        selectedClass?.class_subjects?.split(',').map(sub => {
             classSubjects.push({
                 subject_id: sub,
                 subject_name: findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name
@@ -137,21 +154,22 @@ const MarksheetFormComponent = ({
         })
         if (classSubjects.length) {
             setFilteredSubjects(classSubjects);
-            initialValues.class = marksheetClass?.class_name;
-            initialValues.section = marksheetSection?.name;
-            initialValues.subjects = marksheetClass?.class_subjects?.split(',');
+            initialValues.class = selectedClass?.class_name;
+            initialValues.section = selectedSection?.name;
+            initialValues.subjects = selectedClass?.class_subjects?.split(',');
             initialValues.student = formik.values.student;
-            getStudents(marksheetClass?.class_id, marksheetSection?.id, setStudents, API);
+            getStudents(selectedClass?.class_id, selectedSection?.id, setStudents, API);
         }
 
-    }, [subjectsInRedux?.listData?.rows, marksheetClass, marksheetSection]);
+    }, [subjectsInRedux?.listData?.rows, selectedClass?.class_id]);
 
     if (updatedValues?.rows[0]?.term) {
         console.log('add term')
         formik.values.term = updatedValues?.rows[0]?.term;
     }
 
-    console.log('dfdsfds', formik.values)
+    // console.log('filteres', marksheetClass);
+    console.log('filteredSubjects=>', filteredSubjects)
 
     return (
         <Box m="20px">
@@ -238,7 +256,7 @@ const MarksheetFormComponent = ({
                 <Box style={{ display: 'grid', gap: '10px', width: '171vh', gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
                     {!updatedValues && filteredSubjects?.length && filteredSubjects.map((subject, index) => (
                         <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '10px', }}>
-                            <Box style={{ width: "28vh", marginTop: "20px" }}>{subject.subject_name}</Box>
+                            <Box style={{ width: "28vh", marginTop: "20px" }}>{subject?.subject_name}</Box>
                             {/* Add individual fields for each subject */}
                             <TextField
                                 fullWidth
@@ -299,7 +317,7 @@ const MarksheetFormComponent = ({
                         return (
                             <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '10px', }}>
                                 <Box style={{ width: "28vh", marginTop: "20px" }}>
-                                    {filteredSubjects.filter(sub => sub.subject_id === subject.subject_id)[0].subject_name}
+                                    {filteredSubjects.filter(sub => sub.subject_id === subject.subject_id)[0]?.subject_name}
                                 </Box>
                                 {/* Add individual fields for each subject */}
                                 <TextField

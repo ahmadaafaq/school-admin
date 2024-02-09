@@ -35,18 +35,6 @@ export const datagridColumns = (rolePriority = null) => {
         navigateTo(`/holiday/update/${id}`, { state: { id: id } });
     };
 
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
-
     const columns = [
         {
             field: "title",

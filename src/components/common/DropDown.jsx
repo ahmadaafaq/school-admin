@@ -19,7 +19,7 @@ import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 //change name of dropdown to classsecdropdown
-function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSection }) {
+function DropDown({ marksheetClass = null, marksheetSection = null }) {
     const formClassesInRedux = useSelector(state => state.allFormClasses);
     const formSectionsInRedux = useSelector(state => state.allFormSections);
 
@@ -27,18 +27,20 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
     const { getStudents } = useCommon();
-    const { customSort, createUniqueDataArray, findById } = Utility();
+    const { customSort, createUniqueDataArray, findById, setLocalStorage } = Utility();
 
     const handleClassChange = (event) => {
-        const selectedClass = findById(event.target.value, formClassesInRedux?.listData);
-        onSelectClass(selectedClass.class_id);
-        dispatch(setMarksheetClass(selectedClass));
+        let localStorageValue = findById(event.target.value, formClassesInRedux?.listData);
+        setLocalStorage("dropdown class", localStorageValue);
+        console.log(localStorageValue, 'localclass');
+        dispatch(setMarksheetClass(findById(event.target.value, formClassesInRedux?.listData)));
     };
 
     const handleSectionChange = (event) => {
-        const selectedSection = findById(event.target.value, formSectionsInRedux?.listData);
-        onSelectSection(selectedSection.id);
-        dispatch(setMarksheetSection(selectedSection));
+        let localStorageValue = findById(event.target.value, formSectionsInRedux?.listData);
+        setLocalStorage("dropdown section", localStorageValue);
+        console.log(localStorageValue, 'localsection');
+        dispatch(setMarksheetSection(findById(event.target.value, formSectionsInRedux?.listData)));
     };
 
     //to be dicsussed
@@ -63,10 +65,11 @@ function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSecti
     // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
     useEffect(() => {
-        if (selectedClass && selectedSection) {
-            getStudents(selectedClass, selectedSection, setStudents, API);
+        if (marksheetClass?.class_id && marksheetSection?.id) {
+            getStudents(marksheetClass.class_id, marksheetSection.id, setStudents, API);
         }
-    }, [selectedClass, selectedSection]);
+    }, [marksheetClass?.class_id, marksheetSection?.id]);
+
     return (
         <Box sx={{ display: "flex", marginRight: "10px", marginLeft: "10px" }}>
             <FormControl variant="filled" sx={{

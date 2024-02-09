@@ -7,10 +7,11 @@
  */
 
 import { Box, useTheme,useMediaQuery} from "@mui/material";
+import {Flat, Heat, Nested} from '@alptugidin/react-circular-progress-bar'
 
 import { tokens } from "../../theme";
 
-const ProgressCircle = ({ progress = "0.75", size ="40", yellowColor }) => {
+const ProgressCircle = ({ progress = null, size ="40", yellowColor }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const angle = progress * 360;
@@ -21,11 +22,11 @@ const ProgressCircle = ({ progress = "0.75", size ="40", yellowColor }) => {
         <Box
             sx={{
                 background: `radial-gradient(${yellowColor} 55%, transparent 56%),
-            conic-gradient(transparent 0deg ${angle}deg, ${colors.primary[500]} ${angle}deg 360deg),
+            conic-gradient(${colors.primary[500]} ${angle}deg 0deg , transparent ${angle}deg 360deg),
             ${colors.greenAccent[500]}`,
                 borderRadius: "50%",
                 width:isMobile?"30px" : `${size}px`,
-                height:isMobile?"30px" : `${size}px`,
+                height:isMobile?"30px" : `${size}px`
             }}
         />
     );

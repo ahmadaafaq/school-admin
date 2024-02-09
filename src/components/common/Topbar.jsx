@@ -6,17 +6,14 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Avatar, Box, Divider, useTheme, IconButton, Tooltip, MenuItem } from "@mui/material";
-import { Menu, ListItemIcon, Typography } from "@mui/material";
+import { Menu, ListItemIcon, Typography, useMediaQuery } from "@mui/material";
 
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-// import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-// import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-// import PersonAdd from '@mui/icons-material/PersonAdd';
 import Logout from '@mui/icons-material/Logout';
 
 import { ColorModeContext, tokens } from "../../theme";
@@ -24,13 +21,16 @@ import { Utility } from "../utility";
 
 const Topbar = ({ roleName }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [schoolName, setSchoolName] = useState('');
   const open = Boolean(anchorEl);
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const isMobile = useMediaQuery("(max-width:480px)");
+  const isTab = useMediaQuery("(max-width:920px)");
 
-  const { getInitials, getNameAndType } = Utility();
+  const { getInitials, getNameAndType, getLocalStorage } = Utility();
   const { username, role } = getNameAndType(roleName);
 
   const handleClick = (event) => {
@@ -46,11 +46,43 @@ const Topbar = ({ roleName }) => {
     location.reload();
   };
 
+  useEffect(() => {
+    setSchoolName(getLocalStorage("auth")?.school);
+  }, [getLocalStorage("auth")]);
+  console.log(schoolName);
+
   return (
-    <>
+    <Box
+      display="flex"
+      textAlign="center"
+      justifyContent="space-between"
+      backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+      boxShadow="1px 1px 10px black"
+      position="sticky"
+      top="0px"
+      zIndex="1000"
+    >
       {/* ICONS */}
-      <Box display="flex" textAlign="center" justifyContent="flex-end" p={2}>
-        {/* <h1>delhi public</h1> */}
+      <Box>
+        <Typography 
+          sx={{
+            m:"20px" ,
+            fontSize:isMobile ? "15px" ? isTab :"30" : "40px" ,
+            fontWeight:"bolder", 
+            textAlign:"center",
+            textShadow: " 1px 8px 5px #aba8a8;",
+            color: theme.palette.mode === 'light' ? `rgb(51 153 254) !important` : 'white',
+            wordSpacing:"5px"
+          }}
+        >
+          {schoolName ? schoolName : ''}
+        </Typography>
+      </Box>
+      <Box display="flex"
+        textAlign="center"
+        justifyContent="flex-end" p={2}
+        backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+      >
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (
             <Tooltip title="Dark Mode">
@@ -145,7 +177,7 @@ const Topbar = ({ roleName }) => {
           <Typography variant="h5"> Logout </Typography>
         </MenuItem>
       </Menu>
-    </>
+    </Box>
   );
 };
 

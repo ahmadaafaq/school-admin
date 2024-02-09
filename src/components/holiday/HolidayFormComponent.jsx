@@ -15,12 +15,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
-import API from "../../apis";
 import holidayValidation from "./Validation";
-
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
-import { useCommon } from "../hooks/common";
 
 const initialValues = {
     name: "",
@@ -40,12 +35,7 @@ const HolidayFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    // const [subjects, setSubjects] = useState([]);
-
-    // const classesInRedux = useSelector(state => state.allClasses);
-    // const sectionsInRedux = useSelector(state => state.allSections);
-
-    // const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
+    
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     // const { getPaginatedData } = useCommon();
@@ -92,33 +82,6 @@ const HolidayFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
-
-    // const getSubjectsByClass = (classId) => {
-    //     API.SubjectAPI.getSubjectsByClass(classId)
-    //         .then(subjects => {
-    //             console.log("subjects", subjects)
-    //             if (subjects.status === 'Success') {
-    //                 setSubjects(subjects.data);
-    //             } else {
-    //                 console.log("Error, Please Try Again");
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log("Error, Fetching Subjects:", err);
-    //         })
-    // };
 
     return (
         <Box m="20px">

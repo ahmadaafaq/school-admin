@@ -21,17 +21,20 @@ import ServerPaginationGrid from '../common/Datagrid';
 import { datagridColumns } from "./MarksheetConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setMarksheets } from "../../redux/actions/MarksheetAction";
+import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
+import listBg from "../assets/listBG.jpg"
+
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = ({ rolePriority = null }) => {
-    const [selectedClass, setSelectedClass] = useState(null);
-    const [selectedSection, setSelectedSection] = useState(null);
+const ListingComponent = () => {
     const [conditionObj, setConditionObj] = useState({});
     const selected = useSelector(state => state.menuItems.selected);
+    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.allFormSections);
     const { listData, loading, marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
 
     const navigateTo = useNavigate();
@@ -47,18 +50,22 @@ const ListingComponent = ({ rolePriority = null }) => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage } = Utility();
+    const { getLocalStorage, findById } = Utility();
 
-    let classConditionObj = marksheetClass.class_id ? {
-        classId: marksheetClass.class_id,
+    const selectedClass = getLocalStorage("dropdown class");
+    const selectedSection = getLocalStorage("dropdown section");
+
+    let classConditionObj = marksheetClass?.class_id ? {
+        classId: marksheetClass.class_id
     } : null;
 
-    classConditionObj = marksheetSection.id ? {
+    classConditionObj = marksheetSection?.id ? {
         ...classConditionObj,
         sectionId: marksheetSection.id
     } : null;
 
     useEffect(() => {
+        console.log({ classConditionObj });
         if (classConditionObj?.classId && classConditionObj?.sectionId) {
             getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
             setConditionObj(classConditionObj);
@@ -73,9 +80,9 @@ const ListingComponent = ({ rolePriority = null }) => {
 
     useEffect(() => {
         if (listData?.rows?.length) {
-            setSelectedClass(listData.rows[0].class_id);
-            setSelectedSection(listData.rows[0].section_id);
-            console.log('SET DEFAYKT CLASS AND SECTION');
+            dispatch(setMarksheetClass(findById(listData.rows[0].class_id, formClassesInRedux?.listData)));
+            dispatch(setMarksheetSection(findById(listData.rows[0].section_id, formSectionsInRedux?.listData)));
+            console.log('SET CLASS AND SECTION');
         }
     }, [listData?.rows]);
 
@@ -90,7 +97,19 @@ const ListingComponent = ({ rolePriority = null }) => {
     };
     console.log('selec=>', listData)
     return (
-        <Box m="8px" position="relative">
+        <Box m="8px" position="relative"
+            sx={{
+                borderRadius: "20px",
+                border: "0.5px solid black",
+                overflow: "hidden",
+                boxShadow: "1px 1px 10px black",
+                backgroundImage: theme.palette.mode === "light"
+                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover"
+            }}>
             <Box
                 height={isMobile ? "19vh" : isTab ? "8vh" : "11vh"}
                 borderRadius="4px"
@@ -121,20 +140,17 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-
                     <DropDown
-                        onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
-                        onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
-                        selectedClass={selectedClass}
-                        selectedSection={selectedSection}
+                        marksheetClass={marksheetClass}
+                        marksheetSection={marksheetSection}
                     />
-
                     <Button
                         type="submit"
                         color="success"
                         variant="contained"
+
                         onClick={() => { navigateTo(`/marksheet/create`) }}
-                        disabled={!selectedClass || !selectedSection} // Disable if either class or section is not selected
+                        disabled={!selectedClass?.class_id || !selectedSection?.id} // Disable if either class or section is not selected
                         sx={{ height: isTab ? "4vh" : "auto" }}
                     >
                         Create New {selected}
@@ -163,7 +179,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setMarksheets}
                 api={API.MarksheetAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns(rolePriority)}
+                columns={datagridColumns()}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}

@@ -21,10 +21,11 @@ import Toast from "../common/Toast";
 import HolidayFormComponent from "./HolidayFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+
+import formBg from "../assets/formBg.png";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
@@ -41,7 +42,6 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-  //  const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -103,7 +103,6 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                   // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
@@ -149,12 +148,6 @@ const FormComponent = () => {
             });
     };
 
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
-
     //Create/Update/Populate Holiday
     useEffect(() => {
         if (id && !submitted) {
@@ -171,23 +164,29 @@ const FormComponent = () => {
     const handleSubmit = async () => {
         await holidayFormRef.current.Submit();
         await addressFormRef.current.Submit();
-        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
         if (form === 'holiday') {
             setFormData({ ...formData, holidayData: data });
-        } else if(form === 'address') {
+        } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
         }
-        // } else if (form === 'parent') {
-        //     setFormData({ ...formData, imageData: data });
-        // }
     };
 
     return (
-        <Box m="10px">
+        <Box ml="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed",
+                height:"100%"
+            }}
+        >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -220,22 +219,6 @@ const FormComponent = () => {
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
             />
-            {/* <ImagePicker
-                key="image"
-                onChange={data => handleFormChange(data, 'parent')}
-                refId={imageFormRef}
-                reset={reset}
-                setReset={setReset}
-                setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
-                deletedImage={deletedImage}
-                setDeletedImage={setDeletedImage}
-                imageType="Guardian"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
-            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
                 {   //hide reset button on Holiday update

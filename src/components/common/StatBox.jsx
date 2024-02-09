@@ -7,10 +7,6 @@
  */
 
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
-
-
 
 import ProgressCircle from "./ProgressCircle";
 import { tokens } from "../../theme";

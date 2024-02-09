@@ -18,18 +18,18 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import EventIcon from '@mui/icons-material/Event';
 import PaymentIcon from '@mui/icons-material/Payment';
-import amenityIcon from '../assets/amenityIcon.png';
-import classIcon from '../assets/classIcon.png';
-import sectionIcon from '../assets/sectionIcon.png'
-import subjectIcon from '../assets/subjectIcon.png'
-import roleIcon from '../assets/roleIcon.png'
+import FitbitIcon from '@mui/icons-material/Fitbit';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import CategoryIcon from '@mui/icons-material/Category';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 
 import API from "../../apis";
 import { setFormClasses } from "../../redux/actions/ClassAction";
@@ -134,23 +134,65 @@ const Sidebar = ({ rolePriority }) => {
     <Box
       sx={{
         "& .pro-sidebar-inner": {
-          background: theme.palette.mode === 'light' ? '#ffffff' : `${colors.primary[400]} !important`,
+          background: theme.palette.mode === 'light' ? `#6ac6ff !important` : 'black',
+          boxShadow: "inset -5px 0 10px rgba(0, 0, 0, 0.3)",
           overflow: isMobile ? "hidden" : ""
         },
         "& .pro-icon-wrapper": {
           backgroundColor: `transparent !important`
         },
         "& .pro-inner-item": {
+          color: theme.palette.mode === 'light' ? `darkblue !important` : '',
           padding: `4px 35px 4px 15px !important`
         },
-        "& .pro-inner-item:hover": {
-          color: `#868dfb !important`
+        "& .pro-sidebar .pro-menu-item.active a::before": {
+          content: `''`,
+          position: "absolute",
+          top: "-50px",
+          right: "0px",
+          bottom: "100px",
+          left: "195px",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow: theme.palette.mode === 'light' ? "35px 35px 0 10px white" : "35px 35px 0 10px #141b2d"
+        },
+        " .pro-sidebar .pro-menu-item.active a::after": {
+          content: `''`,
+          position: "absolute",
+          bottom: "-50px",
+          right: "0px",
+          top: "43px",
+          left: "195px",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow:  theme.palette.mode === 'light' ? "35px -35px 0 10px white" : "35px -35px 0 10px #141b2d"
         },
         "& .pro-menu-item.active": {
-          color: `#6870fa !important`
+          color: `#868dfb !important`,
+          backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#141b2d',
+          borderRadius: " 20px 0 0px 20px;",
+          boxShadow: "1px 1px 7px black",
+        },
+        "& .pro-menu-item:hover": {
+          color: theme.palette.mode === 'light' ? `#868dfb !important` : `black !important`,
+          backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#141b2d',
+          borderRadius: " 20px 0 0px 20px;",
+          boxShadow: "1px 1px 7px black",
+        },
+        "& .pro-sidebar .pro-menu .pro-menu-item .pro-inner-item:hover": {
+          color: "white"
+        },
+        "& .pro-menu-item a.active": {
+          color: theme.palette.mode === 'light' ? `darkblue !important` : '',
         },
         "& .pro-arrow-wrapper": {
-          marginRight: "50px"
+          marginRight: "50px",
         },
         "& .pro-menu-item.pro-sub-menu": {
           color: `${colors.primary[100]}`
@@ -158,6 +200,7 @@ const Sidebar = ({ rolePriority }) => {
         "& .pro-inner-list-item": {
           height: `${isSubMenuOpen ? "115px" : "0"}` + " !important",
           overflowY: isSubMenuOpen ? "scroll" : "hidden",
+          overflowX: "hidden",
           transition: 'height 0.3s ease-in-out !important'
         }
       }}
@@ -281,7 +324,7 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="Teacher"
               to="/teacher/listing"
-              icon={<Diversity3Icon />}
+              icon={<LocalLibraryIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
@@ -289,7 +332,7 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="User"
               to="/user/listing"
-              icon={<PregnantWomanIcon />}
+              icon={<AccountCircleIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
@@ -329,7 +372,7 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="Marksheet"
               to="/marksheet/listing"
-              icon={<FormatListBulletedIcon />}
+              icon={<FactCheckIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
@@ -345,7 +388,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Amenity"
                 to="/amenity/listing"
-                icon={<img src={amenityIcon} height={35} width={35} />}
+                icon={< FitbitIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -353,7 +396,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Class"
                 to="/class/listing"
-                icon={<img src={classIcon} height={25} width={25} />}
+                icon={<MeetingRoomIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -361,7 +404,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Section"
                 to="/section/listing"
-                icon={<img src={sectionIcon} height={25} width={25} />}
+                icon={<CategoryIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -369,7 +412,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Subject"
                 to="/subject/listing"
-                icon={<img src={subjectIcon} height={25} width={25} />}
+                icon={<AutoStoriesIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -377,7 +420,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Role"
                 to="/role/listing"
-                icon={<img src={roleIcon} height={25} width={25} />}
+                icon={<EngineeringIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
