@@ -372,6 +372,14 @@ const Sidebar = ({ rolePriority }) => {
               rolePriority={rolePriority}
               menuVisibility={4}
             />
+            <SidebarItem
+                title="School Period"
+                to="/school-period/listing"
+                icon={<BackupTableIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={4}
+              />
             {rolePriority < 2 && <>
               < Typography
                 variant="h6"
@@ -408,14 +416,6 @@ const Sidebar = ({ rolePriority }) => {
                 title="Subject"
                 to="/subject/listing"
                 icon={<AutoStoriesIcon />}
-                selected={selected}
-                rolePriority={rolePriority}
-                menuVisibility={1}
-              />
-               <SidebarItem
-                title="School Period"
-                to="/school-period/listing"
-                icon={<BackupTableIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}

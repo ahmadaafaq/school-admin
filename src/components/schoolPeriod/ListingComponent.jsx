@@ -62,6 +62,7 @@ const ListingComponent = () => {
             oldPagination
         });
     };
+    console.log("listData>>>>=",listData);
 
     return (
         <Box m="10px" position="relative"
