@@ -14,6 +14,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 
 import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
+
 import { multipleSkeletons } from "./LoadingSkeleton";
 import { tokens } from "../../theme";
 
@@ -119,6 +120,7 @@ const ServerPaginationGrid = ({
             <DataGrid
                 autoHeight
                 disableRowSelectionOnClick
+                getRowId={row => selected === 'Class' ? row.class_id : (selected === 'Section' ? row.section_id : row.id)}
                 rows={rows || []}
                 columns={columns}
                 loading={classNames.includes(selected) ? loading : loading}

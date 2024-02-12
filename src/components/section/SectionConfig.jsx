@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -25,7 +26,7 @@ export const datagridColumns = (handleDialogOpen) => {
 
     const columns = [
         {
-            field: "name",
+            field: "section_name",
             headerName: "NAME",
             headerAlign: "center",
             align: "center",
@@ -79,7 +80,7 @@ export const datagridColumns = (handleDialogOpen) => {
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id } }) => {
+            renderCell: ({ row: { section_id } }) => {
                 return (
                     <Box width="30%"
                         m="0 auto"
@@ -87,14 +88,14 @@ export const datagridColumns = (handleDialogOpen) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            onClick={() => handleActionEdit(id)}
+                            onClick={() => handleActionEdit(section_id)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

@@ -24,8 +24,8 @@ import { Utility } from '../utility';
 const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }) => {
     const [signatureImage, setSignatureImage] = useState([]);
     const [signatureImageChange, setSignatureImageChange] = useState([]);
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const formClassesInRedux = useSelector(state => state.schoolClasses);
+    const formSectionsInRedux = useSelector(state => state.schoolSections);
     const studentImageRef = useRef([]);
     const { toPDF, targetRef } = usePDF({ filename: 'document.pdf' });
 

@@ -10,8 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/material";
 
 import API from "../../apis";
-import { setFormClasses } from "../../redux/actions/ClassAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
+import { setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
@@ -20,8 +20,8 @@ import { Utility } from "../utility";
 
 //change name of dropdown to classsecdropdown
 function DropDown({ marksheetClass = null, marksheetSection = null }) {
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const formClassesInRedux = useSelector(state => state.schoolClasses);
+    const formSectionsInRedux = useSelector(state => state.schoolSections);
 
     const theme = useTheme();
     const dispatch = useDispatch();
@@ -52,10 +52,10 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
     //                     classData.data.sort(customSort);
 
     //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-    //                     dispatch(setFormClasses(uniqueClassDataArray));
+    //                     dispatch(setSchoolClasses(uniqueClassDataArray));
 
     //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
-    //                     dispatch(setFormSections(uniqueSectionDataArray));
+    //                     dispatch(setSchoolSections(uniqueSectionDataArray));
     //                 }
     //             })
     //             .catch(err => {

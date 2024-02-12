@@ -18,8 +18,8 @@ import listBg from "../assets/listBG.jpg"
 
 const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose = null }) => {
     const theme = useTheme();
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
+    const formSectionsInRedux = useSelector(state => state.schoolSections);
+    const formClassesInRedux = useSelector(state => state.schoolClasses);
 
     const { findById, appendSuffix } = Utility();
 

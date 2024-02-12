@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -17,21 +19,23 @@ import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRen
 import API from "../../apis";
 import BasicModal from "../models/CustomModal";
 
-import { setFormClasses } from "../../redux/actions/ClassAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
+import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
 export const datagridColumns = (rolePriority = null) => {
     const [open, setOpen] = useState(false);
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const allClasses = useSelector(state => state.allClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
+    const allSections = useSelector(state => state.allSections);
 
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { appendSuffix, findById, customSort, createUniqueDataArray } = Utility();
+    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/student/update/${id}`, { state: { id: id } });
@@ -43,24 +47,16 @@ export const datagridColumns = (rolePriority = null) => {
     };
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses()
-                .then(classData => {
-                    if (classData.status === 'Success') {
-                        classData.data.sort(customSort);
-
-                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-                        dispatch(setFormClasses(uniqueClassDataArray));
-
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
-                        dispatch(setFormSections(uniqueSectionDataArray));
-                    }
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
+        if (!getLocalStorage("schoolInfo") && (!allClasses?.listData?.length || !allSections?.listData?.length)) {
+            console.log('inside student allclasses')
+            fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+            fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
         }
-    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
+            console.log('inside student schoolclasses')
+            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections);
+        }
+    }, [schoolClasses?.listData?.length, schoolSections?.listData?.length, allClasses?.listData?.length, allSections?.listData?.length]);
 
     const columns = [
         {
@@ -81,8 +77,16 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findById(params?.row?.class, formClassesInRedux?.listData)?.class_name;
-                let sectionName = findById(params?.row?.section, formSectionsInRedux?.listData)?.section_name;
+                let className;
+                let sectionName;
+
+                if (allClasses?.listData?.length || allSections?.listData?.length) {
+                    className = findById(params?.row?.class, allClasses?.listData)?.class_name;
+                    sectionName = findById(params?.row?.section, allSections?.listData)?.section_name;
+                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+                    className = findById(params?.row?.class, schoolClasses?.listData)?.class_name;
+                    sectionName = findById(params?.row?.section, schoolSections?.listData)?.section_name;
+                }
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}

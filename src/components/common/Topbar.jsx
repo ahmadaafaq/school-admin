@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -49,7 +50,6 @@ const Topbar = ({ roleName }) => {
   useEffect(() => {
     setSchoolName(getLocalStorage("auth")?.school);
   }, [getLocalStorage("auth")]);
-  console.log(schoolName);
 
   return (
     <Box
@@ -64,15 +64,15 @@ const Topbar = ({ roleName }) => {
     >
       {/* ICONS */}
       <Box>
-        <Typography 
+        <Typography
           sx={{
-            m:"20px" ,
-            fontSize:isMobile ? "15px" ? isTab :"30" : "40px" ,
-            fontWeight:"bolder", 
-            textAlign:"center",
+            m: "20px",
+            fontSize: isMobile ? "15px" : isTab ? "30" : "40px",
+            fontWeight: "bolder",
+            textAlign: "center",
             textShadow: " 1px 8px 5px #aba8a8;",
             color: theme.palette.mode === 'light' ? `rgb(51 153 254) !important` : 'white',
-            wordSpacing:"5px"
+            wordSpacing: "5px"
           }}
         >
           {schoolName ? schoolName : ''}

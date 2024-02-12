@@ -120,7 +120,7 @@ const SchoolFormComponent = ({
 
                     // Filter out sections from allSections that have matching ids in the current section
                     let filteredSection = allSections?.filter(obj =>
-                        sections.some(sect => sect.section_id === obj.id)
+                        sections.some(sect => sect.section_id === obj.section_id)
                     );
                     console.log(filteredSection, 'filteredSection');
                     filteredSectionArray.push(filteredSection);
@@ -472,8 +472,8 @@ const SchoolFormComponent = ({
                                     >
                                         {!allClasses?.length ? null :
                                             allClasses.map(cls => (
-                                                <MenuItem value={cls.id} name={cls.name} key={cls.name}>
-                                                    {cls.name}
+                                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
+                                                    {cls.class_name}
                                                 </MenuItem>
                                             ))}
                                     </Select>
@@ -483,7 +483,7 @@ const SchoolFormComponent = ({
                                 <Autocomplete
                                     multiple
                                     options={allSections || []}
-                                    getOptionLabel={option => option.name}
+                                    getOptionLabel={option => option.section_name}
                                     disableCloseOnSelect
                                     value={formik.values.sections[index]}
                                     onChange={(event, value) => {
@@ -557,10 +557,10 @@ const SchoolFormComponent = ({
                             >
                                 {!allClasses?.length ? null :
                                     allClasses
-                                        .filter(cls => !formik.values.classes.includes(cls.id)) // Exclude the selected class
+                                        .filter(cls => !formik.values.classes.includes(cls.class_id)) // Exclude the selected class
                                         .map(cls => (
-                                            <MenuItem value={cls.id} name={cls.name} key={cls.id}>
-                                                {cls.name}
+                                            <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
+                                                {cls.class_name}
                                             </MenuItem>
                                         ))}
                             </Select>
@@ -570,7 +570,7 @@ const SchoolFormComponent = ({
                         <Autocomplete
                             multiple
                             options={allSections || []}
-                            getOptionLabel={option => option.name}
+                            getOptionLabel={option => option.section_name}
                             disableCloseOnSelect
                             value={[]}
                             onChange={(event, value) => {

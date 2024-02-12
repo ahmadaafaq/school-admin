@@ -33,8 +33,8 @@ const pageSizeOptions = [5, 10, 20];
 const ListingComponent = () => {
     const [conditionObj, setConditionObj] = useState({});
     const selected = useSelector(state => state.menuItems.selected);
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const formClassesInRedux = useSelector(state => state.schoolClasses);
+    const formSectionsInRedux = useSelector(state => state.schoolSections);
     const { listData, loading, marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
 
     const navigateTo = useNavigate();
