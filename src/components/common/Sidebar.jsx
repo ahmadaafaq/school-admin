@@ -19,7 +19,6 @@ import SchoolIcon from '@mui/icons-material/School';
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import EventIcon from '@mui/icons-material/Event';
 import PaymentIcon from '@mui/icons-material/Payment';
@@ -30,6 +29,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import BackupTableIcon from '@mui/icons-material/BackupTable';
 
 import API from "../../apis";
 import { setFormClasses } from "../../redux/actions/ClassAction";
@@ -413,6 +413,14 @@ const Sidebar = ({ rolePriority }) => {
                 title="Subject"
                 to="/subject/listing"
                 icon={<AutoStoriesIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+               <SidebarItem
+                title="School Period"
+                to="/school-period/listing"
+                icon={<BackupTableIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}

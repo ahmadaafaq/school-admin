@@ -7,7 +7,6 @@
  */
 
 import { Box, useTheme,useMediaQuery} from "@mui/material";
-import {Flat, Heat, Nested} from '@alptugidin/react-circular-progress-bar'
 
 import { tokens } from "../../theme";
 
