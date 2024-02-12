@@ -55,6 +55,9 @@ const HolidayListingComponent = lazy(() => import("./components/holiday/ListingC
 const PaymentFormComponent = lazy(() => import("./components/payment/FormComponent"));
 const PaymentListingComponent = lazy(() => import("./components/payment/ListingComponent"));
 
+const SchoolPeriodFormComponent = lazy(() => import("./components/schoolPeriod/FormComponent"));
+const SchoolPeriodListingComponent = lazy(() => import("./components/schoolPeriod/ListingComponent"));
+
 const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"));
 
 function App() {
@@ -164,6 +167,10 @@ function App() {
                       <Route exact path="/payment/create" element={<PaymentFormComponent />} />
                       <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
                       <Route exact path="/payment/listing" element={<PaymentListingComponent />} />
+
+                      <Route exact path="/school-period/create" element={<SchoolPeriodFormComponent />} />
+                      <Route exact path="/school-period/update/:id" element={<SchoolPeriodFormComponent />} />
+                      <Route exact path="/school-period/listing" element={<SchoolPeriodListingComponent />} />
                     </>}
 
                   {userRole.priority === 4 &&

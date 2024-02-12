@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { Box, useTheme, useMediaQuery } from "@mui/material";
+import { Box, useTheme,useMediaQuery} from "@mui/material";
 import PropTypes from "prop-types";
 
 import { tokens } from "../../theme";
