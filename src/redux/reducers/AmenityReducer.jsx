@@ -33,7 +33,7 @@ export const setAmenitiesReducer = (state = initialState, action) => {
 
 export const setFormAmenitiesReducer = (state = initialFormState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_FORM_AMENITIES:
+        case ActionTypes.SET_All_AMENITIES:
             return {
                 ...state,
                 listData: action.payload.listData,

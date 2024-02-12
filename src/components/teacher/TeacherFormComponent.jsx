@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -8,8 +9,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useFormik } from "formik";
+import PropTypes from "prop-types";
 
+import { useFormik } from "formik";
 import { Box, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, FormHelperText, Divider } from "@mui/material";
 import { Autocomplete, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -19,11 +21,10 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import API from "../../apis";
 import teacherValidation from "./Validation";
 
-import { setFormClasses } from "../../redux/actions/ClassAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
+import { setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
 const initialValues = {
     firstname: "",
@@ -64,16 +65,15 @@ const TeacherFormComponent = ({
     const [fields, setFields] = useState([{ id: 1 }]);
     const [updatedArr, setUpdatedArr] = useState({});
 
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
     const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
 
     const dispatch = useDispatch();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, customSort, createUniqueDataArray } = Utility();
+    const { appendSuffix, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -96,7 +96,7 @@ const TeacherFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     const handleAddClick = () => {
@@ -148,30 +148,14 @@ const TeacherFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses()
-                .then(classData => {
-                    if (classData.status === 'Success') {
-                        classData.data.sort(customSort);
-
-                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-                        dispatch(setFormClasses(uniqueClassDataArray));
-
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
-                        dispatch(setFormSections(uniqueSectionDataArray));
-                    } else {
-                        console.log("Error Fetching ClassData, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
+        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
+            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections);
         }
-    }, [formClassesInRedux?.listData, formSectionsInRedux?.listData]);
+    }, [schoolClasses?.listData?.length, schoolSections?.listData?.length]);
 
     useEffect(() => {
         if (!formSubjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
+            fetchAndSetAll(dispatch, setFormSubjects, API.SubjectAPI);
         }
     }, [formSubjectsInRedux?.listData?.rows]);
 
@@ -394,7 +378,7 @@ const TeacherFormComponent = ({
                                 value={formik.values.class}
                                 onChange={formik.handleChange}
                             >
-                                {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
+                                {schoolClasses?.listData?.length && schoolClasses.listData.map(cls => (
                                     <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
                                         {cls.class_name}
                                     </MenuItem>
@@ -413,7 +397,7 @@ const TeacherFormComponent = ({
                                 value={formik.values.section}
                                 onChange={event => formik.setFieldValue("section", event.target.value)}
                             >
-                                {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
+                                {schoolSections?.listData?.length && schoolSections.listData.map(section => (
                                     <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                         {section.section_name}
                                     </MenuItem>
@@ -599,6 +583,19 @@ const TeacherFormComponent = ({
             </form>
         </Box>
     );
-}
+};
+
+TeacherFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    combinedClass: PropTypes.array,
+    teacherId: PropTypes.number,
+    updatedValues: PropTypes.object
+};
 
 export default TeacherFormComponent;

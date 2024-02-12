@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -8,18 +9,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useFormik } from "formik";
+import PropTypes from "prop-types";
 
+import { useFormik } from "formik";
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
-import API from "../../apis";
 import studentValidation from "./Validation";
 
-import { setFormClasses } from "../../redux/actions/ClassAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
+import { setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -48,29 +49,27 @@ const initialValues = {
     status: "inactive"
 };
 
-const UserFormComponent = ({
+const StudentFormComponent = ({
     onChange,
     refId,
     setDirty,
     reset,
     setReset,
-    userId,
     iCardDetails,
     setICardDetails,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [classSubjects, setClassSubjects] = useState([]);
-
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    // const [classSubjects, setClassSubjects] = useState([]);
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
 
     const dispatch = useDispatch();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { createSession, customSort, createUniqueDataArray, getLocalStorage } = Utility();
+    const { createSession, fetchAndSetSchoolData, getLocalStorage } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -93,7 +92,7 @@ const UserFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -116,26 +115,10 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses()
-                .then(classData => {
-                    if (classData.status === 'Success') {
-                        classData.data.sort(customSort);
-
-                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-                        dispatch(setFormClasses(uniqueClassDataArray));
-
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
-                        dispatch(setFormSections(uniqueSectionDataArray));
-                    } else {
-                        console.log("Error Fetching ClassData, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
+        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
+            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections);
         }
-    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+    }, [schoolClasses?.listData?.length, schoolSections?.listData?.length]);
 
     useEffect(() => {
         setICardDetails({
@@ -153,17 +136,18 @@ const UserFormComponent = ({
     }, [getLocalStorage("class")]);
 
     const getSubjectsByClass = (classId) => {
-        API.SubjectAPI.getSubjectsByClass(classId)
-            .then(subjects => {
-                if (subjects.status === 'Success') {
-                    setClassSubjects(subjects.data);
-                } else {
-                    console.log("Error Fetching Subjects, Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.log("Error Fetching Subjects:", err);
-            })
+        console.log('get subjects by class no more, by school yes', classId)
+        // API.SubjectAPI.getSubjectsByClass(classId)
+        //     .then(subjects => {
+        //         if (subjects.status === 'Success') {
+        //             setClassSubjects(subjects.data);
+        //         } else {
+        //             console.log("Error Fetching Subjects, Please Try Again");
+        //         }
+        //     })
+        //     .catch(err => {
+        //         console.log("Error Fetching Subjects:", err);
+        //     })
     };
 
     return (
@@ -294,7 +278,7 @@ const UserFormComponent = ({
                                 getSubjectsByClass(event.target.value);
                             }}
                         >
-                            {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
+                            {schoolClasses?.listData?.length && schoolClasses.listData.map(cls => (
                                 <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
                                     {cls.class_name}
                                 </MenuItem>
@@ -313,7 +297,7 @@ const UserFormComponent = ({
                             value={formik.values.section}
                             onChange={event => formik.setFieldValue("section", event.target.value)}
                         >
-                            {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
+                            {schoolSections?.listData?.length && schoolSections.listData.map(section => (
                                 <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                     {section.section_name}
                                 </MenuItem>
@@ -323,7 +307,7 @@ const UserFormComponent = ({
                     </FormControl>
                     <Autocomplete
                         multiple
-                        options={classSubjects || []}
+                        options={[]}        //to be continued classSubjects
                         getOptionLabel={option => option.name}
                         disableCloseOnSelect
                         value={formik.values.subjects || []}
@@ -502,6 +486,19 @@ const UserFormComponent = ({
             </form>
         </Box>
     );
-}
+};
 
-export default UserFormComponent;
+StudentFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    iCardDetails: PropTypes.array,
+    setICardDetails: PropTypes.func,
+    updatedValues: PropTypes.object
+};
+
+export default StudentFormComponent;

@@ -17,7 +17,7 @@ export const setAmenities = (amenities) => {
 
 export const setFormAmenities = (amenities) => {
     return {
-        type: ActionTypes.SET_FORM_AMENITIES,
+        type: ActionTypes.SET_All_AMENITIES,
         payload: amenities
     };
 };

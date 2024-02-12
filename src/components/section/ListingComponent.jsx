@@ -19,7 +19,7 @@ import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./SectionConfig";
-import { setSections } from "../../redux/actions/SectionAction";
+import { setListingSections } from "../../redux/actions/SectionAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -38,7 +38,7 @@ const ListingComponent = () => {
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allSections);
+    const { listData, loading } = useSelector(state => state.listingSections);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -106,7 +106,7 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setSections}
+                        action={setListingSections}
                         api={API.SectionAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
@@ -146,7 +146,7 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setSections}
+                action={setListingSections}
                 api={API.SectionAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns(handleDialogOpen)}

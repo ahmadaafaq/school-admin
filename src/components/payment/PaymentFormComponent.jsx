@@ -18,8 +18,8 @@ import { useFormik } from "formik";
 import API from "../../apis";
 import paymentValidation from "./Validation";
 
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
+import { setListingClasses } from "../../redux/actions/ClassAction";
+import { setListingSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { useCommon } from "../hooks/common";
 
@@ -46,16 +46,16 @@ const PaymentFormComponent = ({
 
     const [initialState, setInitialState] = useState(initialValues);
     const [classId, setClassId] = useState(null);
-    const classInRedux = useSelector(state => state.allClasses);
+    const classInRedux = useSelector(state => state.listingClasses);
     const [sectionId, setSectionId] = useState(null);
-    const sectionInRedux = useSelector(state => state.allSections);
+    const sectionInRedux = useSelector(state => state.listingSections);
     const [studentId, setStudentId] = useState(null);
     const studentInRedux = useSelector(state => state.allStudents);
 
     // const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData,getStudents } = useCommon();
+    const { getPaginatedData, getStudents } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -102,13 +102,13 @@ const PaymentFormComponent = ({
 
     useEffect(() => {
         if (!classInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 100, setClasses, API.ClassAPI);
+            getPaginatedData(0, 100, setListingClasses, API.ClassAPI);
         }
     }, [classInRedux?.listData?.rows]);
 
     useEffect(() => {
         if (!sectionInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 100, setSections, API.SectionAPI);
+            getPaginatedData(0, 100, setListingSections, API.SectionAPI);
         }
     }, [sectionInRedux?.listData?.rows]);
 
