@@ -14,15 +14,13 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 //import API from "../../apis";
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
+// import { setListingClasses } from "../../redux/actions/ClassAction";
+// import { setListingSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
 
     const navigateTo = useNavigate();
     const theme = useTheme();
@@ -37,13 +35,13 @@ export const datagridColumns = () => {
 
     // useEffect(() => {
     //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
+    //         getPaginatedData(0, 20, setListingClasses, API.ClassAPI);
     //     }
     // }, [classesInRedux?.listData?.rows?.length]);
 
     // useEffect(() => {
     //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
+    //         getPaginatedData(0, 20, setListingSections, API.SectionAPI);
     //     }
     // }, [sectionsInRedux?.listData?.rows?.length]);
 

@@ -173,8 +173,6 @@ const Dashboard = () => {
       });
   }, [])
 
-  console.log('School>>>>=', schoolData);
-
   return (
     <Box ml="10px"
       sx={{
@@ -190,15 +188,17 @@ const Dashboard = () => {
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography
-          fontFamily={typography.fontFamily}
-          fontSize={isMobile ? typography.h4.fontSize : typography.h2.fontSize}
-          color={colors.grey[100]}
-          fontWeight="600"
-          display="inline-block"
-          textShadow="1px 1px 10px white"
-          backgroundColor={theme.palette.mode==='light' ? "white" : "transparent"}
-          lineHeight="0.8"
-          pt="15px"
+          sx={{
+            fontFamily: typography.fontFamily,
+            fontSize: isMobile ? typography.h4.fontSize : typography.h2.fontSize,
+            color: colors.grey[100],
+            fontWeight: "600",
+            display: "inline-block",
+            textShadow: "1px 1px 10px white",
+            backgroundColor: theme.palette.mode === 'light' ? "white" : "transparent",
+            lineHeight: "0.8",
+            paddingTop: "15px"
+          }}
         >
           Dashboard
         </Typography>
@@ -323,7 +323,7 @@ const Dashboard = () => {
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>
-    </Box>
+    </Box >
   );
 }
 

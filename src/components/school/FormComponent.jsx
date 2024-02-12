@@ -20,6 +20,8 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import SchoolFormComponent from "./SchoolFormComponent";
 
+import { setAllClasses } from "../../redux/actions/ClassAction";
+import { setAllSections } from "../../redux/actions/SectionAction";
 import { setFormAmenities } from "../../redux/actions/AmenityAction";
 import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
@@ -52,8 +54,8 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const [allClasses, setAllClasses] = useState([]);
-    const [allSections, setAllSections] = useState([]);
+    const allClasses = useSelector(state => state.allClasses);
+    const allSections = useSelector(state => state.allSections);
     const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
     const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
     const selected = useSelector(state => state.menuItems.selected);
@@ -73,7 +75,8 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, getValuesFromArray, isObjEmpty, toastAndNavigate } = Utility();
+    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, getValuesFromArray,
+        isObjEmpty, fetchAndSetAll, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -207,35 +210,44 @@ const FormComponent = () => {
 
     const populateSchoolData = useCallback(id => {
         setLoading(true);
-        const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`, `/get-school-classes/${id}`, `/get-image/school/${id}`];
+        const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`, `/get-image/school/${id}`];
+
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                console.log('res=>', responses);
-                if (responses[0].data.data) {
+                console.log('responses=>', responses);
+                if (responses[0]?.data?.data) {
                     responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
                 }
-                const dataObj = {
-                    schoolData: {
-                        schoolData: responses[0].data.data,
-                        selectedClass: responses[2]?.data?.data,
-                    },
-                    addressData: responses[1]?.data?.data,
-                    imageData: responses[3]?.data?.data
-                };
-                console.log('school dataobj', dataObj)
-                setUpdatedValues(dataObj);
-                setDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
-                setBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
-                setLoading(false);
+                API.SchoolAPI.getSchoolClasses(id)
+                    .then(res => {
+                        console.log('res=>', res);
+                        const dataObj = {
+                            schoolData: {
+                                schoolData: responses[0].data.data,
+                                selectedClass: res?.data
+                            },
+                            addressData: responses[1]?.data?.data,
+                            imageData: responses[2]?.data?.data
+                        };
+                        console.log('school dataobj', dataObj)
+                        setUpdatedValues(dataObj);
+                        setDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
+                        setBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
+                        setLoading(false);
+
+                    })
+                    .catch(err => {
+                        setLoading(false);
+                        toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
+                    });
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
             });
     }, [formAmenitiesInRedux?.listData?.rows]);
 
-    const createSchool = useCallback((formData) => {
+    const createSchool = useCallback(formData => {
         let promise1;
         let promise2;
         let promise3;
@@ -331,32 +343,16 @@ const FormComponent = () => {
     }, [formSubjectsInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        API.ClassAPI.getAll(false, 0, 20)
-            .then(res => {
-                if (res?.status === 'Success') {
-                    setAllClasses(res.data.rows);
-                } else {
-                    console.log("An Error Occurred, Please Try Again");
-                }
-            })
-            .catch(err => {
-                throw err;
-            });
-    }, []);
+        if (!allClasses?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+        }
+    }, [allClasses?.listData?.length]);
 
     useEffect(() => {
-        API.SectionAPI.getAll(false, 0, 20)
-            .then(res => {
-                if (res?.status === 'Success') {
-                    setAllSections(res.data.rows);
-                } else {
-                    console.log("An Error Occurred, Please Try Again");
-                }
-            })
-            .catch(err => {
-                throw err;
-            });
-    }, []);
+        if (!allSections?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+        }
+    }, [allSections?.listData?.length]);
 
     //Create/Update/Populate School
     useEffect(() => {
@@ -422,8 +418,8 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 schoolId={id}
-                allClasses={allClasses}
-                allSections={allSections}
+                allClasses={allClasses?.listData}
+                allSections={allSections?.listData}
                 amenities={formAmenitiesInRedux?.listData?.rows}
                 subjectsInRedux={formSubjectsInRedux?.listData?.rows}
                 updatedValues={updatedValues?.schoolData}

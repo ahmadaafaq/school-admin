@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -21,8 +22,8 @@ import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+    const formClassesInRedux = useSelector(state => state.schoolClasses);
+    const formSectionsInRedux = useSelector(state => state.schoolSections);
     const subjectsInRedux = useSelector(state => state.allSubjects);
     const studentsInRedux = useSelector(state => state.allStudents);
 
@@ -46,10 +47,10 @@ export const datagridColumns = () => {
     //                     classData.data.sort(customSort);
 
     //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-    //                     dispatch(setFormClasses(uniqueClassDataArray));
+    //                     dispatch(setSchoolClasses(uniqueClassDataArray));
 
     //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
-    //                     dispatch(setFormSections(uniqueSectionDataArray));
+    //                     dispatch(setSchoolSections(uniqueSectionDataArray));
     //                 }
     //             })
     //             .catch(err => {

@@ -15,10 +15,12 @@ import { setMarksheetsReducer } from "./MarksheetReducer";
 import { setAmenitiesReducer } from "./AmenityReducer";
 import { setFormAmenitiesReducer } from "./AmenityReducer";
 import { setBusesReducer } from "./BusReducer";
-import { setClassesReducer } from "./ClassReducer";
-import { setFormClassesReducer } from "./ClassReducer";
-import { setSectionsReducer } from "./SectionReducer";
-import { setFormSectionsReducer } from "./SectionReducer";
+import { setAllClassesReducer } from "./ClassReducer";
+import { setListingClassesReducer } from "./ClassReducer";
+import { setSchoolClassesReducer } from "./ClassReducer";
+import { setAllSectionsReducer } from "./SectionReducer";
+import { setListingSectionsReducer } from "./SectionReducer";
+import { setSchoolSectionsReducer } from "./SectionReducer";
 import { setSchoolsReducer } from "./SchoolReducer";
 import { setStudentsReducer } from "./StudentReducer";
 import { setSubjectsReducer } from "./SubjectReducer";
@@ -36,18 +38,20 @@ const reducers = combineReducers({
     allAmenities: setAmenitiesReducer,
     allFormAmenities: setFormAmenitiesReducer,
     allBuses: setBusesReducer,
-    allClasses: setClassesReducer,
-    allFormClasses: setFormClassesReducer,
+    allClasses: setAllClassesReducer,
+    listingClasses: setListingClassesReducer,
+    schoolClasses: setSchoolClassesReducer,
     allMarksheets: setMarksheetsReducer,
-    allSections: setSectionsReducer,
-    allFormSections: setFormSectionsReducer,
+    allSections: setAllSectionsReducer,
+    listingSections: setListingSectionsReducer,
+    schoolSections: setSchoolSectionsReducer,
     allSchools: setSchoolsReducer,
     allStudents: setStudentsReducer,
     allSubjects: setSubjectsReducer,
     allFormSubjects: setFormSubjectsReducer,
     allTeachers: setTeachersReducer,
     allUsers: setUsersReducer,
-    allEmployees:setEmployeesReducer,
+    allEmployees: setEmployeesReducer,
     allUserRoles: setUserRolesReducer,
     allHolidays: setHolidaysReducer,
     allPayments: setPaymentsReducer,

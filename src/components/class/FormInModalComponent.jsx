@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -58,8 +59,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const dispatch = useDispatch();
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
-    const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObject, getValuesFromArray } = Utility();
+    const { toastAndNavigate, fetchAndSetAll, getLocalStorage, getIdsFromObject, getValuesFromArray } = Utility();
 
     let id = state?.id;
 
@@ -161,7 +161,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     useEffect(() => {
         if (!formSubjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
+            fetchAndSetAll(dispatch, setFormSubjects, API.SubjectAPI);
         }
     }, [formSubjectsInRedux?.listData?.rows?.length]);
 
@@ -174,8 +174,8 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 aria-labelledby="responsive-dialog-title"
                 sx={{
                     top: isMobile ? "33%" : isTab ? "25%" : "20%", height: isMobile ? "49%" : isTab ? "39%" : "60%",
-                    "& .MuiPaper-root": { 
-                        width: "100%", 
+                    "& .MuiPaper-root": {
+                        width: "100%",
                         backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                             : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
                         backgroundRepeat: "no-repeat",
@@ -212,8 +212,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                         handleBlur,
                         handleChange,
                         handleSubmit,
-                        resetForm,
-                        setFieldValue
+                        resetForm
                     }) => (
                         <form onSubmit={handleSubmit}>
                             <Box display="grid" gap="30px" gridTemplateColumns="repeat(2, minmax(0, 1fr))" padding="20px">
@@ -246,27 +245,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                         <MenuItem value="inactive">Inactive</MenuItem>
                                     </Select>
                                 </FormControl>
-
-                                {/* <Autocomplete
-                                    multiple
-                                    options={formSubjectsInRedux?.listData?.rows || []}
-                                    getOptionLabel={option => option.name}
-                                    disableCloseOnSelect
-                                    value={values.subjects}
-                                    onChange={(event, value) => setFieldValue("subjects", value)}
-                                    sx={{ gridColumn: "span 2" }}
-                                    renderInput={params => (
-                                        <TextField
-                                            {...params}
-                                            variant="filled"
-                                            type="text"
-                                            name="subjects"
-                                            label="Subjects"
-                                            error={!!touched.subjects && !!errors.subjects}
-                                            helperText={touched.subjects && errors.subjects}
-                                        />
-                                    )}
-                                /> */}
                             </Box>
                             <Divider />
                             <Box display="flex" justifyContent="end" p="20px">
@@ -304,6 +282,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             </Dialog>
         </div>
     );
-}
+};
+
 
 export default FormComponent;

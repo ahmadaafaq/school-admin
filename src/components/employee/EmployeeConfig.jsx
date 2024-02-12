@@ -17,8 +17,6 @@ import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
 
     const navigateTo = useNavigate();
     const theme = useTheme();

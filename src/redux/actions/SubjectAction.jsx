@@ -17,7 +17,7 @@ export const setSubjects = (subjects) => {
 
 export const setFormSubjects = (subjects) => {
     return {
-        type: ActionTypes.SET_FORM_SUBJECTS,
+        type: ActionTypes.SET_ALL_SUBJECTS,
         payload: subjects
     };
 };

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
 *
@@ -9,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar/dist";
 import "react-pro-sidebar/dist/css/styles.css";
 
@@ -32,7 +34,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
 
 import API from "../../apis";
-import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
 import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
@@ -45,7 +47,8 @@ const Sidebar = ({ rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
   const selected = useSelector(state => state.menuItems.selected);
-  const formClassesInRedux = useSelector(state => state.allFormClasses);
+  const schoolClasses = useSelector(state => state.schoolClasses);
+  const allClasses = useSelector(state => state.allClasses);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -53,7 +56,8 @@ const Sidebar = ({ rolePriority }) => {
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
-  const { customSort, createUniqueDataArray, getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
+  const classData = (schoolClasses?.listData.length ? schoolClasses.listData : allClasses?.listData) || [];
+  const { fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
 
   const closeSubMenu = () => {
     if (isSubMenuOpen) {
@@ -62,29 +66,20 @@ const Sidebar = ({ rolePriority }) => {
   };
 
   useEffect(() => {
+    if (!getLocalStorage("schoolInfo") && !allClasses?.listData?.length) {
+      fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+    }
+    if (getLocalStorage("schoolInfo") && !schoolClasses?.listData?.length) {
+      fetchAndSetSchoolData(dispatch, setSchoolClasses);
+    }
+  }, [schoolClasses?.listData, allClasses?.listData]);
+
+  useEffect(() => {
     // const regex = /^\d+/;
     if (!location.pathname.startsWith('/student/')) {
       getLocalStorage('class') ? remLocalStorage('class') : null;
     }
   }, [location.pathname]);
-
-  useEffect(() => {
-    if (!formClassesInRedux?.listData?.length) {
-      API.SchoolAPI.getSchoolClasses(16)
-        .then(classData => {
-          if (classData.status === 'Success') {
-            classData.data.sort(customSort);
-            const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-            dispatch(setFormClasses(uniqueClassDataArray));
-          } else {
-            console.log("Error Fetching ClassData, Please Try Again");
-          }
-        })
-        .catch(err => {
-          console.log("Error Fetching ClassData:", err);
-        });
-    }
-  }, [formClassesInRedux.listData.length]);
 
   useEffect(() => {
     setIsCollapsed(isMobile);
@@ -95,7 +90,7 @@ const Sidebar = ({ rolePriority }) => {
   }, [isTab]);
 
   const renderNotCollapsedStudents = () => {
-    return formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(classs => (
+    return classData?.length && classData.map(classs => (
       <SidebarItem
         key={classs.class_id}
         title={`${addClassKeyword(classs.class_name)}`}
@@ -117,7 +112,7 @@ const Sidebar = ({ rolePriority }) => {
   };
 
   const renderCollapsedStudents = () => {
-    return formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(classs => (
+    return classData?.length && classData.map(classs => (
       <SidebarItem
         key={classs.class_id}
         to={`/student/listing/${classs.class_id}`}
@@ -171,7 +166,7 @@ const Sidebar = ({ rolePriority }) => {
           height: "50px",
           borderRadius: "50%",
           pointerEvents: "none",
-          boxShadow:  theme.palette.mode === 'light' ? "35px -35px 0 10px white" : "35px -35px 0 10px #141b2d"
+          boxShadow: theme.palette.mode === 'light' ? "35px -35px 0 10px white" : "35px -35px 0 10px #141b2d"
         },
         "& .pro-menu-item.active": {
           color: `#868dfb !important`,
@@ -437,8 +432,12 @@ const Sidebar = ({ rolePriority }) => {
           </Box>
         </Menu>
       </ProSidebar>
-    </Box >
+    </Box>
   );
+};
+
+Sidebar.propTypes = {
+  rolePriority: PropTypes.number
 };
 
 export default Sidebar;

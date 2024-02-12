@@ -116,6 +116,46 @@ export const Utility = () => {
         });
     };
 
+
+    const fetchAndSetAll = (dispatch, action, api) => {
+        api.getAll(false, 0, 50)
+            .then(res => {
+                if (res?.status === 'Success') {
+                    dispatch(action(res.data.rows));
+                } else {
+                    console.log("An Error Occurred, Please Try Again");
+                }
+            })
+            .catch(err => {
+                throw err;
+            });
+    };
+
+    /**Fetches school data (classes and optionally sections) from API and dispatches actions to update the Redux store.
+     * @param {function} dispatch - The Redux dispatch function.
+     * @param {function} setClassesAction - The Redux action to set classes in the store.
+     * @param {function} [setSectionsAction] - The optional Redux action to set sections in the store.
+     */
+    const fetchAndSetSchoolData = (dispatch, setClassesAction, setSectionsAction = false) => {
+        API.SchoolAPI.getSchoolClasses()
+            .then(classData => {
+                if (classData.status === 'Success') {
+                    const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                    dispatch(setClassesAction(uniqueClassDataArray));
+
+                    if (setSectionsAction) {
+                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
+                        dispatch(setSectionsAction(uniqueSectionDataArray));
+                    }
+                } else {
+                    console.log("Error Fetching School Data, Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.log("Error Fetching School Class Section Info:", err);
+            });
+    };
+
     /** Finds an object in a collection by its ID.
      * @param {number} id - The ID to search for.
      * @param {Array} model - The collection (array of objects) to search within.
@@ -157,7 +197,6 @@ export const Utility = () => {
      * @returns {string} - User initials.
      */
     const getInitials = () => {
-        6
         const authInfo = getLocalStorage("auth");
         if (authInfo?.username) {
             const [firstName, lastName] = authInfo.username.split(" ");
@@ -333,6 +372,8 @@ export const Utility = () => {
         createSession,
         customSort,
         createUniqueDataArray,
+        fetchAndSetAll,
+        fetchAndSetSchoolData,
         findById,
         findMultipleById,
         formatImageName,

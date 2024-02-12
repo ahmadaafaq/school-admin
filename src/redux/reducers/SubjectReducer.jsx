@@ -33,7 +33,7 @@ export const setSubjectsReducer = (state = initialState, action) => {
 
 export const setFormSubjectsReducer = (state = initialFormState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_FORM_SUBJECTS:
+        case ActionTypes.SET_ALL_SUBJECTS:
             return {
                 ...state,
                 listData: action.payload.listData,

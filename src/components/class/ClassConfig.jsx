@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,9 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
@@ -16,7 +15,6 @@ import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRen
 import { tokens } from "../../theme";
 
 export const datagridColumns = (handleDialogOpen) => {
-    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -28,7 +26,7 @@ export const datagridColumns = (handleDialogOpen) => {
 
     const columns = [
         {
-            field: "name",
+            field: "class_name",
             headerName: "NAME",
             headerAlign: "center",
             align: "center",
@@ -82,7 +80,7 @@ export const datagridColumns = (handleDialogOpen) => {
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id } }) => {
+            renderCell: ({ row: { class_id } }) => {
                 return (
                     <Box width="30%"
                         m="0 auto"
@@ -90,7 +88,7 @@ export const datagridColumns = (handleDialogOpen) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            onClick={() => handleActionEdit(id)}
+                            onClick={() => handleActionEdit(class_id)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
