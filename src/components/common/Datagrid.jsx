@@ -45,7 +45,6 @@ const ServerPaginationGrid = ({
 
     useEffect(() => {
         //TO BE REFACTORED
-        console.log('grid useeffect')
         if (!searchFlag.search && !searchFlag.searching) {
             getQuery(paginationModel.page, paginationModel.pageSize, action, api, condition);
             setOldPagination(paginationModel);

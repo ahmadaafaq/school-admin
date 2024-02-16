@@ -49,7 +49,7 @@ const initialValues = {
     aadhaar_no: "",
     caste_group: "",
     gender: "",
-    head: "",
+    head: 0,
     status: "inactive"
 };
 

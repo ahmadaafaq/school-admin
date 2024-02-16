@@ -32,14 +32,12 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
     const handleClassChange = (event) => {
         let localStorageValue = findById(event.target.value, formClassesInRedux?.listData);
         setLocalStorage("dropdown class", localStorageValue);
-        console.log(localStorageValue, 'localclass');
         dispatch(setMarksheetClass(findById(event.target.value, formClassesInRedux?.listData)));
     };
 
     const handleSectionChange = (event) => {
         let localStorageValue = findById(event.target.value, formSectionsInRedux?.listData);
         setLocalStorage("dropdown section", localStorageValue);
-        console.log(localStorageValue, 'localsection');
         dispatch(setMarksheetSection(findById(event.target.value, formSectionsInRedux?.listData)));
     };
 

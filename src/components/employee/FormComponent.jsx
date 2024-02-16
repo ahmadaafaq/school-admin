@@ -68,7 +68,7 @@ const FormComponent = () => {
     }, []);
 
     const updateEmployeeAndAddress = useCallback(formData => {
-        console.log("formdataABCD", formData)
+       
         const dataFields = [
             { ...formData.employeeData.values },
             { ...formData.addressData.values }

@@ -35,7 +35,7 @@ const PreviewImage = ({
     useEffect(() => {
         const dbImgFiles = [];
         const pickerFiles = [];
-        console.log('Update topa use effect 1', updatedImage)
+       
         if (updatedImage) {
             let countOld = 0;
             updatedImage.map(img => {
@@ -68,11 +68,9 @@ const PreviewImage = ({
     }, [updatedImage?.length]);
 
     useEffect(() => {
-        console.log('Update topa USE EFFECT image filessss 2');
         // On new image selection through picker
         if (imageFiles) {
-            console.log('update topa imageFilessss UEF 1', imageFiles);
-
+            
             const pickerFiles = [];
             const dbImgFiles = [];
 
@@ -86,8 +84,6 @@ const PreviewImage = ({
                 });
                 countNew++;
             }
-
-            console.log('new topa pickerFilessss', pickerFiles);
 
             if (updatedImage) {
                 let countOld = 0;

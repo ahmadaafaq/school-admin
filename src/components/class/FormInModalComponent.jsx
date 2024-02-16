@@ -128,7 +128,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     };
 
     const createClass = (values) => {
-        console.log(values.subjects)
         setLoading(true);
         values = {
             ...values,

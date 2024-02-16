@@ -58,7 +58,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const { toastAndNavigate, getLocalStorage } = Utility();
 
     let id = state?.id;
-    console.log("state.id=>", id)
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");

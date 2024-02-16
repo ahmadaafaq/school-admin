@@ -19,6 +19,8 @@ import Sidebar from "./components/common/Sidebar";
 import { ColorModeContext, useMode } from "./theme";
 import { Utility } from "./components/utility";
 
+import formBg from "./components/assets/formBg.png"
+
 const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 
 const AmenityListingComponent = lazy(() => import("./components/amenities/ListingComponent"));
@@ -109,7 +111,7 @@ function App() {
         <CssBaseline />
         <div className="app">
           {getLocalStorage("auth")?.token &&
-            <Suspense>
+            <Suspense fallback={<div><img src={formBg} alt="" style={{ backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundPosition:"center"}} /></div>}>
               <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
                 <Topbar roleName={userRole.name} />
