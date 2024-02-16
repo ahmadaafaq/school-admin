@@ -82,7 +82,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     .then(({ data: user }) => {
                         if (user?.status === 'Success') {
                             API.StudentAPI.createStudent({
-                                ...students,
+                                ...student,
                                 parent_id: user.data.id
                             })
                                 .then(response => {
