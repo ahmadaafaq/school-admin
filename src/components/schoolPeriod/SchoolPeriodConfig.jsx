@@ -6,21 +6,22 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-// import { useEffect } from "react";
-// import { useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { Box, Button, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
+// import { setSchoolClasses } from "../../redux/actions/ClassAction";
+// import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
+    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
@@ -30,18 +31,6 @@ export const datagridColumns = () => {
     const handleActionEdit = (id) => {
         navigateTo(`/school-period/update/${id}`, { state: { id: id } });
     };
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -85,12 +74,21 @@ export const datagridColumns = () => {
             minWidth: 100
         },
         {
+            field: "cutoff_time",
+            headerName: "CutOff time",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
             field: "opening_time",
             headerName: "Opening Time",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueFormatter: params => params?.value.substring(11, 19)
         },
         {
             field: "closing_time",
@@ -98,7 +96,8 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueFormatter: params => params?.value.substring(11, 19)
         },
         {
             field: "action",
