@@ -8,17 +8,20 @@
 
 import { ActionTypes } from "../constants/action-types";
 
+const initialListingState = {
+    listData: [],
+    loading: true
+};
+
+const initialSchoolState = {
+    listData: []
+};
+
 const initialState = {
-    listData: [],
-    loading: true
+    listData: []
 };
 
-const initialFormState = {
-    listData: [],
-    loading: true
-};
-
-export const setSubjectsReducer = (state = initialState, action) => {
+export const setListingSubjectsReducer = (state = initialListingState, action) => {
     switch (action.type) {
         case ActionTypes.SET_LISTING_SUBJECTS:
             return {
@@ -31,13 +34,24 @@ export const setSubjectsReducer = (state = initialState, action) => {
     }
 };
 
-export const setFormSubjectsReducer = (state = initialFormState, action) => {
+export const setSchoolSubjectsReducer = (state = initialSchoolState, action) => {
+    switch (action.type) {
+        case ActionTypes.SET_SCHOOL_SUBJECTS:
+            return {
+                ...state,
+                listData: action.payload
+            };
+        default:
+            return state;
+    }
+};
+
+export const setAllSubjectsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_ALL_SUBJECTS:
             return {
                 ...state,
-                listData: action.payload.listData,
-                loading: action.payload.loading
+                listData: action.payload
             };
         default:
             return state;

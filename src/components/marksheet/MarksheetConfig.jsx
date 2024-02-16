@@ -15,7 +15,7 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
@@ -59,11 +59,11 @@ export const datagridColumns = () => {
     //     }
     // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!subjectsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+    //     }
+    // }, [subjectsInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
         if (!studentsInRedux?.listData?.rows?.length) {

@@ -47,13 +47,15 @@ export const datagridColumns = (rolePriority = null) => {
     };
 
     useEffect(() => {
-        if (!getLocalStorage("schoolInfo") && (!allClasses?.listData?.length || !allSections?.listData?.length)) {
-            console.log('inside student allclasses')
-            fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
-            fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+        if (!getLocalStorage("schoolInfo")) {
+            if (!allClasses?.listData?.length) {
+                fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+            }
+            if (!allSections?.listData?.length) {
+                fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+            }
         }
         if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
-            console.log('inside student schoolclasses')
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections);
         }
     }, [schoolClasses?.listData?.length, schoolSections?.listData?.length, allClasses?.listData?.length, allSections?.listData?.length]);
@@ -155,13 +157,14 @@ export const datagridColumns = (rolePriority = null) => {
                         p="5px"
                         display="flex"
                         justifyContent="space-around">
-                        <Button color="info" variant="contained"
-                            disabled={rolePriority}
-                            onClick={() => handleActionEdit(id)}
-                            sx={{ minWidth: "50px" }}
-                        >
-                            <DriveFileRenameOutlineOutlinedIcon />
-                        </Button>
+
+                        {rolePriority !== 1 &&
+                            <Button color="info" variant="contained"
+                                onClick={() => handleActionEdit(id)}
+                                sx={{ minWidth: "50px" }}
+                            >
+                                <DriveFileRenameOutlineOutlinedIcon />
+                            </Button>}
 
                         <Button color="info" variant="contained"
                             onClick={() => handleActionShow(id)}

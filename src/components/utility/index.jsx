@@ -116,7 +116,11 @@ export const Utility = () => {
         });
     };
 
-
+    /** Fetches data from the specified API, dispatches the data to a Redux action and updates the state
+     * @param {function} dispatch - The dispatch function from the Redux store.
+     * @param {function} action - The Redux action to be dispatched with the fetched data.
+     * @param {object} api - An object containing methods for interacting with the API.
+     */
     const fetchAndSetAll = (dispatch, action, api) => {
         api.getAll(false, 0, 50)
             .then(res => {
@@ -127,7 +131,7 @@ export const Utility = () => {
                 }
             })
             .catch(err => {
-                throw err;
+                console.log('fetchandsetall function error:', err);
             });
     };
 
@@ -135,17 +139,23 @@ export const Utility = () => {
      * @param {function} dispatch - The Redux dispatch function.
      * @param {function} setClassesAction - The Redux action to set classes in the store.
      * @param {function} [setSectionsAction] - The optional Redux action to set sections in the store.
+     * @param {function} [setClassData] - The optional local state to set the data fetched from API call.
      */
-    const fetchAndSetSchoolData = (dispatch, setClassesAction, setSectionsAction = false) => {
+    const fetchAndSetSchoolData = (dispatch, setClassesAction = false, setSectionsAction = false, setClassData = false) => {
         API.SchoolAPI.getSchoolClasses()
             .then(classData => {
                 if (classData.status === 'Success') {
-                    const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-                    dispatch(setClassesAction(uniqueClassDataArray));
-
-                    if (setSectionsAction) {
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
-                        dispatch(setSectionsAction(uniqueSectionDataArray));
+                    if (setClassesAction) {
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setClassesAction(uniqueClassDataArray));
+                    }
+                    if (setSectionsAction) {        //why is this required, needs to be tested
+                        const uniqueSectionsDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
+                        console.log(uniqueSectionsDataArray, 'unique')
+                        dispatch(setSectionsAction(uniqueSectionsDataArray));
+                    }
+                    if (setClassData) {    //setting all classData in local state then filtering subjects according to class sections
+                        setClassData(classData.data);
                     }
                 } else {
                     console.log("Error Fetching School Data, Please Try Again");

@@ -56,8 +56,8 @@ const Sidebar = ({ rolePriority }) => {
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
-  const classData = (schoolClasses?.listData.length ? schoolClasses.listData : allClasses?.listData) || [];
   const { fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
+  const classData = (schoolClasses?.listData.length ? schoolClasses.listData : allClasses?.listData) || [];
 
   const closeSubMenu = () => {
     if (isSubMenuOpen) {

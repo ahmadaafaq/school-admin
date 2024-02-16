@@ -23,7 +23,7 @@ import teacherValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
-import { setFormSubjects } from "../../redux/actions/SubjectAction";
+import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -67,7 +67,7 @@ const TeacherFormComponent = ({
 
     const schoolClasses = useSelector(state => state.schoolClasses);
     const schoolSections = useSelector(state => state.schoolSections);
-    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
+    const formSubjectsInRedux = useSelector(state => state.schoolSubjects);
 
     const dispatch = useDispatch();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
@@ -155,7 +155,7 @@ const TeacherFormComponent = ({
 
     useEffect(() => {
         if (!formSubjectsInRedux?.listData?.rows?.length) {
-            fetchAndSetAll(dispatch, setFormSubjects, API.SubjectAPI);
+            fetchAndSetAll(dispatch, setSchoolSubjects, API.SubjectAPI);
         }
     }, [formSubjectsInRedux?.listData?.rows]);
 

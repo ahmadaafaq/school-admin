@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,19 +8,20 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Box, InputLabel, MenuItem, InputAdornment, IconButton, FormControl } from "@mui/material";
 import { Button, Select, TextField, useMediaQuery } from "@mui/material";
-
-import { useFormik } from "formik";
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import { useFormik } from "formik";
 
 import API from "../../apis";
 import userValidation from "./Validation";
-import { setSchools } from "../../redux/actions/SchoolAction";
-import { useCommon } from "../hooks/common";
+
+import { setAllSchools } from "../../redux/actions/SchoolAction";
+import { Utility } from "../utility";
 
 const initialValues = {
     school_id: '',
@@ -49,14 +51,15 @@ const UserFormComponent = ({
         password: null
     });
     const [initialState, setInitialState] = useState(initialValues);
-    const [schoolId, setSchoolId] = useState(null);
+    const [_schoolId, setSchoolId] = useState(null);
     const [allRoles, setAllRoles] = useState([]);
-    const schoolsInRedux = useSelector(state => state.allSchools);
+    const allSchools = useSelector(state => state.allSchools);
 
+    const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const pwField = document.getElementById("pwField");
-    const { getPaginatedData } = useCommon();
+    const { fetchAndSetAll } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -82,7 +85,7 @@ const UserFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -110,10 +113,10 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (!schoolsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSchools, API.SchoolAPI);
+        if (!allSchools?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
         }
-    }, [schoolsInRedux]);
+    }, [allSchools?.listData]);
 
     useEffect(() => {
         const getRoles = () => {
@@ -149,7 +152,7 @@ const UserFormComponent = ({
                 clicked: true
             });
             formik.values.password = updatePassword.password;
-        };
+        }
     };
 
     return (
@@ -291,8 +294,8 @@ const UserFormComponent = ({
                                 formik.setFieldValue("school_id", selectedSchoolId);
                             }}
                         >
-                            {schoolsInRedux?.listData?.rows?.length && schoolsInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
+                            {allSchools?.listData?.length && allSchools.listData.map(item => (
+                                <MenuItem value={item.id} name={item.name} key={item.id}>
                                     {item.name}
                                 </MenuItem>
                             ))}
@@ -341,6 +344,19 @@ const UserFormComponent = ({
             </form>
         </Box>
     );
-}
+};
+
+UserFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    userId: PropTypes.number,
+    rolePriority: PropTypes.number,
+    updatedValues: PropTypes.object
+};
 
 export default UserFormComponent;

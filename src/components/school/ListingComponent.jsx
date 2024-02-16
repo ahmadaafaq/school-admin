@@ -19,12 +19,12 @@ import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./SchoolConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSchools } from "../../redux/actions/SchoolAction";
+import { setListingSchools } from "../../redux/actions/SchoolAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
-import listBg from "../assets/listBG.jpg"
+import listBg from "../assets/listBG.jpg";
 
 const pageSizeOptions = [5, 10, 20];
 
@@ -36,7 +36,7 @@ const ListingComponent = () => {
     const isTab = useMediaQuery("(max-width:920px)");
 
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allSchools);
+    const { listData, loading } = useSelector(state => state.listingSchools);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -50,6 +50,7 @@ const ListingComponent = () => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleReload = () => {
@@ -99,7 +100,7 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setSchools}
+                        action={setListingSchools}
                         api={API.SchoolAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
@@ -136,7 +137,7 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setSchools}
+                action={setListingSchools}
                 api={API.SchoolAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns()}

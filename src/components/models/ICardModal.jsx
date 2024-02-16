@@ -8,16 +8,19 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import PropTypes from "prop-types";
 import { usePDF } from 'react-to-pdf';
 
 import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Grid, IconButton } from '@mui/material';
-import { List, ListItem, ListItemText, TextField, useMediaQuery } from '@mui/material';
+import { List, ListItem, ListItemText, TextField, Tooltip, useMediaQuery } from '@mui/material';
 import { green } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 
 import './styles.css';
 import API from '../../apis';
+
 import { tokens } from "../../theme";
 import { Utility } from '../utility';
 
@@ -26,14 +29,15 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
     const [signatureImageChange, setSignatureImageChange] = useState([]);
     const formClassesInRedux = useSelector(state => state.schoolClasses);
     const formSectionsInRedux = useSelector(state => state.schoolSections);
+
     const studentImageRef = useRef([]);
     const { toPDF, targetRef } = usePDF({ filename: 'document.pdf' });
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const isMobile = useMediaQuery("(max-width:480px)");
-    const isTab = useMediaQuery("(max-width:920px)");
+    // const isMobile = useMediaQuery("(max-width:480px)");
+    // const isTab = useMediaQuery("(max-width:920px)");
     const { appendSuffix, findById } = Utility();
 
     const className = findById(iCardDetails?.class, formClassesInRedux?.listData)?.class_name;
@@ -59,22 +63,24 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
     }, [iCardDetails.Student, signatureImage, signatureImageChange]);
 
     useEffect(() => {
-        API.SchoolAPI.getDetailsForICard()
-            .then(data => {
-                if (data.status === 'Success') {
-                    console.log(data.data, 'school data');
-                    setICardDetails({
-                        ...iCardDetails,
-                        schoolData: data.data[0]
-                    });
-                } else {
-                    console.log("Error Fetching School Data, Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.log("Error Fetching SchoolData:", err);
-            });
-    }, []);
+        if (openDialog) {
+            API.SchoolAPI.getDetailsForICard()
+                .then(data => {
+                    if (data.status === 'Success') {
+                        setICardDetails({
+                            ...iCardDetails,
+                            schoolData: data.data[0]
+                        });
+                    } else {
+                        console.log("Error Fetching School Data, Please Try Again");
+                    }
+                })
+                .catch(err => {
+                    console.log("Error Fetching SchoolData:", err);
+                });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openDialog]);
     console.log(iCardDetails, 'formatted details in icard modal');
 
     return (
@@ -83,6 +89,11 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
             open={openDialog}
             aria-labelledby="responsive-dialog-title"
             id="dialog"
+            sx={{
+                "&. MuiDialog-container": {
+                    height: "102% !important"
+                }
+            }}
         >
             <Card ref={targetRef} sx={{ width: '340px' }}>
                 <Box
@@ -140,8 +151,8 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                         </ListItem>
 
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', columnGap: '10px', rowGap: '5px' }}>
-                            <span className='heading-text'> Father's Name: </span>
-                            <span className='normal-text'> {iCardDetails.father_name ? iCardDetails.father_name : ''} </span>
+                            <span className='heading-text'> Father&apos;s Name: </span>
+                            <span className='normal-text'> {iCardDetails.father_name ? iCardDetails.father_name : iCardDetails.guardian} </span>
 
                             <span className='heading-text'>Class:</span>
                             <span className='normal-text'>{className ? `${appendSuffix(className)} ${sectionName}` : ''}</span>
@@ -153,8 +164,8 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                             <span className='normal-text'>{iCardDetails.contact_no ? iCardDetails.contact_no : ''}</span>
 
                             <span className='heading-text'>Address:</span>
-                            <span className='normal-text'>{`${iCardDetails?.street} ${iCardDetails?.landmark} ${iCardDetails?.city}
-                            ${iCardDetails?.state} ${iCardDetails?.country}-${iCardDetails?.zipcode}`}</span>
+                            <span className='normal-text'>{`${iCardDetails?.street} ${iCardDetails?.landmark} ${iCardDetails?.studentCity}
+                            ${iCardDetails?.studentState} ${iCardDetails?.studentCountry}-${iCardDetails?.zipcode}`}</span>
                         </Box>
                     </List>
                 </CardContent>
@@ -187,12 +198,39 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                         </Grid>}
                     {/* Column 2 - Image */}
                     {!signatureImageChange.length ? null :
-                        <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', position: 'relative' }}>
+                            <IconButton
+                                sx={{
+                                    position: "absolute",
+                                    left: "86%",
+                                    '@media screen and (max-width: 920px)': {
+                                        left: '76%',
+                                    },
+                                    '@media screen and (max-width: 480px)': {
+                                        left: '59%',
+                                    },
+                                    top: "6%"
+                                }}
+                                onClick={() => setSignatureImageChange([])}
+                            >
+                                <Tooltip title="DELETE">
+                                    <HighlightOffOutlinedIcon sx={{
+                                        fontSize: "16px",
+                                        color: "#002147",
+                                        "&:hover": {
+                                            color: "red", fontSize: "20px", transition: "all 0.3s ease-in-out"
+                                        }
+                                    }}
+                                    />
+                                </Tooltip>
+                            </IconButton>
                             <CardMedia
                                 component="img"
                                 image={signatureImageChange}
-                                sx={{ height: '50px', width: '130px', margin: '10px 20px 0 0' }}
                                 alt='principal-signature'
+                                sx={{
+                                    height: '50px', width: '130px', margin: '10px 20px 0 0'
+                                }}
                             />
                         </Grid>}
                     {/* Row 2 - Text */}
@@ -215,6 +253,13 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
             </DialogActions>
         </Dialog >
     );
+};
+
+ICardModal.propTypes = {
+    iCardDetails: PropTypes.object,
+    setICardDetails: PropTypes.func,
+    setOpenDialog: PropTypes.func,
+    openDialog: PropTypes.bool
 };
 
 export default ICardModal;
