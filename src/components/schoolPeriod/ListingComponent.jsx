@@ -54,7 +54,7 @@ const ListingComponent = () => {
     }, []);
 
     const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
+        getSearchData(oldPagination.page, oldPagination.pageSize, condition);
         reloadBtn.style.display = "none";
         setSearchFlag({
             search: false,
@@ -62,6 +62,7 @@ const ListingComponent = () => {
             oldPagination
         });
     };
+    console.log("listData>>>>=",listData);
 
     return (
         <Box m="10px" position="relative"

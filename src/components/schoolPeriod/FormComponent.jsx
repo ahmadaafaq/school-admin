@@ -41,7 +41,7 @@ const FormComponent = () => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const schoolPeriodFormRef = useRef();
-   
+
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -94,50 +94,45 @@ const FormComponent = () => {
         setLoading(true);
         const paths = [`/get-by-pk/school-period/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
-            .then(responses => {
-                if (responses[0].data.data) {
-                    // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
-                    // responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
-                    // responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
+            .then(response => {
+                console.log("respon>>>>",response)
+                if (response[0]?.data?.data) {
+                    response[0].data.data.opening_time = dayjs(response[0].data.data.opening_time);
+                    response[0].data.data.closing_time = dayjs(response[0].data.data.closing_time);
                 }
                 const dataObj = {
-                    schoolPeriodData: responses[0].data.data
+                    schoolPeriodData: response[0].data.data
                 };
+                console.log("ye lo valuesss>>=", dataObj);
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                console.log('Error in creating school period', err);
             });
     };
+
 
     const createSchoolPeriod = () => {
         setLoading(true);
         API.SchoolPeriodAPI.createSchoolPeriod({ ...formData.schoolPeriodData.values })
             .then(({ data: schoolPeriod }) => {
                 if (schoolPeriod?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: schoolPeriod.data.id,
-                        parent: 'schoolPeriod',
-                    })
-                        .then(address => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/school-period/listing`);
-                        })
-                        .catch(err => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                            throw err;
-                        });
-                };
+                    console.log("qwertyuio>>>",data)
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/school-period/listing`);
+                } else {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
+                    console.log('Error in creating school period', err);
+                }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                console.log('Error in creating school period', err);
             });
     };
 
@@ -162,21 +157,12 @@ const FormComponent = () => {
 
     const handleSubmit = async () => {
         await schoolPeriodFormRef.current.Submit();
-        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        if (form === 'schoolPeriod') {
-            setFormData({ ...formData, schoolPeriodData: data });
-        } else {
-            setFormData({ ...formData, addressData: data });
-        }
-        // } else if (form === 'parent') {
-        //     setFormData({ ...formData, imageData: data });
-        // }
-    };
-
+        form == 'schoolPeriod' ? setFormData({ ...formData, schoolPeriodData: data }) : '';
+    }
     return (
         <Box ml="10px"
             sx={{
@@ -186,7 +172,7 @@ const FormComponent = () => {
                 backgroundPosition: "start",
                 backgroundSize: "cover",
                 backgroundAttachment: "fixed",
-                height:"100%"
+                height: "100%"
             }}
         >
             <Typography
@@ -210,33 +196,6 @@ const FormComponent = () => {
                 userId={id}
                 updatedValues={updatedValues?.schoolPeriodData}
             />
-            {/* <AddressFormComponent
-                onChange={(data) => {
-                    handleFormChange(data, 'address');
-                }}
-                refId={addressFormRef}
-                update={id ? true : false}
-                setDirty={setDirty}
-                reset={reset}
-                setReset={setReset}
-                updatedValues={updatedValues?.addressData}
-            /> */}
-            {/* <ImagePicker
-                key="image"
-                onChange={data => handleFormChange(data, 'parent')}
-                refId={imageFormRef}
-                reset={reset}
-                setReset={setReset}
-                setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
-                deletedImage={deletedImage}
-                setDeletedImage={setDeletedImage}
-                imageType="Guardian"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
-            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
                 {   //hide reset button on SchoolPeriod update

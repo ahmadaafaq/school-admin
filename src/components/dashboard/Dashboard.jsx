@@ -316,10 +316,10 @@ const Dashboard = () => {
           />
         </Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "10px" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow:"hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "10px" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow:"hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>

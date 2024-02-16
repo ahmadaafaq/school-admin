@@ -7,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
@@ -17,6 +17,8 @@ import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 
+import API from "../../apis";
+import Toast from "../common/Toast";
 import studentValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
@@ -47,6 +49,7 @@ const initialValues = {
     aadhaar_no: "",
     caste_group: "",
     gender: "",
+    head: "",
     status: "inactive"
 };
 
@@ -59,21 +62,24 @@ const StudentFormComponent = ({
     classData,
     setClassData,
     allSubjects,
-    updatedValues = null,
+    userId,
     iCardDetails,
-    setICardDetails
+    setICardDetails,
+    updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
     const schoolClasses = useSelector(state => state.schoolClasses);
     const schoolSections = useSelector(state => state.schoolSections);
     const schoolSubjects = useSelector(state => state.schoolSubjects);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const dispatch = useDispatch();
+    const genderRef = useRef();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { createSession, fetchAndSetSchoolData, getLocalStorage, getValuesFromArray } = Utility();
+    const { createSession, fetchAndSetSchoolData, getLocalStorage, getValuesFromArray, toastAndNavigate } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -97,6 +103,23 @@ const StudentFormComponent = ({
                     : false
             });
         }
+    };
+
+    const validateHead = () => {
+        const condition = {
+            gender: formik.values.gender
+        };
+        console.log("gendercon>>", condition);
+
+        API.StudentAPI.getAll(condition)
+            .then(res => {
+                if (res.status === 'Success') {
+                    alert(`Can not appoint Head ${formik.values.gender}`)
+                }
+            })
+            .catch(err => {
+                console.error("An error occurred: ", err);
+            });
     };
 
     const setSubjects = () => {
@@ -161,7 +184,6 @@ const StudentFormComponent = ({
             setClassSections();
         }
     }, [formik.values?.class, classData?.length]);
-
 
     return (
         <Box m="20px">
@@ -479,6 +501,7 @@ const StudentFormComponent = ({
                     >
                         <InputLabel id="genderField">Gender</InputLabel>
                         <Select
+                            ref={genderRef}
                             variant="filled"
                             labelId="genderField"
                             name="gender"
@@ -491,6 +514,31 @@ const StudentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
+                    {userId && <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.head && !!formik.errors.head}
+                    >
+                        <InputLabel id="headField">{updatedValues?.gender === "male" ? "Head Boy" : updatedValues?.gender === "female" ? "Head Girl" : "Select Head of School"}</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="headField"
+                            name="head"
+                            value={formik.values.head}
+                            onChange={event => {
+                                if (formik.values.gender) {
+                                    formik.setFieldValue("head", event.target.value);
+                                    if (event.target.value == 1) {
+                                        validateHead();
+                                    }
+                                } else {
+                                    toastAndNavigate(dispatch, true, "info", "Please Select Gender");
+                                }
+                            }}
+                        >
+                            <MenuItem value={1}>Appoint</MenuItem>
+                            <MenuItem value={0}>Remove</MenuItem>
+                        </Select>
+                        <FormHelperText>{formik.touched.head && formik.errors.head}</FormHelperText>
+                    </FormControl>}
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
@@ -508,8 +556,12 @@ const StudentFormComponent = ({
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
-            </form >
-        </Box >
+            </form>
+            <Toast alerting={toastInfo.toastAlert}
+                severity={toastInfo.toastSeverity}
+                message={toastInfo.toastMessage}
+            />
+        </Box>
     );
 };
 
@@ -524,6 +576,7 @@ StudentFormComponent.propTypes = {
     classData: PropTypes.array,
     setClassData: PropTypes.func,
     allSubjects: PropTypes.array,
+    userId: PropTypes.number,
     updatedValues: PropTypes.object,
     iCardDetails: PropTypes.object,
     setICardDetails: PropTypes.func

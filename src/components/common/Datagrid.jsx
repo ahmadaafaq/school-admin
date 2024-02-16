@@ -9,8 +9,10 @@
 import { useEffect, useState } from 'react';
 import PropTypes from "prop-types";
 
-import { Box, useTheme } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { Box, useTheme, Button } from "@mui/material";
+import { DataGrid, GridToolbar, GridToolbarContainer } from "@mui/x-data-grid";
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import ImportComponent from "../models/ImportModel";
 
 import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
@@ -39,6 +41,7 @@ const ServerPaginationGrid = ({
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
+    const [openImport, setOpenImport] = useState(false);
 
     useEffect(() => {
         //TO BE REFACTORED
@@ -125,9 +128,20 @@ const ServerPaginationGrid = ({
                 loading={classNames.includes(selected) ? loading : loading}
                 rowCount={rowCountState}
                 components={{
-                    Toolbar: GridToolbar,
+                    Toolbar: () => (
+                        <Box display="flex" >
+                            <GridToolbar />
+                            <GridToolbarContainer>
+                                <Button sx={{ padding: "0px" }} onClick={() => setOpenImport(true)}>
+                                    <PostAddIcon sx={{ marginRight: "5px" }} />Import
+                                </Button>
+                            </GridToolbarContainer>
+                        </Box>
+                    ),
                     LoadingOverlay: multipleSkeletons,
                     noRowsOverlay: EmptyOverlayGrid
+
+                    // ... other components
                 }}
                 pagination
                 ServerPaginationGrid
@@ -137,6 +151,8 @@ const ServerPaginationGrid = ({
                 pageSizeOptions={pageSizeOptions}
                 keepNonExistentRowsSelected
             />
+
+            {openImport && <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} />}
         </Box>
     );
 };

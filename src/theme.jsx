@@ -200,9 +200,11 @@ export const themeSettings = (mode) => {
                         '& label.MuiInputLabel-root': {
                             color: mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
                         },
-                        boxShadow: '1px 1px 5px rgb(0 0 0 / 30%)',
-                        borderRadius:'5px',
-                        backdropFilter:"blur(5px)"
+                        '& .MuiFilledInput-root':{
+                            backdropFilter:"blur(5px)",
+                            boxShadow: "1px 1px 10px rgba(0, 0, 0,0.2)",
+                            borderRadius:'10px'
+                        }
                     },
                 },
             },
@@ -221,9 +223,12 @@ export const themeSettings = (mode) => {
                         '& .MuiInputLabel-root': {
                           color: mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
                         },
-                        boxShadow: '1px 1px 5px rgb(0 0 0 / 30%)',
-                        borderRadius:'5px',
-                        backdropFilter:"blur(5px)"
+                       
+                        '& .MuiFilledInput-root':{
+                            backdropFilter:"blur(5px)",
+                            boxShadow: "1px 1px 10px rgba(0, 0, 0, 0.2)",
+                            borderRadius:'10px'
+                        }
                     },
                 },
             }
