@@ -29,6 +29,7 @@ const initialValues = {
     recess_time: "",
     first_half_period_duration: "",
     second_half_period_duration: "",
+    cutoff_time:"",
     opening_time: null,
     closing_time: null
 };
@@ -90,7 +91,8 @@ const SchoolPeriodFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-   console.log('first>>',updatedValues)
+
+   console.log('first>>',formik.values)
 
     return (
         <Box m="20px">
@@ -168,10 +170,24 @@ const SchoolPeriodFormComponent = ({
                         error={!!formik.touched.second_half_period_duration && !!formik.errors.second_half_period_duration}
                         helperText={formik.touched.second_half_period_duration && formik.errors.second_half_period_duration}
                     />
+                     <TextField
+                        fullWidth
+                        variant="filled"
+                        type="number"
+                        name="cutoff_time"
+                        label="CutOff Time (mintues)"
+                        autoComplete="new-cutoff_time"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.cutoff_time}
+                        error={!!formik.touched.cutoff_time && !!formik.errors.cutoff_time}
+                        helperText={formik.touched.cutoff_time && formik.errors.cutoff_time}
+                    />
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimePicker
                             name="opening_time"
                             label="Opening time"
+                            format="hh:mm A"
                             value={formik.values.opening_time}
                             onChange={newOpeningTime => {
                                 formik.setFieldValue("opening_time", newOpeningTime);

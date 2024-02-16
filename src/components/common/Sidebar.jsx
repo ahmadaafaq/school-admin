@@ -173,6 +173,7 @@ const Sidebar = ({ rolePriority }) => {
           backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#141b2d',
           borderRadius: " 20px 0 0px 20px;",
           boxShadow: "1px 1px 7px black",
+          marginTop:"5px"
         },
         "& .pro-menu-item:hover": {
           color: theme.palette.mode === 'light' ? `#868dfb !important` : `black !important`,
@@ -275,6 +276,7 @@ const Sidebar = ({ rolePriority }) => {
                       rolePriority={rolePriority}
                       menuVisibility={5}
                       isSubMenu={true}
+                      mt="5px"
                     />
                     {renderCollapsedStudents()}
                   </SubMenu>

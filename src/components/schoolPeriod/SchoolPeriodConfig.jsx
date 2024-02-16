@@ -6,8 +6,8 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-// import { useEffect } from "react";
-// import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, useTheme } from '@mui/material';
@@ -31,18 +31,6 @@ export const datagridColumns = () => {
     const handleActionEdit = (id) => {
         navigateTo(`/school-period/update/${id}`, { state: { id: id } });
     };
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -80,6 +68,14 @@ export const datagridColumns = () => {
         {
             field: "second_half_period_duration",
             headerName: "Second Half periods Duration",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "cutoff_time",
+            headerName: "CutOff time",
             headerAlign: "center",
             align: "center",
             flex: 1,
