@@ -39,9 +39,13 @@ export const datagridColumns = () => {
     };
 
     useEffect(() => {
-        if (!getLocalStorage("schoolInfo") && (!allClasses?.listData?.length || !allSections?.listData?.length)) {
-            fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
-            fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+        if (!getLocalStorage("schoolInfo")) {
+            if (!allClasses?.listData?.length) {
+                fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+            }
+            if (!allSections?.listData?.length) {
+                fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+            }
         }
         if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections);

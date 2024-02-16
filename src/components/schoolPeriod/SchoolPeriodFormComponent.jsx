@@ -1,27 +1,21 @@
-/**
- * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
- *
- * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
- * restrictions set forth in your license agreement with School CRM.
-*/
+/* eslint-disable react-hooks/exhaustive-deps */
+// /**
+//  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
+//  *
+//  * This software is the confidential information of School CRM Inc., and is licensed as
+//  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+//  * restrictions set forth in your license agreement with School CRM.
+// */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import dayjs from "dayjs";
+import PropTypes from "prop-types";
 
-import { Box } from "@mui/material";
-import { TextField, useMediaQuery } from "@mui/material";
+import { Box, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
+import { TimePicker, renderTimeViewClock, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
-import API from "../../apis";
 import SchoolPeriodValidation from "./Validation";
-
-import { useCommon } from "../hooks/common";
 
 const initialValues = {
     period: "",
@@ -29,7 +23,7 @@ const initialValues = {
     recess_time: "",
     first_half_period_duration: "",
     second_half_period_duration: "",
-    cutoff_time:"",
+    cutoff_time: "",
     opening_time: null,
     closing_time: null
 };
@@ -40,14 +34,12 @@ const SchoolPeriodFormComponent = ({
     setDirty,
     reset,
     setReset,
-    userId,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
 
     const formik = useFormik({
         initialValues: initialState,
@@ -70,7 +62,7 @@ const SchoolPeriodFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -91,8 +83,6 @@ const SchoolPeriodFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-
-   console.log('first>>',formik.values)
 
     return (
         <Box m="20px">
@@ -170,7 +160,7 @@ const SchoolPeriodFormComponent = ({
                         error={!!formik.touched.second_half_period_duration && !!formik.errors.second_half_period_duration}
                         helperText={formik.touched.second_half_period_duration && formik.errors.second_half_period_duration}
                     />
-                     <TextField
+                    <TextField
                         fullWidth
                         variant="filled"
                         type="number"
@@ -212,11 +202,21 @@ const SchoolPeriodFormComponent = ({
                             }}
                         />
                     </LocalizationProvider>
-                    
                 </Box>
             </form >
         </Box >
     );
-}
+};
+
+SchoolPeriodFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object
+};
 
 export default SchoolPeriodFormComponent;

@@ -7,12 +7,12 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
 
-import { Box, Divider, InputLabel, MenuItem, FormControl, Typography, Autocomplete } from "@mui/material";
+import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
 import { Button, Dialog, Select, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 
@@ -22,9 +22,7 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setFormSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
@@ -51,7 +49,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [loading, setLoading] = useState(false);
     const [initialState, setInitialState] = useState(initialValues);
 
-    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -59,7 +56,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const dispatch = useDispatch();
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
-    const { toastAndNavigate, fetchAndSetAll, getLocalStorage, getIdsFromObject, getValuesFromArray } = Utility();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObject } = Utility();
 
     let id = state?.id;
 
@@ -115,18 +112,17 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 if (response[0].data.status === "Success") {
-                    response[0].data.data.subjects = getValuesFromArray(response[0].data.data?.subjects, formSubjectsInRedux?.listData?.rows);
                     setInitialState(response[0].data.data);
                     setLoading(false);
                 }
                 else {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
+                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, 0);
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     };
@@ -149,21 +145,15 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                     }, 2000);
                 } else {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
+                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, 0);
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     };
-
-    useEffect(() => {
-        if (!formSubjectsInRedux?.listData?.rows?.length) {
-            fetchAndSetAll(dispatch, setFormSubjects, API.SubjectAPI);
-        }
-    }, [formSubjectsInRedux?.listData?.rows?.length]);
 
     return (
         <div>
@@ -180,7 +170,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                             : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "center",
-                        backgroundSize: "cover",
+                        backgroundSize: "cover"
                     }
                 }}
             >

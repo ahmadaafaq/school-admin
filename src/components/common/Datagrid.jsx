@@ -7,7 +7,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import PropTypes from "prop-types";
 
 import { Box, useTheme, Button } from "@mui/material";
 import { DataGrid, GridToolbar, GridToolbarContainer } from "@mui/x-data-grid";
@@ -45,20 +45,23 @@ const ServerPaginationGrid = ({
 
     useEffect(() => {
         //TO BE REFACTORED
+        console.log('grid useeffect')
         if (!searchFlag.search && !searchFlag.searching) {
             getQuery(paginationModel.page, paginationModel.pageSize, action, api, condition);
             setOldPagination(paginationModel);
-        } else if (searchFlag.oldPagination && !searchFlag.searching) {
-            getQuery(searchFlag.oldPagination.page, searchFlag.oldPagination.pageSize, action, api, condition);
+        } else if (!searchFlag.searching) {
+            getQuery(searchFlag, searchFlag, action, api, condition);
             setPaginationModel({
-                page: searchFlag.oldPagination.page,
-                pageSize: searchFlag.oldPagination.pageSize
+                // page: searchFlag.oldPagination.page,
+                // pageSize: searchFlag.oldPagination.pageSize
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected, paginationModel.page, paginationModel.pageSize, searchFlag.searching]);
 
     useEffect(() => {
         setPaginationModel(initialState);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected]);
 
     // Some API clients return undefined while loading
@@ -71,12 +74,9 @@ const ServerPaginationGrid = ({
         );
     }, [count, setRowCountState]);
 
-    // console.log({rows});
-
     return (
         <Box
             m="30px 0 0 0"
-            // width="100vw"
             sx={{
                 "& .MuiDataGrid-root": {
                     border: "none",
@@ -84,7 +84,6 @@ const ServerPaginationGrid = ({
                 },
                 "& .MuiDataGrid-cell": {
                     borderBottom: "none",
-                    // minHeight: "100px !important"
                 },
                 "& .MuiDataGrid-cellCheckbox": {
                     borderBottom: "none"
@@ -156,6 +155,24 @@ const ServerPaginationGrid = ({
             {openImport && <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} />}
         </Box>
     );
+};
+
+ServerPaginationGrid.propTypes = {
+    action: PropTypes.func,
+    api: PropTypes.object,
+    getQuery: PropTypes.func,
+    condition: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+    columns: PropTypes.array,
+    rows: PropTypes.array,
+    count: PropTypes.number,
+    loading: PropTypes.bool,
+    selected: PropTypes.string,
+    pageSizeOptions: PropTypes.arrayOf(PropTypes.number),
+    searchFlag: PropTypes.shape({
+        search: PropTypes.bool,
+        searching: PropTypes.bool
+    }),
+    setOldPagination: PropTypes.func,
 };
 
 export default ServerPaginationGrid;

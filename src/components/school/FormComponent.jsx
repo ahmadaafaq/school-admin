@@ -23,7 +23,7 @@ import SchoolFormComponent from "./SchoolFormComponent";
 import { setAllClasses } from "../../redux/actions/ClassAction";
 import { setAllSections } from "../../redux/actions/SectionAction";
 import { setFormAmenities } from "../../redux/actions/AmenityAction";
-import { setFormSubjects } from "../../redux/actions/SubjectAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -44,11 +44,11 @@ const FormComponent = () => {
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
+    const [previewDisplay, setPreviewDisplay] = useState([]);
     const [deletedBannerImage, setDeletedBannerImage] = useState([]);
     const [previewBanner, setPreviewBanner] = useState([]);
-    const [displayImage, setDisplayImage] = useState([]);
-    const [bannerImage, setBannerImage] = useState([]);
+    const [updatedDisplayImage, setUpdatedDisplayImage] = useState([]);
+    const [updatedBannerImage, setUpdatedBannerImage] = useState([]);
 
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -56,7 +56,7 @@ const FormComponent = () => {
 
     const allClasses = useSelector(state => state.allClasses);
     const allSections = useSelector(state => state.allSections);
-    const formSubjectsInRedux = useSelector(state => state.allFormSubjects);
+    const allSubjects = useSelector(state => state.allSubjects);
     const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -197,13 +197,13 @@ const FormComponent = () => {
                     if (status) {
                         setLoading(false);
                         console.log("I have ended updating all fields")
-                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, "/school/listing");
+                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
                     }
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, 0);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     }, [formData]);
@@ -214,13 +214,11 @@ const FormComponent = () => {
 
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                console.log('responses=>', responses);
                 if (responses[0]?.data?.data) {
                     responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
                 }
                 API.SchoolAPI.getSchoolClasses(id)
                     .then(res => {
-                        console.log('res=>', res);
                         const dataObj = {
                             schoolData: {
                                 schoolData: responses[0].data.data,
@@ -231,8 +229,8 @@ const FormComponent = () => {
                         };
                         console.log('school dataobj', dataObj)
                         setUpdatedValues(dataObj);
-                        setDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
-                        setBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
+                        setUpdatedDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
+                        setUpdatedBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
                         setLoading(false);
 
                     })
@@ -276,9 +274,9 @@ const FormComponent = () => {
                         // Iterating through each section in the class then associating subject ids for each section of class
                         innerArray.map((sectionData, sectionIndex) => {
                             const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                            console.log(schoolClass, sectionData.id, getIdsFromObject(subjectArray, formSubjectsInRedux?.listData?.rows), 'schoolClass, sectionid, subjectids innerloop');
+                            console.log(schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData), 'schoolClass, sectionid, subjectids innerloop');
                             API.SchoolAPI.insertIntoMappingTable(
-                                [school.data.id, schoolClass, sectionData.id, getIdsFromObject(subjectArray, formSubjectsInRedux?.listData?.rows)]
+                                [school.data.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
                             );
                         });
                     });
@@ -325,7 +323,7 @@ const FormComponent = () => {
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     }, []);
@@ -337,10 +335,10 @@ const FormComponent = () => {
     }, [formAmenitiesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        if (!formSubjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setFormSubjects, API.SubjectAPI);
+        if (!allSubjects?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [formSubjectsInRedux?.listData?.rows?.length]);
+    }, [allSubjects?.listData?.length]);
 
     useEffect(() => {
         if (!allClasses?.listData?.length) {
@@ -356,7 +354,7 @@ const FormComponent = () => {
 
     //Create/Update/Populate School
     useEffect(() => {
-        if (id && !submitted && formAmenitiesInRedux?.listData?.rows && formSubjectsInRedux?.listData?.rows) {
+        if (id && !submitted && formAmenitiesInRedux?.listData?.rows && allSubjects?.listData) {
             setTitle("Update");
             populateSchoolData(id);
         }
@@ -365,7 +363,7 @@ const FormComponent = () => {
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted, formAmenitiesInRedux?.listData?.rows, formSubjectsInRedux?.listData?.rows]);
+    }, [id, submitted, formAmenitiesInRedux?.listData?.rows, allSubjects?.listData]);
 
 
     const handleSubmit = async () => {
@@ -421,7 +419,7 @@ const FormComponent = () => {
                 allClasses={allClasses?.listData}
                 allSections={allSections?.listData}
                 amenities={formAmenitiesInRedux?.listData?.rows}
-                subjectsInRedux={formSubjectsInRedux?.listData?.rows}
+                subjectsInRedux={allSubjects?.listData}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent
@@ -442,10 +440,10 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                image={displayImage}            //these are updated Values
-                setImage={setDisplayImage}
+                preview={previewDisplay}
+                setPreview={setPreviewDisplay}
+                updatedImage={updatedDisplayImage}            //these are updated Values
+                setUpdatedImage={setUpdatedDisplayImage}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
                 imageType="Display"
@@ -460,8 +458,8 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={previewBanner}
                 setPreview={setPreviewBanner}
-                image={bannerImage}             //these are updated Values
-                setImage={setBannerImage}
+                updatedImage={updatedBannerImage}             //these are updated Values
+                setUpdatedImage={setUpdatedBannerImage}
                 deletedImage={deletedBannerImage}
                 setDeletedImage={setDeletedBannerImage}
                 imageType="Banner"

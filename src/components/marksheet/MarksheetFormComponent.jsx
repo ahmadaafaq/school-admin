@@ -16,7 +16,7 @@ import { useFormik } from "formik";
 
 import API from "../../apis";
 import marksheetValidation from "./Validation";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { useSelector } from "react-redux";
 import { Utility } from "../utility";
@@ -136,11 +136,11 @@ const MarksheetFormComponent = ({
         }
     }, [updatedValues]);
 
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!subjectsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+    //     }
+    // }, [subjectsInRedux?.listData?.rows?.length]);
 
     console.log('class and students=', marksheetClass, marksheetSection, selectedSection, selectedClass)
 

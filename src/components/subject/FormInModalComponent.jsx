@@ -6,9 +6,10 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Formik } from "formik";
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
@@ -17,12 +18,12 @@ import { useTheme } from '@mui/material/styles';
 
 import API from "../../apis";
 import Loader from "../common/Loader";
+import subjectValidation from "./Validation";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
-import subjectValidation from "./Validation";
 
 import formBg from "../assets/formBg.png";
 
@@ -46,11 +47,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [initialState, setInitialState] = useState(initialValues);
+    const selected = useSelector(state => state.menuItems.selected);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
-    const selected = useSelector(state => state.menuItems.selected);
-    const toastInfo = useSelector(state => state.toastInfo);
 
     const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
@@ -68,6 +69,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             setTitle("Create");
             setInitialState(initialValues);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const updateSubject = (values) => {
@@ -88,7 +90,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     };
@@ -108,7 +110,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     };
@@ -126,7 +128,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                     }, 2000);
                 } else {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, location.reload());
+                    toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again", navigateTo, 0);
                 }
             })
             .catch(err => {
@@ -193,7 +195,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                     type="text"
                                     name="name"
                                     label="Name*"
-                                    autoComplete="new-name"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     value={values.name}
@@ -209,7 +210,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                                         labelId="statusField"
                                         label="Status"
                                         name="status"
-                                        autoComplete="new-status"
                                         value={values.status}
                                         onChange={handleChange}
                                     >
@@ -254,6 +254,12 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             </Dialog>
         </div>
     );
-}
+};
+
+
+FormComponent.propTypes = {
+    openDialog: PropTypes.bool,
+    setOpenDialog: PropTypes.func
+};
 
 export default FormComponent;

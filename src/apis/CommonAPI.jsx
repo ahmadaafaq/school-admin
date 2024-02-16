@@ -91,6 +91,30 @@ export const CommonAPI = {
             .catch(err => {
                 throw err;
             });
+    },
+
+    /** Api that connects to backend and return encrypted text and iv
+     */
+    encryptText: async (text, cancel = false) => {
+        const commonConfig = CommonAPI.commonConfig("POST", true, cancel);
+        const { data: response } = await api.request({
+            url: '/encrypt-text',
+            data: text,
+            ...commonConfig
+        });
+        return response;
+    },
+
+    /** Api that connects to backend and return decrypted text
+     */
+    decryptText: async (fields, cancel = false) => {
+        const commonConfig = CommonAPI.commonConfig("POST", true, cancel);
+        const { data: response } = await api.request({
+            url: '/decrypt-text',
+            data: fields,
+            ...commonConfig
+        });
+        return response;
     }
 };
 

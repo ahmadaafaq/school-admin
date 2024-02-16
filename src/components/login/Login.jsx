@@ -21,6 +21,7 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 import API from "../../apis";
 import Toast from "../common/Toast";
 import SignInLoader from "../common/SignInLoader";
+
 import { themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -39,8 +40,8 @@ const Login = () => {
   const [formData, setFormData] = useState(initialValues);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
   const toastInfo = useSelector(state => state.toastInfo);
+  const dispatch = useDispatch();
 
   const inputRef = useRef(null);
   const navigateTo = useNavigate();
@@ -88,7 +89,6 @@ const Login = () => {
             setLocalStorage("auth", authInfo);
             response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;
             navigateTo("/");
-            // authInfo?.role > 2 ? navigateTo("/user/listing") : navigateTo("/");
           }
         })
         .catch(err => {
@@ -96,7 +96,8 @@ const Login = () => {
           initialValues.password = '';
           toastAndNavigate(dispatch, true, "error", err?.message);
         });
-    };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData]);
 
   return (

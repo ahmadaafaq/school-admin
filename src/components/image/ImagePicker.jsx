@@ -26,15 +26,14 @@ const ImagePicker = ({
     setPreview,
     iCardDetails = null,
     setICardDetails = null,
-    image = null,
+    updatedImage = [],
+    setUpdatedImage,
     deletedImage = [],
     setDeletedImage,
-    setImage,
     imageType,
     ENV
 }) => {
     const initialValues = {};
-
     initialValues[`${imageType}`] = null;
 
     const [initialState, setInitialState] = useState(initialValues);
@@ -87,18 +86,18 @@ const ImagePicker = ({
     }, [formik.values]);
 
     useEffect(() => {
-        if (image) {
-            console.log("sssUpdated Values=>", image)
-            setInitialState(image);
+        if (updatedImage) {
+            console.log("sssupdatedImage picker useeffect updatedImages=>", updatedImage)
+            setInitialState(updatedImage);
             // const srcArray = [];
-            // image.map(img => {
-            //     if (img.image_src) {
-            //         srcArray.push(`${azurePath}/${img.image_src}?${ENV.VITE_SAS_TOKEN}`);
+            // updatedImage.map(img => {
+            //     if (img.updatedImage_src) {
+            //         srcArray.push(`${azurePath}/${img.updatedImage_src}?${ENV.VITE_SAS_TOKEN}`);
             //     }
             // });
             // setPreview(srcArray);
         }
-    }, [image?.length]);
+    }, [updatedImage?.length]);
 
     // useEffect(() => {
     //     if (deletedImage) {
@@ -107,7 +106,7 @@ const ImagePicker = ({
     // }, [deletedImage?.length]);
 
     console.log(`imagepicker formik values ${imageType}=>`, formik.values);
-    console.log('sssTest updated', image);
+    console.log('sssTest image picker updated', updatedImage);
     return (
         <Box m="10px">
             <form ref={refId} encType="multipart/form-data">
@@ -148,20 +147,19 @@ const ImagePicker = ({
                     sx={{ m: 1, outline: "none", width: "13%" }}
                 />
             </form>
-            {formik.values[`${imageType}`] || image?.length ?
+            {formik.values[`${imageType}`] || updatedImage?.length ?
                 <PreviewImage
                     formik={formik}
                     deletedImage={deletedImage}
                     setDeletedImage={setDeletedImage}
                     setDirty={setDirty}
-                    image={image}
-                    setImage={setImage}
+                    updatedImage={updatedImage}
+                    setUpdatedImage={setUpdatedImage}
                     imageFiles={formik.values[`${imageType}`]}
                     preview={preview}
                     setPreview={setPreview}
                     imageType={imageType}
                     ENV={ENV}
-                    setInitialState={setInitialState}
                 />
                 : null}
         </Box>
@@ -178,12 +176,12 @@ ImagePicker.propTypes = {
     setReset: PropTypes.func,
     preview: PropTypes.array,
     setPreview: PropTypes.func,
-    iCardDetails: PropTypes.array,
+    iCardDetails: PropTypes.object,
     setICardDetails: PropTypes.func,
-    image: PropTypes.array,
+    updatedImage: PropTypes.array,
+    setUpdatedImage: PropTypes.func,
     deletedImage: PropTypes.array,
     setDeletedImage: PropTypes.func,
-    setImage: PropTypes.func,
     imageType: PropTypes.string,
     ENV: PropTypes.object
 };

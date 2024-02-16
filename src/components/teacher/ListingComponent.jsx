@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
+import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
@@ -28,7 +29,7 @@ import listBg from "../assets/listBG.jpg"
 
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = () => {
+const ListingComponent = ({ rolePriority = null }) => {
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -151,6 +152,10 @@ const ListingComponent = () => {
             />
         </Box >
     );
+};
+
+ListingComponent.propTypes = {
+    rolePriority: PropTypes.number
 };
 
 export default ListingComponent;

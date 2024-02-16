@@ -6,30 +6,32 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
+import { useSelector } from "react-redux";
+import PropTypes from "prop-types";
+
 import { Card, CardContent, CardMedia, Typography, Divider, CardHeader, Avatar, Box, IconButton, useTheme } from '@mui/material';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 
-import { Utility } from '../utility';
-import { useSelector } from "react-redux";
-
 import './styles.css';
+import { Utility } from '../utility';
 
-import listBg from "../assets/listBG.jpg"
+import listBg from "../assets/listBG.jpg";
+
+const ENV = import.meta.env;
 
 const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose = null }) => {
-    const theme = useTheme();
     const formSectionsInRedux = useSelector(state => state.schoolSections);
     const formClassesInRedux = useSelector(state => state.schoolClasses);
-
+    const theme = useTheme();
     const { findById, appendSuffix } = Utility();
 
     const countryName = findById(detail?.addressData?.country, countryData)?.name;
     const stateName = findById(detail?.addressData?.state, stateData)?.name;
     const cityName = findById(detail?.addressData?.city, cityData)?.name;
-    const sectionName = findById(detail?.studentData?.section, formSectionsInRedux?.listData)?.name;
+    const sectionName = findById(detail?.studentData?.section, formSectionsInRedux?.listData)?.section_name;
     const className = findById(detail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
 
-    console.log("first", detail?.studentData?.session);
+    console.log("details in viewdetail component", detail);
 
     return (
         <Card
@@ -55,20 +57,12 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                 }
                 title={<Typography variant="h3" component="h2" sx={{ fontWeight: 'bold' }}>Student Details</Typography>}
                 sx={{ backgroundColor: "cyan", margin: "5px", borderRadius: "5px" }}
-
             />
-            {/* <CardMedia
-                component="img"
-                height="200"
-                image="path/to/student/image"
-                alt={detail?.studentData?.firstname}
-                sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
-            /> */}
             <CardContent>
                 <CardMedia
                     component="img"
                     height="230"
-                    image="path/to/student/image"
+                    image={`${ENV.VITE_BASE_URL}/get-uploaded-image/${detail?.length ? detail.imageData[0]?.image_src : ''}`}
                     alt={detail?.studentData?.firstname}
                     sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
                 />
@@ -133,7 +127,7 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                         </Box>
                         <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                             <span className='heading-text1' >Caste Group :</span>
-                            <span className='normal-text1'>{detail?.studentData?.religion}</span>
+                            <span className='normal-text1'>{detail?.studentData?.caste_group}</span>
                         </Box>
                         <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                             <span className='heading-text1' >Gender :</span>
@@ -144,6 +138,14 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
             </CardContent>
         </Card>
     );
+};
+
+ViewDetail.propTypes = {
+    detail: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+    countryData: PropTypes.array,
+    stateData: PropTypes.array,
+    cityData: PropTypes.array,
+    onClose: PropTypes.func
 };
 
 export default ViewDetail;

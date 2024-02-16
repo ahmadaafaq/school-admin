@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -22,9 +23,8 @@ import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
@@ -40,15 +40,17 @@ const FormComponent = () => {
         imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
+    const [updatedImage, setUpdatedImage] = useState([]);
     const [deletedImage, setDeletedImage] = useState([]);
     const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
+    const [classData, setClassData] = useState([]);
     const [iCardDetails, setICardDetails] = useState({});
 
-    const subjectsInRedux = useSelector(state => state.allSubjects);
+    const formSubjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -61,10 +63,10 @@ const FormComponent = () => {
     const userParams = useParams();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getPaginatedData } = useCommon();
-    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, toastAndNavigate } = Utility();
+    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, fetchAndSetAll, isObjEmpty, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -76,42 +78,95 @@ const FormComponent = () => {
     }, []);
 
     const updateStudentAndAddress = useCallback(formData => {
-        console.log("formdataABCD", formData)
-        const dataFields = [
-            { ...formData.studentData.values },
-            { ...formData.addressData.values }
-        ];
-        const paths = ["/update-student", "/update-address"];
         setLoading(true);
+        const paths = ["/update-student", "/update-address"];
+
+        const dataFields = [
+            {
+                ...formData.studentData.values,
+                subjects: getIdsFromObject(formData.studentData.values.subjects)
+            },
+            { ...formData.addressData.values },
+            { ...formData.imageData.values }
+        ];
+        console.log("Datafields in update=>", dataFields);
+
+        // delete the selected (removed) images from Azure which are in deletedImage state
+        // if (deletedImage.length) {
+        //     deletedImage.forEach(image => {
+        //         deleteFileFromAzure("salon", image);
+        //         console.log("Deleted normal image from azure");
+        //     });
+        // }
+
+        // delete all images from db on every update and later insert new and old again
+        API.ImageAPI.deleteImage({
+            parent: "student",
+            parent_id: id
+        });
+        console.log(`Deleted all images of id ${id} from db`)
+
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
-                let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
-                        status = false;
-                    };
-                });
-                if (status) {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
-                };
-                setLoading(false);
+                let status = null;
+                let formattedName;
+                if (responses) {
+                    if (!isObjEmpty(dataFields[2])) {
+                        // upload new images to backend folder and insert in db
+                        if (formData.imageData?.values?.Student?.length) {
+                            Array.from(formData.imageData.values.Student).map(image => {
+                                formattedName = formatImageName(image.name);
+                                API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                                API.ImageAPI.createImage({
+                                    image_src: formattedName,
+                                    parent_id: formData.studentData.values.id,
+                                    parent: 'student',
+                                    type: 'normal'
+                                })
+                            });
+                            console.log("Created new image")
+                            status = true;
+                        }
+                        // insert old images only in db & not on azure
+                        if (formData.imageData?.values) {
+                            formData.imageData.values.map(image => {
+                                API.ImageAPI.createImage({
+                                    image_src: image.image_src,
+                                    school_id: image.school_id,
+                                    parent_id: image.parent_id,
+                                    parent: image.parent,
+                                    type: image.type
+                                })
+                            });
+                            console.log("Created old image only in db")
+                            status = true;
+                        }
+                    } else {
+                        status = true;
+                    }
+                    if (status) {
+                        setLoading(false);
+                        console.log("I have ended updating all fields");
+                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                    }
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     }, [formData]);
 
-    const populateStudentData = (id) => {
+    const populateStudentData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
+
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+                    responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, formSubjectsInRedux?.listData)
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
@@ -120,17 +175,19 @@ const FormComponent = () => {
                     addressData: responses[1]?.data?.data,
                     imageData: responses[2]?.data?.data
                 };
+                console.log('dataobj =>', dataObj)
                 setUpdatedValues(dataObj);
+                setUpdatedImage(dataObj?.imageData);
                 setLoading(false);
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    }, [formSubjectsInRedux?.listData]);
 
-    const createStudent = () => {
+    const createStudent = useCallback(formData => {
         let promise1;
         let promise2;
         setLoading(true);
@@ -157,14 +214,14 @@ const FormComponent = () => {
                         ...formData.studentData.values,
                         parent_id: user.data.id
                     })
-                        .then(({ data: student }) => {
+                        .then(async ({ data: student }) => {
                             promise1 = API.AddressAPI.createAddress({
                                 ...formData.addressData.values,
                                 parent_id: student.data.id,
                                 parent: 'student'
                             });
 
-                            if (formData.imageData.values.Student?.length) {
+                            if (formData.imageData?.values?.Student?.length) {
                                 promise2 = Array.from(formData.imageData.values.Student).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
                                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
@@ -177,54 +234,53 @@ const FormComponent = () => {
                                 });
                             }
 
-                            return Promise.all([promise1, promise2])
-                                .then(data => {
-                                    setLoading(false);
-                                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
-                                })
-                                .catch(err => {
-                                    setLoading(false);
-                                    toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                                    throw err;
-                                });
+                            try {
+                                await Promise.all([promise1, promise2]);
+                                setLoading(false);
+                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                            } catch (err) {
+                                setLoading(false);
+                                toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                                throw err;
+                            }
                         })
                         .catch(err => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, 0);
+                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                             throw err;
                         });
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, 0);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    }, []);
 
     useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
+        if (!formSubjectsInRedux?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [subjectsInRedux?.listData?.rows?.length]);
+    }, [formSubjectsInRedux?.listData?.length]);
 
     //Create/Update/Populate student
     useEffect(() => {
-        if (id && !submitted) {
+        if (id && !submitted && formSubjectsInRedux?.listData) {
             setTitle("Update");
             populateStudentData(id);
         }
         if (formData.studentData.validated && formData.addressData.validated) {
-            formData.studentData.values?.id ? updateStudentAndAddress(formData) : createStudent();
+            formData.studentData.values?.id ? updateStudentAndAddress(formData) : createStudent(formData);
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [id, submitted, formSubjectsInRedux?.listData]);
 
     const handleSubmit = async () => {
         await studentFormRef.current.Submit();
         await addressFormRef.current.Submit();
-        await imageFormRef.current.Submit();
+        await imageFormRef.current?.Submit();
         setSubmitted(true);
     };
 
@@ -242,11 +298,11 @@ const FormComponent = () => {
         <Box ml="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
-                : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "start",
-                backgroundSize:"cover", 
-                backgroundAttachment:"fixed"
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed"
             }}>
             <Typography
                 fontFamily={typography.fontFamily}
@@ -267,6 +323,9 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 userId={id}
+                classData={classData}
+                setClassData={setClassData}
+                allSubjects={formSubjectsInRedux?.listData}
                 updatedValues={updatedValues?.studentData}
                 iCardDetails={iCardDetails}
                 setICardDetails={setICardDetails}
@@ -295,7 +354,8 @@ const FormComponent = () => {
                 setPreview={setPreview}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
-                updatedValues={updatedValues?.imageData}
+                updatedImage={updatedImage}            //these are updated Values
+                setUpdatedImage={setUpdatedImage}
                 iCardDetails={iCardDetails}
                 setICardDetails={setICardDetails}
                 imageType="Student"
@@ -303,7 +363,6 @@ const FormComponent = () => {
             />
 
             <Box display="flex" justifyContent="end" m="20px" pb="20px">
-
                 {showIdCard && <>
                     <Button color="info" variant="contained" sx={{ mr: 30 }}
                         disabled={!dirty}
@@ -321,7 +380,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

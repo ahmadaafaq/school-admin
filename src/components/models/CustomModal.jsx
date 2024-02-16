@@ -6,20 +6,20 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import * as React from 'react';
-import { Dialog, Box } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
+
+import { Dialog, Box } from '@mui/material';
 
 import API from '../../apis';
+import ViewDetail from "./ViewDetail";
+
 import { Utility } from "../utility";
-import ViewDetail from "./ViewDetail"
 
-
-export default function BasicModal({ open, setOpen }) {
-  // const [open, setOpen] = React.useState(false);
-  const [detail, setDetail] = useState(null);
+const BasicModal = ({ open, setOpen }) => {
+  const [detail, setDetail] = useState([]);
   const [countryData, setCountryData] = useState([]);
   const [stateData, setStateData] = useState([]);
   const [cityData, setCityData] = useState([]);
@@ -31,11 +31,10 @@ export default function BasicModal({ open, setOpen }) {
   let id = state?.id;
 
   const handleClose = () => {
-    setOpen(false)
+    setOpen(false);
   };
 
   const populateData = (id) => {
-    console.log('id=', id);
     const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
     API.CommonAPI.multipleAPICall("GET", paths)
       .then(responses => {
@@ -50,7 +49,7 @@ export default function BasicModal({ open, setOpen }) {
         setDetail(dataObj);
       })
       .catch(err => {
-        toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+        toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred");
         throw err;
       });
   };
@@ -92,26 +91,32 @@ export default function BasicModal({ open, setOpen }) {
           throw err;
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (
-    <React.Fragment>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        BackdropProps={{
-          style: {
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            opacity: 0.5
-          }
-        }}
-        fullWidth
-        maxWidth='md'
-      >
-        <Box>
-          <ViewDetail detail={detail} countryData={countryData} stateData={stateData} cityData={cityData} onClose={handleClose} />
-        </Box>
-      </Dialog>
-    </React.Fragment>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      BackdropProps={{
+        style: {
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          opacity: 0.5
+        }
+      }}
+      fullWidth
+      maxWidth='md'
+    >
+      <Box>
+        <ViewDetail detail={detail} countryData={countryData} stateData={stateData} cityData={cityData} onClose={handleClose} />
+      </Box>
+    </Dialog>
   );
-}
+};
+
+BasicModal.propTypes = {
+  open: PropTypes.bool,
+  setOpen: PropTypes.func
+};
+
+export default BasicModal;

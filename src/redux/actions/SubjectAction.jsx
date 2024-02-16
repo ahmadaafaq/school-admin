@@ -8,14 +8,21 @@
 
 import { ActionTypes } from "../constants/action-types";
 
-export const setSubjects = (subjects) => {
+export const setListingSubjects = (subjects) => {
     return {
         type: ActionTypes.SET_LISTING_SUBJECTS,
         payload: subjects
     };
 };
 
-export const setFormSubjects = (subjects) => {
+export const setSchoolSubjects = (subjects) => {
+    return {
+        type: ActionTypes.SET_SCHOOL_SUBJECTS,
+        payload: subjects
+    };
+};
+
+export const setAllSubjects = (subjects) => {
     return {
         type: ActionTypes.SET_ALL_SUBJECTS,
         payload: subjects

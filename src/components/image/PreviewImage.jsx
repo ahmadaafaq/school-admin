@@ -25,115 +25,128 @@ const PreviewImage = ({
     imageFiles,
     imageType,
     ENV,
-    setInitialState,
-    image,
-    setImage
+    updatedImage,
+    setUpdatedImage
 }) => {
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
-    // let uploadedImages = [];
 
+    // On form update
     useEffect(() => {
-        const srcArray = [];
-        console.log('sssu[datedValues', image)
-        if (image) {
-            image.map(img => {
+        const dbImgFiles = [];
+        const pickerFiles = [];
+        console.log('Update topa use effect 1', updatedImage)
+        if (updatedImage) {
+            let countOld = 0;
+            updatedImage.map(img => {
                 if (img.image_src) {
-                    srcArray.push(`${ENV.VITE_BASE_URL}/get-image/${img.image_src}`);
+                    dbImgFiles.push({
+                        key: 'old',
+                        index: countOld,
+                        value: `${ENV.VITE_BASE_URL}/get-uploaded-image/${img.image_src}`
+                    });
                 }
+                countOld++;
             });
         }
+        if (imageFiles) {
+            let arrayOfImages = Array.from(imageFiles);
+            let countNew = 0;
+            for (const file of arrayOfImages) {
+                pickerFiles.push({
+                    key: 'new',
+                    index: countNew,
+                    value: URL.createObjectURL(file)
+                });
+                countNew++;
+            }
+        }
         setPreview([
-            ...srcArray,         //We are not doing ...preview because in imagePicker file we have already
+            ...dbImgFiles,         //We are not doing ...preview because in imagePicker file we have already
+            ...pickerFiles
         ]);
-        setInitialState(image);
-    }, [image?.length]);
-
-    // const readImageFiles = async (file) => {
-    //     const reader = new FileReader();
-    //     reader.onloadend = () => {
-    //         // uploadedImages.push(reader.result);
-
-
-
-    //         // setPreview([
-    //         //     ...srcArray,         //We are not doing ...preview because in imagePicker file we have already
-    //         //     ...uploadedImages   //done manual merge of formik.values in onchange of input
-    //         // ]);
-    //     }
-    //     reader.readAsDataURL(file);
-    // };
+    }, [updatedImage?.length]);
 
     useEffect(() => {
-        console.log('USE EFFECTsss 1');
+        console.log('Update topa USE EFFECT image filessss 2');
+        // On new image selection through picker
         if (imageFiles) {
-            console.log('imageFilessss UEF 1', imageFiles);
+            console.log('update topa imageFilessss UEF 1', imageFiles);
 
-            const prev = [];
-            const srcArray = [];
+            const pickerFiles = [];
+            const dbImgFiles = [];
 
             let arrayOfImages = Array.from(imageFiles);
-            console.log('arrayOfImagessss', arrayOfImages);
+            let countNew = 0;
             for (const file of arrayOfImages) {
-                prev.push(URL.createObjectURL(file));
+                pickerFiles.push({
+                    key: 'new',
+                    index: countNew,
+                    value: URL.createObjectURL(file)
+                });
+                countNew++;
             }
 
+            console.log('new topa pickerFilessss', pickerFiles);
 
-            console.log('new prevsss', prev);
-
-            if (image) {
-                image.map(img => {
+            if (updatedImage) {
+                let countOld = 0;
+                updatedImage.map(img => {
                     if (img.image_src) {
-                        srcArray.push(`${ENV.VITE_BASE_URL}/get-image/${img.image_src}`);
+                        dbImgFiles.push({
+                            key: 'old',
+                            index: countOld,
+                            value: `${ENV.VITE_BASE_URL}/get-uploaded-image/${img.image_src}`
+                        });
+                        countOld++;
                     }
                 });
             }
             // Merge the preview values with already populated values during update otherwise just show prev
             setPreview([
-                ...srcArray,
-                ...prev
+                ...dbImgFiles,
+                ...pickerFiles
             ]);
-            // arrayOfImages.forEach(item => readImageFiles(item));
         }
     }, [imageFiles]);
 
     const handleDeleteClick = (item) => {
-        const index = preview.indexOf(item);
-        preview.splice(index, 1);
-        if (image) {
-            setDeletedImage([
-                ...deletedImage,
-                image[index]?.image_src,
-            ]);
-        }
-        if (index > -1) {                   // only splice 1 item from array when it is found
-            if (image) {
-                console.log('sssLength before', image.length)
-                image.splice(index, 1);
-                setInitialState({
-                    ...image
-                });
-                setImage(image);
-                console.log('sssLength after', image.length)
-                console.log('sssdelete from updated', image);
-            }
-          
-            // On update imageFiles is empty
-            if (imageFiles) {
-                console.log('indexsss=>', index);
-                console.log('imageFilessss', imageFiles);
-                console.log('previewsss', preview);
-                const updatedFileList = Array.from(imageFiles);
-                updatedFileList.splice(index, 1);
-                console.log('updatedImgFilesss', updatedFileList);
+        console.log('topa item', item);
+        const previewIndex = preview.indexOf(item);
+        console.log('topa click delete', preview, previewIndex);
+        preview.splice(previewIndex, 1);
+
+        if (item?.index > -1) {
+            // On image selection through image picker
+            if (imageFiles && item.key === 'new') {
+                const fileList = Array.from(imageFiles);
+                console.log('topa new sssLength before', fileList)
+                fileList.splice(item.index, 1);
+                console.log('topa new filelist after delete', fileList);
                 // eslint-disable-next-line react/prop-types
-                formik.setFieldValue(imageType, updatedFileList);
+                formik.setFieldValue(imageType, fileList);
             }
+
+            // on form update splice 1 item from array when it is found
+            if (updatedImage && item.key === 'old') {
+                console.log('topa old sssLength before', updatedImage, item.index);
+                updatedImage.splice(item.index, 1);
+                console.log('topa updated image after del', updatedImage);
+                setUpdatedImage(updatedImage); // update picker image files
+            }
+
             setDirty(true);     //to enable the submit button
         }
-    };
 
-    console.log('sssLast length', image.length);
+        // On form update
+        if (updatedImage) {
+            setDeletedImage([
+                ...deletedImage,
+                updatedImage[previewIndex]?.image_src,
+            ]);
+        }
+    };
+    console.log('topa sssLast length', updatedImage.length);
 
     return (
         <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit", marginBottom: "8%" }}
@@ -165,7 +178,7 @@ const PreviewImage = ({
                         </Tooltip>
                     </IconButton>
                     <img
-                        src={item}
+                        src={item.value}
                         alt="This image is not available"
                         loading="lazy"
                         style={{
@@ -191,9 +204,8 @@ PreviewImage.propTypes = {
     preview: PropTypes.array,
     setPreview: PropTypes.func,
     imageFiles: PropTypes.object,
-    setInitialState: PropTypes.func,
-    image: PropTypes.array,
-    setImage: PropTypes.func,
+    updatedImage: PropTypes.array,
+    setUpdatedImage: PropTypes.func,
     deletedImage: PropTypes.array,
     setDeletedImage: PropTypes.func,
     imageType: PropTypes.string,

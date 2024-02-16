@@ -23,6 +23,7 @@ import studentValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
+import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -58,17 +59,19 @@ const StudentFormComponent = ({
     setDirty,
     reset,
     setReset,
+    classData,
+    setClassData,
+    allSubjects,
+    userId,
     iCardDetails,
     setICardDetails,
-    userId,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [headValue, setHeadValue] = useState();
-    // const [classSubjects, setClassSubjects] = useState([]);
     const schoolClasses = useSelector(state => state.schoolClasses);
     const schoolSections = useSelector(state => state.schoolSections);
+    const schoolSubjects = useSelector(state => state.schoolSubjects);
     const toastInfo = useSelector(state => state.toastInfo);
 
     const dispatch = useDispatch();
@@ -76,7 +79,7 @@ const StudentFormComponent = ({
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { createSession, fetchAndSetSchoolData, getLocalStorage, toastAndNavigate } = Utility();
+    const { createSession, fetchAndSetSchoolData, getLocalStorage, getValuesFromArray, toastAndNavigate } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -101,13 +104,13 @@ const StudentFormComponent = ({
             });
         }
     };
-    const validateHead = () => {
 
+    const validateHead = () => {
         const condition = {
             gender: formik.values.gender
-        }
-
+        };
         console.log("gendercon>>", condition);
+
         API.StudentAPI.getAll(condition)
             .then(res => {
                 if (res.status === 'Success') {
@@ -117,7 +120,19 @@ const StudentFormComponent = ({
             .catch(err => {
                 console.error("An error occurred: ", err);
             });
-    }
+    };
+
+    const setSubjects = () => {
+        const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values?.section);
+        const selectedSubjects = sectionSubjects ? getValuesFromArray(sectionSubjects[0]?.subject_ids, allSubjects) : [];
+        dispatch(setSchoolSubjects(selectedSubjects));
+    };
+
+    const setClassSections = () => {
+        const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
+        const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+        dispatch(setSchoolSections(selectedSections));
+    };
 
     useEffect(() => {
         if (reset) {
@@ -139,10 +154,10 @@ const StudentFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
-            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections);
+        if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
+            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
-    }, [schoolClasses?.listData?.length, schoolSections?.listData?.length]);
+    }, []);
 
     useEffect(() => {
         setICardDetails({
@@ -155,28 +170,20 @@ const StudentFormComponent = ({
         const selectedClassId = parseInt(getLocalStorage("class"));
         if (selectedClassId) {
             formik.setFieldValue("class", selectedClassId);
-            getSubjectsByClass(selectedClassId);
         }
     }, [getLocalStorage("class")]);
 
-    const getSubjectsByClass = (classId) => {
-        console.log('get subjects by class no more, by school yes', classId)
-        // API.SubjectAPI.getSubjectsByClass(classId)
-        //     .then(subjects => {
-        //         if (subjects.status === 'Success') {
-        //             setClassSubjects(subjects.data);
-        //         } else {
-        //             console.log("Error Fetching Subjects, Please Try Again");
-        //         }
-        //     })
-        //     .catch(err => {
-        //         console.log("Error Fetching Subjects:", err);
-        //     })
-    };
+    useEffect(() => {
+        if (formik.values.section) {
+            setSubjects();
+        }
+    }, [formik.values?.section]);
 
-
-
-    console.log('updatedvalues', headValue);
+    useEffect(() => {
+        if (formik.values.class) {
+            setClassSections();
+        }
+    }, [formik.values?.class, classData?.length]);
 
     return (
         <Box m="20px">
@@ -303,14 +310,20 @@ const StudentFormComponent = ({
                             value={formik.values.class}
                             onChange={event => {
                                 formik.setFieldValue("class", event.target.value);
-                                getSubjectsByClass(event.target.value);
+                                if (formik.values.section) {        //if old values are there, clean them according to change
+                                    formik.setFieldValue("section", '');
+                                }
+                                if (formik.values.subjects) {
+                                    formik.setFieldValue("subjects", []);
+                                }
                             }}
                         >
-                            {schoolClasses?.listData?.length && schoolClasses.listData.map(cls => (
-                                <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
-                                    {cls.class_name}
-                                </MenuItem>
-                            ))}
+                            {!schoolClasses?.listData?.length ? null :
+                                schoolClasses.listData.map(cls => (
+                                    <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
+                                        {cls.class_name}
+                                    </MenuItem>
+                                ))}
                         </Select>
                         <FormHelperText>{formik.touched.class && formik.errors.class}</FormHelperText>
                     </FormControl>
@@ -323,22 +336,28 @@ const StudentFormComponent = ({
                             labelId="sectionField"
                             name="section"
                             value={formik.values.section}
-                            onChange={event => formik.setFieldValue("section", event.target.value)}
+                            onChange={event => {
+                                formik.setFieldValue("section", event.target.value);
+                                if (formik.values.subjects) {
+                                    formik.setFieldValue("subjects", []);
+                                }
+                            }}
                         >
-                            {schoolSections?.listData?.length && schoolSections.listData.map(section => (
-                                <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
-                                    {section.section_name}
-                                </MenuItem>
-                            ))}
+                            {!schoolSections?.listData?.length ? null :
+                                schoolSections.listData.map(section => (
+                                    <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
+                                        {section.section_name}
+                                    </MenuItem>
+                                ))}
                         </Select>
                         <FormHelperText>{formik.touched.section && formik.errors.section}</FormHelperText>
                     </FormControl>
                     <Autocomplete
                         multiple
-                        options={[]}        //to be continued classSubjects
+                        options={schoolSubjects?.listData || []}
                         getOptionLabel={option => option.name}
                         disableCloseOnSelect
-                        value={formik.values.subjects || []}
+                        value={formik.values.subjects}
                         onChange={(event, value) => formik.setFieldValue("subjects", value)}
                         sx={{ gridColumn: "span 2" }}
                         renderInput={params => (
@@ -554,9 +573,13 @@ StudentFormComponent.propTypes = {
     setDirty: PropTypes.func,
     reset: PropTypes.bool,
     setReset: PropTypes.func,
-    iCardDetails: PropTypes.array,
-    setICardDetails: PropTypes.func,
-    updatedValues: PropTypes.object
+    classData: PropTypes.array,
+    setClassData: PropTypes.func,
+    allSubjects: PropTypes.array,
+    userId: PropTypes.number,
+    updatedValues: PropTypes.object,
+    iCardDetails: PropTypes.object,
+    setICardDetails: PropTypes.func
 };
 
 export default StudentFormComponent;

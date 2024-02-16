@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,6 +8,7 @@
 */
 
 import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
 
 import { useFormik } from "formik";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, useMediaQuery } from "@mui/material";
@@ -42,7 +44,7 @@ const AddressFormComponent = ({
     const [states, setStates] = useState([]);
     const [stateId, setStateId] = useState(null);
     const [cities, setCities] = useState([]);
-    const [cityId, setCityId] = useState(null);
+    const [_cityId, setCityId] = useState(null);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
@@ -67,7 +69,7 @@ const AddressFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -131,12 +133,12 @@ const AddressFormComponent = ({
                             setCities([]);
                             formik.setFieldValue("state", 0);
                             formik.setFieldValue("city", 0);
-                        };
+                        }
                     })
                     .catch(err => {
                         throw err;
                     });
-            };
+            }
         }
         getStates();
     }, [formik.values.country, countryId]);
@@ -155,7 +157,7 @@ const AddressFormComponent = ({
                 } else {
                     setCities([]);
                     formik.setFieldValue("city", 0);
-                };
+                }
             })
             .catch(err => {
                 setCities([]);
@@ -226,14 +228,19 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="countryField">--Select Country*--</InputLabel>
                         <Select
-                            autoComplete="new-country"
                             name="country"
                             variant="filled"
                             value={formik.values.country}
                             onChange={event => {
-                                const getCountryId = event.target.value;
-                                setCountryId(getCountryId);
+                                const selectedObj = countries.filter(obj => obj.id === event.target.value);
+                                setCountryId(event.target.value);
                                 formik.setFieldValue("country", event.target.value);
+                                if (iCardDetails) {
+                                    setICardDetails({
+                                        ...iCardDetails,
+                                        studentCountry: selectedObj[0]?.name
+                                    });
+                                }
                             }}
                         >
                             {countries.map(item => (
@@ -249,15 +256,20 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="stateField">--Select State*--</InputLabel>
                         <Select
-                            autoComplete="new-state"
                             defaultValue={null}
                             name="state"
                             variant="filled"
                             value={formik.values.state}
                             onChange={event => {
-                                const getStateId = event.target.value;
-                                setStateId(getStateId);
+                                const selectedObj = states.filter(obj => obj.id === event.target.value);
+                                setStateId(event.target.value);
                                 formik.setFieldValue("state", event.target.value);
+                                if (iCardDetails) {
+                                    setICardDetails({
+                                        ...iCardDetails,
+                                        studentState: selectedObj[0]?.name
+                                    });
+                                }
                             }}
                         >
                             {states.map(item => (
@@ -273,15 +285,20 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="cityField">--Select City*--</InputLabel>
                         <Select
-                            autoComplete="new-city"
                             defaultValue=""
                             name="city"
                             variant="filled"
                             value={formik.values.city}
                             onChange={event => {
-                                const getCityId = event.target.value;
-                                setCityId(getCityId);
+                                const selectedObj = cities.filter(obj => obj.id === event.target.value);
+                                setCityId(event.target.value);
                                 formik.setFieldValue("city", event.target.value);
+                                if (iCardDetails) {
+                                    setICardDetails({
+                                        ...iCardDetails,
+                                        studentCity: selectedObj[0]?.name
+                                    });
+                                }
                             }}
                         >
                             {cities.map(item => (
@@ -296,6 +313,20 @@ const AddressFormComponent = ({
             </form>
         </Box>
     );
+};
+
+AddressFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    update: PropTypes.bool,
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object,
+    iCardDetails: PropTypes.object,
+    setICardDetails: PropTypes.func
 };
 
 export default AddressFormComponent;
