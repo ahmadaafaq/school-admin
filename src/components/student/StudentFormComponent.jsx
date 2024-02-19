@@ -109,8 +109,7 @@ const StudentFormComponent = ({
         const condition = {
             gender: formik.values.gender
         };
-        console.log("gendercon>>", condition);
-
+        
         API.StudentAPI.getAll(condition)
             .then(res => {
                 if (res.status === 'Success') {

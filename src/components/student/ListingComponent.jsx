@@ -79,7 +79,6 @@ const ListingComponent = ({ rolePriority = null }) => {
         if (schoolInfo?.encrypted_id) {
             API.CommonAPI.decryptText(schoolInfo)
                 .then(result => {
-                    console.log(result, 'decryt')
                     if (result.status === 'Success') {
                         const selectSchool = allSchools?.listData.find(value => value.id === parseInt(result.data));
                         setSchoolId(selectSchool);

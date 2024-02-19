@@ -106,8 +106,6 @@ const TeacherFormComponent = ({
         ]);
     };
 
-    console.log('formik.values.combinedclssect', formik.values.combinedClsSect)
-
     useEffect(() => {
         if (reset) {
             formik.resetForm();
@@ -134,7 +132,6 @@ const TeacherFormComponent = ({
                 return acc;
             }, {});
             setUpdatedArr(updatedArrHelper);
-            console.log('updatedArrHelper', updatedArrHelper, Object.values(updatedArrHelper));
 
             // Check if updatedArrHelper is not empty and has keys
             const hasData = updatedArrHelper && Object.keys(updatedArrHelper).length > 0;
@@ -514,8 +511,6 @@ const TeacherFormComponent = ({
                                         type="text"
                                         name={`combinedClsSect_${field.id}`}
                                         label="Class and Section"
-                                    // error={`${!!formik.touched}.combinedClsSect_${field.id}` && !!formik.errors.{`combinedClsSect_${field.id}`}}
-                                    // helperText={formik.touched.{`combinedClsSect_${field.id}`} && formik.errors.{`combinedClsSect_${field.id}`}}
                                     />
                                 )}
                             />
@@ -525,7 +520,6 @@ const TeacherFormComponent = ({
                     {/* Update */}
                     {teacherId && Object.values(updatedArr).map((field, index) => {
                         let key = index + 1;
-                        console.log(field, 'inside combined class loop')
                         return (
                             <React.Fragment key={key}>
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}

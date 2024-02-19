@@ -111,22 +111,18 @@ const SchoolFormComponent = ({
 
             // Check if splittedArray is not empty and has keys
             const hasData = splittedArray && Object.keys(splittedArray).length > 0;
-            console.log(splittedArray, 'splittedarray');
 
             const assignUpdatedSections = (sectionData) => {
                 let filteredSectionArray = [];
                 sectionData.map(sections => {
-                    console.log(sections, 'section');
 
                     // Filter out sections from allSections that have matching ids in the current section
                     let filteredSection = allSections?.filter(obj =>
                         sections.some(sect => sect.section_id === obj.section_id)
                     );
-                    console.log(filteredSection, 'filteredSection');
                     filteredSectionArray.push(filteredSection);
                 });
 
-                console.log(filteredSectionArray, 'filteredSectioArrayn');
                 return filteredSectionArray;
             };
 
@@ -467,7 +463,6 @@ const SchoolFormComponent = ({
                                     onChange={(event, value) => {
                                         const sectArr = [...formik.values.sections];
                                         sectArr[index] = value;
-                                        console.log('sections', sectArr)
                                         formik.setFieldValue("sections", sectArr);
                                     }}
                                     sx={{ gridColumn: "span 2" }}

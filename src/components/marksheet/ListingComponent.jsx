@@ -65,7 +65,6 @@ const ListingComponent = () => {
     } : null;
 
     useEffect(() => {
-        console.log({ classConditionObj });
         if (classConditionObj?.classId && classConditionObj?.sectionId) {
             getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
             setConditionObj(classConditionObj);
@@ -82,7 +81,6 @@ const ListingComponent = () => {
         if (listData?.rows?.length) {
             dispatch(setMarksheetClass(findById(listData.rows[0].class_id, formClassesInRedux?.listData)));
             dispatch(setMarksheetSection(findById(listData.rows[0].section_id, formSectionsInRedux?.listData)));
-            console.log('SET CLASS AND SECTION');
         }
     }, [listData?.rows]);
 
@@ -95,7 +93,7 @@ const ListingComponent = () => {
             oldPagination
         });
     };
-    console.log('selec=>', listData)
+    
     return (
         <Box m="8px" position="relative"
             sx={{

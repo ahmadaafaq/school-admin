@@ -102,7 +102,6 @@ const FormComponent = () => {
         const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`, `/get-teacher-detail/${id}`, `/get-image/teacher/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                console.log('res=>', responses)
                 if (responses[0].data.data) {
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                 }
@@ -114,7 +113,6 @@ const FormComponent = () => {
                     addressData: responses[1]?.data?.data,
                     imageData: responses[3]?.data?.data
                 };
-                console.log('teacher dataobj', dataObj)
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
@@ -144,7 +142,6 @@ const FormComponent = () => {
                         const class_subject = formData.teacherData.values?.subject[index] || 0;
                         // Associating each inner array with a subject
                         innerArray.map(classData => {
-                            console.log('got', classData.class_id, classData.section_id, class_subject);
                             API.TeacherAPI.insertIntoMappingTable(
                                 [teacher.data.id, classData.class_id, classData.section_id, class_subject]
                             )
@@ -190,7 +187,6 @@ const FormComponent = () => {
                     data.data.map(item => {
                         delete item.class_subjects;
                     })
-                    console.log('joined classData', data.data);
                     setCombinedClass(data.data);
                 } else {
                     console.error("Error fetching classes. Please Try Again");

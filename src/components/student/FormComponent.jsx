@@ -89,7 +89,6 @@ const FormComponent = () => {
             { ...formData.addressData.values },
             { ...formData.imageData.values }
         ];
-        console.log("Datafields in update=>", dataFields);
 
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
@@ -104,8 +103,6 @@ const FormComponent = () => {
             parent: "student",
             parent_id: id
         });
-        console.log(`Deleted all images of id ${id} from db`)
-
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -125,7 +122,6 @@ const FormComponent = () => {
                                     type: 'normal'
                                 })
                             });
-                            console.log("Created new image")
                             status = true;
                         }
                         // insert old images only in db & not on azure
@@ -139,7 +135,6 @@ const FormComponent = () => {
                                     type: image.type
                                 })
                             });
-                            console.log("Created old image only in db")
                             status = true;
                         }
                     } else {
@@ -147,7 +142,6 @@ const FormComponent = () => {
                     }
                     if (status) {
                         setLoading(false);
-                        console.log("I have ended updating all fields");
                         toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
                     }
                 }
@@ -175,7 +169,6 @@ const FormComponent = () => {
                     addressData: responses[1]?.data?.data,
                     imageData: responses[2]?.data?.data
                 };
-                console.log('dataobj =>', dataObj)
                 setUpdatedValues(dataObj);
                 setUpdatedImage(dataObj?.imageData);
                 setLoading(false);

@@ -70,7 +70,6 @@ const FormComponent = () => {
     }, []);
 
     const updatePaymentAndAddress = useCallback(formData => {
-        console.log("formdataABCD", formData)
         const dataFields = [
             { ...formData.paymentData.values },
             { ...formData.addressData.values }

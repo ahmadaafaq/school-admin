@@ -72,14 +72,6 @@ export const datagridColumns = () => {
     }, [studentsInRedux?.listData?.rows?.length]);
 
     const columns = [
-        // {
-        //     field: "roll no",
-        //     headerName: "ROLL NO",
-        //     headerAlign: "center",
-        //     align: "center",
-        //     flex: 1,
-        //     minWidth: 120,
-        // },
         {
             field: "NAME",
             headerName: "NAME",
@@ -106,8 +98,6 @@ export const datagridColumns = () => {
             renderCell: (params) => {
                 let className = findById(params?.row?.class_id, formClassesInRedux?.listData)?.class_name;
                 let sectionName = findById(params?.row?.section_id, formSectionsInRedux?.listData)?.name;
-                // handleClassChange(params?.row?.class_id);
-                // handleSectionChange(params?.row?.section_id);
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}

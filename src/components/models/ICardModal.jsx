@@ -81,7 +81,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openDialog]);
-    console.log(iCardDetails, 'formatted details in icard modal');
 
     return (
         <Dialog

@@ -117,7 +117,6 @@ const MarksheetFormComponent = ({
                 formik.setFieldValue(`remark_${index}`, sub.remark);
                 subjectIds.push(sub.subject_id);
             })
-            console.log(subjectIds, 'subjectids')
             let classSubjects = [];
             subjectIds?.map(sub => {
                 classSubjects.push({
@@ -132,17 +131,8 @@ const MarksheetFormComponent = ({
                 formik.setFieldValue("student", updatedValues?.rows[0]?.student_id);
                 getStudents(selectedClass?.class_id, selectedSection?.id, setStudents, API);
             }
-            console.log('updatedValues1=>', updatedValues, formik.values);
         }
     }, [updatedValues]);
-
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
-
-    console.log('class and students=', marksheetClass, marksheetSection, selectedSection, selectedClass)
 
     useEffect(() => {
         let classSubjects = [];
@@ -164,12 +154,9 @@ const MarksheetFormComponent = ({
     }, [subjectsInRedux?.listData?.rows, selectedClass?.class_id]);
 
     if (updatedValues?.rows[0]?.term) {
-        console.log('add term')
         formik.values.term = updatedValues?.rows[0]?.term;
     }
 
-    // console.log('filteres', marksheetClass);
-    console.log('filteredSubjects=>', filteredSubjects)
 
     return (
         <Box m="20px">
