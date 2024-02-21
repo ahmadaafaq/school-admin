@@ -8,31 +8,44 @@
 */
 
 import { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Avatar, Box, Divider, useTheme, IconButton, Tooltip, MenuItem } from "@mui/material";
-import { Menu, ListItemIcon, Typography, useMediaQuery } from "@mui/material";
+import { Autocomplete, Paper, Menu, ListItemIcon, TextField, Typography, useMediaQuery } from "@mui/material";
 
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import Logout from '@mui/icons-material/Logout';
 
+import API from "../../apis";
+import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { ColorModeContext, tokens } from "../../theme";
 import { Utility } from "../utility";
 
-const Topbar = ({ roleName }) => {
+const Topbar = ({ roleName = null, rolePriority = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [schoolName, setSchoolName] = useState('');
   const open = Boolean(anchorEl);
+  const [schoolName, setSchoolName] = useState('');
+  const [schoolObj, setSchoolObj] = useState({});
+  const allSchools = useSelector(state => state.allSchools);
 
+  const dispatch = useDispatch();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
 
-  const { getInitials, getNameAndType, getLocalStorage } = Utility();
+  const { fetchAndSetAll, getInitials, getNameAndType, getLocalStorage, remLocalStorage, setLocalStorage } = Utility();
   const { username, role } = getNameAndType(roleName);
+  const schoolInfo = getLocalStorage("schoolInfo");
+
+  const CustomOption = {
+    id: "all-schools",
+    name: "All Schools",
+  };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -48,8 +61,35 @@ const Topbar = ({ roleName }) => {
   };
 
   useEffect(() => {
-    setSchoolName(getLocalStorage("auth")?.school);
+    if (getLocalStorage("auth")) {
+      setSchoolName(getLocalStorage("auth")?.school);
+    }
   }, [getLocalStorage("auth")]);
+
+  //on refresh autocomplete state gets empty so doing this
+  useEffect(() => {
+    if (schoolInfo?.encrypted_id) {
+      API.CommonAPI.decryptText(schoolInfo)
+        .then(result => {
+          console.log(result, 'decryt')
+          if (result.status === 'Success') {
+            const filteredSchool = allSchools?.listData.find(value => value.id === parseInt(result.data));
+            setSchoolObj({
+              id: filteredSchool?.id,
+              name: filteredSchool?.name
+            });
+          } else if (result.status === 'Error') {
+            console.log('Error Encrypting Data');
+          }
+        });
+    }
+  }, [schoolInfo?.encrypted_id, allSchools?.listData]);
+
+  useEffect(() => {
+    if (!allSchools?.listData?.length) {
+      fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
+    }
+  }, []);
 
   return (
     <Box
@@ -83,6 +123,62 @@ const Topbar = ({ roleName }) => {
         justifyContent="flex-end" p={2}
         backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
       >
+
+        {rolePriority === 1 && (
+          <Autocomplete
+            options={[CustomOption, ...(allSchools?.listData || [])]}
+            getOptionLabel={option => option.name || ''}
+            disableCloseOnSelect
+            value={schoolObj}
+            onChange={(event, value) => {
+              if (value && value.id === "all-schools") {
+                remLocalStorage("schoolInfo");
+                location.reload();
+              }
+              setSchoolObj({
+                id: value.id,
+                name: value.name
+              });
+              API.CommonAPI.encryptText({ data: value?.id })
+                .then(result => {
+                  if (result.status === 'Success') {
+                    setLocalStorage("schoolInfo", result.data);
+                    location.reload();
+                  } else if (result.status === 'Error') {
+                    console.log('Error Encrypting Data');
+                  }
+                });
+            }}
+            sx={{ width: '280px', marginRight: '10px' }}
+            renderInput={params => (
+              <TextField
+                {...params}
+                label="Select School"
+                sx={{
+                  fieldset: {
+                    border: "2px solid grey",
+                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px"
+                  }
+                }}
+              />
+            )}
+            PaperComponent={props => (
+              <Paper
+                sx={{
+                  background: colors.blueAccent[700],
+                  color: colors.redAccent[400],
+                  fontSize: "25px",
+                  "&:hover": {
+                    border: "1px solid #00FF00",
+                    color: "gray",
+                    backgroundColor: "white"
+                  }
+                }}
+                {...props}
+              />
+            )}
+          />)}
+
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (
             <Tooltip title="Dark Mode">
@@ -179,6 +275,11 @@ const Topbar = ({ roleName }) => {
       </Menu>
     </Box>
   );
+};
+
+Topbar.propTypes = {
+  roleName: PropTypes.string,
+  rolePriority: PropTypes.number
 };
 
 export default Topbar;

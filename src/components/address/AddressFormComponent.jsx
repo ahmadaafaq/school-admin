@@ -92,15 +92,6 @@ const AddressFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (iCardDetails) {
-            setICardDetails({
-                ...iCardDetails,
-                ...formik.values
-            });
-        }
-    }, [formik.values]);
-
-    useEffect(() => {
         const getCountry = () => {
             API.CountryAPI.getCountries()
                 .then(country => {
@@ -166,6 +157,54 @@ const AddressFormComponent = ({
             });
     }, [formik.values.state, stateId]);
 
+    useEffect(() => {
+        if (iCardDetails) {
+            setICardDetails({
+                ...iCardDetails,
+                ...formik.values
+            });
+        }
+    }, [formik.values]);
+
+    // useEffect(() => {
+    //     if (formik.values.country) {
+    //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
+    //         console.log(selectedObj, 'db country');
+    //         if (iCardDetails) {
+    //             setICardDetails({
+    //                 ...iCardDetails,
+    //                 studentCountry: selectedObj[0]?.name
+    //             });
+    //         }
+    //     }
+    // }, [formik.values?.country]);
+
+    // useEffect(() => {
+    //     if (formik.values.state) {
+    //         const selectedObj = states.filter(obj => obj.id === formik.values.state) || [];
+    //         console.log(selectedObj, 'db state');
+    //         if (iCardDetails) {
+    //             setICardDetails({
+    //                 ...iCardDetails,
+    //                 studentState: selectedObj[0]?.name
+    //             });
+    //         }
+    //     }
+    // }, [formik.values?.state]);
+
+    // useEffect(() => {
+    //     if (formik.values.city) {
+    //         const selectedObj = cities.filter(obj => obj.id === formik.values.city) || [];
+    //         console.log(selectedObj, 'db city');
+    //         if (iCardDetails) {
+    //             setICardDetails({
+    //                 ...iCardDetails,
+    //                 studentCity: selectedObj[0]?.name
+    //             });
+    //         }
+    //     }
+    // }, [formik.values?.city]);
+
     return (
         <Box m="20px" marginBottom="60px">
             <form ref={refId}>
@@ -228,19 +267,13 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="countryField">--Select Country*--</InputLabel>
                         <Select
+                            id="country"
                             name="country"
                             variant="filled"
                             value={formik.values.country}
                             onChange={event => {
-                                const selectedObj = countries.filter(obj => obj.id === event.target.value);
                                 setCountryId(event.target.value);
                                 formik.setFieldValue("country", event.target.value);
-                                if (iCardDetails) {
-                                    setICardDetails({
-                                        ...iCardDetails,
-                                        studentCountry: selectedObj[0]?.name
-                                    });
-                                }
                             }}
                         >
                             {countries.map(item => (
@@ -256,20 +289,13 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="stateField">--Select State*--</InputLabel>
                         <Select
-                            defaultValue={null}
+                            id="state"
                             name="state"
                             variant="filled"
                             value={formik.values.state}
                             onChange={event => {
-                                const selectedObj = states.filter(obj => obj.id === event.target.value);
                                 setStateId(event.target.value);
                                 formik.setFieldValue("state", event.target.value);
-                                if (iCardDetails) {
-                                    setICardDetails({
-                                        ...iCardDetails,
-                                        studentState: selectedObj[0]?.name
-                                    });
-                                }
                             }}
                         >
                             {states.map(item => (
@@ -285,20 +311,13 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="cityField">--Select City*--</InputLabel>
                         <Select
-                            defaultValue=""
+                            id="city"
                             name="city"
                             variant="filled"
                             value={formik.values.city}
                             onChange={event => {
-                                const selectedObj = cities.filter(obj => obj.id === event.target.value);
                                 setCityId(event.target.value);
                                 formik.setFieldValue("city", event.target.value);
-                                if (iCardDetails) {
-                                    setICardDetails({
-                                        ...iCardDetails,
-                                        studentCity: selectedObj[0]?.name
-                                    });
-                                }
                             }}
                         >
                             {cities.map(item => (

@@ -253,6 +253,7 @@ export const Utility = () => {
      * @param {string} - A comma-separated string of IDs.
      * @returns {Array} - An array of objects of selected values.
      */
+    // remove it
     const getValuesFromArray = (ids, model) => {
         const idArray = ids?.split(",");
         if (idArray) {
@@ -300,6 +301,14 @@ export const Utility = () => {
         }
         return null;
     };
+    /** Converts a numeric index to the corresponding uppercase alphabetic character.
+     * @param {number} index - The numeric index to be converted.
+     * @returns {string} The uppercase alphabetic character corresponding to the index.
+     */
+    const indexToAlphabet = (index) => {
+        const alphabeticIndex = String.fromCharCode(65 + index);
+        return alphabeticIndex;
+    }
 
     /** Checks if an object is empty (has no own enumerable properties).
     * @param {Object} obj - The object to be checked for emptiness.
@@ -394,6 +403,7 @@ export const Utility = () => {
         getRoleAndPriorityById,
         getIdsFromObject,
         getValuesFromArray,
+        indexToAlphabet,
         isObjEmpty,
         remLocalStorage,
         setLocalStorage,

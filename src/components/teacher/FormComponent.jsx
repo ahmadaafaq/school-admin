@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,6 +21,8 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import TeacherFormComponent from "./TeacherFormComponent";
 
+import { setAllSections } from "../../redux/actions/SectionAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
@@ -37,12 +40,18 @@ const FormComponent = () => {
         imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
+    const [updatedImage, setUpdatedImage] = useState([]);
     const [deletedImage, setDeletedImage] = useState([]);
     const [preview, setPreview] = useState([]);
+    const [classData, setClassData] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
-    const [combinedClass, setCombinedClass] = useState([]);     //for teacher form component
+
+    const allSections = useSelector(state => state.allSections);
+    const allSubjects = useSelector(state => state.allSubjects);
+    const selected = useSelector(state => state.menuItems.selected);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const teacherFormRef = useRef();
     const addressFormRef = useRef();
@@ -53,12 +62,10 @@ const FormComponent = () => {
     const userParams = useParams();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { typography } = themeSettings(theme.palette.mode);
 
-    const selected = useSelector(state => state.menuItems.selected);
-    const toastInfo = useSelector(state => state.toastInfo);
+    const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { formatImageName, getLocalStorage, toastAndNavigate } = Utility();
+    const { formatImageName, fetchAndSetAll, getLocalStorage, getIdsFromObject, isObjEmpty, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting teacher id from url params
     let id = state?.id || userParams?.id;
@@ -69,40 +76,90 @@ const FormComponent = () => {
     }, []);
 
     const updateTeacherAndAddress = useCallback(formData => {
+        setLoading(true);
+        const paths = ["/update-teacher", "/update-address"];
+
         const dataFields = [
             { ...formData.teacherData.values },
-            { ...formData.addressData.values }
+            { ...formData.addressData.values },
+            { ...formData.imageData.values }
         ];
-        const paths = ["/update-teacher", "/update-address"];
-        setLoading(true);
+        console.log("Datafields in update=>", dataFields)
+
+        // delete the selected (removed) images from Azure which are in deletedImage state
+        // if (deletedImage.length) {
+        //     deletedImage.forEach(image => {
+        //         deleteFileFromAzure("salon", image);
+        //         console.log("Deleted normal image from azure");
+        //     });
+        // }
+
+        // delete all images from db on every update and later insert new and old again
+        API.ImageAPI.deleteImage({
+            parent: "teacher",
+            parent_id: id
+        });
+        console.log(`Deleted all images of id ${id} from db`);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
-                let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
-                        status = false;
-                    };
-                });
-                if (status) {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/${selected.toLowerCase()}/listing`);
-                };
-                setLoading(false);
+                let status = null;
+                let formattedName;
+                if (responses) {
+                    if (!isObjEmpty(dataFields[2])) {
+                        // upload new images to backend folder and insert in db
+                        if (formData.imageData?.values?.Teacher?.length) {
+                            Array.from(formData.imageData.values.Teacher).map(image => {
+                                formattedName = formatImageName(image.name);
+                                API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                                API.ImageAPI.createImage({
+                                    image_src: formattedName,
+                                    parent_id: formData.teacherData.values.id,
+                                    parent: 'teacher',
+                                    type: 'normal'
+                                })
+                            });
+                            console.log("Created new image")
+                            status = true;
+                        }
+                        // insert old images only in db & not on azure
+                        if (formData.imageData?.values) {
+                            formData.imageData.values.map(image => {
+                                API.ImageAPI.createImage({
+                                    image_src: image.image_src,
+                                    school_id: image.school_id,
+                                    parent_id: image.parent_id,
+                                    parent: image.parent,
+                                    type: image.type
+                                })
+                            });
+                            console.log("Created old image only in db")
+                            status = true;
+                        }
+                    } else {
+                        status = true;
+                    }
+                    if (status) {
+                        setLoading(false);
+                        console.log("I have ended updating all fields");
+                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/teacher/listing`);
+                    }
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     }, [formData]);
 
-    const populateTeacherData = (id) => {
+    const populateTeacherData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/teacher/${id}`, `/get-address/teacher/${id}`, `/get-teacher-detail/${id}`, `/get-image/teacher/${id}`];
+
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                console.log('res=>', responses)
+                console.log('teacher res=>', responses)
                 if (responses[0].data.data) {
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                 }
@@ -116,6 +173,7 @@ const FormComponent = () => {
                 };
                 console.log('teacher dataobj', dataObj)
                 setUpdatedValues(dataObj);
+                setUpdatedImage(dataObj?.imageData);
                 setLoading(false);
             })
             .catch(err => {
@@ -123,96 +181,112 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    }, []);
 
-    const createTeacher = () => {
+    const createTeacher = useCallback(formData => {
         let promise1;
         let promise2;
         let promise3;
         setLoading(true);
+        const username = formData.teacherData.values?.firstname.toLowerCase() + (formData.teacherData.values?.lastname ?
+            `${formData.teacherData.values?.lastname.toLowerCase()}` : '');
+        const password = `${username}${ENV.VITE_SECRET_CODE}`;
 
-        API.TeacherAPI.createTeacher({ ...formData.teacherData.values })
-            .then(({ data: teacher }) => {
-                if (teacher?.status === 'Success') {
-                    promise1 = API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: teacher.data.id,
-                        parent: 'teacher',
-                    });
-
-                    promise2 = formData.teacherData.values.combinedClsSect.map((innerArray, index) => {
-                        const class_subject = formData.teacherData.values?.subject[index] || 0;
-                        // Associating each inner array with a subject
-                        innerArray.map(classData => {
-                            console.log('got', classData.class_id, classData.section_id, class_subject);
-                            API.TeacherAPI.insertIntoMappingTable(
-                                [teacher.data.id, classData.class_id, classData.section_id, class_subject]
-                            )
-                        })
-                    });
-
-                    if (formData.imageData.values.Teacher?.length) {
-                        promise3 = Array.from(formData.imageData.values.Teacher).map(async (image) => {
-                            let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
+        API.UserAPI.register({
+            username: username,
+            password: password,
+            email: formData.teacherData.values.email,
+            contact_no: formData.teacherData.values.contact_no,
+            role: 4,
+            designation: 'teacher',
+            status: 'active'
+        })
+            .then(({ data: user }) => {
+                if (user?.status === 'Success') {
+                    API.TeacherAPI.createTeacher({
+                        ...formData.teacherData.values,
+                        password: password
+                    })
+                        .then(async ({ data: teacher }) => {
+                            promise1 = API.AddressAPI.createAddress({
+                                ...formData.addressData.values,
                                 parent_id: teacher.data.id,
-                                parent: 'teacher',
-                                type: 'normal'
-                            })
-                        });
-                    }
+                                parent: 'teacher'
+                            });
 
-                    return Promise.all([promise1, promise2, promise3])
-                        .then(data => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+                            promise2 = formData.teacherData.values.sections.map((innerArray, classIndex) => {
+                                const teacherClass = formData.teacherData.values.classes[classIndex] || 0;
+                                // Iterating through each section in the class then associating subject ids for each section of class
+                                innerArray.map((sectionData, sectionIndex) => {
+                                    const subjectArray = formData.teacherData.values.subjects[classIndex][sectionIndex] || [];
+                                    console.log(teacherClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData), 'teacherClass, sectionid, subjectids innerloop');
+                                    API.TeacherAPI.insertIntoMappingTable(
+                                        [teacher.data.id, teacherClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                                    );
+                                });
+                            });
+
+                            if (formData.imageData.values.Teacher?.length) {
+                                promise3 = Array.from(formData.imageData.values.Teacher).map(async (image) => {
+                                    let formattedName = formatImageName(image.name);
+                                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                                    API.ImageAPI.createImage({
+                                        image_src: formattedName,
+                                        parent_id: teacher.data.id,
+                                        parent: 'teacher',
+                                        type: 'normal'
+                                    })
+                                });
+                            }
+
+                            try {
+                                await Promise.all([promise1, promise2, promise3]);
+                                setLoading(false);
+                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/teacher/listing`);
+                            } catch (err) {
+                                setLoading(false);
+                                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                                console.log('Error in teacher create', err);
+                            }
                         })
                         .catch(err => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                            throw err;
+                            console.log('Error in teacher create', err);
                         });
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
-    };
-
-    useEffect(() => {
-        API.ClassAPI.getClassSectionList()
-            .then(data => {
-                if (data.status === 'Success') {
-                    data.data.map(item => {
-                        delete item.class_subjects;
-                    })
-                    console.log('joined classData', data.data);
-                    setCombinedClass(data.data);
-                } else {
-                    console.error("Error fetching classes. Please Try Again");
-                }
-            })
-            .catch(err => {
-                console.error("Error fetching classes:", err);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log('Error in teacher create', err);
             });
     }, []);
 
+    useEffect(() => {
+        if (!allSections?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+        }
+    }, [allSections?.listData?.length]);
+
+    useEffect(() => {
+        if (!allSubjects?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
+        }
+    }, [allSubjects?.listData?.length]);
+
     //Create/Update/Populate teacher
     useEffect(() => {
-        if (id && !submitted && combinedClass) {
+        if (id && !submitted && allSubjects?.listData) {
             setTitle("Update");
             populateTeacherData(id);
         }
         if (formData.teacherData.validated && formData.addressData.validated) {
-            formData.teacherData.values?.id ? updateTeacherAndAddress(formData) : createTeacher();
+            formData.teacherData.values?.id ? updateTeacherAndAddress(formData) : createTeacher(formData);
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted, combinedClass]);
+    }, [id, submitted, allSubjects?.listData]);
 
     const handleSubmit = async () => {
         await teacherFormRef.current.Submit();
@@ -235,11 +309,11 @@ const FormComponent = () => {
         <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
-                : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "start",
-                backgroundSize:"cover", 
-                backgroundAttachment:"fixed"
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed"
             }}
         >
             <Typography
@@ -260,9 +334,10 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
-                teacherId={id}
-                combinedClass={combinedClass}
-                setCombinedClass={setCombinedClass}
+                classData={classData}
+                setClassData={setClassData}
+                allSections={allSections?.listData}
+                allSubjects={allSubjects?.listData}
                 updatedValues={updatedValues?.teacherData}
             />
             <AddressFormComponent
@@ -285,9 +360,10 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={preview}
                 setPreview={setPreview}
-                updatedValues={updatedValues?.imageData}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
+                updatedImage={updatedImage}            //these are updated Values
+                setUpdatedImage={setUpdatedImage}
                 imageType="Teacher"
                 ENV={ENV}
             />
@@ -300,7 +376,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -29,15 +30,14 @@ import dashBg from "../assets/formBg.png"
 const Dashboard = () => {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('');
-  const [studentDataa, setStudentData] = useState([]);
-  const [teacherData, setTeacherData] = useState([]);
-  const [employeeData, setEmployeeData] = useState([]);
-  const [schoolData, setSchoolData] = useState([]);
+  const [dashboardCount, setDashboardCount] = useState({});
+
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
+  const dashboardAttributes = ['student', 'school', 'teacher', 'employee'];
 
   const options1 = {
     chart: {
@@ -133,43 +133,35 @@ const Dashboard = () => {
         { name: 'Class 8', y: 70, color: colors.blueAccent[200] },
         { name: 'Class 9', y: 60, color: colors.primary[800] },
         { name: 'Class 10', y: 50, color: colors.primary[500] },
-        { name: 'Class 11', y: 80, color: colors.primary[600] },
+        { name: 'Class 11', y: 80, color: colors.primary[600] }
       ],
       color: colors.blueAccent[600],
     }],
   };
 
   useEffect(() => {
-    API.StudentAPI.getAll()
-      .then(students => {
-        setStudentData(students.data.rows.length)
-      })
-      .catch(err => {
-        throw err;
-      });
+    const promises = dashboardAttributes.map(attribute =>
+      API.DashboardAPI.getDashboardCount(attribute)
+        .then(data => {
+          if (data.status === 'Success') {
+            return { [attribute]: data.data };
+          } else if (data.status === 'Error') {
+            return { [attribute]: 0 };
+          }
+          // Run this if the status is neither 'Success' nor 'Error'
+          return { [attribute]: 0, error: 'Unexpected status' };
+        })
+        //Creating an object where attribute is the key and retrieved data is the value.
+        .catch(error => ({ [attribute]: 0, error }))
+    );
 
-    API.TeacherAPI.getAll()
-      .then(teachers => {
-        setTeacherData(teachers.data.rows.length)
+    Promise.all(promises)
+      .then(results => {    //Combining the results of all promises into a single object using Object.assign({}, ...results)
+        const countObject = Object.assign({}, ...results);
+        setDashboardCount(countObject);
       })
-      .catch(err => {
-        throw err;
-      });
-
-    API.EmployeeAPI.getAll()
-      .then(employees => {
-        setEmployeeData(employees.data.rows.length)
-      })
-      .catch(err => {
-        throw err;
-      });
-
-    API.SchoolAPI.getAll()
-      .then(schools => {
-        setSchoolData(schools.data.rows.length)
-      })
-      .catch(err => {
-        throw err;
+      .catch(error => {
+        console.error('Error fetching dashboard counts:', error);
       });
   }, [])
 
@@ -230,10 +222,10 @@ const Dashboard = () => {
 
         >
           <StatBox
-            title={studentDataa}
+            title={dashboardCount.student}
             subtitle="Students"
-            progress={`${(studentDataa / 5000)}`}
-            increase={`${(studentDataa / 5000) * 100}%`}
+            progress={`${(dashboardCount.student / 5000)}`}
+            increase={`${(dashboardCount.student / 5000) * 100}%`}
             yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
@@ -254,10 +246,10 @@ const Dashboard = () => {
           boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
-            title={schoolData}
+            title={dashboardCount.school}
             subtitle="Schools"
-            progress={`${(schoolData / 500)}`}
-            increase={`${(schoolData / 500) * 100}%`}
+            progress={`${(dashboardCount.school / 500)}`}
+            increase={`${(dashboardCount.school / 500) * 100}%`}
             yellowColor={colors.greenAccent[700]}
             icon={
               <ApartmentIcon
@@ -278,10 +270,10 @@ const Dashboard = () => {
           boxShadow=" rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
-            title={teacherData}
+            title={dashboardCount.teacher}
             subtitle="Teachers"
-            progress={`${(teacherData / 500)}`}
-            increase={`${(teacherData / 500) * 100}%`}
+            progress={`${(dashboardCount.teacher / 500)}`}
+            increase={`${(dashboardCount.teacher / 500) * 100}%`}
             yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
@@ -302,11 +294,10 @@ const Dashboard = () => {
           boxShadow=" rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
-
-            title={employeeData}
+            title={dashboardCount.employee}
             subtitle="employees"
-            progress={`${(employeeData / 500)}`}
-            increase={`${(employeeData / 500) * 100}%`}
+            progress={`${(dashboardCount.employee / 500)}`}
+            increase={`${(dashboardCount.employee / 500) * 100}%`}
             yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon
@@ -316,15 +307,15 @@ const Dashboard = () => {
           />
         </Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow:"hidden" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow:"hidden" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>
-    </Box >
+    </Box>
   );
-}
+};
 
 export default Dashboard;

@@ -52,7 +52,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => 
 };
 
 StatBox.propTypes = {
-    title: PropTypes.array,
+    title: PropTypes.oneOfType([PropTypes.number, PropTypes.array]),
     subtitle: PropTypes.string,
     icon: PropTypes.object,
     increase: PropTypes.string,
