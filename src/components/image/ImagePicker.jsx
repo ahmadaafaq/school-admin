@@ -75,27 +75,19 @@ const ImagePicker = ({
         }
     }, [formik.dirty]);
 
-
     useEffect(() => {
-        if (iCardDetails) {
+        if (iCardDetails && imageType === 'Student') {
             setICardDetails({
                 ...iCardDetails,
-                ...formik.values
+                Student: formik.values[imageType]
             });
         }
-    }, [formik.values]);
+    }, [formik.values, imageType]);
 
     useEffect(() => {
         if (updatedImage) {
             console.log("sssupdatedImage picker useeffect updatedImages=>", updatedImage)
             setInitialState(updatedImage);
-            // const srcArray = [];
-            // updatedImage.map(img => {
-            //     if (img.updatedImage_src) {
-            //         srcArray.push(`${azurePath}/${img.updatedImage_src}?${ENV.VITE_SAS_TOKEN}`);
-            //     }
-            // });
-            // setPreview(srcArray);
         }
     }, [updatedImage?.length]);
 
@@ -118,16 +110,16 @@ const ImagePicker = ({
                     size="small"
                     onBlur={formik.handleBlur}
                     InputProps={{
-                        multiple: true,
+                        multiple: imageType === 'Display' || imageType === 'Banner',
                         startAdornment: (
                             <IconButton component="label" sx={{ width: "88%" }}>
                                 <AddPhotoAlternateIcon />
                                 <input
                                     hidden
-                                    multiple
+                                    multiple={imageType === 'Display' || imageType === 'Banner'}
                                     type="file"
                                     name="file"
-                                    onChange={(event) => {
+                                    onChange={event => {
                                         console.log(`Onchange picker ${imageType} files=>`, event.target.files)
                                         //keeping old image files also in formik while inserting new files, so
                                         formik.values[`${imageType}`] ?     //we do not need to manual merge in

@@ -22,12 +22,11 @@ import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
-    const formClassesInRedux = useSelector(state => state.schoolClasses);
-    const formSectionsInRedux = useSelector(state => state.schoolSections);
-    const subjectsInRedux = useSelector(state => state.allSubjects);
-    const studentsInRedux = useSelector(state => state.allStudents);
+    // const formClassesInRedux = useSelector(state => state.schoolClasses);
+    // const formSectionsInRedux = useSelector(state => state.schoolSections);
+    // const subjectsInRedux = useSelector(state => state.allSubjects);
+    // const studentsInRedux = useSelector(state => state.allStudents);
 
-    const dispatch = useDispatch();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const navigateTo = useNavigate();
@@ -65,11 +64,11 @@ export const datagridColumns = () => {
     //     }
     // }, [subjectsInRedux?.listData?.rows?.length]);
 
-    useEffect(() => {
-        if (!studentsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setStudents, API.StudentAPI);
-        }
-    }, [studentsInRedux?.listData?.rows?.length]);
+    // useEffect(() => {
+    //     if (!studentsInRedux?.listData?.rows?.length) {
+    //         getPaginatedData(0, 50, setStudents, API.StudentAPI);
+    //     }
+    // }, [studentsInRedux?.listData?.rows?.length]);
 
     const columns = [
         // {
@@ -86,15 +85,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            renderCell: (params) => {
-                let studentName = findById(params?.row?.student_id, studentsInRedux?.listData?.rows);
-                return (
-                    <div>
-                        {studentName ? `${studentName.firstname} ${studentName.lastname}` : '/'}
-                    </div>
-                );
-            }
+            minWidth: 100
         },
         {
             field: "class",
@@ -102,18 +93,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            renderCell: (params) => {
-                let className = findById(params?.row?.class_id, formClassesInRedux?.listData)?.class_name;
-                let sectionName = findById(params?.row?.section_id, formSectionsInRedux?.listData)?.name;
-                // handleClassChange(params?.row?.class_id);
-                // handleSectionChange(params?.row?.section_id);
-                return (
-                    <div>
-                        {className ? appendSuffix(className) : '/'} {sectionName}
-                    </div>
-                );
-            }
+            minWidth: 100
         },
         {
             field: "subjects",
@@ -121,15 +101,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 2,
-            minWidth: 120,
-            renderCell: (params) => {
-                let subjectName = findById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows)?.name;
-                return (
-                    <div>
-                        {subjectName}
-                    </div>
-                );
-            }
+            minWidth: 120
         },
         {
             field: "term",

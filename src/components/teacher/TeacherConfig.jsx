@@ -52,24 +52,6 @@ export const datagridColumns = () => {
         }
     }, [schoolClasses?.listData?.length, schoolSections?.listData?.length, allClasses?.listData?.length, allSections?.listData?.length]);
 
-    // console.log(teacherIds, 'teacher');
-
-    // const getTeacherDetailById = (teacherId) => {
-    //     console.log('id', teacherId)
-    //     API.TeacherAPI.getTeacherDetail(teacherId)
-    //         .then(data => {
-    //             if (data.status === 'Success' && data.data.length) {
-    //                 console.log(data.data, 'teacher')
-    //                 setTeacherDetail(data.data);
-    //             } else {
-    //                 console.error("Error fetching classes. Please Try Again");
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.error("Error fetching classes:", err);
-    //         });
-    // };
-
     const columns = [
         {
             field: "fullname",

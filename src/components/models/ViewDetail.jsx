@@ -62,7 +62,7 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                 <CardMedia
                     component="img"
                     height="230"
-                    image={`${ENV.VITE_BASE_URL}/get-uploaded-image/${detail?.length ? detail.imageData[0]?.image_src : ''}`}
+                    image={`${ENV.VITE_BASE_URL}/get-uploaded-image/${detail?.imageData[0]?.image_src}`}
                     alt={detail?.studentData?.firstname}
                     sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
                 />

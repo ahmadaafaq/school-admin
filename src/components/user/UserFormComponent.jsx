@@ -113,7 +113,8 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (!allSchools?.listData?.length) {
+        // this will only fetch schools for admin
+        if (!allSchools?.listData?.length && rolePriority === 1) {
             fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
         }
     }, [allSchools?.listData]);
@@ -182,7 +183,6 @@ const UserFormComponent = ({
                         type="text"
                         name="username"
                         label="Username*"
-                        autoComplete="new-username"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.username}
@@ -197,7 +197,6 @@ const UserFormComponent = ({
                         label="Password*"
                         name="password"
                         type={showPassword ? "text" : "password"} // <-- This is where the pw toggle happens
-                        autoComplete="new-password"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.password}
@@ -225,7 +224,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Email"
                         name="email"
-                        autoComplete="new-email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.email}
@@ -239,7 +237,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Contact Number*"
                         name="contact_no"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.contact_no}
@@ -252,7 +249,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Designation"
                         name="designation"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.designation}
@@ -268,7 +264,6 @@ const UserFormComponent = ({
                             labelId="genderField"
                             label="Gender"
                             name="gender"
-                            autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
@@ -277,7 +272,8 @@ const UserFormComponent = ({
                             <MenuItem value={"other"}>Other</MenuItem>
                         </Select>
                     </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+
+                    {allSchools?.listData?.length ? <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.school_id && !!formik.errors.school_id}
                     >
                         <InputLabel id="schoolField">School</InputLabel>
@@ -286,7 +282,6 @@ const UserFormComponent = ({
                             labelId="schoolField"
                             label="School"
                             name="school_id"
-                            autoComplete="new-school_id"
                             value={formik.values.school_id}
                             onChange={event => {
                                 const selectedSchoolId = event.target.value;
@@ -294,13 +289,15 @@ const UserFormComponent = ({
                                 formik.setFieldValue("school_id", selectedSchoolId);
                             }}
                         >
-                            {allSchools?.listData?.length && allSchools.listData.map(item => (
+                            {allSchools.listData.map(item => (
                                 <MenuItem value={item.id} name={item.name} key={item.id}>
                                     {item.name}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
+                        : null}
+
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.role && !!formik.errors.role}
                     >
@@ -310,17 +307,17 @@ const UserFormComponent = ({
                             labelId="roleField"
                             label="role"
                             name="role"
-                            autoComplete="new-role"
                             value={formik.values.role}
                             onChange={formik.handleChange}
                         >
-                            {allRoles.length && allRoles
-                                .filter(role => role.id > rolePriority)
-                                .map(role => (
-                                    <MenuItem value={role.id} name={role.name} key={role.name}>
-                                        {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
-                                    </MenuItem>
-                                ))}
+                            {rolePriority === 2 && !allRoles.length ? null :
+                                allRoles
+                                    .filter(role => role.id > rolePriority && role.id < 4)
+                                    .map(role => (
+                                        <MenuItem value={role.id} name={role.name} key={role.name}>
+                                            {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                                        </MenuItem>
+                                    ))}
                         </Select>
                     </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
@@ -332,7 +329,6 @@ const UserFormComponent = ({
                             labelId="statusField"
                             label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >

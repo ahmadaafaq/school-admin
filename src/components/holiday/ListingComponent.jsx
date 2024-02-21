@@ -7,9 +7,10 @@
 */
 
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
+import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
@@ -29,29 +30,23 @@ import listBg from "../assets/listBG.jpg"
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
+    const selected = useSelector(state => state.menuItems.selected);
+    const { listData, loading } = useSelector(state => state.allHolidays);
+
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
-    const URLParams = useParams();
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allHolidays);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
 
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage, setLocalStorage } = Utility();
+    const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-
-    useEffect(() => {
-        const selectedMenu = getLocalStorage("menu");
-        dispatch(setMenuItem(selectedMenu.selected));
-    }, []);
 
     const handleReload = () => {
         reloadBtn.style.display = "none";
@@ -61,6 +56,12 @@ const ListingComponent = ({ rolePriority = null }) => {
             oldPagination
         });
     };
+
+    useEffect(() => {
+        const selectedMenu = getLocalStorage("menu");
+        dispatch(setMenuItem(selectedMenu.selected));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <Box m="10px" position="relative"
@@ -105,16 +106,16 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    <Button
-                        type="submit"
-                        color="success"
-                        variant="contained"
-                        disabled={rolePriority}
-                        onClick={() => { navigateTo(`/holiday/create`) }}
-                        sx={{ height: isTab ? "4vh" : "auto" }}
-                    >
-                        Create New {selected}
-                    </Button>
+                    {rolePriority > 1 && (
+                        <Button
+                            type="submit"
+                            color="success"
+                            variant="contained"
+                            onClick={() => { navigateTo(`/holiday/create`) }}
+                            sx={{ height: isTab ? "4vh" : "auto" }}
+                        >
+                            Create New {selected}
+                        </Button>)}
                 </Box>
             </Box>
             <Button sx={{
@@ -151,6 +152,10 @@ const ListingComponent = ({ rolePriority = null }) => {
             />
         </Box>
     );
+};
+
+ListingComponent.propTypes = {
+    rolePriority: PropTypes.number
 };
 
 export default ListingComponent;

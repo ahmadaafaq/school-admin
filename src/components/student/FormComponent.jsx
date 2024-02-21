@@ -22,8 +22,8 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
 
-import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
+import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -37,12 +37,17 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         studentData: { values: null, validated: false },
         addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true }
+        imageData: { values: null, validated: true },
+        parentImageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [updatedImage, setUpdatedImage] = useState([]);
+    const [updatedStudentImage, setUpdatedStudentImage] = useState([]);
     const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
+    const [previewStudent, setPreviewStudent] = useState([]);
+    const [deletedParentImage, setDeletedParentImage] = useState([]);
+    const [previewParent, setPreviewParent] = useState([]);
+    const [updatedParentImage, setUpdatedParentImage] = useState([]);
+
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
@@ -57,6 +62,7 @@ const FormComponent = () => {
     const studentFormRef = useRef();
     const addressFormRef = useRef();
     const imageFormRef = useRef();
+    const parentImageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -87,15 +93,23 @@ const FormComponent = () => {
                 subjects: getIdsFromObject(formData.studentData.values.subjects)
             },
             { ...formData.addressData.values },
-            { ...formData.imageData.values }
+            { ...formData.imageData.values },
+            { ...formData.parentImageData.values }
         ];
         console.log("Datafields in update=>", dataFields);
 
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
         //     deletedImage.forEach(image => {
-        //         deleteFileFromAzure("salon", image);
-        //         console.log("Deleted normal image from azure");
+        //         deleteFileFromAzure("student", image);
+        //         console.log("Deleted student image from azure");
+        //     });
+        // }
+        // delete the selected (removed) images from Azure which are in deletedBannerImage state
+        // if (deletedParentImage.length) {
+        //     deletedParentImage.forEach(image => {
+        //         deleteFileFromAzure("student/parent", image);
+        //         console.log("Deleted  parent image from azure");
         //     });
         // }
 
@@ -105,7 +119,6 @@ const FormComponent = () => {
             parent_id: id
         });
         console.log(`Deleted all images of id ${id} from db`)
-
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -142,6 +155,37 @@ const FormComponent = () => {
                             console.log("Created old image only in db")
                             status = true;
                         }
+                    }
+                    if (!isObjEmpty(dataFields[3])) {
+                        // upload new parent images to azure and insert in db
+                        if (formData.parentImageData?.values?.Parent) {
+                            Array.from(formData.parentImageData.values.Parent).map(image => {
+                                let formattedName = formatImageName(image.name);
+                                API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                                API.ImageAPI.createImage({
+                                    image_src: formattedName,
+                                    parent_id: formData.studentData.values.id,
+                                    parent: 'parent',
+                                    type: 'normal'
+                                })
+                            });
+                            console.log("Created new parent image")
+                            status = true;
+                        }
+                        // insert old images parent only in db & not on azure
+                        if (formData.parentImageData?.values) {
+                            formData.parentImageData.values.map(image => {
+                                API.ImageAPI.createImage({
+                                    image_src: image.image_src,
+                                    school_id: image.school_id,
+                                    parent_id: image.parent_id,
+                                    parent: image.parent,
+                                    type: image.type
+                                })
+                            });
+                            console.log("Created old parent image only in db")
+                            status = true;
+                        }
                     } else {
                         status = true;
                     }
@@ -161,7 +205,7 @@ const FormComponent = () => {
 
     const populateStudentData = useCallback(id => {
         setLoading(true);
-        const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
+        const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`, `/get-image/parent/${id}`];
 
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
@@ -173,11 +217,19 @@ const FormComponent = () => {
                 const dataObj = {
                     studentData: responses[0].data.data,
                     addressData: responses[1]?.data?.data,
-                    imageData: responses[2]?.data?.data
+                    studentImage: responses[2]?.data?.data,
+                    parentImage: responses[3]?.data.data
                 };
                 console.log('dataobj =>', dataObj)
                 setUpdatedValues(dataObj);
-                setUpdatedImage(dataObj?.imageData);
+                setUpdatedStudentImage(dataObj?.studentImage);
+                setUpdatedParentImage(dataObj?.parentImage);
+                setICardDetails({
+                    ...iCardDetails,
+                    ...dataObj.studentData,
+                    ...dataObj.addressData,
+                    imageData: dataObj.studentImage
+                });
                 setLoading(false);
             })
             .catch(err => {
@@ -190,6 +242,7 @@ const FormComponent = () => {
     const createStudent = useCallback(formData => {
         let promise1;
         let promise2;
+        let promise3;
         setLoading(true);
         const username = formData.studentData.values?.father_name || formData.studentData.values?.mother_name ||
             formData.studentData.values?.guardian;
@@ -212,7 +265,8 @@ const FormComponent = () => {
                 if (user?.status === 'Success') {
                     API.StudentAPI.createStudent({
                         ...formData.studentData.values,
-                        parent_id: user.data.id
+                        parent_id: user.data.id,
+                        password: password,
                     })
                         .then(async ({ data: student }) => {
                             promise1 = API.AddressAPI.createAddress({
@@ -234,27 +288,40 @@ const FormComponent = () => {
                                 });
                             }
 
+                            if (formData.parentImageData?.values?.Parent?.length) {
+                                promise3 = Array.from(formData.parentImageData.values.Parent).map(async (image) => {
+                                    let formattedName = formatImageName(image.name);
+                                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                                    API.ImageAPI.createImage({
+                                        image_src: formattedName,
+                                        parent_id: student.data.id,
+                                        parent: 'parent',
+                                        type: 'normal'
+                                    });
+                                });
+                            }
+
                             try {
-                                await Promise.all([promise1, promise2]);
+                                await Promise.all([promise1, promise2, promise3]);
                                 setLoading(false);
                                 toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
                             } catch (err) {
                                 setLoading(false);
                                 toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                                throw err;
+                                console.log('Error in student create', err);
                             }
                         })
                         .catch(err => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                            throw err;
+                            console.log('Error in student create', err);
                         });
                 }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                throw err;
+                console.log('Error in student create', err);
             });
     }, []);
 
@@ -281,6 +348,7 @@ const FormComponent = () => {
         await studentFormRef.current.Submit();
         await addressFormRef.current.Submit();
         await imageFormRef.current?.Submit();
+        await parentImageFormRef.current?.Submit();
         setSubmitted(true);
     };
 
@@ -291,6 +359,8 @@ const FormComponent = () => {
             setFormData({ ...formData, addressData: data });
         } else if (form === 'student_image') {
             setFormData({ ...formData, imageData: data });
+        } else if (form === 'parent_image') {
+            setFormData({ ...formData, parentImageData: data });
         }
     };
 
@@ -344,21 +414,39 @@ const FormComponent = () => {
                 setICardDetails={setICardDetails}
             />
             <ImagePicker
-                key="image"
+                key="student"
                 onChange={data => handleFormChange(data, 'student_image')}
                 refId={imageFormRef}
                 reset={reset}
                 setReset={setReset}
                 setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
+                preview={previewStudent}
+                setPreview={setPreviewStudent}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
-                updatedImage={updatedImage}            //these are updated Values
-                setUpdatedImage={setUpdatedImage}
+                updatedImage={updatedStudentImage}            //these are updated Values
+                setUpdatedImage={setUpdatedStudentImage}
                 iCardDetails={iCardDetails}
                 setICardDetails={setICardDetails}
                 imageType="Student"
+                ENV={ENV}
+            />
+            <ImagePicker
+                key="parent"
+                onChange={data => handleFormChange(data, 'parent_image')}
+                refId={parentImageFormRef}
+                reset={reset}
+                setReset={setReset}
+                setDirty={setDirty}
+                preview={previewParent}
+                setPreview={setPreviewParent}
+                deletedImage={deletedParentImage}
+                setDeletedImage={setDeletedParentImage}
+                updatedImage={updatedParentImage}            //these are updated Values
+                setUpdatedImage={setUpdatedParentImage}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
+                imageType="Parent"
                 ENV={ENV}
             />
 

@@ -52,6 +52,7 @@ const ListingComponent = () => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleReload = () => {

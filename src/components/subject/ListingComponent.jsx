@@ -35,7 +35,7 @@ const ListingComponent = () => {
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allSubjects);
+    const { listData, loading } = useSelector(state => state.listingSubjects);
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
 
@@ -51,7 +51,7 @@ const ListingComponent = () => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleReload = () => {
@@ -66,7 +66,7 @@ const ListingComponent = () => {
 
     //For form modal to open
     const handleDialogOpen = () => {
-        
+        setOpenDialog(true);
     };
 
     return (
@@ -95,7 +95,6 @@ const ListingComponent = () => {
                     flexDirection={isMobile ? "column" : "row"}
                     justifyContent={"space-between"}
                     alignItems={isMobile ? "center" : "normal"}
-
                 >
                     <Typography
                         component="h2"

@@ -114,7 +114,7 @@ const StudentFormComponent = ({
         API.StudentAPI.getAll(condition)
             .then(res => {
                 if (res.status === 'Success') {
-                    alert(`Can not appoint Head ${formik.values.gender}`)
+                    alert(`Can not appoint Head ${formik.values.gender}`);
                 }
             })
             .catch(err => {
@@ -122,13 +122,13 @@ const StudentFormComponent = ({
             });
     };
 
-    const setSubjects = () => {
+    const getAndSetSubjects = () => {
         const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values?.section);
         const selectedSubjects = sectionSubjects ? getValuesFromArray(sectionSubjects[0]?.subject_ids, allSubjects) : [];
         dispatch(setSchoolSubjects(selectedSubjects));
     };
 
-    const setClassSections = () => {
+    const getAndSetSections = () => {
         const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
         const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
         dispatch(setSchoolSections(selectedSections));
@@ -160,10 +160,12 @@ const StudentFormComponent = ({
     }, []);
 
     useEffect(() => {
-        setICardDetails({
-            ...iCardDetails,
-            ...formik.values
-        });
+        if (formik.values) {
+            setICardDetails({
+                ...iCardDetails,
+                ...formik.values
+            });
+        }
     }, [formik.values]);
 
     useEffect(() => {
@@ -175,13 +177,13 @@ const StudentFormComponent = ({
 
     useEffect(() => {
         if (formik.values.section) {
-            setSubjects();
+            getAndSetSubjects();
         }
     }, [formik.values?.section]);
 
     useEffect(() => {
         if (formik.values.class) {
-            setClassSections();
+            getAndSetSections();
         }
     }, [formik.values?.class, classData?.length]);
 
@@ -381,9 +383,7 @@ const StudentFormComponent = ({
                             name="dob"
                             required
                             value={formik.values.dob}
-                            onChange={newDob => {
-                                formik.setFieldValue("dob", newDob);
-                            }}
+                            onChange={newDob => formik.setFieldValue("dob", newDob)}
                         />
                         <DatePicker
                             format="DD MMMM YYYY"
@@ -392,9 +392,7 @@ const StudentFormComponent = ({
                             name="admission_date"
                             required
                             value={formik.values.admission_date}
-                            onChange={new_admission_date => {
-                                formik.setFieldValue("admission_date", new_admission_date);
-                            }}
+                            onChange={new_admission_date => formik.setFieldValue("admission_date", new_admission_date)}
                         />
                     </LocalizationProvider>
                     <FormControlLabel label="Is Specially Abled" sx={{ gridColumn: isMobile ? "span 2" : "" }}
