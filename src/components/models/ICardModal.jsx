@@ -24,6 +24,8 @@ import API from '../../apis';
 import { tokens } from "../../theme";
 import { Utility } from '../utility';
 
+const ENV = import.meta.env;
+
 const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }) => {
     const [signatureImage, setSignatureImage] = useState([]);
     const [signatureImageChange, setSignatureImageChange] = useState([]);
@@ -36,6 +38,9 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+    const countryName = document.getElementById("country");
+    const stateName = document.getElementById("state");
+    const cityName = document.getElementById("city");
     // const isMobile = useMediaQuery("(max-width:480px)");
     // const isTab = useMediaQuery("(max-width:920px)");
     const { appendSuffix, findById } = Utility();
@@ -52,15 +57,20 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
     };
 
     useEffect(() => {
-        if (iCardDetails?.Student) {
+        if (iCardDetails?.Student) {        //this condition will run when creating image
             readImageFiles(iCardDetails.Student[0], result => {
                 studentImageRef.current.push(result);
             });
+        } else if (iCardDetails?.imageData) {    //this condition will run when populating data
+            const imageUrl = `${ENV.VITE_BASE_URL}/get-uploaded-image/${iCardDetails?.imageData[0]?.image_src}`;
+            if (!studentImageRef.current.includes(imageUrl)) {      //it was concatenating the same url multiple times
+                studentImageRef.current.push(imageUrl);
+            }
         }
         if (signatureImage?.length) {
             readImageFiles(signatureImage[0], setSignatureImageChange);
         }
-    }, [iCardDetails.Student, signatureImage, signatureImageChange]);
+    }, [iCardDetails.Student, iCardDetails.imageData, signatureImage, signatureImageChange]);
 
     useEffect(() => {
         if (openDialog) {
@@ -163,8 +173,8 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                             <span className='normal-text'>{iCardDetails.contact_no ? iCardDetails.contact_no : ''}</span>
 
                             <span className='heading-text'>Address:</span>
-                            <span className='normal-text'>{`${iCardDetails?.street} ${iCardDetails?.landmark} ${iCardDetails?.studentCity}
-                            ${iCardDetails?.studentState} ${iCardDetails?.studentCountry}-${iCardDetails?.zipcode}`}</span>
+                            <span className='normal-text'>{`${iCardDetails?.street} ${iCardDetails?.landmark} ${iCardDetails?.studentCity ? iCardDetails.studentCity : cityName?.innerText}
+                            ${iCardDetails?.studentState ? iCardDetails.studentState : stateName?.innerText} ${iCardDetails?.studentCountry ? iCardDetails?.studentCountry : countryName?.innerText}-${iCardDetails?.zipcode}`}</span>
                         </Box>
                     </List>
                 </CardContent>
@@ -180,7 +190,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                                 size="small"
                                 sx={{ m: 1, ml: 2, outline: "none", width: '41%' }}
                                 InputProps={{
-                                    multiple: true,
                                     startAdornment: (
                                         <IconButton component="label" sx={{ width: "90%" }}>
                                             <AddPhotoAlternateIcon />
@@ -210,7 +219,10 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                                     },
                                     top: "6%"
                                 }}
-                                onClick={() => setSignatureImageChange([])}
+                                onClick={() => {
+                                    setSignatureImage([]);
+                                    setSignatureImageChange([]);
+                                }}
                             >
                                 <Tooltip title="DELETE">
                                     <HighlightOffOutlinedIcon sx={{

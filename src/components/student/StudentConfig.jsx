@@ -8,7 +8,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -17,15 +17,13 @@ import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import API from "../../apis";
-import BasicModal from "../models/CustomModal";
 
 import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-export const datagridColumns = (rolePriority = null) => {
-    const [open, setOpen] = useState(false);
+export const datagridColumns = (rolePriority = null, setOpen = null) => {
     const schoolClasses = useSelector(state => state.schoolClasses);
     const allClasses = useSelector(state => state.allClasses);
     const schoolSections = useSelector(state => state.schoolSections);
@@ -141,7 +139,7 @@ export const datagridColumns = (rolePriority = null) => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "action",
@@ -172,10 +170,9 @@ export const datagridColumns = (rolePriority = null) => {
                         >
                             <PreviewIcon />
                         </Button>
-                        <BasicModal open={open} setOpen={setOpen} />
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

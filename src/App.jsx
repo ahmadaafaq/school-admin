@@ -19,7 +19,7 @@ import Sidebar from "./components/common/Sidebar";
 import { ColorModeContext, useMode } from "./theme";
 import { Utility } from "./components/utility";
 
-import formBg from "./components/assets/formBg.png"
+import formBg from "./components/assets/formBg.png";
 
 const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 
@@ -114,7 +114,7 @@ function App() {
             <Suspense fallback={<div><img src={formBg} alt="" style={{ backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundPosition:"center"}} /></div>}>
               <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
-                <Topbar roleName={userRole.name} />
+                <Topbar roleName={userRole.name} rolePriority={userRole.priority} />
                 <Routes>
                   {userRole.priority === 1 &&
                     <>
@@ -145,7 +145,7 @@ function App() {
                       <Route exact path="/student/create/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/update/:id" element={<StudentFormComponent />} />
                       <Route exact path="/student/listing" element={<StudentListingComponent rolePriority={userRole.priority} />} />
-                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent  rolePriority={userRole.priority} />} />
+                      <Route exact path="/student/listing/:classId" element={<StudentListingComponent rolePriority={userRole.priority} />} />
 
                       <Route exact path="/marksheet/create" element={<MarksheetFormComponent />} />
                       <Route exact path="/marksheet/update/:id" element={<MarksheetFormComponent />} />
@@ -156,7 +156,7 @@ function App() {
                       <Route exact path="/teacher/listing" element={<TeacherListingComponent rolePriority={userRole.priority} />} />
 
                       <Route exact path="/user/create" element={<UserFormComponent rolePriority={userRole.priority} />} />
-                      <Route exact path="/user/update/:id" element={<UserFormComponent />} />
+                      <Route exact path="/user/update/:id" element={<UserFormComponent rolePriority={userRole.priority} />} />
                       <Route exact path="/user/listing" element={<UserListingComponent />} />
 
                       <Route exact path="/employee/create" element={<EmployeeFormComponent />} />

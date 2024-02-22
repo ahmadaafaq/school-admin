@@ -7,9 +7,10 @@
 */
 
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
+import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
@@ -24,20 +25,19 @@ import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
-import listBg from "../assets/listBG.jpg"
+import listBg from "../assets/listBG.jpg";
 
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = () => {
+const ListingComponent = ({ rolePriority = null }) => {
+    const selected = useSelector(state => state.menuItems.selected);
+    const { listData, loading } = useSelector(state => state.allSchoolPeriods);
+
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
-    const URLParams = useParams();
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allSchoolPeriods);
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -48,13 +48,8 @@ const ListingComponent = () => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
 
-    useEffect(() => {
-        const selectedMenu = getLocalStorage("menu");
-        dispatch(setMenuItem(selectedMenu.selected));
-    }, []);
-
     const handleReload = () => {
-        getSearchData(oldPagination.page, oldPagination.pageSize, condition);
+        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
         reloadBtn.style.display = "none";
         setSearchFlag({
             search: false,
@@ -62,6 +57,12 @@ const ListingComponent = () => {
             oldPagination
         });
     };
+
+    useEffect(() => {
+     const selectedMenu = getLocalStorage("menu");
+     dispatch(setMenuItem(selectedMenu.selected));
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);   
 
     return (
         <Box m="10px" position="relative"
@@ -106,15 +107,16 @@ const ListingComponent = () => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    <Button
-                        type="submit"
-                        color="success"
-                        variant="contained"
-                        onClick={() => { navigateTo(`/school-period/create`) }}
-                        sx={{ height: isTab ? "4vh" : "auto" }}
-                    >
-                        Create New {selected}
-                    </Button>
+                    {rolePriority > 1 && (
+                        <Button
+                            type="submit"
+                            color="success"
+                            variant="contained"
+                            onClick={() => { navigateTo(`/school-period/create`) }}
+                            sx={{ height: isTab ? "4vh" : "auto" }}
+                        >
+                            Create New {selected}
+                        </Button>)}
                 </Box>
             </Box>
             <Button sx={{
@@ -139,7 +141,7 @@ const ListingComponent = () => {
                 action={setSchoolPeriods}
                 api={API.SchoolPeriodAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns(rolePriority)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -151,6 +153,10 @@ const ListingComponent = () => {
             />
         </Box>
     );
+};
+
+ListingComponent.propTypes = {
+    rolePriority: PropTypes.number
 };
 
 export default ListingComponent;

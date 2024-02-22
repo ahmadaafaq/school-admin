@@ -39,7 +39,7 @@ export const setSchoolSectionsReducer = (state = initialSchoolState, action) => 
         case ActionTypes.SET_SCHOOL_SECTIONS:
             return {
                 ...state,
-                listData: action.payload
+                listData: action.payload || []
             };
         default:
             return state;

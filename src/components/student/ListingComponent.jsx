@@ -12,29 +12,28 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
-import { Autocomplete, Box, Button, Paper, Typography, TextField, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
+import BasicModal from "../models/CustomModal";
 import classNames from "../modules";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./StudentConfig";
-import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
-import listBg from "../assets/listBG.jpg"
+import listBg from "../assets/listBG.jpg";
 
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
-    const [schoolId, setSchoolId] = useState(null);
-    const allSchools = useSelector(state => state.allSchools);
+    const [openModal, setOpenModal] = useState(false);
     const selected = useSelector(state => state.menuItems.selected);
     const { listData, loading } = useSelector(state => state.allStudents);
 
@@ -51,14 +50,22 @@ const ListingComponent = ({ rolePriority = null }) => {
     const [oldPagination, setOldPagination] = useState();
 
     const { getPaginatedData } = useCommon();
-    const { fetchAndSetAll, getLocalStorage, setLocalStorage } = Utility();
+    const { getLocalStorage, setLocalStorage } = Utility();
     const reloadBtn = document.getElementById("reload-btn");
-    const schoolInfo = getLocalStorage("schoolInfo");
     const classId = URLParams ? URLParams.classId : null;       // grab class id from url
 
     let classConditionObj = classId ? {
         classId: classId
     } : null;
+
+    // Logged in with parent role
+    if (rolePriority === 5) {
+        const parentId = getLocalStorage('auth').id;
+        classConditionObj = {
+            ...classConditionObj,
+            parentId: parentId
+        };
+    }
 
     const handleReload = () => {
         reloadBtn.style.display = "none";
@@ -74,30 +81,9 @@ const ListingComponent = ({ rolePriority = null }) => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    //on refresh autocomplete state gets empty so doing this
-    useEffect(() => {
-        if (schoolInfo?.encrypted_id) {
-            API.CommonAPI.decryptText(schoolInfo)
-                .then(result => {
-                    if (result.status === 'Success') {
-                        const selectSchool = allSchools?.listData.find(value => value.id === parseInt(result.data));
-                        setSchoolId(selectSchool);
-                    } else if (result.status === 'Error') {
-                        console.log('Error Encrypting Data');
-                    }
-                });
-        }
-    }, [schoolInfo?.encrypted_id, allSchools?.listData]);
-
     useEffect(() => {
         classId ? setLocalStorage('class', classId) : null;
     }, [classId]);
-
-    useEffect(() => {
-        if (!allSchools?.listData?.length) {
-            fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
-        }
-    }, [allSchools?.listData]);
 
     return (
         <Box m="10px" position="relative"
@@ -144,7 +130,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         setSearchFlag={setSearchFlag}
                     />
 
-                    {rolePriority > 1 ? (
+                    {rolePriority > 1 && (
                         <Button
                             type="submit"
                             color="success"
@@ -153,55 +139,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                             sx={{ height: isTab ? "4vh" : "auto" }}
                         >
                             {classNames.includes(selected) ? 'Admission' : `Create New ${selected}`}
-                        </Button>
-                    ) : (
-                        <Autocomplete
-                            options={allSchools?.listData || []}
-                            getOptionLabel={option => option.name}
-                            disableCloseOnSelect
-                            value={schoolId}
-                            onChange={(event, value) => {
-                                setSchoolId(value);
-                                API.CommonAPI.encryptText({ data: value?.id })
-                                    .then(result => {
-                                        if (result.status === 'Success') {
-                                            setLocalStorage("schoolInfo", result.data);
-                                            getPaginatedData(0, 5, setStudents, API.StudentAPI);
-                                        } else if (result.status === 'Error') {
-                                            console.log('Error Encrypting Data');
-                                        }
-                                    });     //make decryption api for decrypting school_id .then(filter => from allachools matching schoolId to get it selected)
-                            }}
-                            sx={{ width: '280px', marginRight: '10px' }}
-                            renderInput={params => (
-                                <TextField
-                                    {...params}
-                                    label="Select School"
-                                    sx={{
-                                        fieldset: {
-                                            border: "2px solid grey",
-                                            boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px"
-                                        }
-                                    }}
-                                />
-                            )}
-                            PaperComponent={props => (
-                                <Paper
-                                    sx={{
-                                        background: colors.blueAccent[700],
-                                        color: colors.redAccent[400],
-                                        fontSize: "25px",
-                                        "&:hover": {
-                                            border: "1px solid #00FF00",
-                                            color: "gray",
-                                            backgroundColor: "white"
-                                        }
-                                    }}
-                                    {...props}
-                                />
-                            )}
-                        />
-                    )}
+                        </Button>)}
                 </Box>
             </Box>
             <Button sx={{
@@ -226,7 +164,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setStudents}
                 api={API.StudentAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns(rolePriority)}
+                columns={datagridColumns(rolePriority, setOpenModal)}
                 condition={classConditionObj}
                 rows={listData.rows}
                 count={listData.count}
@@ -237,6 +175,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
             />
+            <BasicModal open={openModal} setOpen={setOpenModal} />
         </Box>
     );
 };

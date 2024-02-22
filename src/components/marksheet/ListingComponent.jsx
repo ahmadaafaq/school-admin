@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -10,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
+import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
@@ -26,15 +28,15 @@ import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
-import listBg from "../assets/listBG.jpg"
+import listBg from "../assets/listBG.jpg";
 
 const pageSizeOptions = [5, 10, 20];
 
-const ListingComponent = () => {
-    const [conditionObj, setConditionObj] = useState({});
+const ListingComponent = ({ rolePriority = null }) => {
+    // const [conditionObj, setConditionObj] = useState({});
     const selected = useSelector(state => state.menuItems.selected);
-    const formClassesInRedux = useSelector(state => state.schoolClasses);
-    const formSectionsInRedux = useSelector(state => state.schoolSections);
+    // const formClassesInRedux = useSelector(state => state.schoolClasses);
+    // const formSectionsInRedux = useSelector(state => state.schoolSections);
     const { listData, loading, marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
 
     const navigateTo = useNavigate();
@@ -52,8 +54,8 @@ const ListingComponent = () => {
     const { getPaginatedData } = useCommon();
     const { getLocalStorage, findById } = Utility();
 
-    const selectedClass = getLocalStorage("dropdown class");
-    const selectedSection = getLocalStorage("dropdown section");
+    // const selectedClass = getLocalStorage("dropdown class");
+    // const selectedSection = getLocalStorage("dropdown section");
 
     let classConditionObj = marksheetClass?.class_id ? {
         classId: marksheetClass.class_id
@@ -64,25 +66,21 @@ const ListingComponent = () => {
         sectionId: marksheetSection.id
     } : null;
 
-    useEffect(() => {
-        if (classConditionObj?.classId && classConditionObj?.sectionId) {
-            getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
-            setConditionObj(classConditionObj);
-        }
-    }, [classConditionObj?.classId, classConditionObj?.sectionId]);
+    // useEffect(() => {
+    //     console.log({ classConditionObj });
+    //     if (classConditionObj?.classId && classConditionObj?.sectionId) {
+    //         getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
+    //         setConditionObj(classConditionObj);
+    //     }
+    // }, [classConditionObj?.classId, classConditionObj?.sectionId]);
 
-
-    useEffect(() => {
-        const selectedMenu = getLocalStorage("menu");
-        dispatch(setMenuItem(selectedMenu.selected));
-    }, []);
-
-    useEffect(() => {
-        if (listData?.rows?.length) {
-            dispatch(setMarksheetClass(findById(listData.rows[0].class_id, formClassesInRedux?.listData)));
-            dispatch(setMarksheetSection(findById(listData.rows[0].section_id, formSectionsInRedux?.listData)));
-        }
-    }, [listData?.rows]);
+    // useEffect(() => {
+    //     if (listData?.rows?.length) {
+    //         dispatch(setMarksheetClass(findById(listData.rows[0].class_id, formClassesInRedux?.listData)));
+    //         dispatch(setMarksheetSection(findById(listData.rows[0].section_id, formSectionsInRedux?.listData)));
+    //         console.log('SET CLASS AND SECTION');
+    //     }
+    // }, [listData?.rows]);
 
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
@@ -93,7 +91,12 @@ const ListingComponent = () => {
             oldPagination
         });
     };
-    
+
+    useEffect(() => {
+        const selectedMenu = getLocalStorage("menu");
+        dispatch(setMenuItem(selectedMenu.selected));
+    }, []);
+
     return (
         <Box m="8px" position="relative"
             sx={{
@@ -138,21 +141,20 @@ const ListingComponent = () => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    <DropDown
+                    {/* <DropDown
                         marksheetClass={marksheetClass}
                         marksheetSection={marksheetSection}
-                    />
-                    <Button
-                        type="submit"
-                        color="success"
-                        variant="contained"
-
-                        onClick={() => { navigateTo(`/marksheet/create`) }}
-                        disabled={!selectedClass?.class_id || !selectedSection?.id} // Disable if either class or section is not selected
-                        sx={{ height: isTab ? "4vh" : "auto" }}
-                    >
-                        Create New {selected}
-                    </Button>
+                    /> */}
+                    {rolePriority > 1 && (
+                        <Button
+                            type="submit"
+                            color="success"
+                            variant="contained"
+                            onClick={() => navigateTo(`/marksheet/create`)}
+                            sx={{ height: isTab ? "4vh" : "auto" }}
+                        >
+                            Create New {selected}
+                        </Button>)}
                 </Box>
             </Box>
             <Button sx={{
@@ -177,7 +179,7 @@ const ListingComponent = () => {
                 action={setMarksheets}
                 api={API.MarksheetAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns(rolePriority)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -186,10 +188,14 @@ const ListingComponent = () => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
-                condition={conditionObj}
+            // condition={conditionObj}
             />
         </Box>
     );
+};
+
+ListingComponent.propTypes = {
+    rolePriority: PropTypes.number
 };
 
 export default ListingComponent;

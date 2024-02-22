@@ -88,8 +88,8 @@ const FormComponent = () => {
 
     const updateSchoolAndAddress = useCallback(formData => {
         setLoading(true);
-
         const paths = ["/update-school", "/update-address"];
+
         const dataFields = [
             {
                 ...formData.schoolData.values,
@@ -103,14 +103,14 @@ const FormComponent = () => {
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
         //     deletedImage.forEach(image => {
-        //         deleteFileFromAzure("salon", image);
+        //         deleteFileFromAzure("school", image);
         //         console.log("Deleted normal image from azure");
         //     });
         // }
         // delete the selected (removed) images from Azure which are in deletedBannerImage state
         // if (deletedBannerImage.length) {
         //     deletedBannerImage.forEach(image => {
-        //         deleteFileFromAzure("salon/banner", image);
+        //         deleteFileFromAzure("school/banner", image);
         //         console.log("Deleted  banner image from azure");
         //     });
         // }
@@ -224,7 +224,6 @@ const FormComponent = () => {
                         setUpdatedDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
                         setUpdatedBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
                         setLoading(false);
-
                     })
                     .catch(err => {
                         setLoading(false);
