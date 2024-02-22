@@ -85,7 +85,6 @@ const FormComponent = () => {
         const path = [`/get-marksheet/?page=0&size=15&student=${student_id}`];
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
-                console.log("response>>>>", response);
                 const dataObj = {
                     marksheetData: response[0].data.data
                 };
@@ -102,15 +101,12 @@ const FormComponent = () => {
     const createMarksheet = () => {
         let promises = [];
         setLoading(true);
-        console.log("submitted data", formData);
-
         let payload = {
             student_id: formData.marksheetData.values.student,
             class_id: marksheetClass?.class_id,
             section_id: marksheetSection?.id,
             term: formData.marksheetData.values.term
         };
-        console.log('payload', payload)
         promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
             payload = {
                 ...payload,
@@ -121,7 +117,6 @@ const FormComponent = () => {
                 remark: formData.marksheetData.values[`remark_${index}`] ? formData.marksheetData.values[`remark_${index}`] : '',
                 result: formData.marksheetData.values.result
             }
-            console.log('loop', subjectId, payload)
             API.MarksheetAPI.createMarksheet(payload);
         });
 
@@ -169,8 +164,6 @@ const FormComponent = () => {
             setFormData({ ...formData, marksheetData: data });
         }
     };
-
-    console.log('updatedValues', updatedValues)
 
     return (
         <Box ml="10px"

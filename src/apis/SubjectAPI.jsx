@@ -60,7 +60,7 @@ export const SubjectAPI = {
     /** getting  subject  by class in the database
      */
     getSubjectsByClass: async (classId, cancel = false) => {
-        console.log('api class=', classId)
+        
         const { data: response } = await api.request({
             url: `/get-subjects-by-class/${classId}`,
             headers: {

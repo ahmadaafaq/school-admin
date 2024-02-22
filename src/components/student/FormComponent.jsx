@@ -72,7 +72,8 @@ const FormComponent = () => {
 
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, fetchAndSetAll, isObjEmpty, toastAndNavigate } = Utility();
+    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, fetchAndSetAll,
+        isObjEmpty, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -96,7 +97,6 @@ const FormComponent = () => {
             { ...formData.imageData.values },
             { ...formData.parentImageData.values }
         ];
-        console.log("Datafields in update=>", dataFields);
 
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
@@ -138,7 +138,6 @@ const FormComponent = () => {
                                     type: 'normal'
                                 })
                             });
-                            console.log("Created new image")
                             status = true;
                         }
                         // insert old images only in db & not on azure
@@ -152,7 +151,6 @@ const FormComponent = () => {
                                     type: image.type
                                 })
                             });
-                            console.log("Created old image only in db")
                             status = true;
                         }
                     }
@@ -191,7 +189,6 @@ const FormComponent = () => {
                     }
                     if (status) {
                         setLoading(false);
-                        console.log("I have ended updating all fields");
                         toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
                     }
                 }
@@ -220,7 +217,6 @@ const FormComponent = () => {
                     studentImage: responses[2]?.data?.data,
                     parentImage: responses[3]?.data.data
                 };
-                console.log('dataobj =>', dataObj)
                 setUpdatedValues(dataObj);
                 setUpdatedStudentImage(dataObj?.studentImage);
                 setUpdatedParentImage(dataObj?.parentImage);

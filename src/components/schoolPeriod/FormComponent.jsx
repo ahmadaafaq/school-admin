@@ -62,7 +62,6 @@ const FormComponent = () => {
     }, []);
 
     const updateSchoolPeriod = useCallback(formData => {
-        console.log("formdataABCD", formData)
         const dataFields = [
             { ...formData.schoolPeriodData.values },
         ];
@@ -95,7 +94,6 @@ const FormComponent = () => {
         const paths = [`/get-by-pk/school-period/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(response => {
-                console.log("respon>>>>",response)
                 if (response[0]?.data?.data) {
                     response[0].data.data.opening_time = dayjs(response[0].data.data.opening_time);
                     response[0].data.data.closing_time = dayjs(response[0].data.data.closing_time);
@@ -103,14 +101,12 @@ const FormComponent = () => {
                 const dataObj = {
                     schoolPeriodData: response[0].data.data
                 };
-                console.log("ye lo valuesss>>=", dataObj);
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                console.log('Error in creating school period', err);
             });
     };
 
@@ -120,27 +116,18 @@ const FormComponent = () => {
         API.SchoolPeriodAPI.createSchoolPeriod({ ...formData.schoolPeriodData.values })
             .then(({ data: schoolPeriod }) => {
                 if (schoolPeriod?.status === 'Success') {
-                    console.log("qwertyuio>>>",data)
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/school-period/listing`);
                 } else {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                    console.log('Error in creating school period', err);
                 }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                console.log('Error in creating school period', err);
             });
     };
-
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
 
     //Create/Update/Populate SchoolPeriod
     useEffect(() => {

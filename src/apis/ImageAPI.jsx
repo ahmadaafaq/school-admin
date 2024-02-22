@@ -72,7 +72,6 @@ export const ImageAPI = {
     /** Upload image to the folder created by nodejs
      */
     uploadImage: async (data, cancel = false) => {
-        console.log(data, 'api image file')
         return await api.request({
             url: `/upload-image`,
             headers: {

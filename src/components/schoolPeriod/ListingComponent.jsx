@@ -59,10 +59,10 @@ const ListingComponent = ({ rolePriority = null }) => {
     };
 
     useEffect(() => {
-        const selectedMenu = getLocalStorage("menu");
-        dispatch(setMenuItem(selectedMenu.selected));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+     const selectedMenu = getLocalStorage("menu");
+     dispatch(setMenuItem(selectedMenu.selected));
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);   
 
     return (
         <Box m="10px" position="relative"

@@ -25,7 +25,7 @@ import { tokens, themeSettings } from "../../theme";
 import { studentData, lineData } from "../common/CustomCharts";
 import API from "../../apis";
 
-import dashBg from "../assets/formBg.png"
+import dashBg from "../assets/formBg.png";
 
 const Dashboard = () => {
   const [selectedClass, setSelectedClass] = useState('');

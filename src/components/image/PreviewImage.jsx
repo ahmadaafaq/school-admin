@@ -35,7 +35,7 @@ const PreviewImage = ({
     useEffect(() => {
         const dbImgFiles = [];
         const pickerFiles = [];
-        console.log('Update topa use effect 1', updatedImage)
+       
         if (updatedImage) {
             let countOld = 0;
             updatedImage.map(img => {
@@ -68,11 +68,9 @@ const PreviewImage = ({
     }, [updatedImage?.length]);
 
     useEffect(() => {
-        console.log('Update topa USE EFFECT image filessss 2');
         // On new image selection through picker
         if (imageFiles) {
-            console.log('update topa imageFilessss UEF 1', imageFiles);
-
+            
             const pickerFiles = [];
             const dbImgFiles = [];
 
@@ -86,8 +84,6 @@ const PreviewImage = ({
                 });
                 countNew++;
             }
-
-            console.log('new topa pickerFilessss', pickerFiles);
 
             if (updatedImage) {
                 let countOld = 0;
@@ -111,27 +107,21 @@ const PreviewImage = ({
     }, [imageFiles]);
 
     const handleDeleteClick = (item) => {
-        console.log('topa item', item);
         const previewIndex = preview.indexOf(item);
-        console.log('topa click delete', preview, previewIndex);
         preview.splice(previewIndex, 1);
 
         if (item?.index > -1) {
             // On image selection through image picker
             if (imageFiles && item.key === 'new') {
                 const fileList = Array.from(imageFiles);
-                console.log('topa new sssLength before', fileList)
                 fileList.splice(item.index, 1);
-                console.log('topa new filelist after delete', fileList);
                 // eslint-disable-next-line react/prop-types
                 formik.setFieldValue(imageType, fileList);
             }
 
             // on form update splice 1 item from array when it is found
             if (updatedImage && item.key === 'old') {
-                console.log('topa old sssLength before', updatedImage, item.index);
                 updatedImage.splice(item.index, 1);
-                console.log('topa updated image after del', updatedImage);
                 setUpdatedImage(updatedImage); // update picker image files
             }
 
@@ -146,7 +136,6 @@ const PreviewImage = ({
             ]);
         }
     };
-    console.log('topa sssLast length', updatedImage.length);
 
     return (
         <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit", marginBottom: "8%" }}

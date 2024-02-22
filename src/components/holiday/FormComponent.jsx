@@ -68,7 +68,7 @@ const FormComponent = () => {
     }, []);
 
     const updateHolidayAndAddress = useCallback(formData => {
-        console.log("formdataABCD", formData)
+       
         const dataFields = [
             { ...formData.holidayData.values },
             { ...formData.addressData.values }

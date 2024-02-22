@@ -3,7 +3,7 @@
     width: 120px !important;
     margin: 10px auto;
     border: 3px solid #ffffff;
-    box-shadow: 3px 3px 8px #043927;
+    box-shadow: 1px 1px 10px #04392785;
 }
 
 .primary-text {
@@ -22,8 +22,9 @@
 
 .normal-text {
     font-weight: 400;
-    font-size: 14px;
+    font-size: 12px;
     letter-spacing: 0.8px;
+    margin: 2px;
 }
 .heading-text1 {
     font-weight: 700;

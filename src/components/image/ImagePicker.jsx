@@ -86,19 +86,10 @@ const ImagePicker = ({
 
     useEffect(() => {
         if (updatedImage) {
-            console.log("sssupdatedImage picker useeffect updatedImages=>", updatedImage)
             setInitialState(updatedImage);
         }
     }, [updatedImage?.length]);
 
-    // useEffect(() => {
-    //     if (deletedImage) {
-    //         delete formik.values(deletedImage);
-    //     }
-    // }, [deletedImage?.length]);
-
-    console.log(`imagepicker formik values ${imageType}=>`, formik.values);
-    console.log('sssTest image picker updated', updatedImage);
     return (
         <Box m="10px">
             <form ref={refId} encType="multipart/form-data">
@@ -119,8 +110,7 @@ const ImagePicker = ({
                                     multiple={imageType === 'Display' || imageType === 'Banner'}
                                     type="file"
                                     name="file"
-                                    onChange={event => {
-                                        console.log(`Onchange picker ${imageType} files=>`, event.target.files)
+                                    onChange={(event) => {
                                         //keeping old image files also in formik while inserting new files, so
                                         formik.values[`${imageType}`] ?     //we do not need to manual merge in
                                             formik.setFieldValue(`${imageType}`,        //previewImage

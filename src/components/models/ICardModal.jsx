@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import PropTypes from "prop-types";
 import { usePDF } from 'react-to-pdf';
 
-import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Grid, IconButton } from '@mui/material';
+import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Divider, Grid, IconButton } from '@mui/material';
 import { List, ListItem, ListItemText, TextField, Tooltip, useMediaQuery } from '@mui/material';
 import { green } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
@@ -91,7 +91,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openDialog]);
-    console.log(iCardDetails, 'formatted details in icard modal');
 
     return (
         <Dialog
@@ -105,11 +104,11 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                 }
             }}
         >
-            <Card ref={targetRef} sx={{ width: '340px' }}>
+            <Card ref={targetRef} sx={{ width: '350px' }}>
                 <Box
                     sx={{
                         display: "grid", gridTemplateColumns: '0.3fr 1fr',
-                        backgroundColor: colors.blueAccent[500], color: '#f6f6f2', borderRadius: '4px', margin: '8px 6px'
+                        backgroundColor: colors.blueAccent[500], color: '#f6f6f2', borderRadius: '4px', margin: '5px'
                     }}
                 >
                     <Avatar sx={{
@@ -118,8 +117,8 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                         aria-label="student-id-card">
                         Logo
                     </Avatar>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <p className='heading-text' style={{ textAlign: "left", fontSize: '16px', marginBottom: '2px' }}>
+                    <div style={{ display: 'flex', flexWrap: "wrap" }}>
+                        <p className='heading-text' style={{ textAlign: "left", fontSize: '16px', marginBottom: '2px',marginTop:"5px" }}>
                             {iCardDetails?.schoolData?.name}
                         </p>
                         <p className='normal-text' style={{ margin: '0' }}>
@@ -138,9 +137,9 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                     image={studentImageRef?.current}
                     alt="student-image"
                 />
-                <CardContent sx={{ paddingTop: '0' }}>
+                <CardContent sx={{ padding: '0 2px' }}>
                     <List sx={{ width: '100%', padding: '0', bgcolor: 'background.paper' }}>
-                        <ListItem sx={{ padding: '0 16px' }}>
+                        <ListItem sx={{ padding: '0 2px' }}>
                             <ListItemText
                                 className='primary-text'
                                 primary={iCardDetails?.firstname && iCardDetails?.lastname &&
@@ -150,7 +149,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                                 }}
                             />
                         </ListItem>
-                        <ListItem sx={{ padding: "0 16px" }}>
+                        <ListItem sx={{ padding: "0 2px" }}>
                             <ListItemText
                                 className='primary-text'
                                 primary={iCardDetails?.session}

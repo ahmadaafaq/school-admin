@@ -22,7 +22,6 @@ export const MarksheetAPI = {
             queryParam += `&${key}=${conditionObj[key]}`
           })
         }
-        console.log('connnnnn=>', conditionObj)
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
             url: `/get-marksheet?page=${page}&size=${size}${queryParam}${searchParam}`,

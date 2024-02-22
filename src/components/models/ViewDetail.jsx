@@ -31,8 +31,6 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
     const sectionName = findById(detail?.studentData?.section, formSectionsInRedux?.listData)?.section_name;
     const className = findById(detail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
 
-    console.log("details in viewdetail component", detail);
-
     return (
         <Card
             sx={{

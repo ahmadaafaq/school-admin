@@ -60,7 +60,6 @@ export const TeacherAPI = {
   /** Insert data into teacher_class_subject mapping table in the database
    */
   insertIntoMappingTable: async (data, cancel = false) => {
-    console.log('api data=>', data)
     return await api.request({
       url: `/create-teacher-class-mapping`,
       headers: {

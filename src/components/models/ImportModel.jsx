@@ -44,7 +44,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const handleSubmit = (event) => {
         event.preventDefault();
         handleImport();
-        console.log("imported submit file", importedFile)
     }
 
     const handleImport = () => {
@@ -55,7 +54,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 const sheets = wb.SheetNames;
                 if (sheets.length) {
                     const rows = utils.sheet_to_json(wb.Sheets[sheets[0]]);
-                    console.log(">>>>>", rows)
                     setStudents(rows)
                 }
             }
@@ -99,8 +97,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
             })
         }
     }, [students?.length]);
-
-    console.log("studentss...", importedFile)
 
     return (
         <div >
@@ -149,7 +145,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                             name="importedFile"
                                             onChange={event => {
                                                 const file = event.target.files[0];
-                                                console.log('importedFile=>', file)
                                                 setImportedFile(file);
                                                 setFileName(file.name);
                                             }}

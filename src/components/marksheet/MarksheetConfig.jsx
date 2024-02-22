@@ -71,14 +71,6 @@ export const datagridColumns = () => {
     // }, [studentsInRedux?.listData?.rows?.length]);
 
     const columns = [
-        // {
-        //     field: "roll no",
-        //     headerName: "ROLL NO",
-        //     headerAlign: "center",
-        //     align: "center",
-        //     flex: 1,
-        //     minWidth: 120,
-        // },
         {
             field: "NAME",
             headerName: "NAME",

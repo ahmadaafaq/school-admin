@@ -17,7 +17,6 @@ const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => 
     const colors = tokens(theme.palette.mode);
     const isMobile = useMediaQuery("(max-width:480px)");
 
-
     return (
         <Box width="100%" m={isMobile ? "0px" : "0 30px"}>
             <Box display="flex" justifyContent="space-between">

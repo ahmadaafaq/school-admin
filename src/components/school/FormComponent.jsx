@@ -99,7 +99,6 @@ const FormComponent = () => {
             { ...formData.imageData.values },
             { ...formData.bannerImageData.values }
         ];
-        console.log("Datafields in update=>", dataFields)
 
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
@@ -121,7 +120,6 @@ const FormComponent = () => {
             parent: "school",
             parent_id: id
         });
-        console.log(`Deleted all images of id ${id} from db`)
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -142,7 +140,6 @@ const FormComponent = () => {
                                     type: 'display'
                                 })
                             });
-                            console.log("Created new display image")
                             status = true;
                         }
                         // insert old images display only in db & not on azure
@@ -156,7 +153,6 @@ const FormComponent = () => {
                                     type: image.type
                                 })
                             });
-                            console.log("Created old display image only in db")
                             status = true;
                         }
                     }
@@ -174,7 +170,6 @@ const FormComponent = () => {
                                     type: 'banner'
                                 })
                             });
-                            console.log("Created new banner image")
                             status = true;
                         }
                         // insert old images banner only in db & not on azure
@@ -188,7 +183,6 @@ const FormComponent = () => {
                                     type: image.type
                                 })
                             });
-                            console.log("Created old banner image only in db")
                             status = true;
                         }
                     } else {
@@ -196,7 +190,6 @@ const FormComponent = () => {
                     }
                     if (status) {
                         setLoading(false);
-                        console.log("I have ended updating all fields")
                         toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
                     }
                 }
@@ -227,7 +220,6 @@ const FormComponent = () => {
                             addressData: responses[1]?.data?.data,
                             imageData: responses[2]?.data?.data
                         };
-                        console.log('school dataobj', dataObj)
                         setUpdatedValues(dataObj);
                         setUpdatedDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
                         setUpdatedBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
@@ -256,7 +248,6 @@ const FormComponent = () => {
             school_code: createSchoolCode(formData.schoolData.values?.name),
             amenities: getIdsFromObject(formData.schoolData.values?.amenities)
         };
-        console.log(formData.schoolData.values, 'formdata.schooldata.avalues');
 
         API.SchoolAPI.createSchool({ ...formData.schoolData.values })
             .then(({ data: school }) => {
@@ -273,7 +264,6 @@ const FormComponent = () => {
                         // Iterating through each section in the class then associating subject ids for each section of class
                         innerArray.map((sectionData, sectionIndex) => {
                             const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                            console.log(schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData), 'schoolClass, sectionid, subjectids innerloop');
                             API.SchoolAPI.insertIntoMappingTable(
                                 [school.data.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
                             );

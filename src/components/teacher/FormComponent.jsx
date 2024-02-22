@@ -89,7 +89,7 @@ const FormComponent = () => {
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
         //     deletedImage.forEach(image => {
-        //         deleteFileFromAzure("salon", image);
+        //         deleteFileFromAzure("teacher", image);
         //         console.log("Deleted normal image from azure");
         //     });
         // }
@@ -119,7 +119,6 @@ const FormComponent = () => {
                                     type: 'normal'
                                 })
                             });
-                            console.log("Created new image")
                             status = true;
                         }
                         // insert old images only in db & not on azure
@@ -133,7 +132,6 @@ const FormComponent = () => {
                                     type: image.type
                                 })
                             });
-                            console.log("Created old image only in db")
                             status = true;
                         }
                     } else {
@@ -159,7 +157,6 @@ const FormComponent = () => {
 
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                console.log('teacher res=>', responses)
                 if (responses[0].data.data) {
                     responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
                 }
@@ -171,7 +168,6 @@ const FormComponent = () => {
                     addressData: responses[1]?.data?.data,
                     imageData: responses[3]?.data?.data
                 };
-                console.log('teacher dataobj', dataObj)
                 setUpdatedValues(dataObj);
                 setUpdatedImage(dataObj?.imageData);
                 setLoading(false);

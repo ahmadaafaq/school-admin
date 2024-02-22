@@ -139,7 +139,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "action",
@@ -172,7 +172,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

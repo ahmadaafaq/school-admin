@@ -88,7 +88,7 @@ const FormComponent = ({ rolePriority }) => {
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log('Error in student update', err);
+                console.log('Error in user update', err);
             });
     }, [formData]);
 
@@ -108,12 +108,13 @@ const FormComponent = ({ rolePriority }) => {
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log('Error in student populate', err);
+                console.log('Error in user populate', err);
             });
     }, []);
 
     const registerUser = useCallback(formData => {
         setLoading(true);
+
         API.UserAPI.register({ ...formData.userData.values })
             .then(({ data: user }) => {
                 if (user?.status === 'Success') {
@@ -129,14 +130,14 @@ const FormComponent = ({ rolePriority }) => {
                         .catch(err => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                            console.log('Error in student create', err);
+                            console.log('Error in user create', err);
                         });
                 }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log('Error in student create', err);
+                console.log('Error in user create', err);
             });
     }, []);
 
@@ -147,7 +148,7 @@ const FormComponent = ({ rolePriority }) => {
             populateUserData(id);
         }
         if (formData.userData.validated && formData.addressData.validated) {
-            formData.userData.values?.id ? updateUserAndAddress(formData) : registerUser();
+            formData.userData.values?.id ? updateUserAndAddress(formData) : registerUser(formData);
         } else {
             setSubmitted(false);
         }

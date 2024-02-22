@@ -49,7 +49,7 @@ const initialValues = {
     aadhaar_no: "",
     caste_group: "",
     gender: "",
-    head: "",
+    head: 0,
     status: "inactive"
 };
 
@@ -106,10 +106,7 @@ const StudentFormComponent = ({
     };
 
     const validateHead = () => {
-        const condition = {
-            gender: formik.values.gender
-        };
-        console.log("gendercon>>", condition);
+        const condition = { gender: formik.values.gender };
 
         API.StudentAPI.getAll(condition)
             .then(res => {

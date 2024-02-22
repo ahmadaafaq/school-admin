@@ -166,44 +166,44 @@ const AddressFormComponent = ({
         }
     }, [formik.values]);
 
-    // useEffect(() => {
-    //     if (formik.values.country) {
-    //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
-    //         console.log(selectedObj, 'db country');
-    //         if (iCardDetails) {
-    //             setICardDetails({
-    //                 ...iCardDetails,
-    //                 studentCountry: selectedObj[0]?.name
-    //             });
-    //         }
-    //     }
-    // }, [formik.values?.country]);
+    useEffect(() => {
+        if (formik.values.country) {
+            const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
+            console.log(selectedObj, 'db country');
+            if (iCardDetails) {
+                setICardDetails({
+                    ...iCardDetails,
+                    studentCountry: selectedObj[0]?.name
+                });
+            }
+        }
+    }, [formik.values?.country]);
 
-    // useEffect(() => {
-    //     if (formik.values.state) {
-    //         const selectedObj = states.filter(obj => obj.id === formik.values.state) || [];
-    //         console.log(selectedObj, 'db state');
-    //         if (iCardDetails) {
-    //             setICardDetails({
-    //                 ...iCardDetails,
-    //                 studentState: selectedObj[0]?.name
-    //             });
-    //         }
-    //     }
-    // }, [formik.values?.state]);
+    useEffect(() => {
+        if (formik.values.state) {
+            const selectedObj = states.filter(obj => obj.id === formik.values.state) || [];
+            console.log(selectedObj, 'db state');
+            if (iCardDetails) {
+                setICardDetails({
+                    ...iCardDetails,
+                    studentState: selectedObj[0]?.name
+                });
+            }
+        }
+    }, [formik.values?.state]);
 
-    // useEffect(() => {
-    //     if (formik.values.city) {
-    //         const selectedObj = cities.filter(obj => obj.id === formik.values.city) || [];
-    //         console.log(selectedObj, 'db city');
-    //         if (iCardDetails) {
-    //             setICardDetails({
-    //                 ...iCardDetails,
-    //                 studentCity: selectedObj[0]?.name
-    //             });
-    //         }
-    //     }
-    // }, [formik.values?.city]);
+    useEffect(() => {
+        if (formik.values.city) {
+            const selectedObj = cities.filter(obj => obj.id === formik.values.city) || [];
+            console.log(selectedObj, 'db city');
+            if (iCardDetails) {
+                setICardDetails({
+                    ...iCardDetails,
+                    studentCity: selectedObj[0]?.name
+                });
+            }
+        }
+    }, [formik.values?.city]);
 
     return (
         <Box m="20px" marginBottom="60px">

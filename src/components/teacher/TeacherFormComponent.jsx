@@ -120,8 +120,6 @@ const TeacherFormComponent = ({
             }
         }
         const selectedSections = Array.from(selectedSectionsSet).map(JSON.parse);
-
-        console.log(selectedSections, 'school class');
         dispatch(setSchoolSections(selectedSections));
     };
 
