@@ -18,15 +18,18 @@ import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import Logout from '@mui/icons-material/Logout';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 import API from "../../apis";
 import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { ColorModeContext, tokens } from "../../theme";
 import { Utility } from "../utility";
+import ChangePwModal from "../models/ChangePwModal";
 
 const Topbar = ({ roleName = null, rolePriority = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [changePwModalOpen, setChangePwModalOpen] = useState(false);
   const [schoolName, setSchoolName] = useState('');
   const [schoolObj, setSchoolObj] = useState({});
   const allSchools = useSelector(state => state.allSchools);
@@ -71,7 +74,6 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
     if (schoolInfo?.encrypted_id) {
       API.CommonAPI.decryptText(schoolInfo)
         .then(result => {
-          console.log(result, 'decryt')
           if (result.status === 'Success') {
             const filteredSchool = allSchools?.listData.find(value => value.id === parseInt(result.data));
             setSchoolObj({
@@ -92,188 +94,199 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
   }, []);
 
   return (
-    <Box
-      display="flex"
-      textAlign="center"
-      justifyContent="space-between"
-      backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
-      boxShadow="1px 1px 10px black"
-      position="sticky"
-      top="0px"
-      zIndex="1000"
-    >
-      {/* ICONS */}
-      <Box>
-        <Typography
-          sx={{
-            m: "20px",
-            fontSize: isMobile ? "15px" : isTab ? "30" : "40px",
-            fontWeight: "bolder",
-            textAlign: "center",
-            textShadow: " 1px 8px 5px #aba8a8;",
-            color: theme.palette.mode === 'light' ? `rgb(51 153 254) !important` : 'white',
-            wordSpacing: "5px"
-          }}
-        >
-          {schoolName ? schoolName : ''}
-        </Typography>
-      </Box>
-      <Box display="flex"
+    <>
+      <Box
+        display="flex"
         textAlign="center"
-        justifyContent="flex-end" p={2}
+        justifyContent="space-between"
         backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+        boxShadow="1px 1px 10px black"
+        position="sticky"
+        top="0px"
+        zIndex="1000"
       >
-
-        {rolePriority === 1 && (
-          <Autocomplete
-            options={[CustomOption, ...(allSchools?.listData || [])]}
-            getOptionLabel={option => option.name || ''}
-            disableCloseOnSelect
-            value={schoolObj}
-            onChange={(event, value) => {
-              if (value && value.id === "all-schools") {
-                remLocalStorage("schoolInfo");
-                location.reload();
-              }
-              setSchoolObj({
-                id: value.id,
-                name: value.name
-              });
-              API.CommonAPI.encryptText({ data: value?.id })
-                .then(result => {
-                  if (result.status === 'Success') {
-                    setLocalStorage("schoolInfo", result.data);
-                    location.reload();
-                  } else if (result.status === 'Error') {
-                    console.log('Error Encrypting Data');
-                  }
-                });
+        {/* ICONS */}
+        <Box>
+          <Typography
+            sx={{
+              m: "20px",
+              fontSize: isMobile ? "15px" : isTab ? "30" : "40px",
+              fontWeight: "bolder",
+              textAlign: "center",
+              textShadow: " 1px 8px 5px #aba8a8;",
+              color: theme.palette.mode === 'light' ? `rgb(51 153 254) !important` : 'white',
+              wordSpacing: "5px"
             }}
-            sx={{ width: '280px', marginRight: '10px' }}
-            renderInput={params => (
-              <TextField
-                {...params}
-                label="Select School"
-                sx={{
-                  fieldset: {
-                    border: "2px solid grey",
-                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px"
-                  }
-                }}
-              />
-            )}
-            PaperComponent={props => (
-              <Paper
-                sx={{
-                  background: colors.blueAccent[700],
-                  color: colors.redAccent[400],
-                  fontSize: "25px",
-                  "&:hover": {
-                    border: "1px solid #00FF00",
-                    color: "gray",
-                    backgroundColor: "white"
-                  }
-                }}
-                {...props}
-              />
-            )}
-          />)}
+          >
+            {schoolName ? schoolName : ''}
+          </Typography>
+        </Box>
+        <Box display="flex"
+          textAlign="center"
+          justifyContent="flex-end" p={2}
+          backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+        >
 
-        <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === "dark" ? (
-            <Tooltip title="Dark Mode">
-              <DarkModeOutlinedIcon />
-            </Tooltip>
-          ) : (
-            <Tooltip title="Light Mode">
-              <LightModeOutlinedIcon />
-            </Tooltip>
-          )}
-        </IconButton>
-        <Tooltip title="Notifications">
-          <IconButton>
-            <NotificationsOutlinedIcon />
+          {rolePriority === 1 && (
+            <Autocomplete
+              options={[CustomOption, ...(allSchools?.listData || [])]}
+              getOptionLabel={option => option.name || ''}
+              disableCloseOnSelect
+              value={schoolObj}
+              onChange={(event, value) => {
+                if (value && value.id === "all-schools") {
+                  remLocalStorage("schoolInfo");
+                  location.reload();
+                }
+                setSchoolObj({
+                  id: value.id,
+                  name: value.name
+                });
+                API.CommonAPI.encryptText({ data: value?.id })
+                  .then(result => {
+                    if (result.status === 'Success') {
+                      setLocalStorage("schoolInfo", result.data);
+                      location.reload();
+                    } else if (result.status === 'Error') {
+                      console.log('Error Encrypting Data');
+                    }
+                  });
+              }}
+              sx={{ width: '280px', marginRight: '10px' }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label="Select School"
+                  sx={{
+                    fieldset: {
+                      border: "2px solid grey",
+                      boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px"
+                    }
+                  }}
+                />
+              )}
+              PaperComponent={props => (
+                <Paper
+                  sx={{
+                    background: colors.blueAccent[700],
+                    color: colors.redAccent[400],
+                    fontSize: "25px",
+                    "&:hover": {
+                      border: "1px solid #00FF00",
+                      color: "gray",
+                      backgroundColor: "white"
+                    }
+                  }}
+                  {...props}
+                />
+              )}
+            />)}
+
+          <IconButton onClick={colorMode.toggleColorMode}>
+            {theme.palette.mode === "dark" ? (
+              <Tooltip title="Dark Mode">
+                <DarkModeOutlinedIcon />
+              </Tooltip>
+            ) : (
+              <Tooltip title="Light Mode">
+                <LightModeOutlinedIcon />
+              </Tooltip>
+            )}
           </IconButton>
-        </Tooltip>
-        {/* <Tooltip title="Settings">
+          <Tooltip title="Notifications">
+            <IconButton>
+              <NotificationsOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+          {/* <Tooltip title="Settings">
           <IconButton>
             <SettingsOutlinedIcon />
           </IconButton>
         </Tooltip>
         <PersonOutlinedIcon /> */}
-        <Tooltip title="Account">
-          <IconButton
-            onClick={handleClick}
-            size="small"
-            sx={{ ml: 1 }}
-            aria-controls={open ? "account-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-          >
-            <Avatar sx={{ padding: "2px", width: 36, height: 33, bgcolor: colors.grey[100] }}>
-              {getInitials()}
-            </Avatar>
-          </IconButton>
-        </Tooltip>
-      </Box>
-      <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            mt: 1.5,
-            '& .MuiAvatar-root': {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <MenuItem onClick={handleClose} sx={{ flexDirection: 'column' }}>
-          <Box textAlign="center">
-            <Typography
-              variant="h3"
-              color={colors.blueAccent[300]}
-              fontWeight="bold"
-              sx={{ m: "10px 0 4px 0" }}
+          <Tooltip title="Account">
+            <IconButton
+              onClick={handleClick}
+              size="small"
+              sx={{ ml: 1 }}
+              aria-controls={open ? "account-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
             >
-              {username}
-            </Typography>
-            <Typography variant="h5" color={colors.greenAccent[1000]}> {role} </Typography>
-          </Box>
+              <Avatar sx={{ padding: "2px", width: 36, height: 33, bgcolor: colors.grey[100] }}>
+                {getInitials()}
+              </Avatar>
+            </IconButton>
+          </Tooltip>
+        </Box>
+        <Menu
+          anchorEl={anchorEl}
+          id="account-menu"
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              mt: 1.5,
+              '& .MuiAvatar-root': {
+                width: 32,
+                height: 32,
+                ml: -0.5,
+                mr: 1,
+              },
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <MenuItem onClick={handleClose} sx={{ flexDirection: 'column' }}>
+            <Box textAlign="center">
+              <Typography
+                variant="h3"
+                color={colors.blueAccent[300]}
+                fontWeight="bold"
+                sx={{ m: "10px 0 4px 0" }}
+              >
+                {username}
+              </Typography>
+              <Typography variant="h5" color={colors.greenAccent[1000]}> {role} </Typography>
+            </Box>
+          </MenuItem>
 
-        </MenuItem>
-        <Divider />
-        <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[300], justifyContent: "center" }}>
-          <ListItemIcon >
-            <Logout fontSize="medium" sx={{ color: colors.blueAccent[300] }} />
-          </ListItemIcon>
-          <Typography variant="h5"> Logout </Typography>
-        </MenuItem>
-      </Menu>
-    </Box>
+          <Divider />
+          <MenuItem onClick={() => setChangePwModalOpen(true)} sx={{ color: colors.blueAccent[300], justifyContent: "center" }}>
+            <ListItemIcon >
+              <LockResetIcon sx={{ color: colors.blueAccent[300], fontSize: '22px' }} />
+            </ListItemIcon>
+            <Typography variant="h5"> Change Password </Typography>
+          </MenuItem>
+
+          <Divider />
+          <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[300], justifyContent: "center" }}>
+            <ListItemIcon >
+              <Logout fontSize="medium" sx={{ color: colors.blueAccent[300] }} />
+            </ListItemIcon>
+            <Typography variant="h5"> Logout </Typography>
+          </MenuItem>
+        </Menu>
+      </Box>
+      <ChangePwModal openDialog={changePwModalOpen} setOpenDialog={setChangePwModalOpen} />
+    </>
   );
 };
 

@@ -79,6 +79,20 @@ export const UserAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.update.name].handleRequestCancellation().signal : undefined
     });
+  },
+
+  /** Change user password 
+   */
+  changeUserPw: async (fields, cancel = false) => {
+    return await api.request({
+      url: `/change-password`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "POST",
+      data: fields,
+      signal: cancel ? cancelApiObject[this.changeUserPw.name].handleRequestCancellation().signal : undefined
+    });
   }
 };
 
