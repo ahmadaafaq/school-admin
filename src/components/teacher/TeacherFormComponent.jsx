@@ -98,48 +98,61 @@ const TeacherFormComponent = ({
     };
 
     const getAndSetSubjects = () => {
-        const sectionSubjects = (classData || []).filter(obj =>
+        console.log(formik.values.sections, ' innnnformik.values.sections', formik.values.classes, classData)
+        const sectionSubjects = classData.filter(obj =>
             formik.values.classes.includes(obj.class_id) &&   //because sections is an array of arrays
             formik.values.sections.some(sectionArray =>
                 sectionArray.some(sectionObj => sectionObj.section_id === obj.section_id)));
-        const selectedSubjects = sectionSubjects ? getValuesFromArray(sectionSubjects[0]?.subject_ids, allSubjects) : [];
-        dispatch(setSchoolSubjects(selectedSubjects));
+        console.log(sectionSubjects, 'innnnsectionSubjects')
+
+        sectionSubjects.forEach(section => {
+            if (section) {
+                const selectedSubjects = getValuesFromArray(section.subject_ids, allSubjects);
+                console.log(selectedSubjects, 'innnnselectedSubjects');
+                // Dispatch subjects for the current section
+                dispatch(setSchoolSubjects(selectedSubjects));
+            }
+        });
     };
 
-    const getAndSetSections = () => {       //this is not working correctly
+    const getAndSetSections = () => {
         const selectedSectionsSet = new Set();
-        for (const obj of classData || []) {
+        for (const obj of classData) {
             if (
                 (formik.values.classes.length && formik.values.classes.includes(obj.class_id)) ||
                 (!formik.values.classes.length && obj.class_id === formik.values.class)
             ) {
-                selectedSectionsSet.add(JSON.stringify({
+                selectedSectionsSet.add({
                     section_id: obj.section_id,
                     section_name: obj.section_name
-                }));
+                });
             }
         }
-        const selectedSections = Array.from(selectedSectionsSet).map(JSON.parse);
-        dispatch(setSchoolSections(selectedSections));
+        const selectedSectionsArray = Array.from(selectedSectionsSet);
+        const filteredSections = allSections.filter(section =>
+            selectedSectionsArray.some(selectedSection => selectedSection.section_id === section.section_id));
+        console.log(filteredSections, 'innnfilteredsections', selectedSectionsArray)
+        dispatch(setSchoolSections(filteredSections));
     };
 
     useEffect(() => {
-        if (formik.values.sections) {
+        if (formik.values.sections.some(innerArray => innerArray.length > 0) && classData.length) {
+            console.log('innnnside get subjects');
             getAndSetSubjects();
         }
-    }, [formik.values?.sections]);
+    }, [formik.values?.sections, classData.length]);
 
     useEffect(() => {
-        if (formik.values?.classes || formik.values?.class) {
+        if ((formik.values?.classes || formik.values?.class) && classData.length) {
             getAndSetSections();
         }
-    }, [formik.values?.classes, formik.values?.class]);
+    }, [formik.values?.classes, formik.values?.class, classData.length]);
 
     useEffect(() => {
         if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
-    }, []);
+    }, [classData.length]);
 
     useEffect(() => {
         if (reset) {
@@ -524,6 +537,12 @@ const TeacherFormComponent = ({
                                             const subArr = [...formik.values.classes];
                                             subArr[index] = value.props.value;
                                             formik.setFieldValue("classes", subArr);
+                                            if (formik.values.sections) {        //if old values are there, clean them according to change
+                                                formik.setFieldValue("sections", []);
+                                            }
+                                            if (formik.values.subjects) {
+                                                formik.setFieldValue("subjects", [[]]);
+                                            }
                                         }}
                                     >
                                         {!schoolClasses?.listData?.length ? null :
@@ -541,7 +560,7 @@ const TeacherFormComponent = ({
                                     options={schoolSections?.listData || []}
                                     getOptionLabel={option => option.section_name}
                                     disableCloseOnSelect
-                                    value={formik.values.sections[index]}
+                                    value={formik.values.sections[index] || []}
                                     onChange={(event, value) => {
                                         const sectArr = [...formik.values.sections];
                                         sectArr[index] = value;
