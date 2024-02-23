@@ -74,7 +74,7 @@ const ServerPaginationGrid = ({
     }, [count, setRowCountState]);
 
     return (
-        <Box
+        <Box 
             m="30px 0 0 0"
             sx={{
                 "& .MuiDataGrid-root": {

@@ -58,8 +58,8 @@ const HolidayListingComponent = lazy(() => import("./components/holiday/ListingC
 const PaymentFormComponent = lazy(() => import("./components/payment/FormComponent"));
 const PaymentListingComponent = lazy(() => import("./components/payment/ListingComponent"));
 
-const SchoolPeriodFormComponent = lazy(() => import("./components/schoolPeriod/FormComponent"));
-const SchoolPeriodListingComponent = lazy(() => import("./components/schoolPeriod/ListingComponent"));
+const SchoolDurationFormComponent = lazy(() => import("./components/schoolDuration/FormComponent"));
+const SchoolDurationListingComponent = lazy(() => import("./components/schoolDuration/ListingComponent"));
 
 const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"));
 
@@ -171,9 +171,9 @@ function App() {
                       <Route exact path="/payment/update/:id" element={<PaymentFormComponent />} />
                       <Route exact path="/payment/listing" element={<PaymentListingComponent rolePriority={userRole.priority} />} />
 
-                      <Route exact path="/school-period/create" element={<SchoolPeriodFormComponent />} />
-                      <Route exact path="/school-period/update/:id" element={<SchoolPeriodFormComponent />} />
-                      <Route exact path="/school-period/listing" element={<SchoolPeriodListingComponent rolePriority={userRole.priority} />} />
+                      <Route exact path="/school-duration/create" element={<SchoolDurationFormComponent />} />
+                      <Route exact path="/school-duration/update/:id" element={<SchoolDurationFormComponent />} />
+                      <Route exact path="/school-duration/listing" element={<SchoolDurationListingComponent rolePriority={userRole.priority} />} />
                     </>}
 
                   {userRole.priority === 4 &&

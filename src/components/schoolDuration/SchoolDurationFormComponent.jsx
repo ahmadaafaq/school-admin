@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { Box, TextField, useMediaQuery } from "@mui/material";
+import { Box, TextField, useMediaQuery, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TimePicker, renderTimeViewClock, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
@@ -25,7 +25,12 @@ const initialValues = {
     second_half_period_duration: "",
     cutoff_time: "",
     opening_time: null,
-    closing_time: null
+    closing_time: null,
+    shifts: "morning",
+    eve_opening_time: null,
+    eve_closing_time: null,
+    employee_entry_time: null,
+    employee_exit_time: null
 };
 
 const SchoolPeriodFormComponent = ({
@@ -56,6 +61,7 @@ const SchoolPeriodFormComponent = ({
 
     const watchForm = () => {
         if (onChange) {
+            
             onChange({
                 values: formik.values,
                 validated: formik.isSubmitting
@@ -83,6 +89,8 @@ const SchoolPeriodFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
+
+    console.log("first>>>",formik?.values);
 
     return (
         <Box m="20px">
@@ -173,7 +181,28 @@ const SchoolPeriodFormComponent = ({
                         error={!!formik.touched.cutoff_time && !!formik.errors.cutoff_time}
                         helperText={formik.touched.cutoff_time && formik.errors.cutoff_time}
                     />
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.shifts && !!formik.errors.shifts}
+                    >
+                        <InputLabel id="shiftsField">shifts</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="shiftsField"
+                            label="shifts"
+                            name="shifts"
+                            autoComplete="new-shifts"
+                            value={formik.values.shifts}
+                            onChange={formik.handleChange}
+                        >
+                            <MenuItem value={"morning"}>Morning</MenuItem>
+                            <MenuItem value={"evening"}>Evening</MenuItem>
+                            <MenuItem value={"both"}>Both</MenuItem>
+                        </Select>
+                        <FormHelperText>{formik.touched.shifts && formik.errors.shifts}</FormHelperText>
+                    </FormControl>
+
+                    {formik.values.shifts !== "evening" && <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <TimePicker
                             name="opening_time"
                             label="Opening time"
@@ -194,6 +223,66 @@ const SchoolPeriodFormComponent = ({
                             value={formik.values.closing_time}
                             onChange={newClosingTime => {
                                 formik.setFieldValue("closing_time", newClosingTime);
+                            }}
+                            viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                            }}
+                        />
+                    </LocalizationProvider>}
+
+                    {formik.values.shifts !== "morning" && <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                            name="eve_opening_time"
+                            label="Evening Opening time"
+                            format="hh:mm A"
+                            value={formik.values.eve_opening_time}
+                            onChange={newOpeningTime => {
+                                formik.setFieldValue("eve_opening_time", newOpeningTime);
+                            }}
+                            viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                            }}
+                        />
+                        <TimePicker
+                            name="eve_closing_time"
+                            label="Evening Closing time"
+                            value={formik.values.eve_closing_time}
+                            onChange={newClosingTime => {
+                                formik.setFieldValue("eve_closing_time", newClosingTime);
+                            }}
+                            viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                            }}
+                        />
+                    </LocalizationProvider>}
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                            name="employee_entry_time"
+                            label="Employee Entry Time"
+                            format="hh:mm A"
+                            value={formik.values.employee_entry_time}
+                            onChange={newOpeningTime => {
+                                formik.setFieldValue("employee_entry_time", newOpeningTime);
+                            }}
+                            viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                            }}
+                        />
+                        <TimePicker
+                            name="employee_exit_time"
+                            label="Employee Exit Time"
+                            value={formik.values.employee_exit_time}
+                            onChange={newClosingTime => {
+                                formik.setFieldValue("employee_exit_time", newClosingTime);
                             }}
                             viewRenderers={{
                                 hours: renderTimeViewClock,

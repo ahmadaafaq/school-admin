@@ -13,9 +13,9 @@ const initialState = {
     loading: true
 };
 
-export const setSchoolPeriodsReducer = (state = initialState, action) => {
+export const setSchoolDurationsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_SCHOOL_PERIODS:
+        case ActionTypes.SET_SCHOOL_DURATIONS:
             return {
                 ...state,
                 listData: action.payload.listData,
