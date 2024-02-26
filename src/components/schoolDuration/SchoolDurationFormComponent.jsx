@@ -61,7 +61,7 @@ const SchoolPeriodFormComponent = ({
 
     const watchForm = () => {
         if (onChange) {
-            
+
             onChange({
                 values: formik.values,
                 validated: formik.isSubmitting
@@ -90,7 +90,7 @@ const SchoolPeriodFormComponent = ({
         }
     }, [updatedValues]);
 
-    console.log("first>>>",formik?.values);
+    console.log("first>>>", formik?.values);
 
     return (
         <Box m="20px">
@@ -182,6 +182,36 @@ const SchoolPeriodFormComponent = ({
                         helperText={formik.touched.cutoff_time && formik.errors.cutoff_time}
                     />
 
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TimePicker
+                            name="employee_entry_time"
+                            label="Employee Entry Time"
+                            format="hh:mm A"
+                            value={formik.values.employee_entry_time}
+                            onChange={newOpeningTime => {
+                                formik.setFieldValue("employee_entry_time", newOpeningTime);
+                            }}
+                            viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                            }}
+                        />
+                        <TimePicker
+                            name="employee_exit_time"
+                            label="Employee Exit Time"
+                            value={formik.values.employee_exit_time}
+                            onChange={newClosingTime => {
+                                formik.setFieldValue("employee_exit_time", newClosingTime);
+                            }}
+                            viewRenderers={{
+                                hours: renderTimeViewClock,
+                                minutes: renderTimeViewClock,
+                                seconds: renderTimeViewClock,
+                            }}
+                        />
+                    </LocalizationProvider>
+
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.shifts && !!formik.errors.shifts}
                     >
@@ -229,6 +259,10 @@ const SchoolPeriodFormComponent = ({
                                 minutes: renderTimeViewClock,
                                 seconds: renderTimeViewClock,
                             }}
+                            sx={{
+                                gridColumnStart: 2,
+                                gridColumnEnd: 3
+                            }}
                         />
                     </LocalizationProvider>}
 
@@ -246,6 +280,16 @@ const SchoolPeriodFormComponent = ({
                                 minutes: renderTimeViewClock,
                                 seconds: renderTimeViewClock,
                             }}
+                            sx={
+                                formik.values.shifts !== "both"
+                                    ? null // If not "both", sx will not be applied
+                                    : {
+                                        gridRowStart: 3,
+                                        gridRowEnd: 4,
+                                        gridColumnStart: 3,
+                                        gridColumnEnd: 4,
+                                    }
+                            }
                         />
                         <TimePicker
                             name="eve_closing_time"
@@ -259,38 +303,23 @@ const SchoolPeriodFormComponent = ({
                                 minutes: renderTimeViewClock,
                                 seconds: renderTimeViewClock,
                             }}
+                            sx={
+                                formik.values.shifts !== "both"
+                                    ? {
+                                        gridColumnStart: 2,
+                                        gridColumnEnd: 3
+                                    }
+                                    : {
+                                        gridRowStart: 4,
+                                        gridRowEnd: 5,
+                                        gridColumnStart: 3,
+                                        gridColumnEnd: 4
+                                    }
+                            }
                         />
                     </LocalizationProvider>}
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <TimePicker
-                            name="employee_entry_time"
-                            label="Employee Entry Time"
-                            format="hh:mm A"
-                            value={formik.values.employee_entry_time}
-                            onChange={newOpeningTime => {
-                                formik.setFieldValue("employee_entry_time", newOpeningTime);
-                            }}
-                            viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                            }}
-                        />
-                        <TimePicker
-                            name="employee_exit_time"
-                            label="Employee Exit Time"
-                            value={formik.values.employee_exit_time}
-                            onChange={newClosingTime => {
-                                formik.setFieldValue("employee_exit_time", newClosingTime);
-                            }}
-                            viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                            }}
-                        />
-                    </LocalizationProvider>
+
                 </Box>
             </form >
         </Box >
