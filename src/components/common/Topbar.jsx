@@ -21,10 +21,11 @@ import Logout from '@mui/icons-material/Logout';
 import LockResetIcon from '@mui/icons-material/LockReset';
 
 import API from "../../apis";
+import ChangePwModal from "../models/ChangePwModal";
+
 import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { ColorModeContext, tokens } from "../../theme";
 import { Utility } from "../utility";
-import ChangePwModal from "../models/ChangePwModal";
 
 const Topbar = ({ roleName = null, rolePriority = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);

@@ -12,18 +12,20 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
-import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
-import DropDown from "../common/DropDown";
+// import DropDown from "../common/DropDown";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./MarksheetConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setMarksheets } from "../../redux/actions/MarksheetAction";
-import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
+import { setMarksheets, setMarksheetClassData } from "../../redux/actions/MarksheetAction";
+import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -33,11 +35,17 @@ import listBg from "../assets/listBG.jpg";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
+    const [classSectionObj, setClassSectionObj] = useState({});
+    const [classData, setClassData] = useState([]);
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const allClasses = useSelector(state => state.allClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
+    const allSections = useSelector(state => state.allSections);
+    const allSubjects = useSelector(state => state.allSubjects);
+
     // const [conditionObj, setConditionObj] = useState({});
     const selected = useSelector(state => state.menuItems.selected);
-    // const formClassesInRedux = useSelector(state => state.schoolClasses);
-    // const formSectionsInRedux = useSelector(state => state.schoolSections);
-    const { listData, loading, marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
+    const { listData, loading } = useSelector(state => state.allMarksheets);
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -52,19 +60,76 @@ const ListingComponent = ({ rolePriority = null }) => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage, findById } = Utility();
+    const { getLocalStorage, fetchAndSetAll, fetchAndSetSchoolData, findMultipleById } = Utility();
 
-    // const selectedClass = getLocalStorage("dropdown class");
-    // const selectedSection = getLocalStorage("dropdown section");
+    // here, you are seeing marksheet listing with class & section dropdown, when u select class, all its section objects are filtered
+    // from total classes of that school, now when a section is selected, then the subject ids are filtered from all SUbjects to get 
+    // individual subjects of that section, these are dispatched in marksheetClassData action
+    const handleReload = () => {
+        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
+        reloadBtn.style.display = "none";
+        setSearchFlag({
+            search: false,
+            searching: false,
+            oldPagination
+        });
+    };
 
-    let classConditionObj = marksheetClass?.class_id ? {
-        classId: marksheetClass.class_id
-    } : null;
+    useEffect(() => {
+        if (!allSubjects?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
+        }
+    }, [allSubjects?.listData?.length]);
 
-    classConditionObj = marksheetSection?.id ? {
-        ...classConditionObj,
-        sectionId: marksheetSection.id
-    } : null;
+    useEffect(() => {
+        const getAndSetSections = () => {
+            const classSections = classData?.filter(obj => obj.class_id === classSectionObj?.class_id) || [];
+            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+            dispatch(setSchoolSections(selectedSections));
+            console.log(classSections, selectedSections, 'ग स मोतता्')
+        };
+        getAndSetSections();
+    }, [classSectionObj?.class_id]);
+
+    useEffect(() => {
+        const getAndSetSubjects = () => {
+            const sectionSubjects = classData?.filter(obj => obj.class_id === classSectionObj?.class_id && obj.section_id === classSectionObj?.section_id);
+            const selectedSubjects = sectionSubjects ? findMultipleById(sectionSubjects[0]?.subject_ids, allSubjects?.listData) : [];
+            dispatch(setMarksheetClassData(selectedSubjects));
+            console.log(sectionSubjects, selectedSubjects, 'subjecvts of class')
+        };
+        getAndSetSubjects();
+    }, [classSectionObj?.section_id, allSubjects?.listData?.length]);
+
+    useEffect(() => {
+        if (!getLocalStorage("schoolInfo")) {
+            if (!allClasses?.listData?.length) {
+                fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+            }
+            if (!allSections?.listData?.length) {
+                fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+            }
+        }
+        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
+            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
+        }
+    }, [schoolClasses?.listData?.length, schoolSections?.listData?.length, allClasses?.listData?.length, allSections?.listData?.length]);
+
+    useEffect(() => {
+        const selectedMenu = getLocalStorage("menu");
+        dispatch(setMenuItem(selectedMenu.selected));
+    }, []);
+    console.log(classSectionObj, 'classSectionObj');
+
+
+    // let classConditionObj = marksheetClass?.class_id ? {
+    //     classId: marksheetClass.class_id
+    // } : null;
+
+    // classConditionObj = marksheetSection?.id ? {
+    //     ...classConditionObj,
+    //     sectionId: marksheetSection.id
+    // } : null;
 
     // useEffect(() => {
     //     console.log({ classConditionObj });
@@ -82,20 +147,6 @@ const ListingComponent = ({ rolePriority = null }) => {
     //     }
     // }, [listData?.rows]);
 
-    const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-        reloadBtn.style.display = "none";
-        setSearchFlag({
-            search: false,
-            searching: false,
-            oldPagination
-        });
-    };
-
-    useEffect(() => {
-        const selectedMenu = getLocalStorage("menu");
-        dispatch(setMenuItem(selectedMenu.selected));
-    }, []);
 
     return (
         <Box m="8px" position="relative"
@@ -141,15 +192,58 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    {/* <DropDown
-                        marksheetClass={marksheetClass}
-                        marksheetSection={marksheetSection}
-                    /> */}
+
+                    <FormControl variant="filled" sx={{ minWidth: 120, marginRight: "10px" }}>
+                        <InputLabel id="classfield">Class</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="classfield"
+                            value={classSectionObj?.class_id}
+                            onChange={(event) => setClassSectionObj({ ...classSectionObj, class_id: event.target.value })}
+                            sx={{ backgroundColor: colors.blueAccent[800] }}
+                        >
+                            {allClasses?.listData?.length ? allClasses.listData.map(cls => (
+                                <MenuItem value={cls.class_id} key={cls.class_id}>
+                                    {cls.class_name}
+                                </MenuItem>
+                            ))
+                                : schoolClasses?.listData?.length ? schoolClasses.listData.map(cls => (
+                                    <MenuItem value={cls.class_id} key={cls.class_id}>
+                                        {cls.class_name}
+                                    </MenuItem>
+                                ))
+                                    : null}
+                        </Select>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120, height: isTab ? "4vh" : "auto" }}>
+                        <InputLabel id="sectionfield">Section</InputLabel>
+                        <Select
+                            variant="filled"
+                            labelId="sectionfield"
+                            value={classSectionObj?.section_id}
+                            onChange={(event) => setClassSectionObj({ ...classSectionObj, section_id: event.target.value })}
+                            sx={{ backgroundColor: colors.primary[400] }}
+                        >
+                            {allSections?.listData?.length ? allSections.listData.map(section => (
+                                <MenuItem value={section.section_id} key={section.section_id}>
+                                    {section.section_name}
+                                </MenuItem>
+                            ))
+                                : schoolSections?.listData?.length ? schoolSections.listData.map(section => (
+                                    <MenuItem value={section.section_id} key={section.section_id}>
+                                        {section.section_name}
+                                    </MenuItem>
+                                ))
+                                    : null}
+                        </Select>
+                    </FormControl>
+
                     {rolePriority > 1 && (
                         <Button
-                            type="submit"
                             color="success"
+                            disabled={!classSectionObj?.class_id || !classSectionObj?.section_id} // Disable if either class or section is not selected
                             variant="contained"
+                            type="submit"
                             onClick={() => navigateTo(`/marksheet/create`)}
                             sx={{ height: isTab ? "4vh" : "auto" }}
                         >

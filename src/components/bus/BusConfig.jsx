@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,21 +9,19 @@
  */
 
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const selected = useSelector(state => state.menuItems.selected);
     const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
+        navigateTo(`/bus/update/${id}`, { state: { id: id } });
     };
 
     const columns = [
@@ -31,7 +31,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 120
         },
         {
             field: "driver",
@@ -39,7 +39,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 120
         },
         {
             field: "contact_no",
@@ -86,9 +86,9 @@ export const datagridColumns = () => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -110,7 +110,7 @@ export const datagridColumns = () => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;
