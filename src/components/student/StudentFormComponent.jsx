@@ -365,7 +365,7 @@ const StudentFormComponent = ({
                                 variant="filled"
                                 type="text"
                                 name="subjects"
-                                label="subjects"
+                                label="Subjects"
                                 error={!!formik.touched.subjects && !!formik.errors.subjects}
                                 helperText={formik.touched.subjects && formik.errors.subjects}
                             />

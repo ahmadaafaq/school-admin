@@ -141,7 +141,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setEmployees}
                 api={API.EmployeeAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns(rolePriority)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}

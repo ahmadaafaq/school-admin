@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,68 +8,29 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-import API from "../../apis";
-// import { setSubjects } from "../../redux/actions/SubjectAction";
-import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
-    // const formClassesInRedux = useSelector(state => state.schoolClasses);
-    // const formSectionsInRedux = useSelector(state => state.schoolSections);
-    // const subjectsInRedux = useSelector(state => state.allSubjects);
-    // const studentsInRedux = useSelector(state => state.allStudents);
+export const datagridColumns = (rolePriority = null) => {
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const allClasses = useSelector(state => state.allClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
+    const allSections = useSelector(state => state.allSections);
 
+    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const navigateTo = useNavigate();
-    const { getPaginatedData } = useCommon();
     const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id, student_id) => {
         navigateTo(`/marksheet/update/${id}`, { state: { id: id, student_id: student_id } });
     };
-
-    // to be refactored
-    // useEffect(() => {
-    //     if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-    //         API.SchoolAPI.getSchoolClasses(5)
-    //             .then(classData => {
-    //                 if (classData.status === 'Success') {
-    //                     classData.data.sort(customSort);
-
-    //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-    //                     dispatch(setSchoolClasses(uniqueClassDataArray));
-
-    //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
-    //                     dispatch(setSchoolSections(uniqueSectionDataArray));
-    //                 }
-    //             })
-    //             .catch(err => {
-    //                 console.log("Error Fetching ClassData:", err);
-    //             });
-    //     }
-    // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
-
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!studentsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setStudents, API.StudentAPI);
-    //     }
-    // }, [studentsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -85,7 +47,24 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            renderCell: (params) => {
+                let className;
+                let sectionName;
+
+                if (allClasses?.listData?.length || allSections?.listData?.length) {
+                    className = findById(params?.row?.class_id, allClasses?.listData)?.class_name;
+                    sectionName = findById(params?.row?.section_id, allSections?.listData)?.section_name;
+                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+                    className = findById(params?.row?.class_id, schoolClasses?.listData)?.class_name;
+                    sectionName = findById(params?.row?.section_id, schoolSections?.listData)?.section_name;
+                }
+                return (
+                    <div>
+                        {className ? appendSuffix(className) : '/'} {sectionName}
+                    </div>
+                );
+            }
         },
         {
             field: "subjects",
@@ -101,7 +80,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 2,
-            minWidth: 80,
+            minWidth: 80
         },
         {
             field: "result",
@@ -134,9 +113,9 @@ export const datagridColumns = () => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -158,7 +137,7 @@ export const datagridColumns = () => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

@@ -22,7 +22,7 @@ import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAc
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
     const schoolClasses = useSelector(state => state.schoolClasses);
     const allClasses = useSelector(state => state.allClasses);
     const schoolSections = useSelector(state => state.schoolSections);
@@ -125,31 +125,30 @@ export const datagridColumns = () => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id } }) => {
-                return (
-                    <Box width="30%"
-                        m="0 auto"
-                        p="5px"
-                        display="flex"
-                        justifyContent="center">
-                        <Button color="info" variant="contained"
-                            onClick={() => handleActionEdit(id)}
-                            sx={{ minWidth: "50px" }}
-                        >
-                            <DriveFileRenameOutlineOutlinedIcon />
-                        </Button>
-                    </Box>
-                );
-            },
+            renderCell: ({ row: { id } }) => (
+                <Box width="30%"
+                    m="0 auto"
+                    p="5px"
+                    display="flex"
+                    justifyContent="center"
+                >
+                    <Button color="info" variant="contained"
+                        onClick={() => handleActionEdit(id)}
+                        sx={{ minWidth: "50px" }}
+                    >
+                        <DriveFileRenameOutlineOutlinedIcon />
+                    </Button>
+                </Box>
+            )
         }
     ];
     return columns;

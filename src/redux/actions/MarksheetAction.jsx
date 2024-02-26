@@ -18,17 +18,10 @@ export const setMarksheets = (marksheets) => {
     };
 };
 
-export const setMarksheetClass = (marksheetClass) => {
+export const setMarksheetClassData = (classData) => {
     return {
-        type: ActionTypes.MARKSHEET_CLASS,
-        payload: marksheetClass
-    };
-};
-
-export const setMarksheetSection = (marksheetSection) => {
-    return {
-        type: ActionTypes.MARKSHEET_SECTION,
-        payload: marksheetSection
+        type: ActionTypes.MARKSHEET_CLASSDATA,
+        payload: classData
     };
 };
 

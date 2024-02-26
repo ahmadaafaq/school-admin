@@ -6,7 +6,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
@@ -34,7 +34,8 @@ const initialValues = {
 const sequentialChars = ['123', '234', '345', '456', '567', '678', '789', '890', 'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi', 'hij', 'ijk', 'jkl', 'klm', 'lmn', 'mno', 'nop', 'opq', 'pqr', 'qrs', 'rst', 'stu', 'tuv', 'uvw', 'vwx', 'wxy', 'xyz'];
 
 const validationSchema = Yup.object({
-    oldPassword: Yup.string().required('Old Password is required'),
+    oldPassword: Yup.string()
+        .required('Old Password is required'),
     newPassword: Yup.string()
         .min(8, 'Password Must Be 8 Characters Long')
         .matches(/[A-Z]/, 'Password Must Contain At Least 1 Uppercase Letter')
@@ -44,7 +45,7 @@ const validationSchema = Yup.object({
         .test('no-sequential-chars', 'Avoid Sequential Characters In The Password', (value) => {
             // Check for sequential characters
             for (const seq of sequentialChars) {
-                if (value.includes(seq)) {
+                if (value.includes(seq) || value.includes(seq.toUpperCase())) {
                     return false;
                 }
             }
@@ -57,7 +58,6 @@ const validationSchema = Yup.object({
 });
 
 const ChangePwModal = ({ openDialog, setOpenDialog }) => {
-    const [modalData, setModalData] = useState(initialValues);
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -70,28 +70,37 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
 
     //form component starts
     const [loading, setLoading] = useState(false);
+    const oldPasswordRef = useRef(null);
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
     const toastInfo = useSelector(state => state.toastInfo);
     const { typography } = themeSettings(theme.palette.mode);
     const { toastAndNavigate } = Utility();
 
-    //make the POST API call when submit button is clicked
-    useEffect(() => {
-        if (modalData.oldPassword && modalData.newPassword && modalData.confirmNewPassword) {
+    const handleFormSubmit = (values, { setFieldError, setSubmitting }) => {
+        if (values.oldPassword && values.newPassword && values.confirmNewPassword) {
             setLoading(true);
 
-            API.UserAPI.changeUserPw(modalData)
+            API.UserAPI.changeUserPw(values)
                 .then(({ data: response }) => {
+                    setLoading(false);
                     if (response.status === 'Success') {
-                        toastAndNavigate(dispatch, true, "info", response.data);
-                        setLoading(false);
-                        setTimeout(() => {
-                            handleDialogClose();
-                            navigateTo(0);      //same as location.reload()
-                        }, 2000);
+                        if (response.data === 'Old Password do not match') {
+                            // Set the Formik error for oldPassword
+                            setFieldError('oldPassword', response.data);
+                            setSubmitting(false);
+                            toastAndNavigate(dispatch, true, "info", response.data);
+                            oldPasswordRef.current.focus();     //to focus old password field
+                        } else if (response.data === 'User does not exist') {
+                            toastAndNavigate(dispatch, true, "info", response.data);
+                        } else if (response.data.includes('Updated Successfully')) {
+                            toastAndNavigate(dispatch, true, "info", response.data);
+                            setTimeout(() => {
+                                handleDialogClose();
+                                navigateTo(0);
+                            }, 2000);
+                        }
                     } else {
-                        setLoading(false);
                         toastAndNavigate(dispatch, true, "error", "An Error Occurred, Please Try Again");
                     }
                 })
@@ -101,8 +110,7 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
                     console.log('Error Updating Password', err);
                 });
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [modalData]);
+    };
 
     return (
         <div>
@@ -137,7 +145,7 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
                 <Formik
                     initialValues={initialValues}
                     validationSchema={validationSchema}
-                    onSubmit={values => setModalData(values)}
+                    onSubmit={handleFormSubmit}
                 >
                     {({
                         values,
@@ -155,7 +163,8 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
                                     variant="filled"
                                     type="text"
                                     name="oldPassword"
-                                    label="Old Password"
+                                    label="Old Password*"
+                                    inputRef={oldPasswordRef}
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     value={values.oldPassword}
@@ -166,7 +175,7 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
                                     variant="filled"
                                     type="text"
                                     name="newPassword"
-                                    label="New Password"
+                                    label="New Password*"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     value={values.newPassword}
@@ -177,7 +186,7 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
                                     variant="filled"
                                     type="text"
                                     name="confirmNewPassword"
-                                    label="Confirm New Password"
+                                    label="Confirm New Password*"
                                     onBlur={handleBlur}
                                     onChange={handleChange}
                                     value={values.confirmNewPassword}

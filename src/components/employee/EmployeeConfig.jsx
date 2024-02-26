@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,24 +8,18 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
 
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/employee/update/${id}`, { state: { id: id } });
@@ -109,9 +105,9 @@ export const datagridColumns = () => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -133,7 +129,7 @@ export const datagridColumns = () => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;
