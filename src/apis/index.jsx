@@ -26,7 +26,7 @@ import { UserAPI } from "./UserAPI";
 import { EmployeeAPI } from "./EmployeeAPI";
 import { HolidayAPI } from "./HolidayAPI";
 import { PaymentAPI } from "./PaymentAPI";
-import { SchoolPeriodAPI } from "./SchoolPeriodAPI";
+import { SchoolDurationAPI } from "./SchoolDurationAPI";
 import { UserRoleAPI } from "./UserRoleAPI";
 
 export default {
@@ -50,6 +50,6 @@ export default {
     EmployeeAPI,
     HolidayAPI,
     PaymentAPI,
-    SchoolPeriodAPI,
+    SchoolDurationAPI,
     UserRoleAPI
 };

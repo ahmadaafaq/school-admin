@@ -8,9 +8,9 @@
 
 import { ActionTypes } from "../constants/action-types";
 
-export const setSchoolPeriods = (schoolPeriods) => {
+export const setSchoolDurations = (schoolDurations) => {
     return {
-        type: ActionTypes.SET_SCHOOL_PERIODS,
-        payload: schoolPeriods
+        type: ActionTypes.SET_SCHOOL_DURATIONS,
+        payload: schoolDurations
     };
 };

@@ -18,9 +18,9 @@ import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
-import { datagridColumns } from "./SchoolPeriodConfig";
+import { datagridColumns } from "./SchoolDurationConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setSchoolPeriods } from "../../redux/actions/SchoolPeriodAction";
+import { setSchoolDurations } from "../../redux/actions/SchoolDurationAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -31,7 +31,7 @@ const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
     const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allSchoolPeriods);
+    const { listData, loading } = useSelector(state => state.allSchoolDurations);
 
     const theme = useTheme();
     const navigateTo = useNavigate();
@@ -100,8 +100,8 @@ const ListingComponent = ({ rolePriority = null }) => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setSchoolPeriods}
-                        api={API.SchoolPeriodAPI}
+                        action={setSchoolDurations}
+                        api={API.SchoolDurationAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
                         reloadBtn={reloadBtn}
@@ -112,7 +112,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                             type="submit"
                             color="success"
                             variant="contained"
-                            onClick={() => { navigateTo(`/school-period/create`) }}
+                            onClick={() => { navigateTo(`/school-duration/create`) }}
                             sx={{ height: isTab ? "4vh" : "auto" }}
                         >
                             Create New {selected}
@@ -138,8 +138,8 @@ const ListingComponent = ({ rolePriority = null }) => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setSchoolPeriods}
-                api={API.SchoolPeriodAPI}
+                action={setSchoolDurations}
+                api={API.SchoolDurationAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns(rolePriority)}
                 rows={listData.rows}

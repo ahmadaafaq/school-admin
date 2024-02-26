@@ -375,8 +375,8 @@ const Sidebar = ({ rolePriority }) => {
               menuVisibility={4}
             />
             <SidebarItem
-                title="School Period"
-                to="/school-period/listing"
+                title="School Duration"
+                to="/school-duration/listing"
                 icon={<BackupTableIcon />}
                 selected={selected}
                 rolePriority={rolePriority}

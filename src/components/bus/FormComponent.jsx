@@ -151,6 +151,7 @@ const FormComponent = () => {
     }, [id, submitted]);
 
     const handleSubmit = async () => {
+        console.log("first")
         await busFormRef.current.Submit();
         await addressFormRef.current.Submit();
         setSubmitted(true);

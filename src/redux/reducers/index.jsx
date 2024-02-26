@@ -32,7 +32,7 @@ import { setUsersReducer } from "./UserReducer";
 import { setEmployeesReducer } from "./EmployeeReducer";
 import { setHolidaysReducer } from "./HolidayReducer"
 import { setPaymentsReducer } from "./PaymentReducer";
-import { setSchoolPeriodsReducer } from "./SchoolPeriodReducer";
+import { setSchoolDurationsReducer } from "./SchoolDurationReducer";
 import { setUserRolesReducer } from "./UserRoleReducer";
 
 const reducers = combineReducers({
@@ -59,7 +59,7 @@ const reducers = combineReducers({
     allUserRoles: setUserRolesReducer,
     allHolidays: setHolidaysReducer,
     allPayments: setPaymentsReducer,
-    allSchoolPeriods: setSchoolPeriodsReducer,
+    allSchoolDurations: setSchoolDurationsReducer,
     menuItems: menuItemReducer,
     toastInfo: displayToastReducer
 });

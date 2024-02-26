@@ -29,7 +29,7 @@ export const datagridColumns = () => {
     const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
-        navigateTo(`/school-period/update/${id}`, { state: { id: id } });
+        navigateTo(`/school-duration/update/${id}`, { state: { id: id } });
     };
 
     const columns = [
@@ -39,7 +39,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            // width: 120,
         },
         {
             field: "halves",
@@ -47,7 +47,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            // minWidth: 100
         },
         {
             field: "recess_time",
@@ -55,7 +55,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            // minWidth: 100
         },
         {
             field: "first_half_period_duration",
@@ -63,7 +63,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            // minWidth: 100
         },
         {
             field: "second_half_period_duration",
@@ -71,15 +71,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
-        },
-        {
-            field: "cutoff_time",
-            headerName: "CutOff time",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
+            // minWidth: 100
         },
         {
             field: "opening_time",
@@ -87,8 +79,12 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            valueFormatter: params => params?.value.substring(11, 19)
+            // minWidth: 100,
+            valueFormatter: params => new Date(params?.value).toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+              })
         },
         {
             field: "closing_time",
@@ -96,8 +92,38 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            valueFormatter: params => params?.value.substring(11, 19)
+            // minWidth: 100,
+            valueFormatter: params => new Date(params?.value).toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+              })
+        },
+        {
+            field: "employee_entry_time",
+            headerName: "Employee Entry",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            // minWidth: 100,
+            valueFormatter: params => new Date(params?.value).toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+              })
+        },
+        {
+            field: "employee_exit_time",
+            headerName: "Employee Exit",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            // minWidth: 100,
+            valueFormatter: params => new Date(params?.value).toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+              })
         },
         {
             field: "action",
@@ -105,7 +131,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 75,
+            // minWidth: 75,
             renderCell: ({ row: { id } }) => {
                 return (
                     <Box width="30%"

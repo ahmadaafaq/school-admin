@@ -16,7 +16,7 @@ import dayjs from "dayjs";
 import API from "../../apis";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import SchoolPeriodFormComponent from "./SchoolPeriodFormComponent";
+import SchoolDurationFormComponent from "./SchoolDurationFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
@@ -29,7 +29,7 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        schoolPeriodData: { values: null, validated: false }
+        schoolDurationData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [dirty, setDirty] = useState(false);
@@ -40,7 +40,7 @@ const FormComponent = () => {
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
-    const schoolPeriodFormRef = useRef();
+    const schoolDurationFormRef = useRef();
 
 
     const navigateTo = useNavigate();
@@ -53,7 +53,7 @@ const FormComponent = () => {
     const { getPaginatedData } = useCommon();
     const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting SchoolPeriod id from url params
+    //after page refresh the id in router state becomes undefined, so getting SchoolDuration id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -61,11 +61,11 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateSchoolPeriod = useCallback(formData => {
+    const updateSchoolDuration = useCallback(formData => {
         const dataFields = [
-            { ...formData.schoolPeriodData.values },
+            { ...formData.schoolDurationData.values },
         ];
-        const paths = ["/update-school-period"];
+        const paths = ["/update-school-duration"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -78,7 +78,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/school-period/listing/${getLocalStorage('class')}`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/school-duration/listing`);
                 };
                 setLoading(false);
             })
@@ -89,35 +89,41 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateSchoolPeriodData = (id) => {
+    const populateSchoolDurationData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/school-period/${id}`];
+        const paths = [`/get-by-pk/school_duration/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(response => {
+                console.log("first>>>",response);
                 if (response[0]?.data?.data) {
                     response[0].data.data.opening_time = dayjs(response[0].data.data.opening_time);
                     response[0].data.data.closing_time = dayjs(response[0].data.data.closing_time);
+                    response[0].data.data.eve_opening_time = dayjs(response[0].data.data.eve_opening_time);
+                    response[0].data.data.eve_closing_time = dayjs(response[0].data.data.eve_closing_time);
+                    response[0].data.data.employee_entry_time = dayjs(response[0].data.data.opening_time);
+                    response[0].data.data.employee_exit_time = dayjs(response[0].data.data.employee_exit_time);
                 }
                 const dataObj = {
-                    schoolPeriodData: response[0].data.data
+                    schoolDurationData: response[0].data.data,
                 };
                 setUpdatedValues(dataObj);
                 setLoading(false);
             })
             .catch(err => {
+                console.log("err>>>",err);
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
             });
     };
 
 
-    const createSchoolPeriod = () => {
+    const createSchoolDuration = () => {
         setLoading(true);
-        API.SchoolPeriodAPI.createSchoolPeriod({ ...formData.schoolPeriodData.values })
-            .then(({ data: schoolPeriod }) => {
-                if (schoolPeriod?.status === 'Success') {
+        API.SchoolDurationAPI.createSchoolDuration({ ...formData.schoolDurationData.values })
+            .then(({ data: schoolDuration }) => {
+                if (schoolDuration?.status === 'Success') {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/school-period/listing`);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/school-duration/listing`);
                 } else {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
@@ -129,27 +135,28 @@ const FormComponent = () => {
             });
     };
 
-    //Create/Update/Populate SchoolPeriod
+    //Create/Update/Populate SchoolDuration
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateSchoolPeriodData(id);
+            populateSchoolDurationData(id);
         }
-        if (formData.schoolPeriodData.validated) {
-            formData.schoolPeriodData.values?.id ? updateSchoolPeriod(formData) : createSchoolPeriod();
+        if (formData.schoolDurationData.validated) {
+            formData.schoolDurationData.values?.id ? updateSchoolDuration(formData) : createSchoolDuration();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await schoolPeriodFormRef.current.Submit();
+        await schoolDurationFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form == 'schoolPeriod' ? setFormData({ ...formData, schoolPeriodData: data }) : '';
+        form == 'schoolDuration' ? setFormData({ ...formData, schoolDurationData: data }) : '';
     }
+
     return (
         <Box ml="10px"
             sx={{
@@ -172,20 +179,20 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <SchoolPeriodFormComponent
+            <SchoolDurationFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'schoolPeriod');
+                    handleFormChange(data, 'schoolDuration');
                 }}
-                refId={schoolPeriodFormRef}
+                refId={schoolDurationFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                updatedValues={updatedValues?.schoolPeriodData}
+                updatedValues={updatedValues?.schoolDurationData}
             />
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on SchoolPeriod update
+                {   //hide reset button on SchoolDuration update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}
@@ -199,7 +206,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/school-period/listing/${getLocalStorage('class') || ''}`)}>
+                    onClick={() => navigateTo(`/school-duration/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

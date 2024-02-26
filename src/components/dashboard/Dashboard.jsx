@@ -10,11 +10,10 @@
 import { useEffect, useState } from "react";
 import { useSelector } from 'react-redux'
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
-import ApartmentIcon from '@mui/icons-material/Apartment';
 import EngineeringSharpIcon from '@mui/icons-material/EngineeringSharp';
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
@@ -37,7 +36,7 @@ const Dashboard = () => {
   const isTab = useMediaQuery("(max-width:920px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
-  const dashboardAttributes = ['student', 'school', 'teacher', 'employee'];
+  const dashboardAttributes = ['student', 'bus', 'teacher', 'employee'];
 
   const options1 = {
     chart: {
@@ -225,7 +224,7 @@ const Dashboard = () => {
             title={dashboardCount.student}
             subtitle="Students"
             progress={`${(dashboardCount.student / 5000)}`}
-            increase={`${(dashboardCount.student / 5000) * 100}%`}
+            increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
             yellowColor={colors.yellowAccent[100]}
             icon={
               <Groups3Icon
@@ -246,13 +245,13 @@ const Dashboard = () => {
           boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
         >
           <StatBox
-            title={dashboardCount.school}
-            subtitle="Schools"
-            progress={`${(dashboardCount.school / 500)}`}
-            increase={`${(dashboardCount.school / 500) * 100}%`}
+            title={dashboardCount.bus}
+            subtitle="Buses"
+            progress={`${(dashboardCount.bus / 500)}`}
+            increase={`${((dashboardCount.bus / 500) * 100).toFixed(2)}%`}
             yellowColor={colors.greenAccent[700]}
             icon={
-              <ApartmentIcon
+              <DirectionsBusIcon
                 sx={{ color: colors.primary[500], fontSize: isMobile ? "10px" : "26px" }}
               />
             }
@@ -273,7 +272,7 @@ const Dashboard = () => {
             title={dashboardCount.teacher}
             subtitle="Teachers"
             progress={`${(dashboardCount.teacher / 500)}`}
-            increase={`${(dashboardCount.teacher / 500) * 100}%`}
+            increase={`${((dashboardCount.teacher / 500) * 100).toFixed(2)}%`}
             yellowColor={colors.blueAccent[700]}
             icon={
               <Diversity3Icon
@@ -297,7 +296,7 @@ const Dashboard = () => {
             title={dashboardCount.employee}
             subtitle="employees"
             progress={`${(dashboardCount.employee / 500)}`}
-            increase={`${(dashboardCount.employee / 500) * 100}%`}
+            increase={`${((dashboardCount.employee / 500) * 100).toFixed(2)}%`}
             yellowColor={colors.redAccent[700]}
             icon={
               <EngineeringSharpIcon

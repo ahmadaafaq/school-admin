@@ -48,7 +48,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
 
   const CustomOption = {
     id: "all-schools",
-    name: "All Schools",
+    name: "All Schools"
   };
 
   const handleClick = (event) => {
@@ -160,8 +160,8 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
                   label="Select School"
                   sx={{
                     fieldset: {
-                      border: "2px solid grey",
-                      boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px"
+                      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                      borderRadius: "50px"
                     }
                   }}
                 />
@@ -169,13 +169,15 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               PaperComponent={props => (
                 <Paper
                   sx={{
-                    background: colors.blueAccent[700],
+                    background: theme.palette.mode === 'light' ? `#6ac6ff !important` : 'black',
+                    borderRadius: "20px",
+                    boxShadow: "rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;",
                     color: colors.redAccent[400],
                     fontSize: "25px",
                     "&:hover": {
                       border: "1px solid #00FF00",
                       color: "gray",
-                      backgroundColor: "white"
+                      backgroundColor: "white !important"
                     }
                   }}
                   {...props}
