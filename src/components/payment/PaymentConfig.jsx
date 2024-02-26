@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,44 +8,22 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-// import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-//import API from "../../apis";
-// import { setListingClasses } from "../../redux/actions/ClassAction";
-// import { setListingSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
+export const datagridColumns = (rolePriority = null) => {
 
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
-
     const handleActionEdit = (id) => {
         navigateTo(`/payment/update/${id}`, { state: { id: id } });
     };
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setListingClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setListingSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
 
     const columns = [
         {
@@ -52,7 +32,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 120
         },
         {
             field: "amount",
@@ -99,11 +79,11 @@ export const datagridColumns = () => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                            {type}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "payment_status",
@@ -136,7 +116,7 @@ export const datagridColumns = () => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "payment_method",
@@ -169,7 +149,7 @@ export const datagridColumns = () => {
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "payment_date",
@@ -187,7 +167,7 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -209,7 +189,7 @@ export const datagridColumns = () => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

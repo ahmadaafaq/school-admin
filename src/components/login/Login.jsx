@@ -72,8 +72,10 @@ const Login = () => {
         .then(({ data: response }) => {
           setLoading(false);
           if (response.status === 'Success' &&
-            (response.data === "School Code must be specified" || response.data === "User does not exist" ||
-              response.data === "Username and Password do not match")) {
+            (response.data === "User does not exist" || response.data === "Username and Password do not match")) {
+            toastAndNavigate(dispatch, true, "info", response?.data);
+          } else if (response.status === 'Success' &&
+            (response.data === "School Code must be specified" || response.data === "School code is incorrect")) {
             toastAndNavigate(dispatch, true, "info", response?.data);
             inputRef.current.focus();
           }

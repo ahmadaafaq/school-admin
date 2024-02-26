@@ -442,6 +442,12 @@ const SchoolFormComponent = ({
                                             const subArr = [...formik.values.classes];
                                             subArr[index] = value.props.value;
                                             formik.setFieldValue("classes", subArr);
+                                            if (formik.values.sections) {        //if old values are there, clean them according to change
+                                                formik.setFieldValue("sections", []);
+                                            }
+                                            if (formik.values.subjects) {
+                                                formik.setFieldValue("subjects", [[]]);
+                                            }
                                         }}
                                     >
                                         {!allClasses?.length ? null :

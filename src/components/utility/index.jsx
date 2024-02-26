@@ -151,7 +151,6 @@ export const Utility = () => {
                     }
                     if (setSectionsAction) {        //why is this required, needs to be tested
                         const uniqueSectionsDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
-                        console.log(uniqueSectionsDataArray, 'unique')
                         dispatch(setSectionsAction(uniqueSectionsDataArray));
                     }
                     if (setClassData) {    //setting all classData in local state then filtering subjects according to class sections

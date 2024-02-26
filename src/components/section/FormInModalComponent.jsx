@@ -6,9 +6,10 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Formik } from "formik";
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
@@ -17,12 +18,12 @@ import { useTheme } from '@mui/material/styles';
 
 import API from "../../apis";
 import Loader from "../common/Loader";
+import sectionValidation from "./Validation";
 import Toast from "../common/Toast";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
-import sectionValidation from "./Validation";
 
 import formBg from "../assets/formBg.png";
 
@@ -254,6 +255,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             </Dialog>
         </div>
     );
-}
+};
+
+FormComponent.propTypes = {
+    openDialog: PropTypes.bool,
+    setOpenDialog: PropTypes.func
+};
 
 export default FormComponent;

@@ -13,7 +13,7 @@ import API from "../../apis";
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
-import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
+// import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -29,17 +29,17 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
     const { getStudents } = useCommon();
     const { customSort, createUniqueDataArray, findById, setLocalStorage } = Utility();
 
-    const handleClassChange = (event) => {
-        let localStorageValue = findById(event.target.value, formClassesInRedux?.listData);
-        setLocalStorage("dropdown class", localStorageValue);
-        dispatch(setMarksheetClass(findById(event.target.value, formClassesInRedux?.listData)));
-    };
+    // const handleClassChange = (event) => {
+    //     let localStorageValue = findById(event.target.value, formClassesInRedux?.listData);
+    //     setLocalStorage("dropdown class", localStorageValue);
+    //     dispatch(setMarksheetClass(findById(event.target.value, formClassesInRedux?.listData)));
+    // };
 
-    const handleSectionChange = (event) => {
-        let localStorageValue = findById(event.target.value, formSectionsInRedux?.listData);
-        setLocalStorage("dropdown section", localStorageValue);
-        dispatch(setMarksheetSection(findById(event.target.value, formSectionsInRedux?.listData)));
-    };
+    // const handleSectionChange = (event) => {
+    //     let localStorageValue = findById(event.target.value, formSectionsInRedux?.listData);
+    //     setLocalStorage("dropdown section", localStorageValue);
+    //     dispatch(setMarksheetSection(findById(event.target.value, formSectionsInRedux?.listData)));
+    // };
 
     //to be dicsussed
     // useEffect(() => {
@@ -62,11 +62,11 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
     //     }
     // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
 
-    useEffect(() => {
-        if (marksheetClass?.class_id && marksheetSection?.id) {
-            getStudents(marksheetClass.class_id, marksheetSection.id, setStudents, API);
-        }
-    }, [marksheetClass?.class_id, marksheetSection?.id]);
+    // useEffect(() => {
+    //     if (marksheetClass?.class_id && marksheetSection?.id) {
+    //         getStudents(marksheetClass.class_id, marksheetSection.id, setStudents, API);
+    //     }
+    // }, [marksheetClass?.class_id, marksheetSection?.id]);
 
     return (
         <Box sx={{ display: "flex", marginRight: "10px", marginLeft: "10px" }}>
@@ -76,7 +76,7 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
                     height: "44px"
                 }
             }}>
-                <InputLabel id="classfield">Class</InputLabel>
+                {/* <InputLabel id="classfield">Class</InputLabel>
                 <Select
                     variant="filled"
                     labelId="classfield"
@@ -89,7 +89,7 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
                             {cls.class_name}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select> */}
             </FormControl>
             <FormControl variant="filled" sx={{
                 minWidth: 120,
@@ -97,7 +97,7 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
                     height: "44px"
                 }
             }}>
-                <InputLabel id="sectionfield">Section</InputLabel>
+                {/* <InputLabel id="sectionfield">Section</InputLabel>
                 <Select
                     variant="filled"
                     labelId="sectionfield"
@@ -110,10 +110,10 @@ function DropDown({ marksheetClass = null, marksheetSection = null }) {
                             {section.section_name}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select> */}
             </FormControl>
         </Box>
     )
-};
+}
 
 export default DropDown;

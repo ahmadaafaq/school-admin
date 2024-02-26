@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -57,7 +58,7 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateMarksheet = useCallback((formData) => {
+    const updateMarksheet = useCallback(formData => {
         setLoading(true);
         API.MarksheetAPI.updateMarksheet({ ...formData.marksheetData.values })
             .then(({ data: marksheet }) => {
@@ -80,9 +81,10 @@ const FormComponent = () => {
             });
     }, []);
 
-    const populateMarksheetData = (id, student_id) => {
+    const populateMarksheetData = useCallback((id, student_id) => {
         setLoading(true);
         const path = [`/get-marksheet/?page=0&size=15&student=${student_id}`];
+
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
                 const dataObj = {
@@ -96,9 +98,9 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    }, []);
 
-    const createMarksheet = () => {
+    const createMarksheet = useCallback(formData => {
         let promises = [];
         setLoading(true);
         let payload = {
@@ -107,6 +109,7 @@ const FormComponent = () => {
             section_id: marksheetSection?.id,
             term: formData.marksheetData.values.term
         };
+
         promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
             payload = {
                 ...payload,
@@ -120,26 +123,24 @@ const FormComponent = () => {
             API.MarksheetAPI.createMarksheet(payload);
         });
 
+        try {
+            const responses = Promise.all(promises);
+            // Check if all responses are successful
+            const isSuccess = responses.every(response => response.data.status === "Success");
 
-        return Promise.all(promises)
-            .then((responses) => {
-                // Check if all responses are successful
-                const isSuccess = responses.every(response => response.data.status === "Success");
-
-                if (isSuccess) {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
-                } else {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", "Failed to create marksheet for one or more subjects");
-                }
-            })
-            .catch((err) => {
+            if (isSuccess) {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
-    };
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+            } else {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", "Failed to create marksheet for one or more subjects");
+            }
+        } catch (err) {
+            setLoading(false);
+            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred");
+            throw err;
+        }
+    }, []);
 
     //Create/Update/Populate marksheet
     useEffect(() => {
@@ -148,7 +149,7 @@ const FormComponent = () => {
             populateMarksheetData(id, student_id);
         }
         if (formData.marksheetData.validated) {
-            formData.marksheetData.values?.id ? updateMarksheet(formData) : createMarksheet();
+            formData.marksheetData.values?.id ? updateMarksheet(formData) : createMarksheet(formData);
         } else {
             setSubmitted(false);
         }
@@ -195,7 +196,7 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 userId={id}
-                student_id={student_id}
+                studentId={student_id}
                 updatedValues={updatedValues?.marksheetData}
             />
             <Box display="flex" justifyContent="end" m="20px 20px 70px 0" >
