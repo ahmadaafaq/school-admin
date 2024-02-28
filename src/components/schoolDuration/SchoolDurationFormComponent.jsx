@@ -33,7 +33,7 @@ const initialValues = {
     employee_exit_time: null
 };
 
-const SchoolPeriodFormComponent = ({
+const SchoolDurationFormComponent = ({
     onChange,
     refId,
     setDirty,
@@ -215,11 +215,10 @@ const SchoolPeriodFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.shifts && !!formik.errors.shifts}
                     >
-                        <InputLabel id="shiftsField">shifts</InputLabel>
+                        <InputLabel id="shiftsField">Shifts</InputLabel>
                         <Select
                             variant="filled"
                             labelId="shiftsField"
-                            label="shifts"
                             name="shifts"
                             autoComplete="new-shifts"
                             value={formik.values.shifts}
@@ -326,7 +325,7 @@ const SchoolPeriodFormComponent = ({
     );
 };
 
-SchoolPeriodFormComponent.propTypes = {
+SchoolDurationFormComponent.propTypes = {
     onChange: PropTypes.func,
     refId: PropTypes.shape({
         current: PropTypes.any
@@ -337,4 +336,4 @@ SchoolPeriodFormComponent.propTypes = {
     updatedValues: PropTypes.object
 };
 
-export default SchoolPeriodFormComponent;
+export default SchoolDurationFormComponent;

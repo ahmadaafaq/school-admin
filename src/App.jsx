@@ -61,6 +61,9 @@ const PaymentListingComponent = lazy(() => import("./components/payment/ListingC
 const SchoolDurationFormComponent = lazy(() => import("./components/schoolDuration/FormComponent"));
 const SchoolDurationListingComponent = lazy(() => import("./components/schoolDuration/ListingComponent"));
 
+const TimeTableFormComponent = lazy(() => import("./components/timetable/FormComponent"));
+const TimeTableListingComponent = lazy(() => import("./components/timetable/ListingComponent"));
+
 const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"));
 
 function App() {
@@ -118,7 +121,7 @@ function App() {
                 <Routes>
                   {userRole.priority === 1 &&
                     <>
-                      <Route exact path="/" element={<Dashboard />} />
+                      <Route exact path="/" element={<Dashboard rolePriority={userRole.priority}/>} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
                       <Route exact path="/role/listing" element={<UserRoleListingComponent />} />
 
@@ -133,7 +136,7 @@ function App() {
                     </>}
                   {
                     userRole.priority <= 2 &&
-                    <Route exact path="/" element={<Dashboard />} />
+                    <Route exact path="/" element={<Dashboard rolePriority={userRole.priority} />} />
                   }
                   {userRole.priority <= 3 &&
                     <>
@@ -174,6 +177,10 @@ function App() {
                       <Route exact path="/school-duration/create" element={<SchoolDurationFormComponent />} />
                       <Route exact path="/school-duration/update/:id" element={<SchoolDurationFormComponent />} />
                       <Route exact path="/school-duration/listing" element={<SchoolDurationListingComponent rolePriority={userRole.priority} />} />
+
+                      <Route exact path="/time-table/create" element={<TimeTableFormComponent />} />
+                      <Route exact path="/time-table/update/:id" element={<TimeTableFormComponent />} />
+                      <Route exact path="/time-table/listing" element={<TimeTableListingComponent rolePriority={userRole.priority} />} />
                     </>}
 
                   {userRole.priority === 4 &&
