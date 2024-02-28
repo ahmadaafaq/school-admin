@@ -22,6 +22,7 @@ import API from "../../apis";
 import Toast from "../common/Toast";
 import SignInLoader from "../common/SignInLoader";
 
+import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -49,7 +50,7 @@ const Login = () => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   const { typography } = themeSettings(theme.palette.mode);
-  const { toastAndNavigate, setLocalStorage } = Utility();
+  const { getLocalStorage, toastAndNavigate, setLocalStorage } = Utility();
 
   const boxstyle = {
     position: "absolute",
@@ -90,7 +91,14 @@ const Login = () => {
             };
             setLocalStorage("auth", authInfo);
             response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;
-            navigateTo("/");
+            if (getLocalStorage("navigatedPath")) {
+              const splittedPath = getLocalStorage("navigatedPath").split('/');
+              setLocalStorage("menu", { selected: splittedPath[splittedPath.length - 2] });
+              dispatch(setMenuItem(splittedPath[splittedPath.length - 2]));
+              navigateTo(`${getLocalStorage("navigatedPath")}`);
+            } else {
+              navigateTo("/");
+            }
           }
         })
         .catch(err => {

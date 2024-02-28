@@ -8,8 +8,8 @@
 
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import PropTypes from "prop-types";
 
+import PropTypes from "prop-types";
 import { MenuItem } from "react-pro-sidebar/dist";
 import { Typography, useTheme, Divider } from "@mui/material";
 
@@ -67,14 +67,13 @@ export const SidebarItem = ({
 };
 
 SidebarItem.propTypes = {
-    onChange: PropTypes.func,
-    refId: PropTypes.shape({
-        current: PropTypes.any
-    }),
-    setDirty: PropTypes.func,
-    reset: PropTypes.bool,
-    setReset: PropTypes.func,
-    amenities: PropTypes.array,
-    subjectsInRedux: PropTypes.array,
-    updatedValues: PropTypes.object
+    title: PropTypes.string,
+    to: PropTypes.string,
+    icon: PropTypes.object,
+    selected: PropTypes.string,
+    rolePriority: PropTypes.number,
+    menuVisibility: PropTypes.number,
+    className: PropTypes.string,
+    handleClassClick: PropTypes.func,
+    isSubMenu: PropTypes.bool
 };

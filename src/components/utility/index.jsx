@@ -300,14 +300,22 @@ export const Utility = () => {
         }
         return null;
     };
-    /** Converts a numeric index to the corresponding uppercase alphabetic character.
-     * @param {number} index - The numeric index to be converted.
-     * @returns {string} The uppercase alphabetic character corresponding to the index.
+
+    /** Generates a random password of length 10, excluding certain special characters.
+     * @returns { string } The generated password.
      */
-    const indexToAlphabet = (index) => {
-        const alphabeticIndex = String.fromCharCode(65 + index);
-        return alphabeticIndex;
-    }
+    const generatePassword = () => {
+        let pw = '';
+        for (let i = 0; i < 10; i++) {
+            const randomCharCode = Math.floor(Math.random() * 94) + 33;
+            if ([34, 38, 60, 62, 44, 96, 39].includes(randomCharCode)) {
+                pw += '#';
+            } else {
+                pw += String.fromCharCode(randomCharCode);
+            }
+        }
+        return pw;
+    };
 
     /** Checks if an object is empty (has no own enumerable properties).
     * @param {Object} obj - The object to be checked for emptiness.
@@ -402,7 +410,7 @@ export const Utility = () => {
         getRoleAndPriorityById,
         getIdsFromObject,
         getValuesFromArray,
-        indexToAlphabet,
+        generatePassword,
         isObjEmpty,
         remLocalStorage,
         setLocalStorage,

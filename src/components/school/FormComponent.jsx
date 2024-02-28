@@ -86,7 +86,7 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateSchoolAndAddress = useCallback(formData => {
+    const updateSchoolAndAddress = useCallback(async formData => {
         setLoading(true);
         const paths = ["/update-school", "/update-address"];
 
@@ -121,84 +121,98 @@ const FormComponent = () => {
             parent_id: id
         });
 
-        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
-                let status = null;
-                let formattedName;
-                if (responses) {
-                    if (!isObjEmpty(dataFields[2])) {
-                        // upload new images display to backend folder and insert in db
-                        if (formData.imageData.values?.Display) {
-                            Array.from(formData.imageData.values.Display).map(image => {
-                                formattedName = formatImageName(image.name);
-                                API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                                API.ImageAPI.createImage({
-                                    image_src: formattedName,
-                                    school_id: formData.schoolData.values.id,
-                                    parent_id: formData.schoolData.values.id,
-                                    parent: 'school',
-                                    type: 'display'
-                                })
-                            });
-                            status = true;
-                        }
-                        // insert old images display only in db & not on azure
-                        if (formData.imageData?.values) {
-                            formData.imageData.values.map(image => {
-                                API.ImageAPI.createImage({
-                                    image_src: image.image_src,
-                                    school_id: image.school_id,
-                                    parent_id: image.parent_id,
-                                    parent: image.parent,
-                                    type: image.type
-                                })
-                            });
-                            status = true;
-                        }
+        // delete all class sections from mapping table
+        await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
+
+        const updatePromises = formData.schoolData.values.sections.map((innerArray, classIndex) => {
+            const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+            // Iterating through each section in the class then associating subject ids for each section of class
+            innerArray.map((sectionData, sectionIndex) => {
+                const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
+                API.SchoolAPI.insertIntoMappingTable(
+                    [formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                );
+            });
+        });
+
+        try {
+            let status = null;
+            let formattedName;
+            await Promise.all(updatePromises);
+            const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
+            if (responses) {
+                if (!isObjEmpty(dataFields[2])) {
+                    // upload new images display to backend folder and insert in db
+                    if (formData.imageData.values?.Display) {
+                        Array.from(formData.imageData.values.Display).map(image => {
+                            formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                school_id: formData.schoolData.values.id,
+                                parent_id: formData.schoolData.values.id,
+                                parent: 'school',
+                                type: 'display'
+                            })
+                        });
+                        status = true;
                     }
-                    if (!isObjEmpty(dataFields[3])) {
-                        // upload new banner images to azure and insert in db
-                        if (formData.bannerImageData.values?.Banner) {
-                            Array.from(formData.bannerImageData.values?.Banner).map(image => {
-                                let formattedName = formatImageName(image.name);
-                                API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                                API.ImageAPI.createImage({
-                                    image_src: formattedName,
-                                    school_id: formData.schoolData.values.id,
-                                    parent_id: formData.schoolData.values.id,
-                                    parent: 'school',
-                                    type: 'banner'
-                                })
-                            });
-                            status = true;
-                        }
-                        // insert old images banner only in db & not on azure
-                        if (formData.bannerImageData?.values) {
-                            formData.bannerImageData.values.map(image => {
-                                API.ImageAPI.createImage({
-                                    image_src: image.image_src,
-                                    school_id: image.school_id,
-                                    parent_id: image.parent_id,
-                                    parent: image.parent,
-                                    type: image.type
-                                })
-                            });
-                            status = true;
-                        }
-                    } else {
-                        status = true;      //ye hai isempty datafields[3]
-                    }
-                    if (status) {
-                        setLoading(false);
-                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
+                    // insert old images display only in db & not on azure
+                    if (formData.imageData?.values) {
+                        formData.imageData.values.map(image => {
+                            API.ImageAPI.createImage({
+                                image_src: image.image_src,
+                                school_id: image.school_id,
+                                parent_id: image.parent_id,
+                                parent: image.parent,
+                                type: image.type
+                            })
+                        });
+                        status = true;
                     }
                 }
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                throw err;
-            });
+                if (!isObjEmpty(dataFields[3])) {
+                    // upload new banner images to azure and insert in db
+                    if (formData.bannerImageData.values?.Banner) {
+                        Array.from(formData.bannerImageData.values?.Banner).map(image => {
+                            let formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                school_id: formData.schoolData.values.id,
+                                parent_id: formData.schoolData.values.id,
+                                parent: 'school',
+                                type: 'banner'
+                            })
+                        });
+                        status = true;
+                    }
+                    // insert old images banner only in db & not on azure
+                    if (formData.bannerImageData?.values) {
+                        formData.bannerImageData.values.map(image => {
+                            API.ImageAPI.createImage({
+                                image_src: image.image_src,
+                                school_id: image.school_id,
+                                parent_id: image.parent_id,
+                                parent: image.parent,
+                                type: image.type
+                            })
+                        });
+                        status = true;
+                    }
+                } else {
+                    status = true;      //ye hai isempty datafields[3]
+                }
+                if (status) {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
+                }
+            }
+        } catch (err) {
+            setLoading(false);
+            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+            throw err;
+        }
     }, [formData]);
 
     const populateSchoolData = useCallback(id => {
