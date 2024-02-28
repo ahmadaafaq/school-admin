@@ -23,6 +23,8 @@ import formBg from "./components/assets/formBg.png";
 
 const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 
+const NotFound = lazy(() => import("./components/404 page/Animated404Component"));
+
 const AmenityListingComponent = lazy(() => import("./components/amenities/ListingComponent"));
 
 const BusListingComponent = lazy(() => import("./components/bus/ListingComponent"));
@@ -72,7 +74,7 @@ function App() {
   const navigateTo = useNavigate();
 
   const { pathname } = useLocation();
-  const { getLocalStorage, getRoleAndPriorityById, verifyToken } = Utility();
+  const { getLocalStorage, getRoleAndPriorityById, setLocalStorage, verifyToken } = Utility();
 
   const onIdle = () => {
     localStorage.clear();
@@ -100,8 +102,10 @@ function App() {
   useEffect(() => {
     verifyToken()
       .then(result => {
+        console.log(pathname, 'teacher wala')
         if (!result && pathname !== '/login') {
           localStorage.clear();
+          setLocalStorage("navigatedPath", pathname);
           navigateTo('/login', { replace: true });
         }
       });
@@ -114,14 +118,15 @@ function App() {
         <CssBaseline />
         <div className="app">
           {getLocalStorage("auth")?.token &&
-            <Suspense fallback={<div><img src={formBg} alt="" style={{ backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundPosition:"center"}} /></div>}>
+            <Suspense fallback={<div><img src={formBg} alt="" style={{ backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundPosition: "center" }} /></div>}>
               <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
                 <Topbar roleName={userRole.name} rolePriority={userRole.priority} />
                 <Routes>
                   {userRole.priority === 1 &&
                     <>
-                      <Route exact path="/" element={<Dashboard rolePriority={userRole.priority}/>} />
+                      <Route exact path="/" element={<Dashboard rolePriority={userRole.priority} />} />
+                      <Route path="*" element={<NotFound />} />
                       <Route exact path="/amenity/listing" element={<AmenityListingComponent />} />
                       <Route exact path="/role/listing" element={<UserRoleListingComponent />} />
 
@@ -136,7 +141,10 @@ function App() {
                     </>}
                   {
                     userRole.priority <= 2 &&
-                    <Route exact path="/" element={<Dashboard rolePriority={userRole.priority} />} />
+                    <>
+                      <Route exact path="/" element={<Dashboard rolePriority={userRole.priority} />} />
+                      <Route path="*" element={<NotFound />} />
+                    </>
                   }
                   {userRole.priority <= 3 &&
                     <>

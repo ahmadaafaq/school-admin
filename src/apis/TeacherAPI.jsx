@@ -83,6 +83,20 @@ export const TeacherAPI = {
       signal: cancel ? cancelApiObject[this.getTeacherDetail.name].handleRequestCancellation().signal : undefined,
     });
     return response;
+  },
+
+  /** delete values from teacher_class_subject mapping table on every update
+   */
+  deleteFromMappingTable: async (fields, cancel = false) => {
+    return await api.request({
+      url: `/delete-from-mapping-table`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "DELETE",
+      data: fields,
+      signal: cancel ? cancelApiObject[this.deleteFromMappingTable.name].handleRequestCancellation().signal : undefined,
+    });
   }
 };
 

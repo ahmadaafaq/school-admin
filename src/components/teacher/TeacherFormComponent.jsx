@@ -71,7 +71,7 @@ const TeacherFormComponent = ({
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { fetchAndSetSchoolData, getLocalStorage, getValuesFromArray, indexToAlphabet } = Utility();
+    const { fetchAndSetSchoolData, getLocalStorage, findMultipleById } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -98,30 +98,35 @@ const TeacherFormComponent = ({
     };
 
     const getAndSetSubjects = () => {
-        console.log(formik.values.sections, ' innnnformik.values.sections', formik.values.classes, classData)
-        const sectionSubjects = classData.filter(obj =>
-            formik.values.classes.includes(obj.class_id) &&   //because sections is an array of arrays
-            formik.values.sections.some(sectionArray =>
-                sectionArray.some(sectionObj => sectionObj.section_id === obj.section_id)));
-        console.log(sectionSubjects, 'innnnsectionSubjects')
-
-        sectionSubjects.forEach(section => {
-            if (section) {
-                const selectedSubjects = getValuesFromArray(section.subject_ids, allSubjects);
-                console.log(selectedSubjects, 'innnnselectedSubjects');
-                // Dispatch subjects for the current section
-                dispatch(setSchoolSubjects(selectedSubjects));
+        console.log(formik.values.sections, ' innnnformik.values.sections', formik.values.classes, classData);
+        const sectionSubjects = {};
+        classData.forEach(obj => {
+            if (
+                formik.values.classes.includes(initialState?.sections?.length ? `${obj.class_id}` : obj.class_id) &&
+                formik.values.sections.some(sectionArray =>
+                    sectionArray.some(sectionObj => sectionObj.section_id === obj.section_id))
+            ) {
+                if (!sectionSubjects[obj.class_id]) {
+                    sectionSubjects[obj.class_id] = {};
+                }
+                const selectedSubjects = findMultipleById(obj.subject_ids, allSubjects);
+                // subjects for the current class section
+                sectionSubjects[obj.class_id][obj.section_id] = selectedSubjects;
             }
         });
+        // Dispatch the sectionSubjects to redux
+        dispatch(setSchoolSubjects(sectionSubjects));
     };
-
+    console.log(schoolSections?.listData, 'innnschool sections')
+    console.log(schoolSubjects?.listData, 'innnschool subjects')
     const getAndSetSections = () => {
         const selectedSectionsSet = new Set();
         for (const obj of classData) {
             if (
-                (formik.values.classes.length && formik.values.classes.includes(obj.class_id)) ||
+                (formik.values.classes.length && formik.values.classes.includes(initialState?.sections?.length ? `${obj.class_id}` : obj.class_id)) ||
                 (!formik.values.classes.length && obj.class_id === formik.values.class)
             ) {
+                console.log('innnside section set of classdata', classData)
                 selectedSectionsSet.add({
                     section_id: obj.section_id,
                     section_name: obj.section_name
@@ -144,6 +149,7 @@ const TeacherFormComponent = ({
 
     useEffect(() => {
         if ((formik.values?.classes || formik.values?.class) && classData.length) {
+            console.log('innnnside get sections');
             getAndSetSections();
         }
     }, [formik.values?.classes, formik.values?.class, classData.length]);
@@ -203,7 +209,7 @@ const TeacherFormComponent = ({
                 const subArr = [[]];
                 Object.keys(splittedArray).map((field, index) => {
                     Object.values(splittedArray)[index].map((section, sectionIndex) => {
-                        const value = getValuesFromArray(section.subject_ids, allSubjects);
+                        const value = findMultipleById(section.subject_ids, allSubjects);
                         if (index > 0 && sectionIndex === 0) {
                             subArr[index] = [];
                         }
@@ -222,7 +228,10 @@ const TeacherFormComponent = ({
             });
         }
     }, [updatedValues]);
-
+    console.log('innn formik sections=>', formik.values.sections);
+    console.log(initialState?.sections?.length, 'innn updarws values')
+    console.log('innn formik subjects=>', formik.values.subjects);
+    console.log('innn classdata=>', classData);
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -584,7 +593,7 @@ const TeacherFormComponent = ({
                                     <Autocomplete
                                         multiple
                                         key={key + sectionIndex}
-                                        options={schoolSubjects?.listData || []}
+                                        options={schoolSubjects?.listData?.[formik.values.classes[index]]?.[section.section_id] || []}
                                         getOptionLabel={option => option.name}
                                         disableCloseOnSelect
                                         value={formik.values.subjects[index] ?
@@ -604,7 +613,7 @@ const TeacherFormComponent = ({
                                                 variant="filled"
                                                 type="text"
                                                 name={`subjects.${index}.${sectionIndex}`}
-                                                label={`Subjects For Section ${indexToAlphabet(sectionIndex)}`}
+                                                label={`Subjects For Section ${section.section_name}`}
                                                 error={!!formik.touched.subjects && !!formik.errors.subjects}
                                                 helperText={formik.touched.subjects && formik.errors.subjects}
                                             />
@@ -667,8 +676,8 @@ const TeacherFormComponent = ({
                         />
                     </React.Fragment>
                 </Box>
-            </form >
-        </Box >
+            </form>
+        </Box>
     );
 };
 

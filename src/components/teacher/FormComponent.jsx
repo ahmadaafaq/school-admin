@@ -65,7 +65,7 @@ const FormComponent = () => {
 
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { formatImageName, fetchAndSetAll, getLocalStorage, getIdsFromObject, isObjEmpty, toastAndNavigate } = Utility();
+    const { formatImageName, fetchAndSetAll, getLocalStorage, getIdsFromObject, generatePassword, isObjEmpty, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting teacher id from url params
     let id = state?.id || userParams?.id;
@@ -75,7 +75,7 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateTeacherAndAddress = useCallback(formData => {
+    const updateTeacherAndAddress = useCallback(async formData => {
         setLoading(true);
         const paths = ["/update-teacher", "/update-address"];
 
@@ -99,56 +99,70 @@ const FormComponent = () => {
             parent: "teacher",
             parent_id: id
         });
-        console.log(`Deleted all images of id ${id} from db`);
 
-        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
-                let status = null;
-                let formattedName;
-                if (responses) {
-                    if (!isObjEmpty(dataFields[2])) {
-                        // upload new images to backend folder and insert in db
-                        if (formData.imageData?.values?.Teacher?.length) {
-                            Array.from(formData.imageData.values.Teacher).map(image => {
-                                formattedName = formatImageName(image.name);
-                                API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                                API.ImageAPI.createImage({
-                                    image_src: formattedName,
-                                    parent_id: formData.teacherData.values.id,
-                                    parent: 'teacher',
-                                    type: 'normal'
-                                })
+        // delete all class sections from mapping table
+        await API.TeacherAPI.deleteFromMappingTable({ teacher_id: id });
+
+        const updatePromises = formData.teacherData.values.sections.map((innerArray, classIndex) => {
+            const teacherClass = formData.teacherData.values.classes[classIndex] || 0;
+            // Iterating through each section in the class then associating subject ids for each section of class
+            innerArray.map((sectionData, sectionIndex) => {
+                const subjectArray = formData.teacherData.values.subjects[classIndex][sectionIndex] || [];
+                console.log(teacherClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData), 'teacherClass, sectionid, subjectids innerloop');
+                API.TeacherAPI.insertIntoMappingTable(
+                    [formData.teacherData.values.id, teacherClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                );
+            });
+        });
+
+        try {
+            let status = null;
+            let formattedName;
+            await Promise.all(updatePromises);
+            const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
+            if (responses) {
+                if (!isObjEmpty(dataFields[2])) {
+                    // upload new images to backend folder and insert in db
+                    if (formData.imageData?.values?.Teacher?.length) {
+                        Array.from(formData.imageData.values.Teacher).map(image => {
+                            formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                parent_id: formData.teacherData.values.id,
+                                parent: 'teacher',
+                                type: 'normal'
                             });
-                            status = true;
-                        }
-                        // insert old images only in db & not on azure
-                        if (formData.imageData?.values) {
-                            formData.imageData.values.map(image => {
-                                API.ImageAPI.createImage({
-                                    image_src: image.image_src,
-                                    school_id: image.school_id,
-                                    parent_id: image.parent_id,
-                                    parent: image.parent,
-                                    type: image.type
-                                })
-                            });
-                            status = true;
-                        }
-                    } else {
+                        });
                         status = true;
                     }
-                    if (status) {
-                        setLoading(false);
-                        console.log("I have ended updating all fields");
-                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/teacher/listing`);
+                    // insert old images only in db & not on azure
+                    if (formData.imageData?.values) {
+                        formData.imageData.values.map(oldIimage => {
+                            API.ImageAPI.createImage({
+                                image_src: oldIimage.image_src,
+                                school_id: oldIimage.school_id,
+                                parent_id: oldIimage.parent_id,
+                                parent: oldIimage.parent,
+                                type: oldIimage.type
+                            });
+                        });
+                        status = true;
                     }
+                } else {
+                    status = true;
                 }
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                throw err;
-            });
+                if (status) {
+                    setLoading(false);
+                    console.log("I have ended updating all fields");
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/teacher/listing`);
+                }
+            }
+        } catch (err) {
+            setLoading(false);
+            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+            throw err;
+        }
     }, [formData]);
 
     const populateTeacherData = useCallback(id => {
@@ -186,7 +200,7 @@ const FormComponent = () => {
         setLoading(true);
         const username = formData.teacherData.values?.firstname.toLowerCase() + (formData.teacherData.values?.lastname ?
             `${formData.teacherData.values?.lastname.toLowerCase()}` : '');
-        const password = `${username}${ENV.VITE_SECRET_CODE}`;
+        const password = generatePassword();
 
         API.UserAPI.register({
             username: username,

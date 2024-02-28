@@ -59,7 +59,7 @@ const SchoolFormComponent = ({
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getValuesFromArray, indexToAlphabet } = Utility();
+    const { getValuesFromArray } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -508,7 +508,7 @@ const SchoolFormComponent = ({
                                                 variant="filled"
                                                 type="text"
                                                 name={`subjects.${index}.${sectionIndex}`}
-                                                label={`Subjects For Section ${indexToAlphabet(sectionIndex)}`}
+                                                label={`Subjects For Section ${section.section_name}`}
                                                 error={!!formik.touched.subjects && !!formik.errors.subjects}
                                                 helperText={formik.touched.subjects && formik.errors.subjects}
                                             />

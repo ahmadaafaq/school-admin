@@ -72,7 +72,7 @@ const FormComponent = () => {
 
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, fetchAndSetAll,
+    const { getLocalStorage, getIdsFromObject, generatePassword, findMultipleById, formatImageName, fetchAndSetAll,
         isObjEmpty, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
@@ -242,7 +242,7 @@ const FormComponent = () => {
         setLoading(true);
         const username = formData.studentData.values?.father_name || formData.studentData.values?.mother_name ||
             formData.studentData.values?.guardian;
-        const password = `${username}${ENV.VITE_SECRET_CODE}`;
+        const password = generatePassword();
         formData.studentData.values = {
             ...formData.studentData.values,
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
