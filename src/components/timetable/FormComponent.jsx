@@ -14,14 +14,12 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 
 import API from "../../apis";
-import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import PaymentFormComponent from "./PaymentFormComponent";
+import TimeTableFormComponent from "./TimeTableFormComponent";
 
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
@@ -32,24 +30,20 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        paymentData: { values: null, validated: false },
-        addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true }
+        timeTableData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
+    const [classData, setClassData] = useState([]);
 
-    //  const subjectsInRedux = useSelector(state => state.allSubjects);
+    const formSubjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
-    const paymentFormRef = useRef();
-    const addressFormRef = useRef();
-    const imageFormRef = useRef();
+    const timeTableFormRef = useRef();
+
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -59,9 +53,10 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, fetchAndSetAll,
+        isObjEmpty, toastAndNavigate } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting Payment id from url params
+    //after page refresh the id in router state becomes undefined, so getting TimeTable id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -69,12 +64,11 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updatePaymentAndAddress = useCallback(formData => {
+    const updateTimeTable = useCallback(formData => {
         const dataFields = [
-            { ...formData.paymentData.values },
-            { ...formData.addressData.values }
+            { ...formData.timeTableData.values },
         ];
-        const paths = ["/update-payment", "/update-address"];
+        const paths = ["/update-time-table"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -87,7 +81,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/payment/listing/${getLocalStorage('class')}`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/time-table/listing`);
                 };
                 setLoading(false);
             })
@@ -98,19 +92,16 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populatePaymentData = (id) => {
+    const populateTimeTableData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/payment/${id}`, `/get-address/payment/${id}`];
+        const paths = [`/get-by-pk/timetable/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
-            .then(responses => {
-                if (responses[0].data.data) {
-                    // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
-                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
-                    responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
-                }
+            .then(response => {
+                // if (response[0]?.data?.data) {
+                    
+                // }
                 const dataObj = {
-                    paymentData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
+                    timeTableData: response[0].data.data,
                 };
                 setUpdatedValues(dataObj);
                 setLoading(false);
@@ -118,74 +109,55 @@ const FormComponent = () => {
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
             });
     };
 
-    const createPayment = () => {
+
+    const createTimeTable = () => {
         setLoading(true);
-        API.PaymentAPI.createPayment({ ...formData.paymentData.values })
-            .then(({ data: payment }) => {
-                if (payment?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: payment.data.id,
-                        parent: 'payment',
-                    })
-                        .then(address => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/payment/listing`);
-                        })
-                        .catch(err => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                            throw err;
-                        });
-                };
+        API.TimeTableAPI.createTimeTable({ ...formData.timeTableData.values })
+            .then(({ data: timeTable }) => {
+                if (timeTable?.status === 'Success') {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
+                } else {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
+                }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
             });
     };
 
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
+    useEffect(() => {
+        if (!formSubjectsInRedux?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
+        }
+    }, [formSubjectsInRedux?.listData?.length]);
 
-    //Create/Update/Populate Payment
+    //Create/Update/Populate TimeTable
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populatePaymentData(id);
+            populateTimeTableData(id);
         }
-        if (formData.paymentData.validated && formData.addressData.validated) {
-            formData.paymentData.values?.id ? updatePaymentAndAddress(formData) : createPayment();
+        if (formData.timeTableData.validated) {
+            formData.timeTableData.values?.id ? updateTimeTable(formData) : createTimeTable();
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await paymentFormRef.current.Submit();
-        await addressFormRef.current.Submit();
-        // await imageFormRef.current.Submit();
+        await timeTableFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        if (form === 'payment') {
-            setFormData({ ...formData, paymentData: data });
-        } else if (form === 'address') {
-            setFormData({ ...formData, addressData: data });
-        }
-        // } else if (form === 'parent') {
-        //     setFormData({ ...formData, imageData: data });
-        // }
-    };
+        form == 'timeTable' ? setFormData({ ...formData, timeTableData: data }) : '';
+    }
 
     return (
         <Box ml="10px"
@@ -196,7 +168,7 @@ const FormComponent = () => {
                 backgroundPosition: "start",
                 backgroundSize: "cover",
                 backgroundAttachment: "fixed",
-                height:"100%"
+                height: "100%"
             }}
         >
             <Typography
@@ -209,47 +181,23 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <PaymentFormComponent
+            <TimeTableFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'payment');
+                    handleFormChange(data, 'timeTable');
                 }}
-                refId={paymentFormRef}
+                refId={timeTableFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
+                classData={classData}
+                setClassData={setClassData}
+                allSubjects={formSubjectsInRedux?.listData}
                 userId={id}
-                updatedValues={updatedValues?.paymentData}
+                updatedValues={updatedValues?.timeTableData}
             />
-            {/* <AddressFormComponent
-                onChange={(data) => {
-                    handleFormChange(data, 'address');
-                }}
-                refId={addressFormRef}
-                update={id ? true : false}
-                setDirty={setDirty}
-                reset={reset}
-                setReset={setReset}
-                updatedValues={updatedValues?.addressData}
-            /> */}
-            {/* <ImagePicker
-                key="image"
-                onChange={data => handleFormChange(data, 'parent')}
-                refId={imageFormRef}
-                reset={reset}
-                setReset={setReset}
-                setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
-                deletedImage={deletedImage}
-                setDeletedImage={setDeletedImage}
-                imageType="Guardian"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
-            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on Payment update
+                {   //hide reset button on TimeTable update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}
@@ -263,7 +211,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/payment/listing/${getLocalStorage('class') || ''}`)}>
+                    onClick={() => navigateTo(`/time-table/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

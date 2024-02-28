@@ -26,7 +26,7 @@ import API from "../../apis";
 
 import dashBg from "../assets/formBg.png";
 
-const Dashboard = () => {
+const Dashboard = ({ rolePriority = null }) => {
   const [selectedClass, setSelectedClass] = useState('');
   const [selectedSection, setSelectedSection] = useState('');
   const [dashboardCount, setDashboardCount] = useState({});
@@ -36,7 +36,8 @@ const Dashboard = () => {
   const isTab = useMediaQuery("(max-width:920px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
-  const dashboardAttributes = ['student', 'bus', 'teacher', 'employee'];
+  const dashboardAttributes = rolePriority === 1 ? ['student', 'school', 'teacher', 'employee']
+    : rolePriority !== 1 ? ['student', 'bus', 'teacher', 'employee'] : null;
 
   const options1 = {
     chart: {
@@ -139,7 +140,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    const promises = dashboardAttributes.map(attribute =>
+    const promises = dashboardAttributes !== null ? dashboardAttributes.map(attribute =>
       API.DashboardAPI.getDashboardCount(attribute)
         .then(data => {
           if (data.status === 'Success') {
@@ -152,7 +153,7 @@ const Dashboard = () => {
         })
         //Creating an object where attribute is the key and retrieved data is the value.
         .catch(error => ({ [attribute]: 0, error }))
-    );
+    ) : null;
 
     Promise.all(promises)
       .then(results => {    //Combining the results of all promises into a single object using Object.assign({}, ...results)
@@ -162,7 +163,7 @@ const Dashboard = () => {
       .catch(error => {
         console.error('Error fetching dashboard counts:', error);
       });
-  }, [])
+  }, []);
 
   return (
     <Box ml="10px"
@@ -233,30 +234,59 @@ const Dashboard = () => {
             }
           />
         </Box>
-        <Box
-          backgroundColor={colors.greenAccent[700]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          // "borderRadius="20% 80% 16% 84% / 80% 19% 81% 20%  "
-          borderRadius="20px"
-          padding={isMobile ? "8px" : "15px"}
-          gridArea="box2"
-          boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
-        >
-          <StatBox
-            title={dashboardCount.bus}
-            subtitle="Buses"
-            progress={`${(dashboardCount.bus / 500)}`}
-            increase={`${((dashboardCount.bus / 500) * 100).toFixed(2)}%`}
-            yellowColor={colors.greenAccent[700]}
-            icon={
-              <DirectionsBusIcon
-                sx={{ color: colors.primary[500], fontSize: isMobile ? "10px" : "26px" }}
+        {rolePriority === 1 ? (
+          <Box
+            backgroundColor={colors.greenAccent[700]}
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            // "borderRadius="20% 80% 16% 84% / 80% 19% 81% 20%  "
+            borderRadius="20px"
+            padding={isMobile ? "8px" : "15px"}
+            gridArea="box2"
+            boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
+          >
+            <StatBox
+              title={dashboardCount.school}
+              subtitle="schools"
+              progress={`${(dashboardCount.school / 500)}`}
+              increase={`${((dashboardCount.school / 500) * 100).toFixed(2)}%`}
+              yellowColor={colors.greenAccent[700]}
+              icon={
+                <DirectionsBusIcon
+                  sx={{ color: colors.primary[500], fontSize: isMobile ? "10px" : "26px" }}
+                />
+              }
+            />
+          </Box>
+        )
+          : rolePriority !== 1 ? (
+            <Box
+              backgroundColor={colors.greenAccent[700]}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              // "borderRadius="20% 80% 16% 84% / 80% 19% 81% 20%  "
+              borderRadius="20px"
+              padding={isMobile ? "8px" : "15px"}
+              gridArea="box2"
+              boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
+            >
+              <StatBox
+                title={dashboardCount.bus}
+                subtitle="Buses"
+                progress={`${(dashboardCount.bus / 500)}`}
+                increase={`${((dashboardCount.bus / 500) * 100).toFixed(2)}%`}
+                yellowColor={colors.greenAccent[700]}
+                icon={
+                  <DirectionsBusIcon
+                    sx={{ color: colors.primary[500], fontSize: isMobile ? "10px" : "26px" }}
+                  />
+                }
               />
-            }
-          />
-        </Box>
+            </Box>
+          )
+            : null}
         <Box
           backgroundColor={colors.blueAccent[700]}
           display="flex"
@@ -313,7 +343,7 @@ const Dashboard = () => {
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>
-    </Box>
+    </Box >
   );
 };
 

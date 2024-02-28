@@ -32,6 +32,7 @@ import EngineeringIcon from '@mui/icons-material/Engineering';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
+import HourglassBottomTwoToneIcon from '@mui/icons-material/HourglassBottomTwoTone';
 
 import API from "../../apis";
 import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
@@ -377,6 +378,14 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
                 title="School Duration"
                 to="/school-duration/listing"
+                icon={<HourglassBottomTwoToneIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={4}
+              />
+              <SidebarItem
+                title="Time Table"
+                to="/time-table/listing"
                 icon={<BackupTableIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
