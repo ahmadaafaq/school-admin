@@ -27,6 +27,7 @@ import { setStudentsReducer } from "./StudentReducer";
 import { setAllSubjectsReducer } from "./SubjectReducer";
 import { setListingSubjectsReducer } from "./SubjectReducer";
 import { setSchoolSubjectsReducer } from "./SubjectReducer";
+import { setTimeTablesReducer } from "./TimeTableReducer";
 import { setTeachersReducer } from "./TeacherReducer";
 import { setUsersReducer } from "./UserReducer";
 import { setEmployeesReducer } from "./EmployeeReducer";
@@ -53,6 +54,7 @@ const reducers = combineReducers({
     allSubjects: setAllSubjectsReducer,
     listingSubjects: setListingSubjectsReducer,
     schoolSubjects: setSchoolSubjectsReducer,
+    allTimeTables: setTimeTablesReducer,
     allTeachers: setTeachersReducer,
     allUsers: setUsersReducer,
     allEmployees: setEmployeesReducer,

@@ -21,6 +21,7 @@ import { SectionAPI } from "./SectionAPI";
 import { StateAPI } from "./StateAPI";
 import { StudentAPI } from "./StudentAPI";
 import { SubjectAPI } from "./SubjectAPI";
+import { TimeTableAPI } from  "./TimeTableAPI";
 import { TeacherAPI } from "./TeacherAPI";
 import { UserAPI } from "./UserAPI";
 import { EmployeeAPI } from "./EmployeeAPI";
@@ -45,6 +46,7 @@ export default {
     StateAPI,
     StudentAPI,
     SubjectAPI,
+    TimeTableAPI,
     TeacherAPI,
     UserAPI,
     EmployeeAPI,

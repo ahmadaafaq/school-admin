@@ -280,7 +280,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
           </MenuItem>
 
           <Divider />
-          <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[300], justifyContent: "center" }}>
+          <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[300] }}>
             <ListItemIcon >
               <Logout fontSize="medium" sx={{ color: colors.blueAccent[300] }} />
             </ListItemIcon>
