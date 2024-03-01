@@ -19,9 +19,10 @@ import Snackbar from "@mui/material/Snackbar";
 import API from "../../apis";
 import marksheetValidation from "./Validation";
 
-// import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setMarksheetClassData } from "../../redux/actions/MarksheetAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setStudents } from "../../redux/actions/StudentAction";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
@@ -29,13 +30,13 @@ const initialValues = {
     student: "",
     class: "",
     section: "",
-    subjects: [],
     term: "",
+    result: "",
+    subjects: [],
     marks_obtained: "",
     total_marks: "",
     grade: "",
     remark: "",
-    result: ""
 };
 
 const MarksheetFormComponent = ({
@@ -49,17 +50,17 @@ const MarksheetFormComponent = ({
     updatedValues = null
 }) => {
 
-    const [initialState, setInitialState] = useState(initialValues);
-    const [filteredSubjects, setFilteredSubjects] = useState([]);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const subjectsInRedux = useSelector(state => state.allSubjects);
-    const studentInRedux = useSelector(state => state.allStudents);
+
+    const allSubjects = useSelector(state => state.allSubjects);
+    const allStudents = useSelector(state => state.allStudents);
     const { marksheetClassData } = useSelector(state => state.allMarksheets);
 
+    const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData, getStudents } = useCommon();
-    const { findById, getLocalStorage } = Utility();
+    const { getStudents } = useCommon();
+    const { findMultipleById, fetchAndSetAll } = Utility();
 
     const [state, setState] = useState({
         vertical: 'top',
@@ -68,15 +69,11 @@ const MarksheetFormComponent = ({
     const { vertical, horizontal } = state;
 
     const formik = useFormik({
-        initialValues: initialState,
+        initialValues: initialValues,
         validationSchema: marksheetValidation,
         enableReinitialize: true,
         onSubmit: () => watchForm()
     });
-
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
 
     React.useImperativeHandle(refId, () => ({
         Submit: async () => {
@@ -107,57 +104,84 @@ const MarksheetFormComponent = ({
             setDirty(true);
         }
     }, [formik.dirty]);
+
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
+
+    useEffect(() => {
+        // this will run when creating marksheet
+        if (marksheetClassData?.classDataObj) {
+            formik.setFieldValue("class", marksheetClassData.classDataObj.class_name);
+            formik.setFieldValue("section", marksheetClassData.classDataObj.section_name);
+            formik.setFieldValue("subjects", marksheetClassData.classDataObj.subject_ids.split(","));
+            getStudents(marksheetClassData.classDataObj.class_id, marksheetClassData.classDataObj.section_id, setStudents, API);
+        }
+    }, [marksheetClassData?.classDataObj]);
     console.log(marksheetClassData, 'marksheetClassData in form')
+    console.log(updatedValues, 'updated')
+
+
+    useEffect(() => {
+        if (!allSubjects?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
+        }
+    }, [allSubjects?.listData?.length]);
 
     useEffect(() => {
         if (updatedValues) {
-            console.log(updatedValues, 'these are updated values if condition')
             let subjectIds = [];
-            updatedValues.rows.map((sub, index) => {
+            updatedValues.map((sub, index) => {
                 formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
                 formik.setFieldValue(`total_marks_${index}`, sub.total_marks);
                 formik.setFieldValue(`grade_${index}`, sub.grade);
                 formik.setFieldValue(`remark_${index}`, sub.remark);
                 subjectIds.push(sub.subject_id);
-            })
-            let classSubjects = [];
-            subjectIds?.map(sub => {
-                classSubjects.push({
-                    subject_id: sub,
-                    subject_name: findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name
-                });
-            })
-            if (classSubjects.length) {
-                setFilteredSubjects(classSubjects);
-                formik.setFieldValue("class", updatedValues?.rows[0]?.class_id);
-                formik.setFieldValue("section", updatedValues?.rows[0]?.section_id);
-                formik.setFieldValue("student", updatedValues?.rows[0]?.studentId);
-                // getStudents(selectedClass?.class_id, selectedSection?.id, setStudents, API);
-            }
+            });
+            const classSubjects = subjectIds?.length ? findMultipleById(subjectIds.join(','), allSubjects?.listData) : [];
+            console.log(classSubjects, 'subjects');
+            dispatch(setMarksheetClassData({
+                selectedSubjects: classSubjects
+            }));
         }
     }, [updatedValues]);
 
-    // useEffect(() => {
-    //     let classSubjects = [];
-    //     selectedClass?.class_subjects?.split(',').map(sub => {
-    //         classSubjects.push({
-    //             subject_id: sub,
-    //             subject_name: findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name
-    //         });
-    //     });
-    //     if (classSubjects.length) {
-    //         setFilteredSubjects(classSubjects);
-    //         initialValues.class = selectedClass?.class_name;
-    //         initialValues.section = selectedSection?.name;
-    //         initialValues.subjects = selectedClass?.class_subjects?.split(',');
-    //         initialValues.student = formik.values.student;
-    //         getStudents(selectedClass?.class_id, selectedSection?.id, setStudents, API);
-    //     }
 
-    //     if (updatedValues?.rows[0]?.term) {
-    //         formik.values.term = updatedValues?.rows[0]?.term;
+
+
+
+
+
+
+    // useEffect(() => {
+    //     if (updatedValues) {
+    //         console.log(updatedValues, 'these are updated values if condition')
+    //         let subjectIds = [];
+    //         updatedValues.rows.map((sub, index) => {
+    //             formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
+    //             formik.setFieldValue(`total_marks_${index}`, sub.total_marks);
+    //             formik.setFieldValue(`grade_${index}`, sub.grade);
+    //             formik.setFieldValue(`remark_${index}`, sub.remark);
+    //             subjectIds.push(sub.subject_id);
+    //         })
+    //         let classSubjects = [];
+    //         subjectIds?.map(sub => {
+    //             classSubjects.push({
+    //                 subject_id: sub,
+    //                 subject_name: findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name
+    //             });
+    //         })
+    //         if (classSubjects.length) {
+    //             setFilteredSubjects(classSubjects);
+    //             formik.setFieldValue("class", updatedValues?.rows[0]?.class_id);
+    //             formik.setFieldValue("section", updatedValues?.rows[0]?.section_id);
+    //             formik.setFieldValue("student", updatedValues?.rows[0]?.studentId);
+    //             getStudents(selectedClass?.class_id, selectedSection?.id, setStudents, API);
+    //         }
     //     }
-    // }, [subjectsInRedux?.listData?.rows, selectedClass?.class_id])
+    // }, [updatedValues]);
+
 
     return (
         <Box m="20px">
@@ -186,14 +210,14 @@ const MarksheetFormComponent = ({
                         variant="filled"
                         type="text"
                         label="Class"
-                        value={formik.values.class}
+                        value={formik.values.class || ''}
                     />
                     <TextField
                         fullWidth
                         variant="filled"
                         type="text"
                         label="Section"
-                        value={formik.values.section}
+                        value={formik.values.section || ''}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.student && !!formik.errors.student}
@@ -202,16 +226,15 @@ const MarksheetFormComponent = ({
                         <Select
                             labelId="studentField"
                             name="student"
-                            value={studentId}
-                            onChange={event => {
-                                formik.setFieldValue("student", event.target.value);
-                            }}
+                            value={formik.values.student || ''}
+                            onChange={event => formik.setFieldValue("student", event.target.value)}
                         >
-                            {studentInRedux?.listData?.rows?.length && studentInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                    {`${item.firstname} ${item.lastname}`}
-                                </MenuItem>
-                            ))}
+                            {!allStudents?.listData?.rows?.length ? null :
+                                allStudents.listData.rows.map(item => (
+                                    <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
+                                        {`${item.firstname} ${item.lastname}`}
+                                    </MenuItem>
+                                ))}
                         </Select>
                         <FormHelperText>{formik.touched.student && formik.errors.student}</FormHelperText>
                     </FormControl>
@@ -235,8 +258,8 @@ const MarksheetFormComponent = ({
                 </Box>
 
                 <Box style={{ display: 'grid', gap: '10px', width: '171vh', gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
-                    {!marksheetClassData ? null :
-                        marksheetClassData.map((subject, index) => (
+                    {!marksheetClassData?.selectedSubjects ? null :
+                        marksheetClassData.selectedSubjects.map((subject, index) => (
                             <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '10px', }}>
                                 <Box style={{ width: "28vh", marginTop: "20px" }}>{subject?.name}</Box>
                                 {/* Add individual fields for each subject */}
@@ -274,7 +297,7 @@ const MarksheetFormComponent = ({
                                     label={`Grade*`}
                                     onBlur={formik.handleBlur}
                                     onChange={formik.handleChange}
-                                    value={formik.values[`grade_${index}`]} // Use the index here
+                                    value={formik.values[`grade_${index}`]}
                                     error={!!formik.touched[`grade_${index}`] && !!formik.errors[`grade_${index}`]}
                                     helperText={formik.touched[`grade_${index}`] && formik.errors[`grade_${index}`]}
                                     sx={{ width: "15vh", marginLeft: "-14vh" }}
@@ -287,7 +310,7 @@ const MarksheetFormComponent = ({
                                     label={`Remark`}
                                     onBlur={formik.handleBlur}
                                     onChange={formik.handleChange}
-                                    value={formik.values[`remark_${index}`]} // Use the index here
+                                    value={formik.values[`remark_${index}`]}
                                     error={!!formik.touched[`remark_${index}`] && !!formik.errors[`remark_${index}`]}
                                     helperText={formik.touched[`remark_${index}`] && formik.errors[`remark_${index}`]}
                                     sx={{ width: "65vh", marginLeft: "-32vh" }}
@@ -296,7 +319,23 @@ const MarksheetFormComponent = ({
                         ))}
                 </Box>
 
-
+                <FormControl variant="filled" sx={{ minWidth: 280, mt: 5 }}
+                    error={!!formik.touched.result && !!formik.errors.result}
+                >
+                    <InputLabel id="resultField">Result</InputLabel>
+                    <Select
+                        variant="filled"
+                        labelId="resultField"
+                        name="result"
+                        value={formik.values.result}
+                        onChange={formik.handleChange}
+                    >
+                        <MenuItem value={"pass"}>Pass</MenuItem>
+                        <MenuItem value={"fail"}>Fail</MenuItem>
+                        <MenuItem value={"not_declared_yet"}>Not Declared Yet</MenuItem>
+                    </Select>
+                    <FormHelperText>{formik.touched.result && formik.errors.result}</FormHelperText>
+                </FormControl>
 
                 {/* <Box style={{ display: 'grid', gap: '10px', width: '171vh', gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
                     {!updatedValues && filteredSubjects?.length && filteredSubjects.map((subject, index) => (
@@ -422,30 +461,6 @@ const MarksheetFormComponent = ({
                     })}
                 </Box> */}
 
-                {/* <Box display="grid"
-                    gap="10px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginTop: "30px"
-                    }}>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.result && !!formik.errors.result}
-                    >
-                        <InputLabel id="resultField">Result</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="resultField"
-                            name="result"
-                            value={formik.values.result}
-                            onChange={formik.handleChange}
-                        >
-                            <MenuItem value={"pass"}>Pass</MenuItem>
-                            <MenuItem value={"fail"}>Fail</MenuItem>
-                            <MenuItem value={"not_declared_yet"}>Not Declared Yet</MenuItem>
-                        </Select>
-                        <FormHelperText>{formik.touched.result && formik.errors.result}</FormHelperText>
-                    </FormControl>
-                </Box> */}
             </form>
         </Box>
     );
@@ -461,7 +476,7 @@ MarksheetFormComponent.propTypes = {
     setReset: PropTypes.func,
     userId: PropTypes.number,
     studentId: PropTypes.number,
-    updatedValues: PropTypes.object
+    updatedValues: PropTypes.array
 };
 
 export default MarksheetFormComponent;

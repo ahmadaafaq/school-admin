@@ -26,6 +26,7 @@ import ChangePwModal from "../models/ChangePwModal";
 import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { ColorModeContext, tokens } from "../../theme";
 import { Utility } from "../utility";
+import { useNavigate } from "react-router-dom";
 
 const Topbar = ({ roleName = null, rolePriority = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -36,6 +37,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
   const allSchools = useSelector(state => state.allSchools);
 
   const dispatch = useDispatch();
+  const navigateTo = useNavigate();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
@@ -61,6 +63,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
 
   const handleSignOut = () => {
     localStorage.clear();
+    navigateTo('/login', { replace: true });
     location.reload();
   };
 

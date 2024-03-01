@@ -174,7 +174,7 @@ const Sidebar = ({ rolePriority }) => {
           backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#141b2d',
           borderRadius: " 20px 0 0px 20px;",
           boxShadow: "1px 1px 7px black",
-          marginTop:"5px"
+          marginTop: "5px"
         },
         "& .pro-menu-item:hover": {
           color: theme.palette.mode === 'light' ? `#868dfb !important` : `black !important`,
@@ -221,7 +221,7 @@ const Sidebar = ({ rolePriority }) => {
                 ml="5px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  {rolePriority > 1 ? getLocalStorage("auth")?.designation.charAt(0).toUpperCase() + getLocalStorage("auth")?.designation.slice(1) :
+                  {rolePriority > 1 ? getLocalStorage("auth")?.designation?.charAt(0)?.toUpperCase() + getLocalStorage("auth")?.designation?.slice(1) :
                     'Company Name'}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -376,21 +376,21 @@ const Sidebar = ({ rolePriority }) => {
               menuVisibility={4}
             />
             <SidebarItem
-                title="School Duration"
-                to="/school-duration/listing"
-                icon={<HourglassBottomTwoToneIcon />}
-                selected={selected}
-                rolePriority={rolePriority}
-                menuVisibility={4}
-              />
-              <SidebarItem
-                title="Time Table"
-                to="/time-table/listing"
-                icon={<BackupTableIcon />}
-                selected={selected}
-                rolePriority={rolePriority}
-                menuVisibility={4}
-              />
+              title="School Duration"
+              to="/school-duration/listing"
+              icon={<HourglassBottomTwoToneIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
+            <SidebarItem
+              title="Time Table"
+              to="/time-table/listing"
+              icon={<BackupTableIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
             {rolePriority < 2 && <>
               < Typography
                 variant="h6"

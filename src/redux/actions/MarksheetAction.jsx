@@ -18,10 +18,10 @@ export const setMarksheets = (marksheets) => {
     };
 };
 
-export const setMarksheetClassData = (classData) => {
+export const setMarksheetClassData = (classDataObj) => {
     return {
         type: ActionTypes.MARKSHEET_CLASSDATA,
-        payload: classData
+        payload: classDataObj
     };
 };
 

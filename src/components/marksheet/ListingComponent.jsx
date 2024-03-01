@@ -35,7 +35,7 @@ import listBg from "../assets/listBG.jpg";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
-    const [classSectionObj, setClassSectionObj] = useState({});
+    const [classSectionObj, setClassSectionObj] = useState(null);
     const [classData, setClassData] = useState([]);
     const schoolClasses = useSelector(state => state.schoolClasses);
     const allClasses = useSelector(state => state.allClasses);
@@ -86,7 +86,6 @@ const ListingComponent = ({ rolePriority = null }) => {
             const classSections = classData?.filter(obj => obj.class_id === classSectionObj?.class_id) || [];
             const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
             dispatch(setSchoolSections(selectedSections));
-            console.log(classSections, selectedSections, 'ग स मोतता्')
         };
         getAndSetSections();
     }, [classSectionObj?.class_id]);
@@ -95,8 +94,11 @@ const ListingComponent = ({ rolePriority = null }) => {
         const getAndSetSubjects = () => {
             const sectionSubjects = classData?.filter(obj => obj.class_id === classSectionObj?.class_id && obj.section_id === classSectionObj?.section_id);
             const selectedSubjects = sectionSubjects ? findMultipleById(sectionSubjects[0]?.subject_ids, allSubjects?.listData) : [];
-            dispatch(setMarksheetClassData(selectedSubjects));
-            console.log(sectionSubjects, selectedSubjects, 'subjecvts of class')
+            dispatch(setMarksheetClassData({
+                selectedSubjects: selectedSubjects,
+                classDataObj: sectionSubjects[0]
+            }));
+            console.log(sectionSubjects, selectedSubjects, 'subjects of class')
         };
         getAndSetSubjects();
     }, [classSectionObj?.section_id, allSubjects?.listData?.length]);
@@ -121,31 +123,34 @@ const ListingComponent = ({ rolePriority = null }) => {
     }, []);
     console.log(classSectionObj, 'classSectionObj');
 
+    // to bring marksheet data for selected class & section selected in dropdown
+    let classConditionObj = classSectionObj?.class_id ? {
+        classId: classSectionObj.class_id
+    } : null;
 
-    // let classConditionObj = marksheetClass?.class_id ? {
-    //     classId: marksheetClass.class_id
-    // } : null;
+    classConditionObj = classSectionObj?.section_id ? {
+        ...classConditionObj,
+        sectionId: classSectionObj.section_id
+    } : null;
 
-    // classConditionObj = marksheetSection?.id ? {
-    //     ...classConditionObj,
-    //     sectionId: marksheetSection.id
-    // } : null;
+    useEffect(() => {
+        if (classSectionObj?.class_id && classSectionObj?.section_id) {
+            getPaginatedData(0, 8, setMarksheets, API.MarksheetAPI, classConditionObj);
+            console.log({ classConditionObj }, 'classcondi');
+        }
+    }, [classConditionObj?.classId, classConditionObj?.sectionId]);
 
-    // useEffect(() => {
-    //     console.log({ classConditionObj });
-    //     if (classConditionObj?.classId && classConditionObj?.sectionId) {
-    //         getPaginatedData(0, 5, setMarksheets, API.MarksheetAPI, classConditionObj);
-    //         setConditionObj(classConditionObj);
-    //     }
-    // }, [classConditionObj?.classId, classConditionObj?.sectionId]);
-
-    // useEffect(() => {
-    //     if (listData?.rows?.length) {
-    //         dispatch(setMarksheetClass(findById(listData.rows[0].class_id, formClassesInRedux?.listData)));
-    //         dispatch(setMarksheetSection(findById(listData.rows[0].section_id, formSectionsInRedux?.listData)));
-    //         console.log('SET CLASS AND SECTION');
-    //     }
-    // }, [listData?.rows]);
+    // to set default class & section id in dropdowns
+    useEffect(() => {
+        if (listData?.rows?.length && !classSectionObj?.class_id && !classSectionObj?.section_id) {
+            setClassSectionObj({
+                ...classSectionObj,
+                class_id: listData.rows[0].class_id,
+                section_id: listData.rows[0].section_id
+            });
+            console.log('SET CLASS AND SECTION');
+        }
+    }, [listData?.rows?.length]);
 
 
     return (
@@ -198,7 +203,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         <Select
                             variant="filled"
                             labelId="classfield"
-                            value={classSectionObj?.class_id}
+                            value={classSectionObj?.class_id || ''}
                             onChange={(event) => setClassSectionObj({ ...classSectionObj, class_id: event.target.value })}
                             sx={{ backgroundColor: colors.blueAccent[800] }}
                         >
@@ -220,7 +225,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         <Select
                             variant="filled"
                             labelId="sectionfield"
-                            value={classSectionObj?.section_id}
+                            value={classSectionObj?.section_id || ''}
                             onChange={(event) => setClassSectionObj({ ...classSectionObj, section_id: event.target.value })}
                             sx={{ backgroundColor: colors.primary[400] }}
                         >
@@ -273,7 +278,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setMarksheets}
                 api={API.MarksheetAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns(rolePriority)}
+                columns={datagridColumns(rolePriority, setClassSectionObj)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -282,7 +287,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
-            // condition={conditionObj}
+                condition={classConditionObj}
             />
         </Box>
     );

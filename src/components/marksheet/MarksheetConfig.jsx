@@ -29,20 +29,20 @@ export const datagridColumns = (rolePriority = null) => {
     const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id, student_id) => {
-        navigateTo(`/marksheet/update/${id}`, { state: { id: id, student_id: student_id } });
+        navigateTo(`/marksheet/update/${student_id}`, { state: { id: id, student_id: student_id } });
     };
 
     const columns = [
         {
-            field: "NAME",
-            headerName: "NAME",
+            field: "student_id",
+            headerName: "Student Id",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "class",
+            field: "class_id",
             headerName: "CLASS",
             headerAlign: "center",
             align: "center",
@@ -67,12 +67,12 @@ export const datagridColumns = (rolePriority = null) => {
             }
         },
         {
-            field: "subjects",
+            field: "subject_id",
             headerName: "Subjects",
             headerAlign: "center",
             align: "center",
             flex: 2,
-            minWidth: 120
+            minWidth: 80
         },
         {
             field: "term",

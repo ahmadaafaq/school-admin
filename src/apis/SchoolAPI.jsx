@@ -90,7 +90,7 @@ export const SchoolAPI = {
    */
   deleteFromMappingTable: async (fields, cancel = false) => {
     return await api.request({
-      url: `/delete-from-mapping-table`,
+      url: `/delete-from-school-mapping`,
       headers: {
         "x-access-token": getLocalStorage("auth").token
       },
