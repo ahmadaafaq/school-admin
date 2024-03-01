@@ -72,7 +72,6 @@ function App() {
   const [userRole, setUserRole] = useState({ name: '', priority: null });
   const [theme, colorMode] = useMode();
   const navigateTo = useNavigate();
-
   const { pathname } = useLocation();
   const { getLocalStorage, getRoleAndPriorityById, setLocalStorage, verifyToken } = Utility();
 

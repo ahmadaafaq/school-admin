@@ -81,10 +81,22 @@ const FormComponent = () => {
 
         const dataFields = [
             { ...formData.teacherData.values },
-            { ...formData.addressData.values },
-            { ...formData.imageData.values }
+            { ...formData.addressData.values }
         ];
-        console.log("Datafields in update=>", dataFields)
+
+        try {
+            const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
+            if (responses) {
+                updateImageAndClassData(formData);
+            }
+        } catch (err) {
+            setLoading(false);
+            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+            throw err;
+        }
+    }, [formData]);
+
+    const updateImageAndClassData = useCallback(async formData => {
 
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
@@ -108,7 +120,6 @@ const FormComponent = () => {
             // Iterating through each section in the class then associating subject ids for each section of class
             innerArray.map((sectionData, sectionIndex) => {
                 const subjectArray = formData.teacherData.values.subjects[classIndex][sectionIndex] || [];
-                console.log(teacherClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData), 'teacherClass, sectionid, subjectids innerloop');
                 API.TeacherAPI.insertIntoMappingTable(
                     [formData.teacherData.values.id, teacherClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
                 );
@@ -119,51 +130,48 @@ const FormComponent = () => {
             let status = null;
             let formattedName;
             await Promise.all(updatePromises);
-            const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
-            if (responses) {
-                if (!isObjEmpty(dataFields[2])) {
-                    // upload new images to backend folder and insert in db
-                    if (formData.imageData?.values?.Teacher?.length) {
-                        Array.from(formData.imageData.values.Teacher).map(image => {
-                            formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                parent_id: formData.teacherData.values.id,
-                                parent: 'teacher',
-                                type: 'normal'
-                            });
+            if (!isObjEmpty(formData.imageData.values)) {
+                // upload new images to backend folder and insert in db
+                if (formData.imageData?.values?.Teacher?.length) {
+                    Array.from(formData.imageData.values.Teacher).map(image => {
+                        formattedName = formatImageName(image.name);
+                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                        API.ImageAPI.createImage({
+                            image_src: formattedName,
+                            parent_id: formData.teacherData.values.id,
+                            parent: 'teacher',
+                            type: 'normal'
                         });
-                        status = true;
-                    }
-                    // insert old images only in db & not on azure
-                    if (formData.imageData?.values) {
-                        formData.imageData.values.map(oldIimage => {
-                            API.ImageAPI.createImage({
-                                image_src: oldIimage.image_src,
-                                school_id: oldIimage.school_id,
-                                parent_id: oldIimage.parent_id,
-                                parent: oldIimage.parent,
-                                type: oldIimage.type
-                            });
-                        });
-                        status = true;
-                    }
-                } else {
+                    });
                     status = true;
                 }
-                if (status) {
-                    setLoading(false);
-                    console.log("I have ended updating all fields");
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/teacher/listing`);
+                // insert old images only in db & not on azure
+                if (formData.imageData?.values) {
+                    formData.imageData.values.map(oldIimage => {
+                        API.ImageAPI.createImage({
+                            image_src: oldIimage.image_src,
+                            school_id: oldIimage.school_id,
+                            parent_id: oldIimage.parent_id,
+                            parent: oldIimage.parent,
+                            type: oldIimage.type
+                        });
+                    });
+                    status = true;
                 }
+            } else {
+                status = true;
+            }
+            if (status) {
+                setLoading(false);
+                console.log("I have ended updating all fields");
+                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/teacher/listing`);
             }
         } catch (err) {
             setLoading(false);
             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
             throw err;
         }
-    }, [formData]);
+    }, []);
 
     const populateTeacherData = useCallback(id => {
         setLoading(true);

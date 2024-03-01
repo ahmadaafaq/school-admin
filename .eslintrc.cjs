@@ -15,7 +15,7 @@ module.exports = {
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended'
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],    // Specifies files and directories to be ignored by ESLint
+  ignorePatterns: ['dist', 'node_modules', '.eslintrc.cjs'],    // Specifies files and directories to be ignored by ESLint
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
   settings: { react: { version: '18.2' } },
   plugins: ['react-refresh'],                   // Specifies the ESLint plugins to use

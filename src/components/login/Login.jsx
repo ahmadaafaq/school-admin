@@ -50,7 +50,7 @@ const Login = () => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   const { typography } = themeSettings(theme.palette.mode);
-  const { getLocalStorage, toastAndNavigate, setLocalStorage } = Utility();
+  const { getLocalStorage, remLocalStorage, setLocalStorage, toastAndNavigate } = Utility();
 
   const boxstyle = {
     position: "absolute",
@@ -96,6 +96,7 @@ const Login = () => {
               setLocalStorage("menu", { selected: splittedPath[splittedPath.length - 2] });
               dispatch(setMenuItem(splittedPath[splittedPath.length - 2]));
               navigateTo(`${getLocalStorage("navigatedPath")}`);
+              remLocalStorage("navigatedPath");       //removing path after navigating user
             } else {
               navigateTo("/");
             }

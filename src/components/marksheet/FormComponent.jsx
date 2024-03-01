@@ -20,7 +20,7 @@ import MarksheetFormComponent from "./MarksheetFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
-import { Utility } from "../utility";// ... (imports)
+import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
 
@@ -35,7 +35,7 @@ const FormComponent = () => {
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    const { marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
+    const { marksheetClassData } = useSelector(state => state.allMarksheets);
     const selected = useSelector((state) => state.menuItems.selected);
     const toastInfo = useSelector((state) => state.toastInfo);
     const marksheetFormRef = useRef();
@@ -64,14 +64,7 @@ const FormComponent = () => {
             .then(({ data: marksheet }) => {
                 if (marksheet?.status === "Success") {
                     setLoading(false);
-                    toastAndNavigate(
-                        dispatch,
-                        true,
-                        "info",
-                        "Successfully Updated",
-                        navigateTo,
-                        `/${selected.toLowerCase()}/listing`
-                    );
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/marksheet/listing');
                 }
             })
             .catch((err) => {
@@ -81,21 +74,24 @@ const FormComponent = () => {
             });
     }, []);
 
-    const populateMarksheetData = useCallback((id, student_id) => {
+    const populateMarksheetData = useCallback(student_id => {
         setLoading(true);
-        const path = [`/get-marksheet/?page=0&size=15&student=${student_id}`];
+        const path = [`/get-marksheet/?page=0&size=10&student=${student_id}`];
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
-                const dataObj = {
-                    marksheetData: response[0].data.data
-                };
-                setUpdatedValues(dataObj);
-                setLoading(false);
+                if (response[0].data.status === 'Success') {
+                    const dataObj = {
+                        marksheetData: response[0].data.data.rows
+                    };
+                    console.log(dataObj, 'marksheet response')
+                    setUpdatedValues(dataObj);
+                    setLoading(false);
+                }
             })
             .catch((err) => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
     }, []);
@@ -105,9 +101,10 @@ const FormComponent = () => {
         setLoading(true);
         let payload = {
             student_id: formData.marksheetData.values.student,
-            class_id: marksheetClass?.class_id,
-            section_id: marksheetSection?.id,
-            term: formData.marksheetData.values.term
+            class_id: marksheetClassData.classDataObj.class_id,
+            section_id: marksheetClassData.classDataObj.section_id,
+            term: formData.marksheetData.values.term,
+            result: formData.marksheetData.values.result
         };
 
         promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
@@ -117,36 +114,28 @@ const FormComponent = () => {
                 marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
                 total_marks: formData.marksheetData.values[`total_marks_${index}`],
                 grade: formData.marksheetData.values[`grade_${index}`],
-                remark: formData.marksheetData.values[`remark_${index}`] ? formData.marksheetData.values[`remark_${index}`] : '',
-                result: formData.marksheetData.values.result
+                remark: formData.marksheetData.values[`remark_${index}`]
             }
             API.MarksheetAPI.createMarksheet(payload);
         });
 
-        try {
-            const responses = Promise.all(promises);
-            // Check if all responses are successful
-            const isSuccess = responses.every(response => response.data.status === "Success");
-
-            if (isSuccess) {
+        return Promise.all(promises)
+            .then(() => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
-            } else {
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/marksheet/listing/');
+            })
+            .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", "Failed to create marksheet for one or more subjects");
-            }
-        } catch (err) {
-            setLoading(false);
-            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred");
-            throw err;
-        }
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log("error creating marksheet", err);
+            });
     }, []);
 
     //Create/Update/Populate marksheet
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateMarksheetData(id, student_id);
+            populateMarksheetData(student_id);
         }
         if (formData.marksheetData.validated) {
             formData.marksheetData.values?.id ? updateMarksheet(formData) : createMarksheet(formData);
@@ -161,9 +150,7 @@ const FormComponent = () => {
     };
 
     const handleFormChange = (data, form) => {
-        if (form === "marksheet") {
-            setFormData({ ...formData, marksheetData: data });
-        }
+        form === "marksheet" ? setFormData({ ...formData, marksheetData: data }) : null;
     };
 
     return (
