@@ -186,7 +186,7 @@ function App() {
                       <Route exact path="/school-duration/listing" element={<SchoolDurationListingComponent rolePriority={userRole.priority} />} />
 
                       <Route exact path="/time-table/create" element={<TimeTableFormComponent />} />
-                      <Route exact path="/time-table/update/:id" element={<TimeTableFormComponent />} />
+                      <Route exact path="/time-table/update/:class_id/:section_id" element={<TimeTableFormComponent />} />
                       <Route exact path="/time-table/listing" element={<TimeTableListingComponent rolePriority={userRole.priority} />} />
                     </>}
 
