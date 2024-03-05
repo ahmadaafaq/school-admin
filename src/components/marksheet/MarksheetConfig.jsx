@@ -28,8 +28,8 @@ export const datagridColumns = (rolePriority = null) => {
     const colors = tokens(theme.palette.mode);
     const { appendSuffix, findById } = Utility();
 
-    const handleActionEdit = (id, student_id) => {
-        navigateTo(`/marksheet/update/${student_id}`, { state: { id: id, student_id: student_id } });
+    const handleActionEdit = (id, student_id, term) => {
+        navigateTo(`/marksheet/update/${student_id}`, { state: { id: id, student_id: student_id, term: term } });
     };
 
     const columns = [
@@ -65,14 +65,6 @@ export const datagridColumns = (rolePriority = null) => {
                     </div>
                 );
             }
-        },
-        {
-            field: "subject_id",
-            headerName: "Subjects",
-            headerAlign: "center",
-            align: "center",
-            flex: 2,
-            minWidth: 80
         },
         {
             field: "term",
@@ -122,7 +114,7 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id, student_id } }) => {
+            renderCell: ({ row: { id, student_id, term } }) => {
                 return (
                     <Box width="30%"
                         m="0 auto"
@@ -130,7 +122,7 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            onClick={() => handleActionEdit(id, student_id)}
+                            onClick={() => handleActionEdit(id, student_id, term)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />

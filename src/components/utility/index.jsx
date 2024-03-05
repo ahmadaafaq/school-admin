@@ -153,7 +153,7 @@ export const Utility = () => {
                         const uniqueSectionsDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
                         dispatch(setSectionsAction(uniqueSectionsDataArray));
                     }
-                    if (setClassData) {    //setting all classData in local state then filtering subjects according to class sections
+                    if (setClassData) {    //setting all classData in local state
                         setClassData(classData.data);
                     }
                 } else {

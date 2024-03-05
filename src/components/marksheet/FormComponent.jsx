@@ -50,8 +50,8 @@ const FormComponent = () => {
     const { state } = useLocation();
     const { toastAndNavigate, getLocalStorage } = Utility();
 
-    let id = state?.id || userParams?.id;
-    let student_id = state?.student_id;
+    let student_id = state?.student_id || userParams?.student_id;
+    let term = state?.term;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -59,24 +59,45 @@ const FormComponent = () => {
     }, []);
 
     const updateMarksheet = useCallback(formData => {
+        let promises = [];
         setLoading(true);
-        API.MarksheetAPI.updateMarksheet({ ...formData.marksheetData.values })
-            .then(({ data: marksheet }) => {
-                if (marksheet?.status === "Success") {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/marksheet/listing');
-                }
-            })
-            .catch((err) => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
-    }, []);
+        let payload = {
+            session: formData.marksheetData.values.session,
+            student_id: formData.marksheetData.values.student,
+            class_id: marksheetClassData.classDataObj.class_id,
+            section_id: marksheetClassData.classDataObj.section_id,
+            term: formData.marksheetData.values.term
+        };
 
-    const populateMarksheetData = useCallback(student_id => {
+        promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
+            payload = {
+                ...payload,
+                subject_id: subjectId,
+                id: formData.marksheetData.values[`dbId_${index}`],
+                marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
+                total_marks: formData.marksheetData.values[`total_marks_${index}`],
+                grade: formData.marksheetData.values[`grade_${index}`],
+                remark: formData.marksheetData.values[`remark_${index}`],
+                result: formData.marksheetData.values[`result_${index}`]
+            }
+            API.MarksheetAPI.updateMarksheet(payload);
+        });
+
+        return Promise.all(promises)
+            .then(() => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/marksheet/listing');
+            })
+            .catch(err => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log("error updating marksheet", err);
+            });
+    }, [formData]);
+
+    const populateMarksheetData = useCallback((student_id, term) => {
         setLoading(true);
-        const path = [`/get-marksheet/?page=0&size=10&student=${student_id}`];
+        const path = [`/get-marksheet/?page=0&size=10&student=${student_id}&term=${term}`];
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
@@ -84,7 +105,6 @@ const FormComponent = () => {
                     const dataObj = {
                         marksheetData: response[0].data.data.rows
                     };
-                    console.log(dataObj, 'marksheet response')
                     setUpdatedValues(dataObj);
                     setLoading(false);
                 }
@@ -94,17 +114,17 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    }, []);
+    }, [student_id, term]);
 
     const createMarksheet = useCallback(formData => {
         let promises = [];
         setLoading(true);
         let payload = {
+            session: formData.marksheetData.values.session,
             student_id: formData.marksheetData.values.student,
             class_id: marksheetClassData.classDataObj.class_id,
             section_id: marksheetClassData.classDataObj.section_id,
-            term: formData.marksheetData.values.term,
-            result: formData.marksheetData.values.result
+            term: formData.marksheetData.values.term
         };
 
         promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
@@ -114,7 +134,8 @@ const FormComponent = () => {
                 marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
                 total_marks: formData.marksheetData.values[`total_marks_${index}`],
                 grade: formData.marksheetData.values[`grade_${index}`],
-                remark: formData.marksheetData.values[`remark_${index}`]
+                remark: formData.marksheetData.values[`remark_${index}`],
+                result: formData.marksheetData.values[`result_${index}`]
             }
             API.MarksheetAPI.createMarksheet(payload);
         });
@@ -122,27 +143,27 @@ const FormComponent = () => {
         return Promise.all(promises)
             .then(() => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/marksheet/listing/');
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/marksheet/listing');
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 console.log("error creating marksheet", err);
             });
-    }, []);
+    }, [formData]);
 
     //Create/Update/Populate marksheet
     useEffect(() => {
-        if (id && !submitted) {
+        if (student_id && !submitted) {
             setTitle("Update");
-            populateMarksheetData(student_id);
+            populateMarksheetData(student_id, term);
         }
         if (formData.marksheetData.validated) {
-            formData.marksheetData.values?.id ? updateMarksheet(formData) : createMarksheet(formData);
+            student_id ? updateMarksheet(formData) : createMarksheet(formData);
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted, student_id]);
+    }, [submitted, student_id, term]);
 
     const handleSubmit = async () => {
         await marksheetFormRef.current.Submit();
@@ -182,18 +203,11 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
-                userId={id}
-                studentId={student_id}
                 updatedValues={updatedValues?.marksheetData}
             />
             <Box display="flex" justifyContent="end" m="20px 20px 70px 0" >
                 {title === "Update" ? null : (
-                    <Button
-                        type="reset"
-                        color="warning"
-                        variant="contained"
-                        sx={{ mr: 3 }}
-                        disabled={!dirty || submitted}
+                    <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }} disabled={!dirty || submitted}
                         onClick={() => {
                             if (window.confirm("Do You Really Want To Reset?")) {
                                 setReset(true);
@@ -203,20 +217,14 @@ const FormComponent = () => {
                         Reset
                     </Button>
                 )}
-                <Button
-                    color="error"
-                    variant="contained"
-                    sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/${selected.toLowerCase()}/listing`)}
+                <Button color="error" variant="contained" sx={{ mr: 3 }}
+                    onClick={() => navigateTo(`/marksheet/listing`)}
                 >
                     Cancel
                 </Button>
-                <Button
-                    type="submit"
-                    onClick={() => handleSubmit()}
-                    disabled={!dirty}
+                <Button variant="contained" type="submit"
+                    onClick={() => handleSubmit()} disabled={!dirty}
                     color={title === "Update" ? "info" : "success"}
-                    variant="contained"
                 >
                     Submit
                 </Button>

@@ -16,7 +16,6 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, Typography, use
 import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
-// import DropDown from "../common/DropDown";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
@@ -42,8 +41,6 @@ const ListingComponent = ({ rolePriority = null }) => {
     const schoolSections = useSelector(state => state.schoolSections);
     const allSections = useSelector(state => state.allSections);
     const allSubjects = useSelector(state => state.allSubjects);
-
-    // const [conditionObj, setConditionObj] = useState({});
     const selected = useSelector(state => state.menuItems.selected);
     const { listData, loading } = useSelector(state => state.allMarksheets);
 
@@ -75,11 +72,31 @@ const ListingComponent = ({ rolePriority = null }) => {
         });
     };
 
+    // to bring marksheet data for selected class & section selected in dropdown
+    let classConditionObj = classSectionObj?.class_id ? {
+        classId: classSectionObj.class_id
+    } : null;
+
+    classConditionObj = classSectionObj?.section_id ? {
+        ...classConditionObj,
+        sectionId: classSectionObj.section_id
+    } : null;
+
+    useEffect(() => {
+        if (classSectionObj?.class_id && classSectionObj?.section_id) {
+            getPaginatedData(0, 8, setMarksheets, API.MarksheetAPI, classConditionObj);
+        }
+    }, [classConditionObj?.classId, classConditionObj?.sectionId]);
+
+
+
     useEffect(() => {
         if (!allSubjects?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
     }, [allSubjects?.listData?.length]);
+
+
 
     useEffect(() => {
         const getAndSetSections = () => {
@@ -88,7 +105,8 @@ const ListingComponent = ({ rolePriority = null }) => {
             dispatch(setSchoolSections(selectedSections));
         };
         getAndSetSections();
-    }, [classSectionObj?.class_id]);
+    }, [classSectionObj?.class_id, classData?.length]);
+
 
     useEffect(() => {
         const getAndSetSubjects = () => {
@@ -98,10 +116,9 @@ const ListingComponent = ({ rolePriority = null }) => {
                 selectedSubjects: selectedSubjects,
                 classDataObj: sectionSubjects[0]
             }));
-            console.log(sectionSubjects, selectedSubjects, 'subjects of class')
         };
         getAndSetSubjects();
-    }, [classSectionObj?.section_id, allSubjects?.listData?.length]);
+    }, [classSectionObj?.class_id, classSectionObj?.section_id, allSubjects?.listData?.length, classData.length]);
 
     useEffect(() => {
         if (!getLocalStorage("schoolInfo")) {
@@ -117,28 +134,12 @@ const ListingComponent = ({ rolePriority = null }) => {
         }
     }, [schoolClasses?.listData?.length, schoolSections?.listData?.length, allClasses?.listData?.length, allSections?.listData?.length]);
 
+
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
-    console.log(classSectionObj, 'classSectionObj');
 
-    // to bring marksheet data for selected class & section selected in dropdown
-    let classConditionObj = classSectionObj?.class_id ? {
-        classId: classSectionObj.class_id
-    } : null;
-
-    classConditionObj = classSectionObj?.section_id ? {
-        ...classConditionObj,
-        sectionId: classSectionObj.section_id
-    } : null;
-
-    useEffect(() => {
-        if (classSectionObj?.class_id && classSectionObj?.section_id) {
-            getPaginatedData(0, 8, setMarksheets, API.MarksheetAPI, classConditionObj);
-            console.log({ classConditionObj }, 'classcondi');
-        }
-    }, [classConditionObj?.classId, classConditionObj?.sectionId]);
 
     // to set default class & section id in dropdowns
     useEffect(() => {
@@ -148,9 +149,8 @@ const ListingComponent = ({ rolePriority = null }) => {
                 class_id: listData.rows[0].class_id,
                 section_id: listData.rows[0].section_id
             });
-            console.log('SET CLASS AND SECTION');
         }
-    }, [listData?.rows?.length]);
+    }, [listData?.rows?.length, classSectionObj?.section_id]);
 
 
     return (
