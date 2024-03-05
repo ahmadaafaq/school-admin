@@ -11,7 +11,6 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
-import dayjs from "dayjs";
 
 import API from "../../apis";
 import Loader from "../common/Loader";
@@ -38,26 +37,24 @@ const FormComponent = () => {
     const [reset, setReset] = useState(false);
     const [classData, setClassData] = useState([]);
 
-    const formSubjectsInRedux = useSelector(state => state.allSubjects);
+    const allSubjects = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
-
     const timeTableFormRef = useRef();
-
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
     const userParams = useParams();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getPaginatedData } = useCommon();
-    const { getLocalStorage, getIdsFromObject, findMultipleById, formatImageName, fetchAndSetAll,
-        isObjEmpty, toastAndNavigate } = Utility();
+    const { getLocalStorage, fetchAndSetAll, toastAndNavigate } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting TimeTable id from url params
-    let id = state?.id || userParams?.id;
+    let class_id = state?.class_id || userParams?.class_id;
+    let section_id = state?.section_id || userParams?.section_id;
+    let day = state?.day;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -65,90 +62,111 @@ const FormComponent = () => {
     }, []);
 
     const updateTimeTable = useCallback(formData => {
-        const dataFields = [
-            { ...formData.timeTableData.values },
-        ];
-        const paths = ["/update-time-table"];
+        let promises = [];
         setLoading(true);
+        let payloadBase = {
+            day: formData.timeTableData.values.day,
+            class_id: formData.timeTableData.values.class,
+            section_id: formData.timeTableData.values.section
+        };
 
-        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
-                let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
-                        status = false;
-                    };
-                });
-                if (status) {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/time-table/listing`);
-                };
+        promises = formData.timeTableData.values.period.map((item, index) => {
+            const payload = {
+                ...payloadBase,
+                period: item,
+                id: formData.timeTableData.values[`dbId_${index}`],
+                duration: formData.timeTableData.values.duration[index],
+                subject_id: formData.timeTableData.values[`subject${index + 1}`],
+            };
+            console.log("payloadupdate>>", payload);
+            API.TimeTableAPI.updateTimeTable(payload);
+        });
+
+        return Promise.all(promises)
+            .then(() => {
                 setLoading(false);
+                toastAndNavigate(dispatch, true, "info", "Successfully updated");
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log("error updating time table", err);
             });
     }, [formData]);
 
-    const populateTimeTableData = (id) => {
+
+    const populateTimeTableData = useCallback((class_id, section_id, day) => {
         setLoading(true);
-        const paths = [`/get-by-pk/timetable/${id}`];
-        API.CommonAPI.multipleAPICall("GET", paths)
+        const path = [`/get-time-tables/?page=0&size=12&classId=${class_id}&section=${section_id}&day=${day}`];
+
+        API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
-                // if (response[0]?.data?.data) {
-                    
-                // }
-                const dataObj = {
-                    timeTableData: response[0].data.data,
-                };
-                setUpdatedValues(dataObj);
-                setLoading(false);
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-            });
-    };
-
-
-    const createTimeTable = () => {
-        setLoading(true);
-        API.TimeTableAPI.createTimeTable({ ...formData.timeTableData.values })
-            .then(({ data: timeTable }) => {
-                if (timeTable?.status === 'Success') {
+                console.log("response>>", response[0]?.data)
+                if (response[0].data.status === 'Success') {
+                    const dataObj = {
+                        timeTableData: response[0].data.data.rows
+                    };
+                    setUpdatedValues(dataObj);
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
-                } else {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
             });
-    };
+    }, [class_id, section_id, day]);
+
+    const createTimeTable = useCallback(formData => {
+        console.log("formData", formData.timeTableData.values);
+        let promises = [];
+        setLoading(true);
+        let payloadBase = {
+            day: formData.timeTableData.values.day,
+            class_id: formData.timeTableData.values.class,
+            section_id: formData.timeTableData.values.section
+        };
+
+        promises = formData.timeTableData.values.period.map((item, index) => {
+            const payload = {
+                ...payloadBase,
+                period: item,
+                duration: formData.timeTableData.values.duration[index],
+                subject_id: formData.timeTableData.values[`subject${index + 1}`]
+            }
+            console.log("timetable payload object>>", payload);
+            API.TimeTableAPI.createTimeTable(payload);
+        });
+
+        return Promise.all(promises)
+            .then(() => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "success", "Successfully Created");
+            })
+            .catch(err => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log("error creating time table", err);
+            });
+    }, [formData]);
 
     useEffect(() => {
-        if (!formSubjectsInRedux?.listData?.length) {
+        if (!allSubjects?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [formSubjectsInRedux?.listData?.length]);
+    }, [allSubjects?.listData?.length]);
 
     //Create/Update/Populate TimeTable
     useEffect(() => {
-        if (id && !submitted) {
+        if (class_id && section_id && !submitted) {
             setTitle("Update");
-            populateTimeTableData(id);
+            populateTimeTableData(class_id, section_id, day);
         }
         if (formData.timeTableData.validated) {
-            formData.timeTableData.values?.id ? updateTimeTable(formData) : createTimeTable();
+            (class_id && section_id) ? updateTimeTable(formData) : createTimeTable(formData);
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted]);
+    }, [submitted, class_id, section_id, day]);
 
     const handleSubmit = async () => {
         await timeTableFormRef.current.Submit();
@@ -156,8 +174,8 @@ const FormComponent = () => {
     };
 
     const handleFormChange = (data, form) => {
-        form == 'timeTable' ? setFormData({ ...formData, timeTableData: data }) : '';
-    }
+        form == 'timeTable' ? setFormData({ ...formData, timeTableData: data }) : null;
+    };
 
     return (
         <Box ml="10px"
@@ -191,8 +209,7 @@ const FormComponent = () => {
                 setReset={setReset}
                 classData={classData}
                 setClassData={setClassData}
-                allSubjects={formSubjectsInRedux?.listData}
-                userId={id}
+                allSubjects={allSubjects?.listData}
                 updatedValues={updatedValues?.timeTableData}
             />
 
@@ -211,7 +228,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/time-table/listing/${getLocalStorage('class') || ''}`)}>
+                    onClick={() => navigateTo(`/time-table/listing`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

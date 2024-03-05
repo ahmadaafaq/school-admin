@@ -16,7 +16,12 @@ export const TimeTableAPI = {
     /** Get TimeTable from the database that meets the specified query parameters
      */
     getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
-        const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
+        let queryParam = '';
+        if (conditionObj) {
+          Object.keys(conditionObj).map(key => {
+            queryParam += `&${key}=${conditionObj[key]}`
+          })
+        }
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
             url: `/get-time-tables?page=${page}&size=${size}${queryParam}${searchParam}`,
@@ -24,7 +29,7 @@ export const TimeTableAPI = {
                 "x-access-token": getLocalStorage("auth")?.token
             },
             method: "GET",
-            signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined
         });
         return response;
     },
@@ -39,13 +44,14 @@ export const TimeTableAPI = {
             },
             method: "POST",
             data: timeTable,
-            signal: cancel ? cancelApiObject[this.createTimeTable.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.createTimeTable.name].handleRequestCancellation().signal : undefined
         });
     },
 
     /** Update TimeTable in the database
      */
     updateTimeTable: async (fields, cancel = false) => {
+        console.log("timetableapiupadate>>", fields);
         return await api.request({
             url: `/update-time-table`,
             headers: {
@@ -53,7 +59,7 @@ export const TimeTableAPI = {
             },
             method: "PATCH",
             data: fields,
-            signal: cancel ? cancelApiObject[this.updateTimeTable.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.updateTimeTable.name].handleRequestCancellation().signal : undefined
         });
     }
 }

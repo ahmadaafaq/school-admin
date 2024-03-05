@@ -43,15 +43,15 @@ const Animated404Component = () => {
                                 "&:hover": { borderColor: "#e4c1b1" }
                             }}>
                                 <Link to="/" style={{ textDecoration: "none", color: "#ffffff" }}>
-                                    Dashboard </Link> </Button>
+                                    Go To Dashboard </Link> </Button>
                         </div>
 
-                        <Box sx={{ width: "140px", display: "flex", justifyContent: "space-between", marginLeft: "160px" }}>
+                        {/* <Box sx={{ width: "140px", display: "flex", justifyContent: "space-between", marginLeft: "160px" }}>
                             <FacebookOutlinedIcon sx={{ cursor: "pointer", fontSize: "20px", letterSpacing: "0.05em", "&:hover": { color: "#e4c1b1" } }} />
                             <TwitterIcon sx={{ cursor: "pointer", fontSize: "20px", letterSpacing: "0.05em", "&:hover": { color: "#e4c1b1" } }} />
                             <InstagramIcon sx={{ cursor: "pointer", fontSize: "20px", letterSpacing: "0.05em", "&:hover": { color: "#e4c1b1" } }} />
                             <YouTubeIcon sx={{ cursor: "pointer", fontSize: "20px", letterSpacing: "0.05em", "&:hover": { color: "#e4c1b1" } }} />
-                        </Box>
+                        </Box> */}
 
                     </div>
                 </div>

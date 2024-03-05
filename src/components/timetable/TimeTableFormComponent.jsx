@@ -17,7 +17,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
-import dayjs from "dayjs";
 
 import API from "../../apis";
 import TimeTableValidation from "./Validation";
@@ -30,10 +29,12 @@ import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 const initialValues = {
+    dbId: "",
+    period: [],
     day: "",
     class: "",
     section: "",
-    subjects: [],
+    subject: [],
     duration: []
 };
 
@@ -49,7 +50,6 @@ const TimeTableFormComponent = ({
     updatedValues = null
 }) => {
 
-    const [initialState, setInitialState] = useState(initialValues);
     const [schoolId, setSchoolId] = useState([]);
     const schoolClasses = useSelector(state => state.schoolClasses);
     const schoolSections = useSelector(state => state.schoolSections);
@@ -59,12 +59,10 @@ const TimeTableFormComponent = ({
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const { getPaginatedData } = useCommon();
-    const { fetchAndSetSchoolData, getLocalStorage, getValuesFromArray } = Utility();
-
-    const secondHalf = (schoolId?.[0]?.period) / 2;
+    const { fetchAndSetSchoolData, getLocalStorage, findMultipleById } = Utility();
 
     const formik = useFormik({
-        initialValues: initialState,
+        initialValues: initialValues,
         validationSchema: TimeTableValidation,
         enableReinitialize: true,
         onSubmit: () => watchForm()
@@ -78,7 +76,6 @@ const TimeTableFormComponent = ({
 
     const watchForm = () => {
         if (onChange) {
-
             onChange({
                 values: formik.values,
                 validated: formik.isSubmitting
@@ -88,17 +85,67 @@ const TimeTableFormComponent = ({
         }
     };
 
-    const getAndSetSubjects = () => {
-        const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values?.section);
-        const selectedSubjects = sectionSubjects ? getValuesFromArray(sectionSubjects[0]?.subject_ids, allSubjects) : [];
-        dispatch(setSchoolSubjects(selectedSubjects));
+    const openingTime = new Date(schoolId?.[0]?.opening_time).toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+    });
+
+    function convertToAMPM(timeString) {
+        const [hours, minutes] = timeString.split(':');
+        const date = new Date();
+        date.setHours(parseInt(hours, 10));
+        date.setMinutes(parseInt(minutes, 10));
+      
+        const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+        return new Intl.DateTimeFormat('en-US', options).format(date);
+      }      
+
+    const schoolPeriodDuration = (hours = 0, minutes = 0, condition, half_duration) => {
+        const timeslots = [];
+        const startTime = new Date();
+        startTime.setHours(hours, minutes, 0); // set hours, minutes and seconds
+
+        for (let i = 0; i < condition; i++) {
+            let slotFrom = `${startTime.getHours()}:${startTime.getMinutes() == 0 ? '00' : startTime.getMinutes()}`;
+            startTime.setMinutes(startTime.getMinutes() + half_duration);
+            let slotTo = `${startTime.getHours()}:${startTime.getMinutes() == 0 ? '00' : startTime.getMinutes()}`;
+            timeslots.push(`${convertToAMPM(slotFrom)}-${convertToAMPM(slotTo)}`);
+        }
+        return timeslots;
     };
 
-    const getAndSetSections = () => {
-        const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
-        const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-        dispatch(setSchoolSections(selectedSections));
-    };
+    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 1), openingTime.slice(2, 4), schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.first_half_period_duration);
+    let secondHalfDuration = [];
+    let totalDuration = [];
+
+    if (firstHalfDuration.length) {
+        let openingTimes = firstHalfDuration[3];
+        let secondOpeningTimeHr = openingTimes.split('-').splice(1).join('').slice(0, 2);
+        let secondOpeningTimeMi = openingTimes.split('-').splice(1).join('').slice(3, 5);
+        // let secondMinTotal = secondOpeningTimeMi + schoolId?.[0]?.recess_time;
+        let secondMinTotal = parseInt(secondOpeningTimeMi, 10) + parseInt(schoolId?.[0]?.recess_time, 10);
+        secondHalfDuration = schoolPeriodDuration(secondOpeningTimeHr, secondMinTotal, schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.second_half_period_duration);
+        if (secondHalfDuration.length) {
+            totalDuration = [...firstHalfDuration, ...secondHalfDuration];
+        }
+    }
+
+    useEffect(() => {
+        if (formik.values.class && classData?.length) {
+            const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
+            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+            dispatch(setSchoolSections(selectedSections));
+        }
+    }, [formik.values?.class, classData?.length]);
+
+    useEffect(() => {
+        if (formik.values.section && classData?.length) {
+            const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values.section);
+            const selectedSubjects = sectionSubjects ? findMultipleById(sectionSubjects[0]?.subject_ids, allSubjects) : [];
+            dispatch(setSchoolSubjects(selectedSubjects));
+        };
+    }, [formik.values?.class, formik.values?.section, classData.length, allSubjects]);
 
     useEffect(() => {
         if (reset) {
@@ -115,7 +162,15 @@ const TimeTableFormComponent = ({
 
     useEffect(() => {
         if (updatedValues) {
-            setInitialState(updatedValues);
+            updatedValues?.map((period, index) => {
+                formik.setFieldValue(`period${index + 1}`, period?.period);
+                formik.setFieldValue(`duration${index + 1}`, period?.duration);
+                formik.setFieldValue(`subject${index + 1}`, period?.subject_id);
+                formik.setFieldValue(`dbId_${index}`, period?.id);
+            });
+            formik.setFieldValue(`class`, updatedValues[0]?.class_id);
+            formik.setFieldValue(`section`, updatedValues[0]?.section_id);
+            formik.setFieldValue(`day`, updatedValues[0]?.day);
         }
     }, [updatedValues]);
 
@@ -142,27 +197,22 @@ const TimeTableFormComponent = ({
                 });
         }
     }, [schoolDuration?.listData?.rows?.length]);
-    console.log(schoolId?.[0], 'filtered school obj')
-
 
     useEffect(() => {
-        const selectedClassId = parseInt(getLocalStorage("class"));
-        if (selectedClassId) {
-            formik.setFieldValue("class", selectedClassId);
+        if (totalDuration?.length && !formik?.values?.duration?.length) {
+            formik.setFieldValue('duration', totalDuration);
         }
-    }, [getLocalStorage("class")]);
+    }, [totalDuration]);
 
     useEffect(() => {
-        if (formik.values.section) {
-            getAndSetSubjects();
+        if (schoolId?.[0]?.period) {
+            const totalPeriodArray = Array.from({ length: schoolId[0].period }, (_, index) => index + 1);
+            formik.setFieldValue('period', totalPeriodArray);
         }
-    }, [formik.values?.section]);
+    }, [schoolId]);
+    console.log("updatedvaluezformik>", formik.values);
+    console.log("schoolclass, section>", schoolClasses, schoolSections);
 
-    useEffect(() => {
-        if (formik.values.class) {
-            getAndSetSections();
-        }
-    }, [formik.values?.class, classData?.length]);
 
     return (
         <Box m="20px">
@@ -189,8 +239,8 @@ const TimeTableFormComponent = ({
                                 if (formik.values.section) {        //if old values are there, clean them according to change
                                     formik.setFieldValue("section", '');
                                 }
-                                if (formik.values.subjects) {
-                                    formik.setFieldValue("subjects", []);
+                                if (formik.values.subject) {
+                                    formik.setFieldValue("subject", []);
                                 }
                             }}
                         >
@@ -215,8 +265,8 @@ const TimeTableFormComponent = ({
                             value={formik.values.section}
                             onChange={event => {
                                 formik.setFieldValue("section", event.target.value);
-                                if (formik.values.subjects) {
-                                    formik.setFieldValue("subjects", []);
+                                if (formik.values.subject) {
+                                    formik.setFieldValue("subject", '');
                                 }
                             }}
                         >
@@ -236,9 +286,7 @@ const TimeTableFormComponent = ({
                         <InputLabel id="dayField">Day</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="dayField"
                             name="day"
-                            autoComplete="new-day"
                             value={formik.values.day}
                             onChange={formik.handleChange}
                         >
@@ -248,8 +296,6 @@ const TimeTableFormComponent = ({
                             <MenuItem value={"thursday"}>Thursday</MenuItem>
                             <MenuItem value={"friday"}>Friday</MenuItem>
                             <MenuItem value={"saturday"}>Saturday</MenuItem>
-
-
                         </Select>
                         <FormHelperText>{formik.touched.day && formik.errors.day}</FormHelperText>
                     </FormControl>
@@ -261,39 +307,31 @@ const TimeTableFormComponent = ({
                         {[...Array((schoolId[0].period) / 2)].map((_, index) => {
                             let key = index + 1;
                             return (
-                                <Box key={index} style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(8, minmax(0, 1fr))', marginBottom: '20px' }}>
-                                    <Box>Period {key}</Box>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <SingleInputTimeRangeField
-                                            label={`Duration ${key}`}
-                                            name={`duration${key}`}
-                                            // value={formik.values[`duration${key}`]}
-                                            value={schoolId[0].first_half_period_duration * schoolId[0].opening_time}
-                                            sx={{ gridColumn: "span 2" }}
-                                        // onChange={(newDuration) => formik.setFieldValue(`duration${key}`, newDuration)}
-                                        />
-                                    </LocalizationProvider>
+                                <Box key={index} style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', margin: '0px 100px 20px 100px ', justifyItems:"center", alignItems:"center" }}>
+                                    <Box sx={{fontWeight:"600", fontSize:"20px"}}>Period {key}</Box>
 
-                                    <Autocomplete
-                                        multiple
-                                        options={schoolSubjects?.listData || []}
-                                        getOptionLabel={(option) => option.name}
-                                        disableCloseOnSelect
-                                        value={formik.values[`subjects${key}`] || []}
-                                        sx={{ gridColumn: "span 2" }}
-                                        onChange={(event, value) => formik.setFieldValue(`subjects${key}`, value)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="filled"
-                                                type="text"
-                                                name={`subjects${key}`}
-                                                label={`Subjects ${key}`}
-                                                error={!!formik.touched[`subjects${key}`] && !!formik.errors[`subjects${key}`]}
-                                                helperText={formik.touched[`subjects${key}`] && formik.errors[`subjects${key}`]}
-                                            />
-                                        )}
-                                    />
+                                    <Box sx={{fontWeight:"500", fontSize:"15px"}}>{firstHalfDuration[index]}</Box>
+
+                                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                                        error={!!formik.touched[`subject${key}`] && !!formik.errors[`subject${key}`]}
+                                    >
+                                        <InputLabel id="subjectField">Subject</InputLabel>
+                                        <Select
+                                            sx={{ minWidth: "280px" }}
+                                            variant="filled"
+                                            name={`subject${key}`}
+                                            value={formik.values[`subject${index + 1}`] || null}
+                                            onChange={event => formik.setFieldValue(`subject${index + 1}`, event.target.value)}
+                                        >
+                                            {!schoolSubjects?.listData?.length ? null :
+                                                schoolSubjects.listData.map(subject => (
+                                                    <MenuItem value={subject.id} name={subject.name} key={subject.id}>
+                                                        {subject.name}
+                                                    </MenuItem>
+                                                ))}
+                                        </Select>
+                                        <FormHelperText>{formik.touched[`subject${key}`] && formik.errors[`subject${key}`]} </FormHelperText>
+                                    </FormControl>
                                 </Box>
                             )
                         }
@@ -301,7 +339,7 @@ const TimeTableFormComponent = ({
 
                     </>
                 )}
-                <Divider sx={{ width: '99%' }}>
+                <Divider sx={{ width: '99%', marginBottom: "20px" }}>
                     <Chip color='info' label={`Recess Time ${schoolId?.[0]?.recess_time} min`}
                         sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
                     />
@@ -310,39 +348,33 @@ const TimeTableFormComponent = ({
                     <>
                         {[...Array((schoolId[0].period) / 2)].map((_, index) => {
                             let condition = (schoolId?.[0]?.period) / 2 + 1;
-                            return (
-                                <Box key={index} style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(8, minmax(0, 1fr))', marginBottom: '20px' }}>
-                                    <Box>Period {index + condition}</Box>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <SingleInputTimeRangeField
-                                            label={`Duration ${index + condition}`}
-                                            name={`duration${index + condition}`}
-                                            value={formik.values[`duration${index + condition}`]}
-                                            sx={{ gridColumn: "span 2" }}
-                                            onChange={(newDuration) => formik.setFieldValue(`duration${index + condition}`, newDuration)}
-                                        />
-                                    </LocalizationProvider>
 
-                                    <Autocomplete
-                                        multiple
-                                        options={schoolSubjects?.listData || []}
-                                        getOptionLabel={(option) => option.name}
-                                        disableCloseOnSelect
-                                        value={formik.values[`subjects${index + condition}`] || []}
-                                        sx={{ gridColumn: "span 2" }}
-                                        onChange={(event, value) => formik.setFieldValue(`subjects${index + condition}`, value)}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                variant="filled"
-                                                type="text"
-                                                name={`subjects${index + condition}`}
-                                                label={`Subjects ${index + condition}`}
-                                                error={!!formik.touched[`subjects${index + condition}`] && !!formik.errors[`subjects${index + condition}`]}
-                                                helperText={formik.touched[`subjects${index + condition}`] && formik.errors[`subjects${index + condition}`]}
-                                            />
-                                        )}
-                                    />
+                            return (
+                                <Box key={index} sx={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', margin: '0px 100px 20px 100px ', justifyItems:"center", alignItems:"center" }}>
+                                    <Box sx={{fontWeight:"600", fontSize:"20px"}}>Period {index + condition}</Box>
+
+                                    <Box sx={{fontWeight:"500", fontSize:"15px"}}>{secondHalfDuration[index]}</Box>
+
+                                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                                        error={!!formik.touched[`subject${index + condition}`] && !!formik.errors[`subject${index + condition}`]}
+                                    >
+                                        <InputLabel id="subjectField">Subject</InputLabel>
+                                        <Select
+                                            sx={{ minWidth: "280px" }}
+                                            variant="filled"
+                                            name={`subject${index + condition}`}
+                                            value={formik.values[`subject${index + condition}`] || null}
+                                            onChange={event => formik.setFieldValue(`subject${index + condition}`, event.target.value)}
+                                        >
+                                            {!schoolSubjects?.listData?.length ? null :
+                                                schoolSubjects.listData.map(subject => (
+                                                    <MenuItem value={subject.id} name={subject.name} key={subject.id}>
+                                                        {subject.name}
+                                                    </MenuItem>
+                                                ))}
+                                        </Select>
+                                        <FormHelperText>{formik.touched[`subject${index + condition}`] && formik.errors[`subject${index + condition}`]} </FormHelperText>
+                                    </FormControl>
                                 </Box>
                             )
                         }

@@ -211,113 +211,136 @@ const SchoolDurationFormComponent = ({
                             }}
                         />
                     </LocalizationProvider>
-
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.shifts && !!formik.errors.shifts}
+                    <Box
+                        display="grid"
+                        gap="30px"
+                        border='2px solid #BADFE7'
+                        borderRadius='12px'
+                        p={2}
+                        sx={
+                            formik.values.shifts == "morning" 
+                                ? {
+                                    gridColumnStart: 1,
+                                    gridColumnEnd: 3
+                                }
+                                : formik.values.shifts == "evening" 
+                                ? {
+                                    gridColumnStart: 1,
+                                    gridColumnEnd: 3
+                                }
+                                : formik.values.shifts == "both" 
+                                ? {
+                                    gridColumnStart: 1,
+                                    gridColumnEnd: 4
+                                } : null 
+                        }
                     >
-                        <InputLabel id="shiftsField">Shifts</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="shiftsField"
-                            name="shifts"
-                            autoComplete="new-shifts"
-                            value={formik.values.shifts}
-                            onChange={formik.handleChange}
+                        <FormControl variant="filled" sx={{ minWidth: 220 }}
+                            error={!!formik.touched.shifts && !!formik.errors.shifts}
                         >
-                            <MenuItem value={"morning"}>Morning</MenuItem>
-                            <MenuItem value={"evening"}>Evening</MenuItem>
-                            <MenuItem value={"both"}>Both</MenuItem>
-                        </Select>
-                        <FormHelperText>{formik.touched.shifts && formik.errors.shifts}</FormHelperText>
-                    </FormControl>
+                            <InputLabel id="shiftsField">Shifts</InputLabel>
+                            <Select
+                                variant="filled"
+                                labelId="shiftsField"
+                                name="shifts"
+                                autoComplete="new-shifts"
+                                value={formik.values.shifts}
+                                onChange={formik.handleChange}
+                            >
+                                <MenuItem value={"morning"}>Morning</MenuItem>
+                                <MenuItem value={"evening"}>Evening</MenuItem>
+                                <MenuItem value={"both"}>Both</MenuItem>
+                            </Select>
+                            <FormHelperText>{formik.touched.shifts && formik.errors.shifts}</FormHelperText>
+                        </FormControl>
 
-                    {formik.values.shifts !== "evening" && <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <TimePicker
-                            name="opening_time"
-                            label="Opening time"
-                            format="hh:mm A"
-                            value={formik.values.opening_time}
-                            onChange={newOpeningTime => {
-                                formik.setFieldValue("opening_time", newOpeningTime);
-                            }}
-                            viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                            }}
-                        />
-                        <TimePicker
-                            name="closing_time"
-                            label="Closing time"
-                            value={formik.values.closing_time}
-                            onChange={newClosingTime => {
-                                formik.setFieldValue("closing_time", newClosingTime);
-                            }}
-                            viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                            }}
-                            sx={{
-                                gridColumnStart: 2,
-                                gridColumnEnd: 3
-                            }}
-                        />
-                    </LocalizationProvider>}
+                        {formik.values.shifts !== "evening" && <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimePicker
+                                name="opening_time"
+                                label="Opening time"
+                                format="hh:mm A"
+                                value={formik.values.opening_time}
+                                onChange={newOpeningTime => {
+                                    formik.setFieldValue("opening_time", newOpeningTime);
+                                }}
+                                viewRenderers={{
+                                    hours: renderTimeViewClock,
+                                    minutes: renderTimeViewClock,
+                                    seconds: renderTimeViewClock,
+                                }}
+                            />
+                            <TimePicker
+                                name="closing_time"
+                                label="Closing time"
+                                value={formik.values.closing_time}
+                                onChange={newClosingTime => {
+                                    formik.setFieldValue("closing_time", newClosingTime);
+                                }}
+                                viewRenderers={{
+                                    hours: renderTimeViewClock,
+                                    minutes: renderTimeViewClock,
+                                    seconds: renderTimeViewClock,
+                                }}
+                                sx={{
+                                    gridColumnStart: 2,
+                                    gridColumnEnd: 3
+                                }}
+                            />
+                        </LocalizationProvider>}
 
-                    {formik.values.shifts !== "morning" && <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <TimePicker
-                            name="eve_opening_time"
-                            label="Evening Opening time"
-                            format="hh:mm A"
-                            value={formik.values.eve_opening_time}
-                            onChange={newOpeningTime => {
-                                formik.setFieldValue("eve_opening_time", newOpeningTime);
-                            }}
-                            viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                            }}
-                            sx={
-                                formik.values.shifts !== "both"
-                                    ? null // If not "both", sx will not be applied
-                                    : {
-                                        gridRowStart: 3,
-                                        gridRowEnd: 4,
-                                        gridColumnStart: 3,
-                                        gridColumnEnd: 4,
-                                    }
-                            }
-                        />
-                        <TimePicker
-                            name="eve_closing_time"
-                            label="Evening Closing time"
-                            value={formik.values.eve_closing_time}
-                            onChange={newClosingTime => {
-                                formik.setFieldValue("eve_closing_time", newClosingTime);
-                            }}
-                            viewRenderers={{
-                                hours: renderTimeViewClock,
-                                minutes: renderTimeViewClock,
-                                seconds: renderTimeViewClock,
-                            }}
-                            sx={
-                                formik.values.shifts !== "both"
-                                    ? {
-                                        gridColumnStart: 2,
-                                        gridColumnEnd: 3
-                                    }
-                                    : {
-                                        gridRowStart: 4,
-                                        gridRowEnd: 5,
-                                        gridColumnStart: 3,
-                                        gridColumnEnd: 4
-                                    }
-                            }
-                        />
-                    </LocalizationProvider>}
-
+                        {formik.values.shifts !== "morning" && <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimePicker
+                                name="eve_opening_time"
+                                label="Evening Opening time"
+                                format="hh:mm A"
+                                value={formik.values.eve_opening_time}
+                                onChange={newOpeningTime => {
+                                    formik.setFieldValue("eve_opening_time", newOpeningTime);
+                                }}
+                                viewRenderers={{
+                                    hours: renderTimeViewClock,
+                                    minutes: renderTimeViewClock,
+                                    seconds: renderTimeViewClock,
+                                }}
+                                sx={
+                                    formik.values.shifts !== "both"
+                                        ? null // If not "both", sx will not be applied
+                                        : {
+                                            gridRowStart: 1,
+                                            gridRowEnd: 2,
+                                            gridColumnStart: 3,
+                                            gridColumnEnd: 4,
+                                        }
+                                }
+                            />
+                            <TimePicker
+                                name="eve_closing_time"
+                                label="Evening Closing time"
+                                value={formik.values.eve_closing_time}
+                                onChange={newClosingTime => {
+                                    formik.setFieldValue("eve_closing_time", newClosingTime);
+                                }}
+                                viewRenderers={{
+                                    hours: renderTimeViewClock,
+                                    minutes: renderTimeViewClock,
+                                    seconds: renderTimeViewClock,
+                                }}
+                                sx={
+                                    formik.values.shifts !== "both"
+                                        ? {
+                                            gridColumnStart: 2,
+                                            gridColumnEnd: 3
+                                        }
+                                        : {
+                                            gridRowStart: 2,
+                                            gridRowEnd: 3,
+                                            gridColumnStart: 3,
+                                            gridColumnEnd: 4,
+                                        }
+                                }
+                            />
+                        </LocalizationProvider>}
+                    </Box>
 
                 </Box>
             </form >
