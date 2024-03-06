@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import ProgressCircle from "./ProgressCircle";
 import { tokens } from "../../theme";
 
-const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => {
+const StatBox = ({ title, subtitle, icon, progress, increase, color }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isMobile = useMediaQuery("(max-width:480px)");
@@ -24,24 +24,25 @@ const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => 
                     {icon}
                     <Typography
                         variant={isMobile ? "h6" : "h4"}
-                        fontWeight="bold"
-                        sx={{ color: colors.primary[500] }}
+                        fontWeight="900"
+                        sx={{ textShadow: '-1px 0 white, 0 1px white, 1px 0 white, 0 -1px white' }}
                     >
                         {title}
                     </Typography>
                 </Box>
                 <Box>
-                    <ProgressCircle progress={progress} yellowColor={yellowColor} />
+                    <ProgressCircle progress={progress} color={color} />
                 </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
-                <Typography variant={isMobile ? "h6" : "h5"} sx={{ color: colors.primary[500] }}>
+                <Typography fontWeight="900" variant={isMobile ? "h6" : "h5"} sx={{ textShadow: '-1px 0 white, 0 1px white, 1px 0 white, 0 -1px white' }}>
                     {subtitle}
                 </Typography>
                 <Typography
                     variant={isMobile ? "h6" : "h5"}
                     fontStyle="italic"
-                    sx={{ color: colors.primary[500] }}
+                    fontWeight="900"
+                    sx={{ textShadow: '-1px 0 white, 0 1px white, 1px 0 white, 0 -1px white' }}
                 >
                     {increase}
                 </Typography>

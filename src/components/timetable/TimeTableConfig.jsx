@@ -25,14 +25,6 @@ export const datagridColumns = () => {
 
     const columns = [
         {
-            field: "period",
-            headerName: "Periods",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            // width: 120,
-        },
-        {
             field: "day",
             headerName: "Day",
             headerAlign: "center",

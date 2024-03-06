@@ -6,12 +6,12 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { Box, useTheme,useMediaQuery} from "@mui/material";
+import { Box, useTheme, useMediaQuery } from "@mui/material";
 import PropTypes from "prop-types";
 
 import { tokens } from "../../theme";
 
-const ProgressCircle = ({ progress = null, size = "40", yellowColor }) => {
+const ProgressCircle = ({ progress = null, size = "40", color }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const angle = progress * 360;
@@ -20,7 +20,7 @@ const ProgressCircle = ({ progress = null, size = "40", yellowColor }) => {
     return (
         <Box
             sx={{
-                background: `radial-gradient(${yellowColor} 55%, transparent 56%),
+                background: `radial-gradient(${color} 55%, transparent 56%),
             conic-gradient(${colors.primary[500]} ${angle}deg 0deg , transparent ${angle}deg 360deg),
             ${colors.greenAccent[500]}`,
                 borderRadius: "50%",
