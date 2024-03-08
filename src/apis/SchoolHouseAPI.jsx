@@ -12,51 +12,51 @@ import { Utility } from "../components/utility";
 
 const { getLocalStorage } = Utility();
 
-export const SchoolDurationAPI = {
-    /** Get SchoolDuration from the database that meets the specified query parameters
+export const SchoolHouseAPI = {
+    /** Get SchoolHouse from the database that meets the specified query parameters
      */
     getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
         const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
-            url: `/get-school-durations?page=${page}&size=${size}${queryParam}${searchParam}`,
+            url: `/get-school-houses?page=${page}&size=${size}${queryParam}${searchParam}`,
             headers: {
                 "x-access-token": getLocalStorage("auth")?.token
             },
             method: "GET",
-            signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined
         });
         return response;
     },
 
-    /** Create SchoolDuration in the database
+    /** Create SchoolHouse in the database
      */
-    createSchoolDuration: async (schoolDuration, cancel = false) => {
+    createSchoolHouse: async (schoolHouse, cancel = false) => {
         return await api.request({
-            url: `/create-school-duration`,
+            url: `/create-school-house`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "POST",
-            data: schoolDuration,
-            signal: cancel ? cancelApiObject[this.createSchoolDuration.name].handleRequestCancellation().signal : undefined,
+            data: schoolHouse,
+            signal: cancel ? cancelApiObject[this.createSchoolHouse.name].handleRequestCancellation().signal : undefined
         });
     },
 
-    /** Update SchoolDuration in the database
+    /** Update SchoolHouse in the database
      */
-    updateSchoolDuration: async (fields, cancel = false) => {
+    updateSchoolHouse: async (fields, cancel = false) => {
         return await api.request({
-            url: `/update-school-duration`,
+            url: `/update-school-house`,
             headers: {
                 "x-access-token": getLocalStorage("auth").token
             },
             method: "PATCH",
             data: fields,
-            signal: cancel ? cancelApiObject[this.updateSchoolDuration.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.updateSchoolHouse.name].handleRequestCancellation().signal : undefined
         });
     }
-}
+};
 
-// defining the cancel API object for SchoolDurationAPI
-const cancelApiObject = defineCancelApiObject(SchoolDurationAPI);
+// defining the cancel API object for SchoolHouseAPI
+const cancelApiObject = defineCancelApiObject(SchoolHouseAPI);

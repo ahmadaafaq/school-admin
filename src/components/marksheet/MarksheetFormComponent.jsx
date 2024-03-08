@@ -21,7 +21,7 @@ import marksheetValidation from "./Validation";
 
 import { setMarksheetClassData } from "../../redux/actions/MarksheetAction";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
-import { setStudents } from "../../redux/actions/StudentAction";
+import { setAllStudents } from "../../redux/actions/StudentAction";
 import { useDispatch, useSelector } from "react-redux";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
@@ -53,7 +53,7 @@ const MarksheetFormComponent = ({
     const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     const allSubjects = useSelector(state => state.allSubjects);
-    const allStudents = useSelector(state => state.allStudents);
+    const allStudents = useSelector(state => state.allFormStudents);
     const { marksheetClassData } = useSelector(state => state.allMarksheets);
 
     const dispatch = useDispatch();
@@ -121,7 +121,7 @@ const MarksheetFormComponent = ({
             formik.setFieldValue("class", marksheetClassData.classDataObj.class_name);
             formik.setFieldValue("section", marksheetClassData.classDataObj.section_name);
             formik.setFieldValue("subjects", marksheetClassData.classDataObj.subject_ids.split(","));
-            getStudents(marksheetClassData.classDataObj.class_id, marksheetClassData.classDataObj.section_id, setStudents, API);
+            getStudents(marksheetClassData.classDataObj.class_id, marksheetClassData.classDataObj.section_id, setAllStudents, API);
         }
     }, [marksheetClassData?.classDataObj]);
 
@@ -156,7 +156,7 @@ const MarksheetFormComponent = ({
 
     return (
         <Box m="20px">
-            {/* <Snackbar
+            {/* <Snackbar           why?
                 anchorOrigin={{ vertical, horizontal }}
                 open={snackbarOpen}
                 autoHideDuration={6000}

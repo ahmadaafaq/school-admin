@@ -63,6 +63,9 @@ const PaymentListingComponent = lazy(() => import("./components/payment/ListingC
 const SchoolDurationFormComponent = lazy(() => import("./components/schoolDuration/FormComponent"));
 const SchoolDurationListingComponent = lazy(() => import("./components/schoolDuration/ListingComponent"));
 
+const SchoolHouseFormComponent = lazy(() => import("./components/schoolHouse/FormComponent"));
+const SchoolHouseListingComponent = lazy(() => import("./components/schoolHouse/ListingComponent"));
+
 const TimeTableFormComponent = lazy(() => import("./components/timetable/FormComponent"));
 const TimeTableListingComponent = lazy(() => import("./components/timetable/ListingComponent"));
 
@@ -101,7 +104,6 @@ function App() {
   useEffect(() => {
     verifyToken()
       .then(result => {
-        console.log(pathname, 'teacher wala')
         if (!result && pathname !== '/login') {
           localStorage.clear();
           setLocalStorage("navigatedPath", pathname);
@@ -184,6 +186,10 @@ function App() {
                       <Route exact path="/school-duration/create" element={<SchoolDurationFormComponent />} />
                       <Route exact path="/school-duration/update/:id" element={<SchoolDurationFormComponent />} />
                       <Route exact path="/school-duration/listing" element={<SchoolDurationListingComponent rolePriority={userRole.priority} />} />
+
+                      <Route exact path="/school-house/create" element={<SchoolHouseFormComponent />} />
+                      <Route exact path="/school-house/update/:id" element={<SchoolHouseFormComponent />} />
+                      <Route exact path="/school-house/listing" element={<SchoolHouseListingComponent rolePriority={userRole.priority} />} />
 
                       <Route exact path="/time-table/create" element={<TimeTableFormComponent />} />
                       <Route exact path="/time-table/update/:class_id/:section_id" element={<TimeTableFormComponent />} />

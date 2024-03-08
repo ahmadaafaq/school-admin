@@ -376,6 +376,14 @@ const Sidebar = ({ rolePriority }) => {
               menuVisibility={4}
             />
             <SidebarItem
+              title="School House"
+              to="/school-house/listing"
+              icon={<HourglassBottomTwoToneIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
+            <SidebarItem
               title="School Duration"
               to="/school-duration/listing"
               icon={<HourglassBottomTwoToneIcon />}

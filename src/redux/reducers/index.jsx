@@ -11,7 +11,10 @@ import { combineReducers } from "redux";
 import { authReducer } from "./AuthReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
+import { setEmployeesReducer } from "./EmployeeReducer";
+import { setHolidaysReducer } from "./HolidayReducer"
 import { setMarksheetsReducer } from "./MarksheetReducer";
+import { setPaymentsReducer } from "./PaymentReducer";
 import { setAmenitiesReducer } from "./AmenityReducer";
 import { setFormAmenitiesReducer } from "./AmenityReducer";
 import { setBusesReducer } from "./BusReducer";
@@ -21,19 +24,19 @@ import { setSchoolClassesReducer } from "./ClassReducer";
 import { setAllSectionsReducer } from "./SectionReducer";
 import { setListingSectionsReducer } from "./SectionReducer";
 import { setSchoolSectionsReducer } from "./SectionReducer";
-import { setListingSchoolsReducer } from "./SchoolReducer";
 import { setAllSchoolsReducer } from "./SchoolReducer";
+import { setListingSchoolsReducer } from "./SchoolReducer";
+import { setListingSchoolHousesReducer } from "./SchoolHouseReducer";
+import { setSchoolDurationsReducer } from "./SchoolDurationReducer";
 import { setStudentsReducer } from "./StudentReducer";
+import { setAllStudentsReducer } from "./StudentReducer";
 import { setAllSubjectsReducer } from "./SubjectReducer";
 import { setListingSubjectsReducer } from "./SubjectReducer";
 import { setSchoolSubjectsReducer } from "./SubjectReducer";
 import { setTimeTablesReducer } from "./TimeTableReducer";
 import { setTeachersReducer } from "./TeacherReducer";
+import { setAllTeachersReducer } from "./TeacherReducer";
 import { setUsersReducer } from "./UserReducer";
-import { setEmployeesReducer } from "./EmployeeReducer";
-import { setHolidaysReducer } from "./HolidayReducer"
-import { setPaymentsReducer } from "./PaymentReducer";
-import { setSchoolDurationsReducer } from "./SchoolDurationReducer";
 import { setUserRolesReducer } from "./UserRoleReducer";
 
 const reducers = combineReducers({
@@ -50,12 +53,15 @@ const reducers = combineReducers({
     schoolSections: setSchoolSectionsReducer,
     listingSchools: setListingSchoolsReducer,
     allSchools: setAllSchoolsReducer,
+    listingSchoolHouses: setListingSchoolHousesReducer,
     allStudents: setStudentsReducer,
+    allFormStudents: setAllStudentsReducer,
     allSubjects: setAllSubjectsReducer,
     listingSubjects: setListingSubjectsReducer,
     schoolSubjects: setSchoolSubjectsReducer,
     allTimeTables: setTimeTablesReducer,
     allTeachers: setTeachersReducer,
+    allFormTeachers: setAllTeachersReducer,
     allUsers: setUsersReducer,
     allEmployees: setEmployeesReducer,
     allUserRoles: setUserRolesReducer,

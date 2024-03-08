@@ -8,16 +8,9 @@
 
 import { ActionTypes } from "../constants/action-types";
 
-export const setStudents = (students) => {
+export const setListingSchoolHouses = (schoolHouses) => {
     return {
-        type: ActionTypes.SET_STUDENTS,
-        payload: students
-    };
-};
-
-export const setAllStudents = (students) => {
-    return {
-        type: ActionTypes.SET_ALL_STUDENTS,
-        payload: students
+        type: ActionTypes.SET_LISTING_SCHOOL_HOUSES,
+        payload: schoolHouses
     };
 };
