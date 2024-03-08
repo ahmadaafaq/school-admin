@@ -89,13 +89,11 @@ const ListingComponent = ({ rolePriority = null }) => {
     }, [classConditionObj?.classId, classConditionObj?.sectionId]);
 
 
-
     useEffect(() => {
         if (!allSubjects?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [allSubjects?.listData?.length]);
-
+    }, []);
 
 
     useEffect(() => {
@@ -132,7 +130,7 @@ const ListingComponent = ({ rolePriority = null }) => {
         if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
-    }, [schoolClasses?.listData?.length, schoolSections?.listData?.length, allClasses?.listData?.length, allSections?.listData?.length]);
+    }, []);
 
 
     useEffect(() => {
@@ -151,7 +149,6 @@ const ListingComponent = ({ rolePriority = null }) => {
             });
         }
     }, [listData?.rows?.length, classSectionObj?.section_id]);
-
 
     return (
         <Box m="8px" position="relative"
@@ -278,7 +275,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setMarksheets}
                 api={API.MarksheetAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns(rolePriority, setClassSectionObj)}
+                columns={datagridColumns(rolePriority)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}

@@ -32,7 +32,7 @@ export const StudentAPI = {
         "x-access-token": getLocalStorage("auth")?.token
       },
       method: "GET",
-      signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined
     });
     return response;
   },
@@ -47,7 +47,7 @@ export const StudentAPI = {
       },
       method: "POST",
       data: student,
-      signal: cancel ? cancelApiObject[this.createStudent.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.createStudent.name].handleRequestCancellation().signal : undefined
     });
   },
 
@@ -61,8 +61,22 @@ export const StudentAPI = {
       },
       method: "PATCH",
       data: fields,
-      signal: cancel ? cancelApiObject[this.updateStudent.name].handleRequestCancellation().signal : undefined,
+      signal: cancel ? cancelApiObject[this.updateStudent.name].handleRequestCancellation().signal : undefined
     });
+  },
+
+  /** Get class and section from student_id
+   */
+  getClassOfStudent: async (student_id, cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-class-of-student/${student_id}`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "GET",
+      signal: cancel ? cancelApiObject[this.getSchoolClasses.name].handleRequestCancellation().signal : undefined
+    });
+    return response;
   }
 };
 

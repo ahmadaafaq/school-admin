@@ -13,27 +13,9 @@ const initialState = {
     loading: true
 };
 
-const allState = {
-    listData: [],
-    loading: true
-};
-
-export const setStudentsReducer = (state = initialState, action) => {
+export const setListingSchoolHousesReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_STUDENTS:
-            return {
-                ...state,
-                listData: action.payload.listData,
-                loading: action.payload.loading
-            };
-        default:
-            return state;
-    }
-};
-
-export const setAllStudentsReducer = (state = allState, action) => {
-    switch (action.type) {
-        case ActionTypes.SET_ALL_STUDENTS:
+        case ActionTypes.SET_LISTING_SCHOOL_HOUSES:
             return {
                 ...state,
                 listData: action.payload.listData,

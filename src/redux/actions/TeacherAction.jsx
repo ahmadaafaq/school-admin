@@ -14,3 +14,10 @@ export const setTeachers = (teachers) => {
         payload: teachers
     };
 };
+
+export const setAllTeachers = (teachers) => {
+    return {
+        type: ActionTypes.SET_ALL_TEACHERS,
+        payload: teachers
+    };
+};
