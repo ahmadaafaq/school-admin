@@ -8,7 +8,6 @@
 */
 
 import { useEffect, useState } from "react";
-import { useSelector } from 'react-redux'
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -17,7 +16,6 @@ import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 
-import DropDown from "../common/DropDown";
 import "../common/index.css"
 import StatBox from "../common/StatBox";
 import { tokens, themeSettings } from "../../theme";
@@ -29,12 +27,10 @@ import studentCountBg from "../assets/studentCountBg.jpg";
 import schoolbusCountBg from "../assets/schoolbusCountBg.jpg";
 import teacherCountBg from "../assets/teacherCountBg.jpg";
 import employeeCountBg from "../assets/employeeCountBg.jpg";
+import schoolCountBg from "../assets/schoolCountBg.jpg";
 
 const Dashboard = ({ rolePriority = null }) => {
-  const [selectedClass, setSelectedClass] = useState('');
-  const [selectedSection, setSelectedSection] = useState('');
   const [dashboardCount, setDashboardCount] = useState({});
-
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
@@ -87,7 +83,7 @@ const Dashboard = ({ rolePriority = null }) => {
   };
   const option = {
     chart: {
-      type: 'pie',  // Use 'line' for a line chart
+      type: 'pie',
       backgroundColor: colors.redAccent[800],
       borderRadius: 6,
       width: null,
@@ -198,10 +194,6 @@ const Dashboard = ({ rolePriority = null }) => {
         >
           Dashboard
         </Typography>
-        {/* <DropDown
-          onSelectClass={(selectedClass) => setSelectedClass(selectedClass)}
-          onSelectSection={(selectedSection) => setSelectedSection(selectedSection)}
-        /> */}
       </Box>
       {/* GRID & CHARTS */}
       <Box
@@ -215,7 +207,6 @@ const Dashboard = ({ rolePriority = null }) => {
       >
         {/* ROW 1 */}
         <Box
-          // backgroundColor={colors.yellowAccent[100]}
           display="flex"
           alignItems="center"
           justifyContent="center"
@@ -229,8 +220,10 @@ const Dashboard = ({ rolePriority = null }) => {
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             backgroundSize: "cover",
-            backdropFilter: "blur(50px)",
-            // backgroundAttachment: "fixed",
+            transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
+            ':hover': {
+              transform: 'scale(1.1)',
+            }
           }}
         >
           <StatBox
@@ -238,7 +231,6 @@ const Dashboard = ({ rolePriority = null }) => {
             subtitle="Students"
             progress={`${(dashboardCount.student / 5000)}`}
             increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
-            color='rgb(236 246 255)'
             icon={
               <Groups3Icon
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
@@ -252,18 +244,27 @@ const Dashboard = ({ rolePriority = null }) => {
             display="flex"
             alignItems="center"
             justifyContent="center"
-            // "borderRadius="20% 80% 16% 84% / 80% 19% 81% 20%  "
             borderRadius="20px"
             padding={isMobile ? "8px" : "15px"}
             gridArea="box2"
             boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
+            sx={{
+              backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url(${schoolCountBg})`
+                : `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${schoolCountBg})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+              transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
+              ':hover': {
+                transform: 'scale(1.1)',
+              }
+            }}
           >
             <StatBox
               title={dashboardCount.school}
               subtitle="schools"
               progress={`${(dashboardCount.school / 500)}`}
               increase={`${((dashboardCount.school / 500) * 100).toFixed(2)}%`}
-              color={colors.greenAccent[700]}
               icon={
                 <DirectionsBusIcon
                   sx={{ fontSize: isMobile ? "10px" : "26px" }}
@@ -280,13 +281,14 @@ const Dashboard = ({ rolePriority = null }) => {
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
                 backgroundSize: "cover",
-                backdropFilter: "blur(50px)",
-                // backgroundAttachment: "fixed",
+                transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
+                ':hover': {
+                  transform: 'scale(1.1)',
+                }
               }}
               display="flex"
               alignItems="center"
               justifyContent="center"
-              // "borderRadius="20% 80% 16% 84% / 80% 19% 81% 20%  "
               borderRadius="20px"
               padding={isMobile ? "8px" : "15px"}
               gridArea="box2"
@@ -297,7 +299,6 @@ const Dashboard = ({ rolePriority = null }) => {
                 subtitle="Buses"
                 progress={`${(dashboardCount.bus / 500)}`}
                 increase={`${((dashboardCount.bus / 500) * 100).toFixed(2)}%`}
-                color="rgb(245 239 184)"
                 icon={
                   <DirectionsBusIcon
                     sx={{ fontSize: isMobile ? "10px" : "26px" }}
@@ -308,11 +309,9 @@ const Dashboard = ({ rolePriority = null }) => {
           )
             : null}
         <Box
-          // backgroundColor={colors.blueAccent[700]}
           display="flex"
           alignItems="center"
           justifyContent="center"
-          // borderRadius="20% 80% 16% 84% / 80% 19% 81% 20% "
           borderRadius="20px"
           padding={isMobile ? "8px" : "15px"}
           gridArea="box3"
@@ -323,8 +322,10 @@ const Dashboard = ({ rolePriority = null }) => {
             backgroundRepeat: "no-repeat",
             backgroundPosition: "top",
             backgroundSize: "cover",
-            backdropFilter: "blur(50px)",
-            // backgroundAttachment: "fixed",
+            transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
+            ':hover': {
+              transform: 'scale(1.1)',
+            }
           }}
         >
           <StatBox
@@ -332,7 +333,6 @@ const Dashboard = ({ rolePriority = null }) => {
             subtitle="Teachers"
             progress={`${(dashboardCount.teacher / 500)}`}
             increase={`${((dashboardCount.teacher / 500) * 100).toFixed(2)}%`}
-            color="rgb(251 249 233)"
             icon={
               <Diversity3Icon
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
@@ -355,8 +355,10 @@ const Dashboard = ({ rolePriority = null }) => {
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             backgroundSize: "cover",
-            backdropFilter: "blur(50px)",
-            // backgroundAttachment: "fixed",
+            transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
+            ':hover': {
+              transform: 'scale(1.1)',
+            }
           }}
         >
           <StatBox
