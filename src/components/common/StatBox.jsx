@@ -12,10 +12,12 @@ import PropTypes from "prop-types";
 import ProgressCircle from "./ProgressCircle";
 import { tokens } from "../../theme";
 
-const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => {
+const StatBox = ({ title, subtitle, icon, progress, increase }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const isMobile = useMediaQuery("(max-width:480px)");
+
+    const textShadowColor = theme.palette.mode == 'light' ? 'white' : 'black'
 
     return (
         <Box width="100%" m={isMobile ? "0px" : "0 30px"}>
@@ -24,24 +26,25 @@ const StatBox = ({ title, subtitle, icon, progress, increase, yellowColor }) => 
                     {icon}
                     <Typography
                         variant={isMobile ? "h6" : "h4"}
-                        fontWeight="bold"
-                        sx={{ color: colors.primary[500] }}
+                        fontWeight="900"
+                        sx={{ textShadow: `-2px 0 ${textShadowColor}, 0 2px ${textShadowColor}, 2px 0 ${textShadowColor}, 0 -2px ${textShadowColor}` }}
                     >
                         {title}
                     </Typography>
                 </Box>
                 <Box>
-                    <ProgressCircle progress={progress} yellowColor={yellowColor} />
+                    <ProgressCircle progress={progress} />
                 </Box>
             </Box>
             <Box display="flex" justifyContent="space-between" mt="2px">
-                <Typography variant={isMobile ? "h6" : "h5"} sx={{ color: colors.primary[500] }}>
-                    {subtitle}
+                <Typography fontWeight="900" variant={isMobile ? "h6" : "h4"} sx={{ textShadow: `-2px 0 ${textShadowColor}, 0 2px ${textShadowColor}, 2px 0 ${textShadowColor}, 0 -2px ${textShadowColor}` }}>
+                    {subtitle.charAt(0).toUpperCase() + subtitle.slice(1)}
                 </Typography>
                 <Typography
                     variant={isMobile ? "h6" : "h5"}
                     fontStyle="italic"
-                    sx={{ color: colors.primary[500] }}
+                    fontWeight="900"
+                    sx={{ textShadow: `-2px 0 ${textShadowColor}, 0 2px ${textShadowColor}, 2px 0 ${textShadowColor}, 0 -2px ${textShadowColor}` }}
                 >
                     {increase}
                 </Typography>
@@ -55,8 +58,7 @@ StatBox.propTypes = {
     subtitle: PropTypes.string,
     icon: PropTypes.object,
     increase: PropTypes.string,
-    progress: PropTypes.string,
-    yellowColor: PropTypes.string
+    progress: PropTypes.string
 };
 
 export default StatBox;

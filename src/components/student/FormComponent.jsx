@@ -189,7 +189,7 @@ const FormComponent = () => {
                     }
                     if (status) {
                         setLoading(false);
-                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                        toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class') || ''}`);
                     }
                 }
             })
@@ -300,7 +300,7 @@ const FormComponent = () => {
                             try {
                                 await Promise.all([promise1, promise2, promise3]);
                                 setLoading(false);
-                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class')}`);
+                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class') || ''}`);
                             } catch (err) {
                                 setLoading(false);
                                 toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
