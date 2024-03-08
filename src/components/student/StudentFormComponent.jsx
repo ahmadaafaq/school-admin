@@ -50,7 +50,10 @@ const initialValues = {
     caste_group: "",
     gender: "",
     head: 0,
-    status: "inactive"
+    status: "inactive",
+    is_fee_waiver: false,
+    fee_waiver_type: "",
+    waived_fees: ""
 };
 
 const StudentFormComponent = ({
@@ -183,6 +186,8 @@ const StudentFormComponent = ({
             getAndSetSections();
         }
     }, [formik.values?.class, classData?.length]);
+
+    console.log("updatedvales>>>", updatedValues);
 
     return (
         <Box m="20px">
@@ -392,6 +397,7 @@ const StudentFormComponent = ({
                             onChange={new_admission_date => formik.setFieldValue("admission_date", new_admission_date)}
                         />
                     </LocalizationProvider>
+
                     <FormControlLabel label="Is Specially Abled" sx={{ gridColumn: isMobile ? "span 2" : "" }}
                         control={
                             <Checkbox {...checkboxLabel} color="default"
@@ -401,6 +407,7 @@ const StudentFormComponent = ({
                                 value={formik.values.is_specially_abled}
                             />
                         } />
+
                     <TextField
                         fullWidth
                         variant="filled"
@@ -550,6 +557,70 @@ const StudentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
+
+                    <Box
+                        sx={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gridColumn: "span 3" }}
+                        border='2px solid #BADFE7'
+                        borderRadius='12px'
+                        p='5px'
+
+                    >
+                        <FormControlLabel
+                            label="Is Fee Waiver"
+                            sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                            control={
+                                <Checkbox
+                                    {...checkboxLabel}
+                                    color="default"
+                                    checked={formik.values.is_fee_waiver}
+                                    name="is_fee_waiver"
+                                    onChange={(event, value) => {
+                                        formik.setFieldValue("is_fee_waiver", value);
+
+                                        if (!value) {
+                                            formik.setFieldValue("fee_waiver_type", "");
+                                            formik.setFieldValue("waived_fees", "");
+                                        }
+                                    }}
+                                />
+                            }
+                        />
+
+                        {formik.values.is_fee_waiver && (
+                            <FormControl
+                                variant="filled"
+                                sx={{ minWidth: 120 }}
+                                error={!!formik.touched.fee_waiver_type && !!formik.errors.fee_waiver_type}
+                            >
+                                <InputLabel>Fee Waiver Type</InputLabel>
+                                <Select
+                                    variant="filled"
+                                    name="fee_waiver_type"
+                                    value={formik.values.fee_waiver_type}
+                                    onChange={formik.handleChange}
+                                >
+                                    <MenuItem value={"partial"}>Partial</MenuItem>
+                                    <MenuItem value={"full"}>Full</MenuItem>
+                                </Select>
+                                <FormHelperText>{formik.touched.fee_waiver_type && formik.errors.fee_waiver_type}</FormHelperText>
+                            </FormControl>
+                        )}
+
+                        {formik.values.fee_waiver_type === "partial" && formik.values.is_fee_waiver && (
+                            <TextField
+                                fullWidth
+                                variant="filled"
+                                type="text"
+                                name="waived_fees"
+                                label="Waived Fees (in rupees)"
+                                onBlur={formik.handleBlur}
+                                onChange={formik.handleChange}
+                                value={formik.values.waived_fees}
+                                error={!!formik.touched.waived_fees && !!formik.errors.waived_fees}
+                                helperText={formik.touched.waived_fees && formik.errors.waived_fees}
+                            />
+                        )}
+                    </Box>
                 </Box>
             </form>
             <Toast alerting={toastInfo.toastAlert}
