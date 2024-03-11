@@ -66,7 +66,7 @@ const ListingComponent = ({ rolePriority = null }) => {
     console.log('data', listData)
 
     return (
-        <Box m="10px" position="relative"
+        <Box ml="18%" mt="10px" position="relative"
             sx={{
                 borderRadius: "20px",
                 border: "0.5px solid black",
