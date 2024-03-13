@@ -115,10 +115,10 @@ const FormComponent = () => {
     const createPayment = () => {
         setLoading(true);
         API.PaymentAPI.createPayment({ ...formData.paymentData.values })
-            .then(payment  => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/payment/listing`);
-                        })
+            .then(payment => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/payment/listing`);
+            })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
@@ -147,11 +147,11 @@ const FormComponent = () => {
     const handleFormChange = (data, form) => {
         if (form === 'payment') {
             setFormData({ ...formData, paymentData: data });
-        } 
+        }
     };
 
     return (
-        <Box ml="18%"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
@@ -159,7 +159,7 @@ const FormComponent = () => {
                 backgroundPosition: "start",
                 backgroundSize: "cover",
                 backgroundAttachment: "fixed",
-                height:"100%"
+                height: "100%"
             }}
         >
             <Typography

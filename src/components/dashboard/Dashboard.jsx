@@ -166,15 +166,14 @@ const Dashboard = ({ rolePriority = null }) => {
   }, []);
 
   return (
-    <Box ml={isMobile ? "20%" : "18%"}
+    <Box ml="10px"
       sx={{
         backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), url(${dashBg})`
           : `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${dashBg})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "start",
         backgroundSize: "cover",
-        backgroundAttachment: "fixed",
-        height: "100vh"
+        backgroundAttachment: "fixed"
       }}
     >
       {/* HEADER */}
@@ -206,38 +205,38 @@ const Dashboard = ({ rolePriority = null }) => {
         flexWrap="wrap"
       >
         {/* ROW 1 */}
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-            padding={isMobile ? "8px" : "15px"}
-            borderRadius="20px"
-            gridArea="box1"
-            boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
-            sx={{
-              backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url(${studentCountBg})`
-                : `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${studentCountBg})`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              backgroundSize: "cover",
-              transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
-              ':hover': {
-                transform: 'scale(1.1)',
-              }
-            }}
-          >
-            <StatBox
-              title={dashboardCount.student}
-              subtitle="Students"
-              progress={`${(dashboardCount.student / 5000)}`}
-              increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
-              icon={
-                <Groups3Icon
-                  sx={{ fontSize: isMobile ? "10px" : "26px" }}
-                />
-              }
-            />
-          </Box>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          padding={isMobile ? "8px" : "15px"}
+          borderRadius="20px"
+          gridArea="box1"
+          boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
+          sx={{
+            backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url(${studentCountBg})`
+              : `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${studentCountBg})`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+            transition: "transform 0.3s ease-in-out", // Add a transition for smooth scaling
+            ':hover': {
+              transform: 'scale(1.1)',
+            }
+          }}
+        >
+          <StatBox
+            title={dashboardCount.student}
+            subtitle="Students"
+            progress={`${(dashboardCount.student / 5000)}`}
+            increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
+            icon={
+              <Groups3Icon
+                sx={{ fontSize: isMobile ? "10px" : "26px" }}
+              />
+            }
+          />
+        </Box>
 
         {rolePriority === 1 ? (
           <Box
@@ -379,7 +378,7 @@ const Dashboard = ({ rolePriority = null }) => {
         <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "130%", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
-        <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%",width: isMobile ? "100%" : isTab ? "100%" : "70%", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "30%", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
+        <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "70%", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "30%", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>

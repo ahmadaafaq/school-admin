@@ -41,7 +41,7 @@ import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-import "../common/index.css";
+import "./index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
 
@@ -130,9 +130,6 @@ const Sidebar = ({ rolePriority }) => {
   return (
     <Box
       sx={{
-        position: "fixed",
-        height: "100%",
-        zIndex: "200",
         "& .pro-sidebar-inner": {
           background: theme.palette.mode === 'light' ? `#6ac6ff !important` : 'black',
           boxShadow: "inset -5px 0 10px rgba(0, 0, 0, 0.3)",

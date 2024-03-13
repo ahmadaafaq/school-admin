@@ -108,7 +108,6 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
         position="sticky"
         top="0px"
         zIndex="1000"
-        ml={isMobile ? "20%" : "17.6%"}
       >
         {/* ICONS */}
         <Box>

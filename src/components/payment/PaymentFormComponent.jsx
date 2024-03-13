@@ -138,7 +138,7 @@ const PaymentFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.class && !!formik.errors.class}
                     >
-                        <InputLabel >Class</InputLabel>
+                        <InputLabel>Class</InputLabel>
                         <Select
                             variant="filled"
                             name="class"

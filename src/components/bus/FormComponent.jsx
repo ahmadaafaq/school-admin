@@ -11,15 +11,18 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
+import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
+import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import BusFormComponent from "./BusFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
+import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
@@ -30,14 +33,21 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         busData: { values: null, validated: false },
         addressData: { values: null, validated: false },
+        imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
+    const [deletedImage, setDeletedImage] = useState([]);
+    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
+    const selected = useSelector(state => state.menuItems.selected);
+    const toastInfo = useSelector(state => state.toastInfo);
+
     const busFormRef = useRef();
     const addressFormRef = useRef();
+    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -45,13 +55,11 @@ const FormComponent = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
-    const { createSchoolCode, getLocalStorage, toastAndNavigate } = Utility();
+    const { getPaginatedData } = useCommon();
+    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting bus id from url params
+    //after page refresh the id in router state becomes undefined, so getting Bus id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -60,13 +68,13 @@ const FormComponent = () => {
     }, []);
 
     const updateBusAndAddress = useCallback(formData => {
-        setLoading(true);
-
-        const paths = ["/update-bus", "/update-address"];
+       
         const dataFields = [
             { ...formData.busData.values },
             { ...formData.addressData.values }
         ];
+        const paths = ["/update-bus", "/update-address"];
+        setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -78,7 +86,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/${selected.toLowerCase()}/listing`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/bus/listing/${getLocalStorage('class')}`);
                 };
                 setLoading(false);
             })
@@ -89,11 +97,16 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateData = (id) => {
+    const populateBusData = (id) => {
         setLoading(true);
         const paths = [`/get-by-pk/bus/${id}`, `/get-address/bus/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
+                if (responses[0].data.data) {
+                    // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
+                    responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
+                }
                 const dataObj = {
                     busData: responses[0].data.data,
                     addressData: responses[1]?.data?.data
@@ -110,7 +123,6 @@ const FormComponent = () => {
 
     const createBus = () => {
         setLoading(true);
-
         API.BusAPI.createBus({ ...formData.busData.values })
             .then(({ data: bus }) => {
                 if (bus?.status === 'Success') {
@@ -121,7 +133,7 @@ const FormComponent = () => {
                     })
                         .then(address => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/bus/listing`);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -141,7 +153,7 @@ const FormComponent = () => {
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populateData(id);
+            populateBusData(id);
         }
         if (formData.busData.validated && formData.addressData.validated) {
             formData.busData.values?.id ? updateBusAndAddress(formData) : createBus();
@@ -151,27 +163,28 @@ const FormComponent = () => {
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        console.log("first")
         await busFormRef.current.Submit();
         await addressFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'bus' ? setFormData({ ...formData, busData: data }) :
+        if (form === 'bus') {
+            setFormData({ ...formData, busData: data });
+        } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
+        }
     };
 
     return (
-        <Box ml="18%"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "start",
                 backgroundSize: "cover",
-                backgroundAttachment: "fixed",
-                height:"100%"
+                backgroundAttachment: "fixed"
             }}
         >
             <Typography
@@ -208,7 +221,7 @@ const FormComponent = () => {
             />
 
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on bus update
+                {   //hide reset button on Bus update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}
@@ -222,7 +235,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/${selected.toLowerCase()}/listing`)}>
+                    onClick={() => navigateTo(`/bus/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

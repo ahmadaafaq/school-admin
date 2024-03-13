@@ -70,7 +70,7 @@ const ListingComponent = () => {
     };
 
     return (
-        <Box ml="18%" position="relative"
+        <Box position="relative"
             sx={{
                 borderRadius: "20px",
                 border: "0.5px solid black",
