@@ -11,7 +11,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Box, TextField, useMediaQuery, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import { Box, TextField, useMediaQuery, FormControl, InputLabel, Select, MenuItem, FormHelperText, useTheme } from "@mui/material";
 import { useFormik } from "formik";
 
 import API from "../../apis";
@@ -56,6 +56,7 @@ const SchoolHouseFormComponent = ({
     const allTeachers = useSelector(state => state.allFormTeachers);
 
     const dispatch = useDispatch();
+    const theme = useTheme();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const { fetchAndSetSchoolData } = Utility();
     const { getStudents, getPaginatedData } = useCommon();
@@ -156,7 +157,7 @@ const SchoolHouseFormComponent = ({
                 <Box
                     display="grid"
                     gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                         marginBottom: '40px'
@@ -233,169 +234,189 @@ const SchoolHouseFormComponent = ({
                     </FormControl>
                 </Box>
 
-                <Box
-                    border='2px solid #BADFE7'
-                    borderRadius='12px'
-                    display='grid'
-                    gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    padding='10px'
-                    marginBottom='40px'
-                >
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.captainClassId && !!formik.errors.captainClassId}
+                <fieldset style={{
+                    border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+                    borderRadius: "10px",
+                    padding: "10px",
+                    margin: "20px 0px 20px 0px"
+                }}>
+                    <legend style={{
+                        color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+                        fontWeight: "bold",
+                        padding: "5px",
+                        fontSize: "larger"
+                    }}>
+                        Captain
+                    </legend>
+                    <Box
+                        display='grid'
+                        gap="30px"
+                        gridTemplateColumns="repeat(3, minmax(0, 1fr))"
                     >
-                        <InputLabel id="captainClassField">Captain Class</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="captainClassField"
-                            name="captainClassId"
-                            value={formik.values.captainClassId}
-                            onChange={event => {
-                                formik.setFieldValue("captainClassId", event.target.value);
-                                if (formik.values.captainSectionId) {        //if old values are there, clean them according to change
-                                    formik.setFieldValue("captainSectionId", '');
-                                }
-                                if (formik.values.captain) {
-                                    formik.setFieldValue("captain", '');
-                                }
-                            }}
+                        <FormControl variant="filled" sx={{ minWidth: 120 }}
+                            error={!!formik.touched.captainClassId && !!formik.errors.captainClassId}
                         >
-                            {!schoolClasses?.listData?.length ? null :
-                                schoolClasses.listData.map(cls => (
-                                    <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
-                                        {cls.class_name}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.captainClassId && formik.errors.captainClassId}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.captainSectionId && !!formik.errors.captainSectionId}
-                    >
-                        <InputLabel id="captainSectionField">Captain Section</InputLabel>
-                        <Select
-                            variant="filled"
-                            name="captainSectionId"
-                            value={formik.values.captainSectionId}
-                            onChange={event => {
-                                formik.setFieldValue("captainSectionId", event.target.value);
-                                if (formik.values.captain) {
-                                    formik.setFieldValue("captain", '');
-                                }
-                            }}
+                            <InputLabel>Class</InputLabel>
+                            <Select
+                                variant="filled"
+                                name="captainClassId"
+                                value={formik.values.captainClassId}
+                                onChange={event => {
+                                    formik.setFieldValue("captainClassId", event.target.value);
+                                    if (formik.values.captainSectionId) {            //if old values are, clean them according to change
+                                        formik.setFieldValue("captainSectionId", '');
+                                    }
+                                    if (formik.values.captain) {
+                                        formik.setFieldValue("captain", '');
+                                    }
+                                }}
+                            >
+                                {!schoolClasses?.listData?.length ? null :
+                                    schoolClasses.listData.map(cls => (
+                                        <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                            {cls.class_name}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                            <FormHelperText>{formik.touched.captainClassId && formik.errors.captainClassId}</FormHelperText>
+                        </FormControl>
+                        <FormControl variant="filled" sx={{ minWidth: 120 }}
+                            error={!!formik.touched.captainSectionId && !!formik.errors.captainSectionId}
                         >
-                            {!schoolSections?.listData[formik.values.captainClassId]?.length ? null :
-                                schoolSections.listData[formik.values.captainClassId].map(section => (
-                                    <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
-                                        {section.section_name}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.captainSectionId && formik.errors.captainSectionId}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 220 }}
-                        error={!!formik.touched.captain && !!formik.errors.captain}
-                    >
-                        <InputLabel id="captainField">Captain Name</InputLabel>
-                        <Select
-                            labelId="captainField"
-                            name="captain"
-                            value={formik.values.captain}
-                            onChange={event => formik.setFieldValue("captain", event.target.value)}
+                            <InputLabel>Section</InputLabel>
+                            <Select
+                                variant="filled"
+                                name="captainSectionId"
+                                value={formik.values.captainSectionId}
+                                onChange={event => {
+                                    formik.setFieldValue("captainSectionId", event.target.value);
+                                    if (formik.values.captain) {
+                                        formik.setFieldValue("captain", '');
+                                    }
+                                }}
+                            >
+                                {!schoolSections?.listData[formik.values.captainClassId]?.length ? null :
+                                    schoolSections.listData[formik.values.captainClassId].map(section => (
+                                        <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
+                                            {section.section_name}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                            <FormHelperText>{formik.touched.captainSectionId && formik.errors.captainSectionId}</FormHelperText>
+                        </FormControl>
+                        <FormControl variant="filled" sx={{ minWidth: 220 }}
+                            error={!!formik.touched.captain && !!formik.errors.captain}
                         >
-                            {!allStudents?.listData?.rows?.length ? null :
-                                allStudents.listData.rows.map(item => (
-                                    <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                        {`${item.firstname} ${item.lastname}`}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.captain && formik.errors.captain}</FormHelperText>
-                    </FormControl>
-                </Box>
+                            <InputLabel>Name</InputLabel>
+                            <Select
+                                variant="filled"
+                                name="captain"
+                                value={formik.values.captain}
+                                onChange={event => formik.setFieldValue("captain", event.target.value)}
+                            >
+                                {!allStudents?.listData?.rows?.length ? null :
+                                    allStudents.listData.rows.map(item => (
+                                        <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
+                                            {`${item.firstname} ${item.lastname}`}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                            <FormHelperText>{formik.touched.captain && formik.errors.captain}</FormHelperText>
+                        </FormControl>
+                    </Box>
+                </fieldset>
 
-                <Box
-                    border='2px solid #BADFE7'
-                    borderRadius='12px'
-                    display='grid'
-                    gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    padding='10px'
-                    marginBottom='40px'
-                >
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.viceCaptainClassId && !!formik.errors.viceCaptainClassId}
+                <fieldset style={{
+                    border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+                    borderRadius: "10px",
+                    padding: "10px",
+                    margin: "10px 0px 10px 0px"
+                }}>
+                    <legend style={{
+                        color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+                        fontWeight: "bold",
+                        padding: "5px",
+                        fontSize: "larger"
+                    }}>
+                        Vice Captain
+                    </legend>
+                    <Box
+                        display='grid'
+                        gap="30px"
+                        gridTemplateColumns="repeat(3, minmax(0, 1fr))"
                     >
-                        <InputLabel id="classField">Vice Captain Class</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="classField"
-                            name="class"
-                            value={formik.values.viceCaptainClassId}
-                            onChange={event => {
-                                formik.setFieldValue("viceCaptainClassId", event.target.value);
-                                if (formik.values.viceCaptainSectionId) {     //if old values are there, clean them according to change
-                                    formik.setFieldValue("viceCaptainSectionId", '');
-                                }
-                                if (formik.values.vice_captain) {
-                                    formik.setFieldValue("vice_captain", '');
-                                }
-                            }}
+                        <FormControl variant="filled" sx={{ minWidth: 120 }}
+                            error={!!formik.touched.viceCaptainClassId && !!formik.errors.viceCaptainClassId}
                         >
-                            {!schoolClasses?.listData?.length ? null :
-                                schoolClasses.listData.map(cls => (
-                                    <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
-                                        {cls.class_name}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.viceCaptainClassId && formik.errors.viceCaptainClassId}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.viceCaptainSectionId && !!formik.errors.viceCaptainSectionId}
-                    >
-                        <InputLabel>Vice Captain Section</InputLabel>
-                        <Select
-                            variant="filled"
-                            name="viceCaptainSectionId"
-                            value={formik.values.viceCaptainSectionId}
-                            onChange={event => {
-                                formik.setFieldValue("viceCaptainSectionId", event.target.value);
-                                if (formik.values.vice_captain) {
-                                    formik.setFieldValue("vice_captain", '');
-                                }
-                            }}
+                            <InputLabel>Class</InputLabel>
+                            <Select
+                                variant="filled"
+                                name="viceCaptainClassId"
+                                value={formik.values.viceCaptainClassId}
+                                onChange={event => {
+                                    formik.setFieldValue("viceCaptainClassId", event.target.value);
+                                    if (formik.values.viceCaptainSectionId) {       // If old values are, clean them according to change
+                                        formik.setFieldValue("viceCaptainSectionId", '');
+                                    }
+                                    if (formik.values.vice_captain) {
+                                        formik.setFieldValue("vice_captain", '');
+                                    }
+                                }}
+                            >
+                                {!schoolClasses?.listData?.length ? null :
+                                    schoolClasses.listData.map(cls => (
+                                        <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                            {cls.class_name}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                            <FormHelperText>{formik.touched.viceCaptainClassId && formik.errors.viceCaptainClassId}</FormHelperText>
+                        </FormControl>
+                        <FormControl variant="filled" sx={{ minWidth: 120 }}
+                            error={!!formik.touched.viceCaptainSectionId && !!formik.errors.viceCaptainSectionId}
                         >
-                            {!schoolSections?.listData[formik.values.viceCaptainClassId]?.length ? null :
-                                schoolSections.listData[formik.values.viceCaptainClassId].map(section => (
-                                    <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
-                                        {section.section_name}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.viceCaptainSectionId && formik.errors.viceCaptainSectionId}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 220 }}
-                        error={!!formik.touched.vice_captain && !!formik.errors.vice_captain}
-                    >
-                        <InputLabel id="viceCaptainField">Vice Captain Name</InputLabel>
-                        <Select
-                            labelId="viceCaptainField"
-                            name="vice_captain"
-                            value={formik.values.vice_captain}
-                            onChange={event => formik.setFieldValue("vice_captain", event.target.value)}
+                            <InputLabel>Section</InputLabel>
+                            <Select
+                                variant="filled"
+                                name="viceCaptainSectionId"
+                                value={formik.values.viceCaptainSectionId}
+                                onChange={event => {
+                                    formik.setFieldValue("viceCaptainSectionId", event.target.value);
+                                    if (formik.values.vice_captain) {
+                                        formik.setFieldValue("vice_captain", '');
+                                    }
+                                }}
+                            >
+                                {!schoolSections?.listData[formik.values.viceCaptainClassId]?.length ? null :
+                                    schoolSections.listData[formik.values.viceCaptainClassId].map(section => (
+                                        <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
+                                            {section.section_name}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                            <FormHelperText>{formik.touched.viceCaptainSectionId && formik.errors.viceCaptainSectionId}</FormHelperText>
+                        </FormControl>
+                        <FormControl variant="filled" sx={{ minWidth: 220 }}
+                            error={!!formik.touched.vice_captain && !!formik.errors.vice_captain}
                         >
-                            {!allFormStudents?.listData?.rows?.length ? null :
-                                allFormStudents.listData.rows.map(item => (
-                                    <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                        {`${item.firstname} ${item.lastname}`}
-                                    </MenuItem>
-                                ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.vice_captain && formik.errors.vice_captain}</FormHelperText>
-                    </FormControl>
-                </Box>
+                            <InputLabel>Name</InputLabel>
+                            <Select
+                                variant="filled"
+                                name="vice_captain"
+                                value={formik.values.vice_captain}
+                                onChange={event => formik.setFieldValue("vice_captain", event.target.value)}
+                            >
+                                {!allFormStudents?.listData?.rows?.length ? null :
+                                    allFormStudents.listData.rows.map(item => (
+                                        <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
+                                            {`${item.firstname} ${item.lastname}`}
+                                        </MenuItem>
+                                    ))}
+                            </Select>
+                            <FormHelperText>{formik.touched.vice_captain && formik.errors.vice_captain}</FormHelperText>
+                        </FormControl>
+                    </Box>
+                </fieldset>
             </form>
         </Box>
     );

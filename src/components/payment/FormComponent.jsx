@@ -83,7 +83,6 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", path)
             .then(res => {
                 const firstApiResponse = res[0].data;
-                console.log(firstApiResponse, 'firstApiResponse');
                 if (firstApiResponse.status === 'Success') {
                     firstApiResponse.data.payment_date = dayjs(firstApiResponse.data.payment_date);
                     if (firstApiResponse.data.due_date != null) {
@@ -97,7 +96,6 @@ const FormComponent = () => {
                                 class_id: result.data.class,
                                 section: result.data.section
                             };
-                            console.log(dataObj, 'dataObj');
                             setUpdatedValues(dataObj);
                             setLoading(false);
                         })
@@ -116,7 +114,6 @@ const FormComponent = () => {
         setLoading(true);
         // eslint-disable-next-line no-unused-vars
         const { class_id, section, ...modifiedObj } = formData.paymentData.values;
-        console.log(modifiedObj, 'modifiedobj')
 
         API.PaymentAPI.createPayment(modifiedObj)
             .then(({ data: payment }) => {
@@ -155,7 +152,7 @@ const FormComponent = () => {
     };
 
     return (
-        <Box ml="10px"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,

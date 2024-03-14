@@ -103,6 +103,7 @@ const PaymentFormComponent = ({
         }
     }, [updatedValues]);
 
+
     useEffect(() => {
         if (!schoolClasses?.listData?.length || !schoolSections?.listData?.length) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
@@ -229,8 +230,8 @@ const PaymentFormComponent = ({
                     >
                         <InputLabel>Type</InputLabel>
                         <Select
-                            variant="filled"
                             name="type"
+                            variant="filled"
                             value={formik.values.type}
                             onChange={formik.handleChange}
                         >
@@ -246,8 +247,8 @@ const PaymentFormComponent = ({
                     >
                         <InputLabel>Payment Method</InputLabel>
                         <Select
-                            variant="filled"
                             name="payment_method"
+                            variant="filled"
                             value={formik.values.payment_method}
                             onChange={formik.handleChange}
                         >
@@ -262,8 +263,8 @@ const PaymentFormComponent = ({
                     >
                         <InputLabel>Payment Status</InputLabel>
                         <Select
-                            variant="filled"
                             name="payment_status"
+                            variant="filled"
                             value={formik.values.payment_status}
                             onChange={formik.handleChange}
                         >
