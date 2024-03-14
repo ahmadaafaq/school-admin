@@ -37,6 +37,7 @@ const initialValues = {
     strength: "",
     status: "inactive"
 };
+let sectionObj = {};
 
 const SchoolHouseFormComponent = ({
     onChange,
@@ -83,6 +84,17 @@ const SchoolHouseFormComponent = ({
         }
     };
 
+    const getAndSetSections = (classId) => {
+        const classSections = classData?.filter(obj => obj.class_id === classId) || [];
+        const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+        // cloning existing sectionObj, then updating sections according to classId before dispatching
+        sectionObj = {
+            ...sectionObj,
+            [classId]: selectedSections
+        };
+        dispatch(setSchoolSections(sectionObj));
+    };
+
     useEffect(() => {
         if (reset) {
             formik.resetForm();
@@ -109,13 +121,13 @@ const SchoolHouseFormComponent = ({
         }
     }, []);
 
-    // to bring students for selected class & section for captain
     useEffect(() => {
         if (!schoolClasses?.listData?.length || !schoolSections?.listData?.length) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
     }, []);
 
+    // to bring students for selected class & section for captain
     useEffect(() => {
         if (formik.values.captainClassId && formik.values.captainSectionId) {
             getStudents(formik.values.captainClassId, formik.values.captainSectionId, setAllStudents, API);
@@ -123,12 +135,7 @@ const SchoolHouseFormComponent = ({
     }, [formik.values.captainClassId, formik.values.captainSectionId]);
 
     useEffect(() => {
-        const getAndSetSections = () => {
-            const classSections = classData?.filter(obj => obj.class_id === formik.values.captainClassId) || [];
-            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-            dispatch(setSchoolSections(selectedSections));
-        };
-        getAndSetSections();
+        getAndSetSections(formik.values.captainClassId);
     }, [formik.values.captainClassId, classData?.length]);
 
 
@@ -140,12 +147,7 @@ const SchoolHouseFormComponent = ({
     }, [formik.values.viceCaptainClassId, formik.values.viceCaptainSectionId]);
 
     useEffect(() => {
-        const getAndSetSections = () => {
-            const classSections = classData?.filter(obj => obj.class_id === formik.values.viceCaptainClassId) || [];
-            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-            dispatch(setSchoolSections(selectedSections));
-        };
-        getAndSetSections();
+        getAndSetSections(formik.values.viceCaptainClassId);
     }, [formik.values.viceCaptainClassId, classData?.length]);
 
     return (
@@ -254,6 +256,9 @@ const SchoolHouseFormComponent = ({
                                 if (formik.values.captainSectionId) {        //if old values are there, clean them according to change
                                     formik.setFieldValue("captainSectionId", '');
                                 }
+                                if (formik.values.captain) {
+                                    formik.setFieldValue("captain", '');
+                                }
                             }}
                         >
                             {!schoolClasses?.listData?.length ? null :
@@ -273,10 +278,15 @@ const SchoolHouseFormComponent = ({
                             variant="filled"
                             name="captainSectionId"
                             value={formik.values.captainSectionId}
-                            onChange={event => formik.setFieldValue("captainSectionId", event.target.value)}
+                            onChange={event => {
+                                formik.setFieldValue("captainSectionId", event.target.value);
+                                if (formik.values.captain) {
+                                    formik.setFieldValue("captain", '');
+                                }
+                            }}
                         >
-                            {!schoolSections?.listData?.length ? null :
-                                schoolSections.listData.map(section => (
+                            {!schoolSections?.listData[formik.values.captainClassId]?.length ? null :
+                                schoolSections.listData[formik.values.captainClassId].map(section => (
                                     <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                         {section.section_name}
                                     </MenuItem>
@@ -328,6 +338,9 @@ const SchoolHouseFormComponent = ({
                                 if (formik.values.viceCaptainSectionId) {     //if old values are there, clean them according to change
                                     formik.setFieldValue("viceCaptainSectionId", '');
                                 }
+                                if (formik.values.vice_captain) {
+                                    formik.setFieldValue("vice_captain", '');
+                                }
                             }}
                         >
                             {!schoolClasses?.listData?.length ? null :
@@ -347,10 +360,15 @@ const SchoolHouseFormComponent = ({
                             variant="filled"
                             name="viceCaptainSectionId"
                             value={formik.values.viceCaptainSectionId}
-                            onChange={event => formik.setFieldValue("viceCaptainSectionId", event.target.value)}
+                            onChange={event => {
+                                formik.setFieldValue("viceCaptainSectionId", event.target.value);
+                                if (formik.values.vice_captain) {
+                                    formik.setFieldValue("vice_captain", '');
+                                }
+                            }}
                         >
-                            {!schoolSections?.listData?.length ? null :
-                                schoolSections.listData.map(section => (
+                            {!schoolSections?.listData[formik.values.viceCaptainClassId]?.length ? null :
+                                schoolSections.listData[formik.values.viceCaptainClassId].map(section => (
                                     <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                         {section.section_name}
                                     </MenuItem>

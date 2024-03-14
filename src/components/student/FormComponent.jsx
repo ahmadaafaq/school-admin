@@ -449,7 +449,6 @@ const FormComponent = () => {
             <Box display="flex" justifyContent="end" m="20px" pb="20px">
                 {showIdCard && <>
                     <Button color="info" variant="contained" sx={{ mr: 30 }}
-                        disabled={!dirty}
                         onClick={() => setOpenDialog(!openDialog)}
                     >
                         Generate ICard

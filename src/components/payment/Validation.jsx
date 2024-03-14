@@ -8,25 +8,14 @@
 
 import * as yup from "yup";
 
-const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-const emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
 const checkoutSchema = yup.object().shape({
     academic_year: yup.string()
-         .min(2, 'Firstname is Too Short!')
-         .max(20, 'Firstname is Too Long!')
-         .required("This Field is Required")
-    // lastname: yup.string()
-    //     .min(2, 'Lastname is Too Short!')
-    //     .max(20, 'Lastname is Too Long!')
-    //     .required("This Field is Required"),
-    // email: yup.string()
-    //     .matches(emailRegExp, "Email Address is Not Valid"),
-    // contact_no: yup.string()
-    //     .matches(phoneRegExp, "Phone Number Is Not Valid")
-    //     .required("This Field is Required"),
-    // gender: yup.string(),
-    // status: yup.string()
+        .min(2, 'Year is Too Short!')
+        .max(10, 'Year is Too Long!')
+        .required("This Field is Required"),
+    payment_date: yup.date()
+        .required("This Field is Required"),
+    due_date: yup.date(),
 });
 
 export default checkoutSchema;

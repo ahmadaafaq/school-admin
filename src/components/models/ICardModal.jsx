@@ -38,7 +38,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-    const countryName = document.getElementById("country");
     const stateName = document.getElementById("state");
     const cityName = document.getElementById("city");
     // const isMobile = useMediaQuery("(max-width:480px)");
@@ -118,7 +117,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                         Logo
                     </Avatar>
                     <div style={{ display: 'flex', flexWrap: "wrap" }}>
-                        <p className='heading-text' style={{ textAlign: "left", fontSize: '16px', marginBottom: '2px',marginTop:"5px" }}>
+                        <p className='heading-text' style={{ textAlign: "left", fontSize: '16px', marginBottom: '2px', marginTop: "5px" }}>
                             {iCardDetails?.schoolData?.name}
                         </p>
                         <p className='normal-text' style={{ margin: '0' }}>
@@ -174,7 +173,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
 
                             <span className='heading-text'>Address:</span>
                             <span className='normal-text'>{`${iCardDetails?.street} ${iCardDetails?.landmark} ${iCardDetails?.studentCity ? iCardDetails.studentCity : cityName?.innerText}
-                            ${iCardDetails?.studentState ? iCardDetails.studentState : stateName?.innerText} ${iCardDetails?.studentCountry ? iCardDetails?.studentCountry : countryName?.innerText}-${iCardDetails?.zipcode}`}</span>
+                            ${iCardDetails?.studentState ? iCardDetails.studentState : stateName?.innerText} India-${iCardDetails?.zipcode}`}</span>
                         </Box>
                     </List>
                 </CardContent>

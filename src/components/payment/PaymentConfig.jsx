@@ -16,7 +16,6 @@ import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRen
 import { tokens } from "../../theme";
 
 export const datagridColumns = (rolePriority = null) => {
-
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -133,6 +132,7 @@ export const datagridColumns = (rolePriority = null) => {
                         p="5px"
                         display="flex"
                         justifyContent="center"
+                        borderRadius="4px"
                         backgroundColor={
                             payment_method === "cash"
                                 ? colors.greenAccent[600]
@@ -142,7 +142,6 @@ export const datagridColumns = (rolePriority = null) => {
                                         ? colors.blueAccent[800]
                                         : colors.blueAccent[800]
                         }
-                        borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
                             {payment_method}
@@ -154,14 +153,6 @@ export const datagridColumns = (rolePriority = null) => {
         {
             field: "payment_date",
             headerName: "Payment Date",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
-        {
-            field: "late_fee",
-            headerName: "Late Fee",
             headerAlign: "center",
             align: "center",
             flex: 1,

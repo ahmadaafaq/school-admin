@@ -17,11 +17,12 @@ import './index.css';
 import API from "../../apis";
 import addressValidation from "./Validation";
 
+const countryId = import.meta.env.VITE_DEFAULT_COUNTRY_ID;
 const initialValues = {
     street: "",
     landmark: "",
     zipcode: "",
-    country: 0,
+    country: countryId,
     state: 0,
     city: 0
 };
@@ -39,8 +40,6 @@ const AddressFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [countries, setCountries] = useState([]);
-    const [countryId, setCountryId] = useState(null);
     const [states, setStates] = useState([]);
     const [stateId, setStateId] = useState(null);
     const [cities, setCities] = useState([]);
@@ -52,7 +51,7 @@ const AddressFormComponent = ({
         initialValues: initialState,
         validationSchema: addressValidation,
         enableReinitialize: true,
-        onSubmit: () => watchForm(),
+        onSubmit: () => watchForm()
     });
 
     React.useImperativeHandle(refId, () => ({
@@ -91,22 +90,22 @@ const AddressFormComponent = ({
         }
     }, [updatedValues]);
 
-    useEffect(() => {
-        const getCountry = () => {
-            API.CountryAPI.getCountries()
-                .then(country => {
-                    if (country?.status === 'Success') {
-                        setCountries(country.data.list);
-                    } else {
-                        console.log("An Error Occurred, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getCountry();
-    }, []);
+    // useEffect(() => {        not required now, because this web app is only for india
+    //     const getCountry = () => {
+    //         API.CountryAPI.getCountries()
+    //             .then(country => {
+    //                 if (country?.status === 'Success') {
+    //                     setCountries(country.data.list);
+    //                 } else {
+    //                     console.log("An Error Occurred, Please Try Again");
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 throw err;
+    //             });
+    //     };
+    //     getCountry();
+    // }, []);
 
     useEffect(() => {
         const getStates = () => {
@@ -153,7 +152,7 @@ const AddressFormComponent = ({
             .catch(err => {
                 setCities([]);
                 formik.setFieldValue("city", 0);
-                throw err;
+                console.log('Error getting cities', err);
             });
     }, [formik.values.state, stateId]);
 
@@ -166,18 +165,18 @@ const AddressFormComponent = ({
         }
     }, [formik.values]);
 
-    useEffect(() => {
-        if (formik.values.country) {
-            const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
-            console.log(selectedObj, 'db country');
-            if (iCardDetails) {
-                setICardDetails({
-                    ...iCardDetails,
-                    studentCountry: selectedObj[0]?.name
-                });
-            }
-        }
-    }, [formik.values?.country]);
+    // useEffect(() => {
+    //     if (formik.values.country) {
+    //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
+    //         console.log(selectedObj, 'db country');
+    //         if (iCardDetails) {
+    //             setICardDetails({
+    //                 ...iCardDetails,
+    //                 studentCountry: selectedObj[0]?.name
+    //             });
+    //         }
+    //     }
+    // }, [formik.values?.country]);
 
     useEffect(() => {
         if (formik.values.state) {
@@ -217,7 +216,7 @@ const AddressFormComponent = ({
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                         transform: 'translate(0)',
-                        transformStyle: 'preserve-3d',
+                        transformStyle: 'preserve-3d'
                     }}
                 >
                     <TextField
@@ -260,30 +259,7 @@ const AddressFormComponent = ({
                         value={formik.values.zipcode}
                         error={!!formik.touched.zipcode && !!formik.errors.zipcode}
                         helperText={formik.touched.zipcode && formik.errors.zipcode}
-                        sx={{ gridColumn: "span 1" }}
                     />
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.country && !!formik.errors.country}
-                    >
-                        <InputLabel id="countryField">--Select Country*--</InputLabel>
-                        <Select
-                            id="country"
-                            name="country"
-                            variant="filled"
-                            value={formik.values.country}
-                            onChange={event => {
-                                setCountryId(event.target.value);
-                                formik.setFieldValue("country", event.target.value);
-                            }}
-                        >
-                            {countries.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.country && formik.errors.country}</FormHelperText>
-                    </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.state && !!formik.errors.state}
                     >
