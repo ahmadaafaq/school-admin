@@ -151,7 +151,7 @@ const ListingComponent = ({ rolePriority = null }) => {
     }, [listData?.rows?.length, classSectionObj?.section_id]);
 
     return (
-        <Box m="8px" position="relative"
+        <Box m="10px" position="relative"
             sx={{
                 borderRadius: "20px",
                 border: "0.5px solid black",

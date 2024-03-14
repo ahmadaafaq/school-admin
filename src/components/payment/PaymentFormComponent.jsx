@@ -7,7 +7,7 @@
 */
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
@@ -18,12 +18,15 @@ import { useFormik } from "formik";
 import API from "../../apis";
 import paymentValidation from "./Validation";
 
-import { setListingClasses } from "../../redux/actions/ClassAction";
-import { setListingSections } from "../../redux/actions/SectionAction";
-import { setStudents } from "../../redux/actions/StudentAction";
+import { setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setSchoolSections } from "../../redux/actions/SectionAction";
+import { setAllStudents, setStudents } from "../../redux/actions/StudentAction";
 import { useCommon } from "../hooks/common";
+import { Utility } from "../utility";
+
 
 const initialValues = {
+    student: "",
     academic_year: "",
     amount: "",
     due_date: null,
@@ -45,14 +48,13 @@ const PaymentFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [classId, setClassId] = useState(null);
-    const classInRedux = useSelector(state => state.listingClasses);
-    const [sectionId, setSectionId] = useState(null);
-    const sectionInRedux = useSelector(state => state.listingSections);
-    const [studentId, setStudentId] = useState(null);
-    const studentInRedux = useSelector(state => state.allStudents);
+    const [classData, setClassData] = useState([]);
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
+    const allStudents = useSelector(state => state.allFormStudents);
 
-    // const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
+    const dispatch = useDispatch();
+    const { fetchAndSetSchoolData } = Utility();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const { getPaginatedData, getStudents } = useCommon();
@@ -100,22 +102,27 @@ const PaymentFormComponent = ({
         }
     }, [updatedValues]);
 
+
     useEffect(() => {
-        if (!classInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 100, setListingClasses, API.ClassAPI);
+        if (!schoolClasses?.listData?.length || !schoolSections?.listData?.length) {
+            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
-    }, [classInRedux?.listData?.rows]);
+    }, []);
 
     useEffect(() => {
-        if (!sectionInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 100, setListingSections, API.SectionAPI);
+        if (formik.values.class && formik.values.section) {
+            getStudents(formik.values.class, formik.values.section, setAllStudents, API);
         }
-    }, [sectionInRedux?.listData?.rows]);
+    }, [formik.values.class, formik.values.section]);
 
     useEffect(() => {
-        getStudents(formik.values.class_id, formik.values.section_id, setStudents, API);
-    }, [formik.values.class_id, formik.values.section_id]);
-
+        const getAndSetSections = () => {
+            const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
+            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+            dispatch(setSchoolSections(selectedSections));
+        };
+        getAndSetSections();
+    }, [formik.values.class, classData?.length]);
 
     return (
         <Box m="20px">
@@ -129,77 +136,66 @@ const PaymentFormComponent = ({
                     }}
                 >
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.class_id && !!formik.errors.class_id}
+                        error={!!formik.touched.class && !!formik.errors.class}
                     >
-                        <InputLabel id="classField">--Select class*--</InputLabel>
+                        <InputLabel>Class</InputLabel>
                         <Select
-                            autoComplete="new-class_id"
-                            name="class_id"
                             variant="filled"
-                            value={formik.values.class_id}
+                            name="class"
+                            value={formik.values.class}
                             onChange={event => {
-                                const getClassId = event.target.value;
-                                setClassId(getClassId);
-                                formik.setFieldValue("class_id", event.target.value);
+                                formik.setFieldValue("class", event.target.value);
+                                if (formik.values.section) {        //if old values are there, clean them according to change
+                                    formik.setFieldValue("section", '');
+                                }
                             }}
                         >
-                            {classInRedux?.listData?.rows?.length && classInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
+                            {!schoolClasses?.listData?.length ? null :
+                                schoolClasses.listData.map(cls => (
+                                    <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_name}>
+                                        {cls.class_name}
+                                    </MenuItem>
+                                ))}
                         </Select>
-                        <FormHelperText>{formik.touched.class_id && formik.errors.class_id}</FormHelperText>
+                        <FormHelperText>{formik.touched.class && formik.errors.class}</FormHelperText>
                     </FormControl>
-
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.section_id && !!formik.errors.section_id}
+                        error={!!formik.touched.section && !!formik.errors.section}
                     >
-                        <InputLabel id="sectionField">--Select section*--</InputLabel>
+                        <InputLabel >Section</InputLabel>
                         <Select
-                            autoComplete="new-section_id"
-                            name="section_id"
                             variant="filled"
-                            value={formik.values.section_id}
-                            onChange={event => {
-                                const getSectionId = event.target.value;
-                                setSectionId(getSectionId);
-                                formik.setFieldValue("section_id", event.target.value);
-
-                            }}
+                            name="section"
+                            value={formik.values.section}
+                            onChange={event => formik.setFieldValue("section", event.target.value)}
                         >
-                            {sectionInRedux?.listData?.rows?.length && sectionInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
+                            {!schoolSections?.listData?.length ? null :
+                                schoolSections.listData.map(section => (
+                                    <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
+                                        {section.section_name}
+                                    </MenuItem>
+                                ))}
                         </Select>
-                        <FormHelperText>{formik.touched.section_id && formik.errors.section_id}</FormHelperText>
+                        <FormHelperText>{formik.touched.section && formik.errors.section}</FormHelperText>
                     </FormControl>
-
-
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.student_id && !!formik.errors.student_id}
+                    <FormControl variant="filled" sx={{ minWidth: 220 }}
+                        error={!!formik.touched.student && !!formik.errors.student}
                     >
-                        <InputLabel id="studentField">--Select student*--</InputLabel>
+                        <InputLabel id="studentField">Name</InputLabel>
                         <Select
-                            autoComplete="new-student_id"
-                            name="student_id"
-                            variant="filled"
-                            value={formik.values.student_id}
-                            onChange={event => {
-                                const getStudentId = event.target.value;
-                                setStudentId(getStudentId);
-                                formik.setFieldValue("student_id", event.target.value);
-                            }}
+                            labelId="studentField"
+                            name="student"
+                            value={formik.values.student}
+                            onChange={event => formik.setFieldValue("student", event.target.value)}
                         >
-                            {studentInRedux?.listData?.rows?.length && studentInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.firstname}>
-                                    {`${item.firstname} ${item.lastname}`}
-                                </MenuItem>
-                            ))}
+                            {!allStudents?.listData?.rows?.length ? null :
+                                allStudents.listData.rows.map(item => (
+                                    <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
+                                        {`${item.firstname} ${item.lastname}`}
+                                    </MenuItem>
+                                ))}
                         </Select>
-                        <FormHelperText>{formik.touched.student_id && formik.errors.student_id}</FormHelperText>
+                        <FormHelperText>{formik.touched.student && formik.errors.student}</FormHelperText>
                     </FormControl>
 
                     <TextField

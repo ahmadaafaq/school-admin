@@ -42,7 +42,7 @@ export const datagridColumns = (rolePriority = null) => {
             minWidth: 120
         },
         {
-            field: "contact_no",
+            field: "driver_contact",
             headerName: "CONTACT",
             headerAlign: "center",
             align: "center",
@@ -50,7 +50,7 @@ export const datagridColumns = (rolePriority = null) => {
             minWidth: 100
         },
         {
-            field: "license_no",
+            field: "driver_license",
             headerName: "LICENSE",
             headerAlign: "center",
             align: "center",

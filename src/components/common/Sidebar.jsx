@@ -33,6 +33,7 @@ import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
 import HourglassBottomTwoToneIcon from '@mui/icons-material/HourglassBottomTwoTone';
+import EmojiFlagsRoundedIcon from '@mui/icons-material/EmojiFlagsRounded';
 
 import API from "../../apis";
 import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
@@ -40,7 +41,7 @@ import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-import "../common/index.css";
+import "./index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
 
@@ -202,7 +203,7 @@ const Sidebar = ({ rolePriority }) => {
         }
       }}
     >
-      <ProSidebar collapsed={isCollapsed}>
+      <ProSidebar collapsed={isCollapsed} >
         <Menu iconShape="square" onClick={(event) => closeSubMenu(event)}>
           {/* LOGO AND MENU ICON */}
           <MenuItem
@@ -378,7 +379,7 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="School House"
               to="/school-house/listing"
-              icon={<HourglassBottomTwoToneIcon />}
+              icon={<EmojiFlagsRoundedIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}

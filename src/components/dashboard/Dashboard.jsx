@@ -23,9 +23,9 @@ import { studentData, lineData } from "../common/CustomCharts";
 import API from "../../apis";
 
 import dashBg from "../assets/formBg.png";
-import studentCountBg from "../assets/studentCountBg.jpg";
+import studentCountBg from "../assets/studentCountBg.png";
 import schoolbusCountBg from "../assets/schoolbusCountBg.jpg";
-import teacherCountBg from "../assets/teacherCountBg.jpg";
+import teacherCountBg from "../assets/teacherCountBg.png";
 import employeeCountBg from "../assets/employeeCountBg.jpg";
 import schoolCountBg from "../assets/schoolCountBg.jpg";
 
@@ -173,8 +173,7 @@ const Dashboard = ({ rolePriority = null }) => {
         backgroundRepeat: "no-repeat",
         backgroundPosition: "start",
         backgroundSize: "cover",
-        backgroundAttachment: "fixed",
-        height: "100vh"
+        backgroundAttachment: "fixed"
       }}
     >
       {/* HEADER */}
@@ -199,7 +198,7 @@ const Dashboard = ({ rolePriority = null }) => {
       <Box
         display="grid"
         gridTemplateColumns={isMobile ? "repeat(2, minmax(0, 1fr))" : isTab ? "repeat(2, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))"}
-        gridTemplateRows={isMobile ? "0.1fr 0.1fr 0.2fr 0.2fr" : isTab ? "1fr 1fr 2fr 2fr" : ""}
+        gridTemplateRows={isMobile ? "0.1fr 0.1fr 2fr 2fr" : isTab ? "1fr 1fr 2fr 2fr" : ""}
         gridTemplateAreas={isMobile ? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"` : isTab ? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"` : `"box1 box2 box3 box4" "chart1 chart1 chart2 chart2"`}
         gap={isMobile ? "15px" : "30px"}
         margin={isMobile ? "10px" : "20px"}
@@ -213,7 +212,7 @@ const Dashboard = ({ rolePriority = null }) => {
           padding={isMobile ? "8px" : "15px"}
           borderRadius="20px"
           gridArea="box1"
-          boxShadow=" rgb(38, 57, 77) 0px 20px 30px -10px;"
+          boxShadow="rgb(38, 57, 77) 0px 20px 30px -10px;"
           sx={{
             backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url(${studentCountBg})`
               : `linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${studentCountBg})`,
@@ -238,6 +237,7 @@ const Dashboard = ({ rolePriority = null }) => {
             }
           />
         </Box>
+
         {rolePriority === 1 ? (
           <Box
             backgroundColor={colors.yellowAccent[100]}
@@ -375,10 +375,10 @@ const Dashboard = ({ rolePriority = null }) => {
           />
         </Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "110vh", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
+        <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "130%", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
-        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "60vh", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "24vh", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
+        <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "70%", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "30%", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={option} /></Box>
 
       </Box>

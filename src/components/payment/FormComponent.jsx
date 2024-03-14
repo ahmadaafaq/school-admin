@@ -14,8 +14,6 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 
 import API from "../../apis";
-import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import PaymentFormComponent from "./PaymentFormComponent";
@@ -32,13 +30,9 @@ const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        paymentData: { values: null, validated: false },
-        addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true }
+        paymentData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
@@ -48,8 +42,6 @@ const FormComponent = () => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const paymentFormRef = useRef();
-    const addressFormRef = useRef();
-    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -69,10 +61,9 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updatePaymentAndAddress = useCallback(formData => {
+    const updatePayment = useCallback(formData => {
         const dataFields = [
-            { ...formData.paymentData.values },
-            { ...formData.addressData.values }
+            { ...formData.paymentData.values }
         ];
         const paths = ["/update-payment", "/update-address"];
         setLoading(true);
@@ -100,7 +91,7 @@ const FormComponent = () => {
 
     const populatePaymentData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/payment/${id}`, `/get-address/payment/${id}`];
+        const paths = [`/get-by-pk/payment/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
@@ -109,8 +100,7 @@ const FormComponent = () => {
                     responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
                 }
                 const dataObj = {
-                    paymentData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
+                    paymentData: responses[0].data.data
                 };
                 setUpdatedValues(dataObj);
                 setLoading(false);
@@ -125,36 +115,16 @@ const FormComponent = () => {
     const createPayment = () => {
         setLoading(true);
         API.PaymentAPI.createPayment({ ...formData.paymentData.values })
-            .then(({ data: payment }) => {
-                if (payment?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: payment.data.id,
-                        parent: 'payment',
-                    })
-                        .then(address => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/payment/listing`);
-                        })
-                        .catch(err => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                            throw err;
-                        });
-                };
+            .then(payment => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/payment/listing`);
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
-            });
-    };
-
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
+            })
+    }
 
     //Create/Update/Populate Payment
     useEffect(() => {
@@ -162,8 +132,8 @@ const FormComponent = () => {
             setTitle("Update");
             populatePaymentData(id);
         }
-        if (formData.paymentData.validated && formData.addressData.validated) {
-            formData.paymentData.values?.id ? updatePaymentAndAddress(formData) : createPayment();
+        if (formData.paymentData.validated) {
+            formData.paymentData.values?.id ? updatePayment(formData) : createPayment();
         } else {
             setSubmitted(false);
         }
@@ -171,24 +141,17 @@ const FormComponent = () => {
 
     const handleSubmit = async () => {
         await paymentFormRef.current.Submit();
-        await addressFormRef.current.Submit();
-        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
         if (form === 'payment') {
             setFormData({ ...formData, paymentData: data });
-        } else if (form === 'address') {
-            setFormData({ ...formData, addressData: data });
         }
-        // } else if (form === 'parent') {
-        //     setFormData({ ...formData, imageData: data });
-        // }
     };
 
     return (
-        <Box ml="10px"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
@@ -196,7 +159,7 @@ const FormComponent = () => {
                 backgroundPosition: "start",
                 backgroundSize: "cover",
                 backgroundAttachment: "fixed",
-                height:"100%"
+                height: "100%"
             }}
         >
             <Typography
