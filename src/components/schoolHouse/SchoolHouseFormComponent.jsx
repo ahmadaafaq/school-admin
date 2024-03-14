@@ -21,10 +21,8 @@ import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setAllStudents, setStudents } from "../../redux/actions/StudentAction";
 import { setAllTeachers } from "../../redux/actions/TeacherAction";
-import { tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
-
 
 const initialValues = {
     name: "",
@@ -39,6 +37,7 @@ const initialValues = {
     strength: "",
     status: "inactive"
 };
+let sectionObj = {};
 
 const SchoolHouseFormComponent = ({
     onChange,
@@ -58,7 +57,6 @@ const SchoolHouseFormComponent = ({
 
     const dispatch = useDispatch();
     const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const { fetchAndSetSchoolData } = Utility();
     const { getStudents, getPaginatedData } = useCommon();
@@ -87,6 +85,17 @@ const SchoolHouseFormComponent = ({
         }
     };
 
+    const getAndSetSections = (classId) => {
+        const classSections = classData?.filter(obj => obj.class_id === classId) || [];
+        const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+        // cloning existing sectionObj, then updating sections according to classId before dispatching
+        sectionObj = {
+            ...sectionObj,
+            [classId]: selectedSections
+        };
+        dispatch(setSchoolSections(sectionObj));
+    };
+
     useEffect(() => {
         if (reset) {
             formik.resetForm();
@@ -113,13 +122,13 @@ const SchoolHouseFormComponent = ({
         }
     }, []);
 
-    // to bring students for selected class & section for captain
     useEffect(() => {
         if (!schoolClasses?.listData?.length || !schoolSections?.listData?.length) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
     }, []);
 
+    // to bring students for selected class & section for captain
     useEffect(() => {
         if (formik.values.captainClassId && formik.values.captainSectionId) {
             getStudents(formik.values.captainClassId, formik.values.captainSectionId, setAllStudents, API);
@@ -127,12 +136,7 @@ const SchoolHouseFormComponent = ({
     }, [formik.values.captainClassId, formik.values.captainSectionId]);
 
     useEffect(() => {
-        const getAndSetSections = () => {
-            const classSections = classData?.filter(obj => obj.class_id === formik.values.captainClassId) || [];
-            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-            dispatch(setSchoolSections(selectedSections));
-        };
-        getAndSetSections();
+        getAndSetSections(formik.values.captainClassId);
     }, [formik.values.captainClassId, classData?.length]);
 
 
@@ -144,12 +148,7 @@ const SchoolHouseFormComponent = ({
     }, [formik.values.viceCaptainClassId, formik.values.viceCaptainSectionId]);
 
     useEffect(() => {
-        const getAndSetSections = () => {
-            const classSections = classData?.filter(obj => obj.class_id === formik.values.viceCaptainClassId) || [];
-            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-            dispatch(setSchoolSections(selectedSections));
-        };
-        getAndSetSections();
+        getAndSetSections(formik.values.viceCaptainClassId);
     }, [formik.values.viceCaptainClassId, classData?.length]);
 
     return (
@@ -234,6 +233,7 @@ const SchoolHouseFormComponent = ({
                         <FormHelperText>{formik.touched.teacher_incharge && formik.errors.teacher_incharge}</FormHelperText>
                     </FormControl>
                 </Box>
+
                 <fieldset style={{
                     border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
                     borderRadius: "10px",
@@ -256,16 +256,18 @@ const SchoolHouseFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 120 }}
                             error={!!formik.touched.captainClassId && !!formik.errors.captainClassId}
                         >
-                            <InputLabel id="captainClassField">Class</InputLabel>
+                            <InputLabel>Class</InputLabel>
                             <Select
                                 variant="filled"
-                                labelId="captainClassField"
                                 name="captainClassId"
                                 value={formik.values.captainClassId}
                                 onChange={event => {
                                     formik.setFieldValue("captainClassId", event.target.value);
-                                    if (formik.values.captainSectionId) {        //if old values are there, clean them according to change
+                                    if (formik.values.captainSectionId) {            //if old values are, clean them according to change
                                         formik.setFieldValue("captainSectionId", '');
+                                    }
+                                    if (formik.values.captain) {
+                                        formik.setFieldValue("captain", '');
                                     }
                                 }}
                             >
@@ -281,15 +283,20 @@ const SchoolHouseFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 120 }}
                             error={!!formik.touched.captainSectionId && !!formik.errors.captainSectionId}
                         >
-                            <InputLabel id="captainSectionField">Section</InputLabel>
+                            <InputLabel>Section</InputLabel>
                             <Select
                                 variant="filled"
                                 name="captainSectionId"
                                 value={formik.values.captainSectionId}
-                                onChange={event => formik.setFieldValue("captainSectionId", event.target.value)}
+                                onChange={event => {
+                                    formik.setFieldValue("captainSectionId", event.target.value);
+                                    if (formik.values.captain) {
+                                        formik.setFieldValue("captain", '');
+                                    }
+                                }}
                             >
-                                {!schoolSections?.listData?.length ? null :
-                                    schoolSections.listData.map(section => (
+                                {!schoolSections?.listData[formik.values.captainClassId]?.length ? null :
+                                    schoolSections.listData[formik.values.captainClassId].map(section => (
                                         <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                             {section.section_name}
                                         </MenuItem>
@@ -300,9 +307,9 @@ const SchoolHouseFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 220 }}
                             error={!!formik.touched.captain && !!formik.errors.captain}
                         >
-                            <InputLabel id="captainField">Name</InputLabel>
+                            <InputLabel>Name</InputLabel>
                             <Select
-                                labelId="captainField"
+                                variant="filled"
                                 name="captain"
                                 value={formik.values.captain}
                                 onChange={event => formik.setFieldValue("captain", event.target.value)}
@@ -341,16 +348,18 @@ const SchoolHouseFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 120 }}
                             error={!!formik.touched.viceCaptainClassId && !!formik.errors.viceCaptainClassId}
                         >
-                            <InputLabel id="classField">Class</InputLabel>
+                            <InputLabel>Class</InputLabel>
                             <Select
                                 variant="filled"
-                                labelId="classField"
-                                name="class"
+                                name="viceCaptainClassId"
                                 value={formik.values.viceCaptainClassId}
                                 onChange={event => {
                                     formik.setFieldValue("viceCaptainClassId", event.target.value);
-                                    if (formik.values.viceCaptainSectionId) {     //if old values are there, clean them according to change
+                                    if (formik.values.viceCaptainSectionId) {       // If old values are, clean them according to change
                                         formik.setFieldValue("viceCaptainSectionId", '');
+                                    }
+                                    if (formik.values.vice_captain) {
+                                        formik.setFieldValue("vice_captain", '');
                                     }
                                 }}
                             >
@@ -371,10 +380,15 @@ const SchoolHouseFormComponent = ({
                                 variant="filled"
                                 name="viceCaptainSectionId"
                                 value={formik.values.viceCaptainSectionId}
-                                onChange={event => formik.setFieldValue("viceCaptainSectionId", event.target.value)}
+                                onChange={event => {
+                                    formik.setFieldValue("viceCaptainSectionId", event.target.value);
+                                    if (formik.values.vice_captain) {
+                                        formik.setFieldValue("vice_captain", '');
+                                    }
+                                }}
                             >
-                                {!schoolSections?.listData?.length ? null :
-                                    schoolSections.listData.map(section => (
+                                {!schoolSections?.listData[formik.values.viceCaptainClassId]?.length ? null :
+                                    schoolSections.listData[formik.values.viceCaptainClassId].map(section => (
                                         <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                             {section.section_name}
                                         </MenuItem>
@@ -385,9 +399,9 @@ const SchoolHouseFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 220 }}
                             error={!!formik.touched.vice_captain && !!formik.errors.vice_captain}
                         >
-                            <InputLabel id="viceCaptainField">Name</InputLabel>
+                            <InputLabel>Name</InputLabel>
                             <Select
-                                labelId="viceCaptainField"
+                                variant="filled"
                                 name="vice_captain"
                                 value={formik.values.vice_captain}
                                 onChange={event => formik.setFieldValue("vice_captain", event.target.value)}
@@ -404,7 +418,7 @@ const SchoolHouseFormComponent = ({
                     </Box>
                 </fieldset>
             </form>
-        </Box >
+        </Box>
     );
 };
 
