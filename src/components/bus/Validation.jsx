@@ -11,17 +11,17 @@ import * as yup from "yup";
 const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
 
 const checkoutSchema = yup.object().shape({
-    // registration_no: yup.string()
-    //     .required("This Field is Required"),
-    // driver: yup.string()
-    //     .required("This Field is Required"),
-    // contact_no: yup.string()
-    //     .matches(phoneRegExp, "Phone Number Is Not Valid")
-    //     .required("This Field is Required"),
-    // license_no: yup.string()
-    //     .required("This Field is Required"),
-    // route: yup.string(),
-    // status: yup.string()
+    registration_no: yup.string()
+        .required("This Field is Required"),
+    driver: yup.string()
+        .required("This Field is Required"),
+    driver_contact: yup.string()
+        .matches(phoneRegExp, "Phone Number Is Not Valid")
+        .required("This Field is Required"),
+    driver_license: yup.string()
+        .required("This Field is Required"),
+    route: yup.string(),
+    status: yup.string()
 });
 
 export default checkoutSchema;

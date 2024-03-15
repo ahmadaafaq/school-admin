@@ -42,7 +42,7 @@ export const datagridColumns = (rolePriority = null) => {
             minWidth: 100
         },
         {
-            field: "note",
+            field: "notes",
             headerName: "Notes",
             headerAlign: "center",
             align: "center",
@@ -97,7 +97,6 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            disabled={rolePriority}
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >

@@ -135,7 +135,6 @@ const EmployeeFormComponent = ({
                         value={formik.values.email}
                         error={!!formik.touched.email && !!formik.errors.email}
                         helperText={formik.touched.email && formik.errors.email}
-
                     />
                     <TextField
                         fullWidth

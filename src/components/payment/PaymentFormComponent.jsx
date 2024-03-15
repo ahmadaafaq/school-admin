@@ -19,6 +19,7 @@ import { useFormik } from "formik";
 
 import API from "../../apis";
 import paymentValidation from "./Validation";
+import Toast from "../common/Toast";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
@@ -53,12 +54,13 @@ const PaymentFormComponent = ({
     const schoolClasses = useSelector(state => state.schoolClasses);
     const schoolSections = useSelector(state => state.schoolSections);
     const allStudents = useSelector(state => state.allFormStudents);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     // const isMobile = useMediaQuery("(max-width:480px)");
     const { getStudents } = useCommon();
-    const { fetchAndSetSchoolData } = Utility();
+    const { toastAndNavigate, fetchAndSetSchoolData } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -172,6 +174,11 @@ const PaymentFormComponent = ({
                             variant="filled"
                             value={formik.values.section}
                             onChange={event => formik.setFieldValue("section", event.target.value)}
+                            onFocus={() => {
+                                if (!formik.values.class_id) {
+                                    toastAndNavigate(dispatch, true, "info", "Please Select a Class First");
+                                }
+                            }}
                         >
                             {!schoolSections?.listData?.length ? null :
                                 schoolSections.listData.map(section => (
@@ -191,6 +198,11 @@ const PaymentFormComponent = ({
                             variant="filled"
                             value={formik.values.student_id}
                             onChange={event => formik.setFieldValue("student_id", event.target.value)}
+                            onFocus={() => {
+                                if (!formik.values.class_id) {
+                                    toastAndNavigate(dispatch, true, "info", "Please Select a Class First");
+                                }
+                            }}
                         >
                             {!allStudents?.listData?.rows?.length ? null :
                                 allStudents.listData.rows.map(item => (
@@ -319,8 +331,13 @@ const PaymentFormComponent = ({
                         helperText={formik.touched.late_fee && formik.errors.late_fee}
                     />
                 </Box>
-            </form>
-        </Box>
+                <Toast alerting={toastInfo.toastAlert}
+                    severity={toastInfo.toastSeverity}
+                    message={toastInfo.toastMessage}
+                />
+            </form >
+
+        </Box >
     );
 };
 

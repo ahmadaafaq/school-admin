@@ -32,12 +32,8 @@ const FormComponent = () => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         holidayData: { values: null, validated: false },
-        addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
@@ -46,8 +42,6 @@ const FormComponent = () => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const holidayFormRef = useRef();
-    const addressFormRef = useRef();
-    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -56,8 +50,7 @@ const FormComponent = () => {
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
+    const { toastAndNavigate, getLocalStorage } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting Holiday id from url params
     let id = state?.id || userParams?.id;
@@ -67,13 +60,12 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateHolidayAndAddress = useCallback(formData => {
-       
+    const updateHoliday = useCallback(formData => {
+
         const dataFields = [
-            { ...formData.holidayData.values },
-            { ...formData.addressData.values }
+            { ...formData.holidayData.values }
         ];
-        const paths = ["/update-holiday", "/update-address"];
+        const paths = ["/update-holiday"];
         setLoading(true);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
@@ -86,7 +78,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/holiday/listing/${getLocalStorage('class')}`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/holiday/listing/${getLocalStorage('class') || ''}`);
                 };
                 setLoading(false);
             })
@@ -99,16 +91,14 @@ const FormComponent = () => {
 
     const populateHolidayData = (id) => {
         setLoading(true);
-        const paths = [`/get-by-pk/holiday/${id}`, `/get-address/holiday/${id}`];
+        const paths = [`/get-by-pk/holiday/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
-                    responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
+                    responses[0].data.data.date = dayjs(responses[0].data.data.date);
                 }
                 const dataObj = {
-                    holidayData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
+                    holidayData: responses[0].data.data
                 };
                 setUpdatedValues(dataObj);
                 setLoading(false);
@@ -123,23 +113,9 @@ const FormComponent = () => {
     const createHoliday = () => {
         setLoading(true);
         API.HolidayAPI.createHoliday({ ...formData.holidayData.values })
-            .then(({ data: holiday }) => {
-                if (holiday?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: holiday.data.id,
-                        parent: 'holiday',
-                    })
-                        .then(address => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/holiday/listing`);
-                        })
-                        .catch(err => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                            throw err;
-                        });
-                };
+            .then(holiday => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/holiday/listing`);
             })
             .catch(err => {
                 setLoading(false);
@@ -154,8 +130,8 @@ const FormComponent = () => {
             setTitle("Update");
             populateHolidayData(id);
         }
-        if (formData.holidayData.validated && formData.addressData.validated) {
-            formData.holidayData.values?.id ? updateHolidayAndAddress(formData) : createHoliday();
+        if (formData.holidayData.validated) {
+            formData.holidayData.values?.id ? updateHoliday(formData) : createHoliday();
         } else {
             setSubmitted(false);
         }
@@ -163,20 +139,17 @@ const FormComponent = () => {
 
     const handleSubmit = async () => {
         await holidayFormRef.current.Submit();
-        await addressFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
         if (form === 'holiday') {
             setFormData({ ...formData, holidayData: data });
-        } else if (form === 'address') {
-            setFormData({ ...formData, addressData: data });
         }
     };
 
     return (
-        <Box  m="10px"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
@@ -184,7 +157,7 @@ const FormComponent = () => {
                 backgroundPosition: "start",
                 backgroundSize: "cover",
                 backgroundAttachment: "fixed",
-                height:"100%"
+                height: "100%"
             }}
         >
             <Typography
@@ -208,7 +181,7 @@ const FormComponent = () => {
                 userId={id}
                 updatedValues={updatedValues?.holidayData}
             />
-            <AddressFormComponent
+            {/* <AddressFormComponent
                 onChange={(data) => {
                     handleFormChange(data, 'address');
                 }}
@@ -218,7 +191,7 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
-            />
+            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
                 {   //hide reset button on Holiday update

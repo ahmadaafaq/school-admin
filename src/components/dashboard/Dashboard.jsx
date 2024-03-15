@@ -185,7 +185,6 @@ const Dashboard = ({ rolePriority = null }) => {
             color: colors.grey[100],
             fontWeight: "600",
             display: "inline-block",
-            textShadow: "1px 1px 10px white",
             backgroundColor: theme.palette.mode === 'light' ? "white" : "transparent",
             lineHeight: "0.8",
             paddingTop: "15px"

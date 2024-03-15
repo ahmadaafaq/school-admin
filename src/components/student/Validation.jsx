@@ -40,11 +40,11 @@ const checkoutSchema = yup.object().shape({
         .required("This Field is Required"),
     section: yup.string()
         .required("This Field is Required"),
-    subjects: yup
-        .object().shape({
-            id: yup.number
-                .required("You must select atleast one Subject")
-        }),
+    // subjects: yup
+    //     .object().shape({
+    //         id: yup.number
+    //             .required("You must select atleast one Subject")
+    //     }),
     dob: yup.date()
         .required("This Field is Required"),
     admission_date: yup.date()

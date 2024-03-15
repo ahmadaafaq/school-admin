@@ -13,13 +13,17 @@ const checkoutSchema = yup.object().shape({
         .min(2, 'Name is Too Short!')
         .max(40, 'Name is Too Long!')
         .required("This Field is Required"),
-    // email: yup.string()
-    //     .matches(emailRegExp, "Email Address is Not Valid"),
-    // contact_no: yup.string()
-    //     .matches(phoneRegExp, "Phone Number Is Not Valid")
-    //     .required("This Field is Required"),
-    // gender: yup.string(),
-    // status: yup.string()
+    color_code: yup.string()
+        .required("This Field is Required"),
+    captain: yup.number()
+        .required("This Field is Required"),
+    vice_captain: yup.number()
+        .required("This Field is Required"),
+    teacher_incharge: yup.number()
+        .required("This Field is Required"),
+    strength: yup.string()
+        .required("This Field is Required"),
+    status: yup.string()
 });
 
 export default checkoutSchema;
