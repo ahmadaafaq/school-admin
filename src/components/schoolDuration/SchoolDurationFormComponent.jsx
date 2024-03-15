@@ -19,7 +19,7 @@ import SchoolPeriodValidation from "./Validation";
 
 const initialValues = {
     period: "",
-    halves: "",
+    halves: 2,
     recess_time: "",
     first_half_period_duration: "",
     second_half_period_duration: "",
@@ -124,7 +124,7 @@ const SchoolDurationFormComponent = ({
                         label="Halves"
                         autoComplete="new-halves"
                         onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
+                        // onChange={formik.handleChange}
                         value={formik.values.halves}
                         error={!!formik.touched.halves && !!formik.errors.halves}
                         helperText={formik.touched.halves && formik.errors.halves}

@@ -74,12 +74,12 @@ const ListingComponent = ({ rolePriority = null }) => {
 
     // to bring marksheet data for selected class & section selected in dropdown
     let classConditionObj = classSectionObj?.class_id ? {
-        classId: classSectionObj.class_id
+        classId: classSectionObj?.class_id
     } : null;
 
     classConditionObj = classSectionObj?.section_id ? {
         ...classConditionObj,
-        sectionId: classSectionObj.section_id
+        sectionId: classSectionObj?.section_id
     } : null;
 
     useEffect(() => {
@@ -149,6 +149,10 @@ const ListingComponent = ({ rolePriority = null }) => {
             });
         }
     }, [listData?.rows?.length, classSectionObj?.section_id]);
+
+    console.log("schoolSections?.listData",classSectionObj?.class_id);
+    console.log("classSectionObj?.section_id.",classSectionObj?.section_id);
+
 
     return (
         <Box m="10px" position="relative"

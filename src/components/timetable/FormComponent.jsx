@@ -78,7 +78,6 @@ const FormComponent = () => {
                 duration: formData.timeTableData.values.duration[index],
                 subject_id: formData.timeTableData.values[`subject${index + 1}`],
             };
-            console.log("payloadupdate>>", payload);
             API.TimeTableAPI.updateTimeTable(payload);
         });
 
@@ -101,7 +100,6 @@ const FormComponent = () => {
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
-                console.log("response>>", response[0]?.data)
                 if (response[0].data.status === 'Success') {
                     const dataObj = {
                         timeTableData: response[0].data.data.rows
@@ -117,7 +115,6 @@ const FormComponent = () => {
     }, [class_id, section_id, day]);
 
     const createTimeTable = useCallback(formData => {
-        console.log("formData", formData.timeTableData.values);
         let promises = [];
         setLoading(true);
         let payloadBase = {
@@ -133,7 +130,6 @@ const FormComponent = () => {
                 duration: formData.timeTableData.values.duration[index],
                 subject_id: formData.timeTableData.values[`subject${index + 1}`]
             }
-            console.log("timetable payload object>>", payload);
             API.TimeTableAPI.createTimeTable(payload);
         });
 
