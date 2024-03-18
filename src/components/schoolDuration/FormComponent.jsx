@@ -138,7 +138,7 @@ const FormComponent = () => {
             populateSchoolDurationData(id);
         }
         if (formData.schoolDurationData.validated) {
-            formData.schoolDurationData.values?.id ? updateSchoolDuration(formData) : createSchoolDuration();
+            formData.schoolDurationData.values?.id ? updateSchoolDuration(formData) : createSchoolDuration(formData);
         } else {
             setSubmitted(false);
         }

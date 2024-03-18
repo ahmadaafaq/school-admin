@@ -116,7 +116,7 @@ const FormComponent = () => {
             });
     },[]);
 
-    const createBus = (formData => {
+    const createBus = useCallback(formData => {
         setLoading(true);
         API.BusAPI.createBus({ ...formData.busData.values })
             .then(({ data: bus }) => {
@@ -151,7 +151,7 @@ const FormComponent = () => {
             populateBusData(id);
         }
         if (formData.busData.validated && formData.addressData.validated) {
-            formData.busData.values?.id ? updateBusAndAddress(formData) : createBus();
+            formData.busData.values?.id ? updateBusAndAddress(formData) : createBus(formData);
         } else {
             setSubmitted(false);
         }

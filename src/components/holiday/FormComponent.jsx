@@ -129,7 +129,7 @@ const FormComponent = () => {
             populateHolidayData(id);
         }
         if (formData.holidayData.validated) {
-            formData.holidayData.values?.id ? updateHoliday(formData) : createHoliday();
+            formData.holidayData.values?.id ? updateHoliday(formData) : createHoliday(formData);
         } else {
             setSubmitted(false);
         }

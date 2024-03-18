@@ -151,7 +151,7 @@ const FormComponent = () => {
             populateEmployeeData(id);
         }
         if (formData.employeeData.validated && formData.addressData.validated) {
-            formData.employeeData.values?.id ? updateEmployeeAndAddress(formData) : createEmployee();
+            formData.employeeData.values?.id ? updateEmployeeAndAddress(formData) : createEmployee(formData);
         } else {
             setSubmitted(false);
         }
