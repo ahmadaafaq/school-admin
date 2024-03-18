@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,27 +7,13 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { Box, Button, useTheme } from '@mui/material';
+import { Box, Button} from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
-
-import API from "../../apis";
-// import { setSchoolClasses } from "../../redux/actions/ClassAction";
-// import { setSchoolSections } from "../../redux/actions/SectionAction";
-import { tokens } from "../../theme";
-import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
 export const datagridColumns = () => {
     const navigateTo = useNavigate();
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/school-duration/update/${id}`, { state: { id: id } });

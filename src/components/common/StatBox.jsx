@@ -10,11 +10,9 @@ import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import PropTypes from "prop-types";
 
 import ProgressCircle from "./ProgressCircle";
-import { tokens } from "../../theme";
 
 const StatBox = ({ title, subtitle, icon, progress, increase }) => {
     const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
     const isMobile = useMediaQuery("(max-width:480px)");
 
     const textShadowColor = theme.palette.mode == 'light' ? 'white' : 'black'

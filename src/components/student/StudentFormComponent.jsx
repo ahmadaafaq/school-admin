@@ -575,14 +575,15 @@ const StudentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
-
+                     
                     <Box
                         sx={{
                             border: '2px solid #BADFE7', borderRadius: '12px', display: "grid", gap: "10px", alignItems: 'center',
-                            width: formik.values.fee_waiver_type === "partial" && formik.values.is_fee_waiver ? '900px' :
-                                formik.values.is_fee_waiver ? '600px' : '290px', height: '70px', padding: '5px',
+                            width: isMobile ? '100%' : formik.values.fee_waiver_type === "partial" && formik.values.is_fee_waiver ? '326%' :
+                                formik.values.is_fee_waiver ? '100%' : '290px' , padding: '5px',
                             gridTemplateColumns: formik.values.fee_waiver_type === "partial" && formik.values.is_fee_waiver ? "repeat(3, minmax(0, 1fr))" :
-                                formik.values.is_fee_waiver ? "repeat(2, minmax(0, 1fr))" : '1fr'
+                                formik.values.is_fee_waiver ? "repeat(2, minmax(0, 1fr))" : '1fr', gridColumnStart: 1,
+                                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
                         }}
                     >
                         <FormControlLabel

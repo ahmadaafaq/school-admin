@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,8 +8,9 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from 'prop-types';
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -33,14 +35,12 @@ const EmployeeFormComponent = ({
     setDirty,
     reset,
     setReset,
-    userId,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
 
     const formik = useFormik({
         initialValues: initialState,
@@ -63,7 +63,7 @@ const EmployeeFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -218,5 +218,14 @@ const EmployeeFormComponent = ({
         </Box >
     );
 }
+
+EmployeeFormComponent.propTypes = {
+    onChange: PropTypes.func.isRequired,
+    refId: PropTypes.any.isRequired, 
+    setDirty: PropTypes.func.isRequired,
+    reset: PropTypes.func.isRequired,
+    setReset: PropTypes.func.isRequired,
+    updatedValues: PropTypes.object  
+};
 
 export default EmployeeFormComponent;

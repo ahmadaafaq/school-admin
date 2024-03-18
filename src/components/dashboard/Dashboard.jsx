@@ -8,6 +8,7 @@
 */
 
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -19,7 +20,7 @@ import HighchartsReact from 'highcharts-react-official';
 import "../common/index.css"
 import StatBox from "../common/StatBox";
 import { tokens, themeSettings } from "../../theme";
-import { studentData, lineData } from "../common/CustomCharts";
+import { studentData } from "../common/CustomCharts";
 import API from "../../apis";
 
 import dashBg from "../assets/formBg.png";
@@ -383,6 +384,10 @@ const Dashboard = ({ rolePriority = null }) => {
       </Box>
     </Box >
   );
+
+}
+Dashboard.propTypes = {
+  rolePriority: PropTypes.number
 };
 
 export default Dashboard;

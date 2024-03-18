@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -14,15 +15,12 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 
 import API from "../../apis";
-import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import HolidayFormComponent from "./HolidayFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
@@ -74,12 +72,12 @@ const FormComponent = () => {
                 responses.forEach(response => {
                     if (response.data.status !== "Success") {
                         status = false;
-                    };
+                    }
                 });
                 if (status) {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/holiday/listing/${getLocalStorage('class') || ''}`);
-                };
+                }
                 setLoading(false);
             })
             .catch(err => {
@@ -89,7 +87,7 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateHolidayData = (id) => {
+    const populateHolidayData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/holiday/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
@@ -108,12 +106,12 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    },[id]);
 
-    const createHoliday = () => {
+    const createHoliday = useCallback(formData => {
         setLoading(true);
         API.HolidayAPI.createHoliday({ ...formData.holidayData.values })
-            .then(holiday => {
+            .then(() => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/holiday/listing`);
             })
@@ -122,7 +120,7 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    },[formData]);
 
     //Create/Update/Populate Holiday
     useEffect(() => {
@@ -181,17 +179,6 @@ const FormComponent = () => {
                 userId={id}
                 updatedValues={updatedValues?.holidayData}
             />
-            {/* <AddressFormComponent
-                onChange={(data) => {
-                    handleFormChange(data, 'address');
-                }}
-                refId={addressFormRef}
-                update={id ? true : false}
-                setDirty={setDirty}
-                reset={reset}
-                setReset={setReset}
-                updatedValues={updatedValues?.addressData}
-            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
                 {   //hide reset button on Holiday update
@@ -201,7 +188,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

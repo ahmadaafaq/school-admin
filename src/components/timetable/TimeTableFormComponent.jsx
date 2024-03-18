@@ -10,12 +10,8 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
-import { SingleInputTimeRangeField } from '@mui/x-date-pickers-pro/SingleInputTimeRangeField';
 
-import { Box, TextField, useMediaQuery, FormControl, InputLabel, Select, MenuItem, FormHelperText, Autocomplete, Divider, Chip } from "@mui/material";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { LocalizationProvider } from "@mui/x-date-pickers";
+import { Box, useMediaQuery, FormControl, InputLabel, Select, MenuItem, FormHelperText, Divider, Chip } from "@mui/material";
 import { useFormik } from "formik";
 
 import API from "../../apis";
@@ -160,7 +156,7 @@ const TimeTableFormComponent = ({
             const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values.section);
             const selectedSubjects = sectionSubjects ? findMultipleById(sectionSubjects[0]?.subject_ids, allSubjects) : [];
             dispatch(setSchoolSubjects(selectedSubjects));
-        };
+        }
     }, [formik.values?.class, formik.values?.section, classData.length, allSubjects]);
 
     useEffect(() => {
@@ -409,6 +405,9 @@ TimeTableFormComponent.propTypes = {
     setDirty: PropTypes.func,
     reset: PropTypes.bool,
     setReset: PropTypes.func,
+    classData: PropTypes.array, 
+    setClassData: PropTypes.func,
+    allSubjects: PropTypes.array,
     updatedValues: PropTypes.object
 };
 

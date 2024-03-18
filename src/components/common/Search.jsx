@@ -7,6 +7,7 @@
  */
 
 import { useState } from "react";
+import PropTypes from 'prop-types';
 
 import { Box, IconButton, InputBase, useMediaQuery, useTheme } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -45,7 +46,7 @@ const Search = ({
     const handleKeyDown = (event) => {
         if (event.keyCode == 13) {
             handleSearch();
-        };
+        }
     };
 
     return (
@@ -83,5 +84,14 @@ const Search = ({
         </Box>
     );
 }
+
+Search.propTypes = {
+    getSearchData: PropTypes.func,
+    condition: PropTypes.any, 
+    setSearchFlag: PropTypes.func,
+    reloadBtn: PropTypes.object, 
+    action: PropTypes.func,
+    api: PropTypes.object
+};
 
 export default Search;

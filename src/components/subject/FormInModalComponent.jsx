@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -26,6 +27,7 @@ import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
+import { useCallback } from "react";
 
 const initialValues = {
     name: "",
@@ -72,7 +74,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    const updateSubject = (values) => {
+    const updateSubject = useCallback(values => {
         setLoading(true);
         API.SubjectAPI.updateSubject(values)
             .then(({ data: subject }) => {
@@ -93,9 +95,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    },[]);
 
-    const populateData = (id) => {
+    const populateData = useCallback(id => {
         setLoading(true);
         const path = [`/get-by-pk/subject/${id}`];
         API.CommonAPI.multipleAPICall("GET", path)
@@ -113,9 +115,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    },[]);
 
-    const createSubject = (values) => {
+    const createSubject = useCallback(values => {
         setLoading(true);
         API.SubjectAPI.createSubject(values)
             .then(({ data: subject }) => {
@@ -136,7 +138,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[]);
 
     return (
         <div>

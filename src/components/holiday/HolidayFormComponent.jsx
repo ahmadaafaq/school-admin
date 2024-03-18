@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,10 +8,10 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import PropTypes from 'prop-types';
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
-import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
+import { Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
@@ -30,15 +31,12 @@ const HolidayFormComponent = ({
     setDirty,
     reset,
     setReset,
-    userId,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
     
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
-    // const { getPaginatedData } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -61,7 +59,7 @@ const HolidayFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -161,5 +159,15 @@ const HolidayFormComponent = ({
         </Box >
     );
 }
+HolidayFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }), 
+    setDirty: PropTypes.func,
+    reset: PropTypes.func,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object
+};
 
 export default HolidayFormComponent;
