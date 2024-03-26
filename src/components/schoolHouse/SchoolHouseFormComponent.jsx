@@ -317,7 +317,7 @@ const SchoolHouseFormComponent = ({
                                 {!allStudents?.listData?.rows?.length ? null :
                                     allStudents.listData.rows.map(item => (
                                         <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                            {`${item.firstname} ${item.lastname}`}
+                                            {`${item.firstname.charAt(0).toUpperCase() + item.firstname.slice(1)} ${item.lastname.charAt(0).toUpperCase() + item.lastname.slice(1)}`}
                                         </MenuItem>
                                     ))}
                             </Select>
@@ -409,7 +409,7 @@ const SchoolHouseFormComponent = ({
                                 {!allFormStudents?.listData?.rows?.length ? null :
                                     allFormStudents.listData.rows.map(item => (
                                         <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                            {`${item.firstname} ${item.lastname}`}
+                                            {`${item.firstname.charAt(0).toUpperCase() + item.firstname.slice(1)} ${item.lastname.charAt(0).toUpperCase() + item.lastname.slice(1)}`}
                                         </MenuItem>
                                     ))}
                             </Select>

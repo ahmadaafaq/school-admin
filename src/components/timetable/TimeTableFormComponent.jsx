@@ -126,20 +126,21 @@ const TimeTableFormComponent = ({
         return timeslots;
     };
 
-    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 2).replace(':', '').padStart(2, '0'), openingTime.slice(3, 5), schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.first_half_period_duration);
+    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 2).replace(':', '').padStart(2, '0'), openingTime.slice(2, 5).replace(':', ''), schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.first_half_period_duration);
     let secondHalfDuration = [];
     let totalDuration = [];
 
     if (firstHalfDuration.length) {
         let openingTimes = firstHalfDuration[firstHalfDuration.length - 1];
         let secondOpeningTimeHr = openingTimes.split('-').splice(1).join('').slice(0, 2).replace(':', '').padStart(2, '0');
-        let secondOpeningTimeMi = openingTimes.split('-').splice(1).join('').slice(3, 5);
+        let secondOpeningTimeMi = openingTimes.split('-').splice(1).join('').slice(2, 5).replace(':', '');
 
         let secondMinTotal = parseInt(secondOpeningTimeMi, 10) + parseInt(schoolId?.[0]?.recess_time, 10);
         secondHalfDuration = schoolPeriodDuration(secondOpeningTimeHr, secondMinTotal, schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.second_half_period_duration);
         if (secondHalfDuration.length) {
             totalDuration = [...firstHalfDuration, ...secondHalfDuration];
         }
+        console.log("yuguy",secondOpeningTimeHr)
     }
    
 

@@ -116,7 +116,7 @@ const FormComponent = () => {
     },[id]);
 
 
-    const createSchoolDuration = (formData => {
+    const createSchoolDuration = useCallback(formData => {
         setLoading(true);
         API.SchoolDurationAPI.createSchoolDuration({ ...formData.schoolDurationData.values })
             .then(({ data: schoolDuration }) => {

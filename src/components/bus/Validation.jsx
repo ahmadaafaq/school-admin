@@ -20,7 +20,8 @@ const checkoutSchema = yup.object().shape({
         .required("This Field is Required"),
     driver_license: yup.string()
         .required("This Field is Required"),
-    route: yup.string(),
+    route: yup.string()
+        .required("This Field is Required"),
     status: yup.string()
 });
 

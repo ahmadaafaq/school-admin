@@ -375,7 +375,7 @@ const Dashboard = ({ rolePriority = null }) => {
           />
         </Box>
 
-        <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "130%", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "130%", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
         <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "70%", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "30%", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>

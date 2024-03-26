@@ -9,15 +9,14 @@
 import * as yup from "yup";
 
 const checkoutSchema = yup.object().shape({
-    name: yup.string()
+    title: yup.string()
         .min(2, 'name is Too Short!')
         .max(20, 'name is Too Long!')
         .required("This Field is Required"),
     date: yup.date()
         .required("This Field is Required"),
     type: yup.string()
-        .required("This Field is Required"),
-    status: yup.string()
+        .required("This Field is Required")
 });
 
 export default checkoutSchema;

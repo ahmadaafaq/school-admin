@@ -19,7 +19,7 @@ import { useFormik } from "formik";
 import holidayValidation from "./Validation";
 
 const initialValues = {
-    name: "",
+    title: "",
     date: null,
     type: "school_closure",
     notes: ""

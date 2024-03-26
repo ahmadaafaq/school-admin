@@ -179,7 +179,9 @@ const FormComponent = () => {
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "start",
                 backgroundSize: "cover",
-                backgroundAttachment: "fixed"
+                backgroundAttachment: "fixed",
+                marginBottom:"20px !important",
+                height:"95vh"
             }}
         >
             <Typography
