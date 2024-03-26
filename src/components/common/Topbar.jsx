@@ -117,7 +117,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               fontSize: isMobile ? "15px" : isTab ? "30" : "40px",
               fontWeight: "bolder",
               textAlign: "center",
-              textShadow: " 1px 8px 5px #aba8a8;",
+              textShadow: " 2px 8px 10px #aba8a8;",
               color: theme.palette.mode === 'light' ? `rgb(51 153 254) !important` : 'white',
               wordSpacing: "5px"
             }}

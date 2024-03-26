@@ -70,7 +70,7 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                     <span className='normal-text1'>{detail?.studentData?.session}</span>
 
                     <span className='heading-text1' >Name:</span>
-                    <span className='normal-text1'>{detail?.studentData?.firstname} {detail?.studentData?.lastname}</span>
+                    <span className='normal-text1'>{detail?.studentData?.firstname.charAt(0).toUpperCase() + detail?.studentData?.firstname.slice(1)} {detail?.studentData?.lastname.charAt(0).toUpperCase() + detail?.studentData?.lastname.slice(1)}</span>
 
                     <span className='heading-text1'>Class:</span>
                     <span className='normal-text1'>{className ? appendSuffix(className) : ""} {sectionName}</span>
@@ -96,17 +96,17 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                         {detail?.studentData?.father_name &&
                             <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                                 <span className='heading-text1' > Father Name :</span>
-                                <span className='normal-text1'>{detail?.studentData?.father_name}</span>
+                                <span className='normal-text1'>{detail?.studentData?.father_name.charAt(0).toUpperCase() + detail?.studentData?.father_name.slice(1)}</span>
                             </Box>
                         }{detail?.studentData?.mother_name &&
                             <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                                 <span className='heading-text1' >Mother Name :</span>
-                                <span className='normal-text1'>{detail?.studentData?.mother_name}</span>
+                                <span className='normal-text1'>{detail?.studentData?.mother_name.charAt(0).toUpperCase() + detail?.studentData?.mother_name.slice(1)}</span>
                             </Box>
                         }{detail?.studentData?.guardian &&
                             <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                                 <span className='heading-text1' >Guardian :</span>
-                                <span className='normal-text1'>{detail?.studentData?.guardian}</span>
+                                <span className='normal-text1'>{detail?.studentData?.guardian.charAt(0).toUpperCase() + detail?.studentData?.guardian.slice(1)}</span>
                             </Box>
                         }
                         <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
@@ -121,15 +121,15 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                     <Box>
                         <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                             <span className='heading-text1' >Religion :</span>
-                            <span className='normal-text1'>{detail?.studentData?.religion}</span>
+                            <span className='normal-text1'>{detail?.studentData?.religion.charAt(0).toUpperCase() + detail?.studentData?.religion.slice(1)}</span>
                         </Box>
                         <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                             <span className='heading-text1' >Caste Group :</span>
-                            <span className='normal-text1'>{detail?.studentData?.caste_group}</span>
+                            <span className='normal-text1'>{detail?.studentData?.caste_group.charAt(0).toUpperCase() + detail?.studentData?.caste_group.slice(1)}</span>
                         </Box>
                         <Box sx={{ display: "grid", gridTemplateColumns: "5fr 5.5fr", gap: "10px" }}>
                             <span className='heading-text1' >Gender :</span>
-                            <span className='normal-text1'>{detail?.studentData?.gender}</span>
+                            <span className='normal-text1'>{detail?.studentData?.gender.charAt(0).toUpperCase() + detail?.studentData?.gender.slice(1)}</span>
                         </Box>
                     </Box>
                 </Box>

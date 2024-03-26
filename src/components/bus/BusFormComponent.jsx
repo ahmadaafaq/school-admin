@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,6 +8,7 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 import { Box, FormControl, InputLabel, MenuItem, FormHelperText } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
@@ -37,7 +39,6 @@ const BusFormComponent = ({
     const [initialState, setInitialState] = useState(initialValues);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
 
     const formik = useFormik({
         initialValues: initialState,
@@ -216,5 +217,15 @@ const BusFormComponent = ({
         </Box>
     );
 }
+BusFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object,
+};
 
 export default BusFormComponent;

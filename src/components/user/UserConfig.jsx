@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -27,15 +28,17 @@ export const datagridColumns = () => {
     const columns = [
         {
             field: "username",
-            headerName: "USERNAME",
+            headerName: "Username",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120
+            minWidth: 120,
+            valueGetter: (params) => params.row.username.charAt(0).toUpperCase() + params.row.username.slice(1) || ''
+
         },
         {
             field: "contact_no",
-            headerName: "CONTACT",
+            headerName: "Contact",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -43,7 +46,7 @@ export const datagridColumns = () => {
         },
         {
             field: "email",
-            headerName: "EMAIL",
+            headerName: "E-mail",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -51,7 +54,7 @@ export const datagridColumns = () => {
         },
         {
             field: "updated_at",
-            headerName: "UPDATED AT",
+            headerName: "Updated",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -83,7 +86,7 @@ export const datagridColumns = () => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

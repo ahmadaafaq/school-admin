@@ -26,6 +26,14 @@ export const datagridColumns = (rolePriority = null) => {
 
     const columns = [
         {
+            field: "student_id",
+            headerName: " Name",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 120
+        },
+        {
             field: "academic_year",
             headerName: "Academic Year",
             headerAlign: "center",
@@ -48,6 +56,7 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 100
+             
         },
         {
             field: "type",
@@ -77,8 +86,8 @@ export const datagridColumns = (rolePriority = null) => {
                         }
                         borderRadius="4px"
                     >
-                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {type}
+                        <Typography color={colors.grey[100]} >
+                            {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() || ''}
                         </Typography>
                     </Box>
                 );
@@ -94,7 +103,7 @@ export const datagridColumns = (rolePriority = null) => {
             renderCell: ({ row: { payment_status } }) => {
                 return (
                     <Box
-                        width="60%"
+                        width="100%"
                         m="0 auto"
                         p="5px"
                         display="flex"
@@ -110,8 +119,8 @@ export const datagridColumns = (rolePriority = null) => {
                         }
                         borderRadius="4px"
                     >
-                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {payment_status}
+                        <Typography color={colors.grey[100]} >
+                            {payment_status.charAt(0).toUpperCase() + payment_status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );
@@ -127,7 +136,7 @@ export const datagridColumns = (rolePriority = null) => {
             renderCell: ({ row: { payment_method } }) => {
                 return (
                     <Box
-                        width="60%"
+                        width="100%"
                         m="0 auto"
                         p="5px"
                         display="flex"
@@ -143,8 +152,8 @@ export const datagridColumns = (rolePriority = null) => {
                                         : colors.blueAccent[800]
                         }
                     >
-                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {payment_method}
+                        <Typography color={colors.grey[100]}>
+                            {payment_method.charAt(0).toUpperCase() + payment_method.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

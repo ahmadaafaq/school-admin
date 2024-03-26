@@ -39,11 +39,13 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120
+            minWidth: 120,
+            valueGetter: (params) => params.row.driver.charAt(0).toUpperCase() + params.row.driver.slice(1) || ''
+
         },
         {
             field: "driver_contact",
-            headerName: "CONTACT",
+            headerName: "Contact",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -51,7 +53,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "driver_license",
-            headerName: "LICENSE",
+            headerName: "License",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -82,7 +84,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import PropTypes from "prop-types";
 import { usePDF } from 'react-to-pdf';
 
-import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Divider, Grid, IconButton } from '@mui/material';
+import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Grid, IconButton } from '@mui/material';
 import { List, ListItem, ListItemText, TextField, Tooltip, useMediaQuery } from '@mui/material';
 import { green } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
@@ -133,7 +133,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                 <CardMedia
                     component="img"
                     className='student-image'
-                    image={studentImageRef?.current}
+                    image={studentImageRef?.current[0]}
                     alt="student-image"
                 />
                 <CardContent sx={{ padding: '0 2px' }}>

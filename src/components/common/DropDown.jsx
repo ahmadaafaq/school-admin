@@ -5,15 +5,9 @@
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
 */
-import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/material";
+import { Box, FormControl, useTheme } from "@mui/material";
 
-import API from "../../apis";
-import { setSchoolClasses } from "../../redux/actions/ClassAction";
-import { setSchoolSections } from "../../redux/actions/SectionAction";
-import { setStudents } from "../../redux/actions/StudentAction";
-// import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";

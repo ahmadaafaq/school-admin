@@ -43,7 +43,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "class_id",
-            headerName: "CLASS",
+            headerName: "Class",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -76,7 +76,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "result",
-            headerName: "RESULT",
+            headerName: "Result",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -101,7 +101,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {result}
+                            {result.charAt(0).toUpperCase() + result.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

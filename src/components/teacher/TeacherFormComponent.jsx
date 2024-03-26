@@ -275,7 +275,7 @@ const TeacherFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        label="Email"
+                        label="Email*"
                         name="email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
@@ -296,18 +296,7 @@ const TeacherFormComponent = ({
                         error={!!formik.touched.contact_no && !!formik.errors.contact_no}
                         helperText={formik.touched.contact_no && formik.errors.contact_no}
                     />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Age"
-                        name="age"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.age}
-                        error={!!formik.touched.age && !!formik.errors.age}
-                        helperText={formik.touched.age && formik.errors.age}
-                    />
+                    
                     <TextField
                         fullWidth
                         variant="filled"
@@ -489,7 +478,7 @@ const TeacherFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel id="genderField">Gender*</InputLabel>
                         <Select
                             variant="filled"
                             labelId="genderField"

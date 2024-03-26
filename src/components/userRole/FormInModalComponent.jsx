@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,9 +7,10 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Formik } from "formik";
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
@@ -71,7 +73,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         }
     }, [id]);
 
-    const updateUserRole = (values) => {
+    const updateUserRole = useCallback(values => {
         setLoading(true);
         API.UserRoleAPI.updateUserRole(values)
             .then(({ data: role }) => {
@@ -92,9 +94,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[]);
 
-    const populateData = (id) => {
+    const populateData = useCallback(id => {
         setLoading(true);
         const path = [`/get-by-pk/role/${id}`];
         API.CommonAPI.multipleAPICall("GET", path)
@@ -112,9 +114,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[id]);
 
-    const createUserRole = (values) => {
+    const createUserRole = useCallback(values => {
         setLoading(true);
         API.UserRoleAPI.createUserRole(values)
             .then(({ data: role }) => {
@@ -135,7 +137,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[]);
 
 
     return (
@@ -269,5 +271,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         </div>
     );
 }
+
+FormComponent.propTypes = {
+    openDialog: PropTypes.bool,
+    setOpenDialog: PropTypes.func
+};
+
 
 export default FormComponent;
