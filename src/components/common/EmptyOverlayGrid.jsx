@@ -6,8 +6,6 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React from 'react';
-
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 import { useDemoData } from '@mui/x-data-grid-generator';
@@ -83,7 +81,7 @@ export default function EmptyOverlayGrid() {
       <Box sx={{ mt: 1 }}>No Rows</Box>
     </StyledGridOverlay>
   );
-};
+}
 
 export function EmptyOverlay() {
   const { data } = useDemoData({
@@ -97,6 +95,7 @@ export function EmptyOverlay() {
     <div style={{ height: 400, width: '100%' }}>
       <DataGrid
         slots={{
+          // eslint-disable-next-line no-undef
           noRowsOverlay: CustomNoRowsOverlay
         }}
         {...data}
@@ -104,4 +103,4 @@ export function EmptyOverlay() {
       />
     </div>
   );
-};
+}

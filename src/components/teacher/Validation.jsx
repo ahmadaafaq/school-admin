@@ -9,7 +9,7 @@
 import * as yup from "yup";
 
 const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-const emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+const emailRegExp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
 const checkoutSchema = yup.object().shape({
     firstname: yup.string()
@@ -21,7 +21,8 @@ const checkoutSchema = yup.object().shape({
         .max(20, 'Lastname is Too Long!')
         .required("This Field is Required"),
     email: yup.string()
-        .matches(emailRegExp, "Email Address is Not Valid"),
+        .matches(emailRegExp, "Email Address is Not Valid")
+        .required("This Field is Required"),
     contact_no: yup.string()
         .matches(phoneRegExp, "Phone Number Is Not Valid")
         .required("This Field is Required"),

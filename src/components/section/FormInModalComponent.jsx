@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
@@ -71,7 +72,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         }
     }, [id]);
 
-    const updateSection = (values) => {
+    const updateSection = useCallback(values => {
         setLoading(true);
         API.SectionAPI.updateSection(values)
             .then(({ data: section }) => {
@@ -92,9 +93,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[]);
 
-    const populateData = (id) => {
+    const populateData = useCallback(id => {
         setLoading(true);
         const path = [`/get-by-pk/section/${id}`];
         API.CommonAPI.multipleAPICall("GET", path)
@@ -112,9 +113,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[id]);
 
-    const createSection = (values) => {
+    const createSection = useCallback(values => {
         setLoading(true);
         API.SectionAPI.createSection(values)
             .then(({ data: section }) => {
@@ -135,7 +136,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[]);
 
 
     return (

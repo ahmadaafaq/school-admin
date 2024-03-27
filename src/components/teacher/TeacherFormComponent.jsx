@@ -24,6 +24,8 @@ import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
 
+import config from '../config';
+
 const initialValues = {
     firstname: "",
     lastname: "",
@@ -275,7 +277,7 @@ const TeacherFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        label="Email"
+                        label="Email*"
                         name="email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
@@ -296,30 +298,26 @@ const TeacherFormComponent = ({
                         error={!!formik.touched.contact_no && !!formik.errors.contact_no}
                         helperText={formik.touched.contact_no && formik.errors.contact_no}
                     />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Age"
-                        name="age"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.age}
-                        error={!!formik.touched.age && !!formik.errors.age}
-                        helperText={formik.touched.age && formik.errors.age}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Nationality"
-                        name="nationality"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.nationality}
+
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.nationality && !!formik.errors.nationality}
-                        helperText={formik.touched.nationality && formik.errors.nationality}
-                    />
+                    >
+                        <InputLabel>Nationality</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="nationality"
+                            value={formik.values.nationality}
+                            onChange={formik.handleChange}
+                        >
+                            {Object.keys(config.nationality).map(casteGroup => (
+                                <MenuItem key={casteGroup} value={casteGroup}>
+                                    {config.nationality[casteGroup]}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.nationality && formik.errors.nationality}</FormHelperText>
+                    </FormControl>
+
                     <TextField
                         fullWidth
                         variant="filled"
@@ -333,35 +331,24 @@ const TeacherFormComponent = ({
                         helperText={formik.touched.religion && formik.errors.religion}
                     />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.caste_group && !!formik.errors.caste_group}
+                        error={!!formik.touched.blood_group && !!formik.errors.blood_group}
                     >
-                        <InputLabel id="castGroupField">Caste Group</InputLabel>
+                        <InputLabel>Blood Group</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="castGroupField"
-                            name="caste_group"
-                            value={formik.values.caste_group}
+                            name="blood_group"
+                            value={formik.values.blood_group}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"general"}>General</MenuItem>
-                            <MenuItem value={"obc"}>OBC</MenuItem>
-                            <MenuItem value={"sc"}>SC</MenuItem>
-                            <MenuItem value={"st"}>ST</MenuItem>
+                            {Object.keys(config.bloodGroups).map(bloodGroup => (
+                                <MenuItem key={bloodGroup} value={bloodGroup}>
+                                    {config.bloodGroups[bloodGroup]}
+                                </MenuItem>
+                            ))}
                         </Select>
-                        <FormHelperText>{formik.touched.caste_group && formik.errors.caste_group}</FormHelperText>
+                        <FormHelperText>{formik.touched.blood_group && formik.errors.blood_group}</FormHelperText>
                     </FormControl>
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Blood Group"
-                        name="blood_group"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.blood_group}
-                        error={!!formik.touched.blood_group && !!formik.errors.blood_group}
-                        helperText={formik.touched.blood_group && formik.errors.blood_group}
-                    />
+
                     <TextField
                         fullWidth
                         variant="filled"
@@ -489,34 +476,38 @@ const TeacherFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel>Gender</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="genderField"
                             name="gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
+                            {Object.keys(config.gender).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.gender[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
-
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}>
-                        <InputLabel id="statusField">Status</InputLabel>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.status && !!formik.errors.status}
+                    >
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
                             name="status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
-                            error={!!formik.touched.status && !!formik.errors.status}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
+                        <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
 

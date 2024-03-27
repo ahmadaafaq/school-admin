@@ -31,6 +31,8 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             // width: 120,
+            valueGetter: (params) => `${params.row.name.charAt(0).toUpperCase() + params.row.name.slice(1) || ''}` 
+            
         },
         {
             field: "captainName",
@@ -39,6 +41,13 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             // minWidth: 100
+            valueGetter: (params) => {
+                const nameParts = params.row.captainName.split(' ');
+                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                return capitalizedParts.join(' ');
+            }
+             
+
         },
         {
             field: "viceCaptainNname",
@@ -47,6 +56,13 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             // minWidth: 100
+            valueGetter: (params) => {
+                const nameParts = params.row.viceCaptainNname.split(' ');
+                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                return capitalizedParts.join(' ');
+            }
+             
+
         },
         {
             field: "teacherName",
@@ -54,7 +70,12 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueGetter: (params) => {
+                const nameParts = params.row.teacherName.split(' ');
+                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                return capitalizedParts.join(' ');
+            }
         },
         {
             field: "status",
@@ -81,7 +102,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

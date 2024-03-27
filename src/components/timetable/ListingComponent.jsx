@@ -126,7 +126,8 @@ const ListingComponent = ({ rolePriority = null }) => {
                 left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
                 zIndex: 1,
                 borderRadius: "20%",
-                color: colors.grey[100]
+                color: colors.grey[100],
+                marginLeft:"14vh"
             }}
                 id="reload-btn"
                 type="button"

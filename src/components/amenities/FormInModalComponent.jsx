@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,9 +7,10 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Formik } from "formik";
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
@@ -71,7 +73,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         }
     }, [id]);
 
-    const updateAmenity = (values) => {
+    const updateAmenity = useCallback(values => {
         setLoading(true);
         API.AmenityAPI.updateAmenity(values)
             .then(({ data: amenity }) => {
@@ -92,9 +94,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
                 throw err;
             });
-    };
+    }, []);
 
-    const populateData = (id) => {
+    const populateData = useCallback(id => {
         setLoading(true);
         const path = [`/get-by-pk/amenity/${id}`];
         API.CommonAPI.multipleAPICall("GET", path)
@@ -112,9 +114,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg, navigateTo, location.reload());
                 throw err;
             });
-    };
+    },[id]);
 
-    const createAmenity = (values) => {
+    const createAmenity = useCallback(values => {
         setLoading(true);
         API.AmenityAPI.createAmenity(values)
             .then(({ data: amenity }) => {
@@ -135,8 +137,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, location.reload());
                 throw err;
             });
-    };
-
+    },[]);
 
     return (
         <div >
@@ -148,7 +149,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 sx={{
                     top: isMobile ? "33%" : isTab ? "25%" : "20%", height: isMobile ? "49%" : isTab ? "39%" : "60%",
                     "& .MuiPaper-root": {
-                        width: "100%", 
+                        width: "100%",
                         backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                             : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
                         backgroundRepeat: "no-repeat",
@@ -270,5 +271,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         </div>
     );
 }
+
+FormComponent.propTypes = {
+    openDialog: PropTypes.bool,
+    setOpenDialog: PropTypes.func
+};
+
 
 export default FormComponent;

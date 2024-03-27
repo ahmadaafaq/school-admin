@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
 import { useFormik } from "formik";
-import { Box, InputLabel, MenuItem, InputAdornment, IconButton, FormControl } from "@mui/material";
+import { Box, InputLabel, MenuItem, InputAdornment, IconButton, FormControl, FormHelperText } from "@mui/material";
 import { Button, Select, TextField, useMediaQuery } from "@mui/material";
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
@@ -22,6 +22,8 @@ import userValidation from "./Validation";
 
 import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { Utility } from "../utility";
+
+import config from '../config';
 
 const initialValues = {
     school_id: '',
@@ -258,19 +260,20 @@ const UserFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel>Gender</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="genderField"
-                            label="Gender"
                             name="gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
+                            {Object.keys(config.gender).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.gender[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
+                        <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
 
                     {allSchools?.listData?.length ? <FormControl variant="filled" sx={{ minWidth: 120 }}
@@ -323,18 +326,20 @@ const UserFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
+                        <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
             </form>

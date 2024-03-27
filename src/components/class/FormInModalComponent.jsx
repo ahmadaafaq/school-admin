@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
+import PropTypes from "prop-types";
 
 import { Box, Divider, InputLabel, MenuItem, FormControl, Typography } from "@mui/material";
 import { Button, Dialog, Select, TextField, useMediaQuery } from "@mui/material";
@@ -105,7 +106,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             });
     }, []);
 
-    const populateData = (id) => {
+    const populateData = useCallback(id => {
         setLoading(true);
         const path = [`/get-by-pk/class/${id}`];
 
@@ -125,9 +126,9 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    },[]);
 
-    const createClass = (values) => {
+    const createClass = useCallback(values => {
         setLoading(true);
         values = {
             ...values,
@@ -152,7 +153,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 toastAndNavigate(dispatch, true, err ? err.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    },[]);
 
     return (
         <div>
@@ -271,6 +272,11 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             </Dialog>
         </div>
     );
+};
+
+FormComponent.propTypes = {
+    openDialog: PropTypes.bool,
+    setOpenDialog: PropTypes.func
 };
 
 
