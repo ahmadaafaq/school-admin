@@ -24,6 +24,7 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
 import API from "../../apis";
+import config from '../config';
 import paymentValidation from "./Validation";
 import Toast from "../common/Toast";
 
@@ -180,14 +181,14 @@ const PaymentFormComponent = ({
               {!schoolClasses?.listData?.length
                 ? null
                 : schoolClasses.listData.map((cls) => (
-                    <MenuItem
-                      value={cls.class_id}
-                      name={cls.class_name}
-                      key={cls.class_id}
-                    >
-                      {cls.class_name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem
+                    value={cls.class_id}
+                    name={cls.class_name}
+                    key={cls.class_id}
+                  >
+                    {cls.class_name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.class_id && formik.errors.class_id}
@@ -220,14 +221,14 @@ const PaymentFormComponent = ({
               {!schoolSections?.listData?.length
                 ? null
                 : schoolSections.listData.map((section) => (
-                    <MenuItem
-                      value={section.section_id}
-                      name={section.section_name}
-                      key={section.section_id}
-                    >
-                      {section.section_name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem
+                    value={section.section_id}
+                    name={section.section_name}
+                    key={section.section_id}
+                  >
+                    {section.section_name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.section && formik.errors.section}
@@ -260,20 +261,18 @@ const PaymentFormComponent = ({
               {!allStudents?.listData?.rows?.length
                 ? null
                 : allStudents.listData.rows.map((item) => (
-                    <MenuItem
-                      value={item.id}
-                      name={`${item.firstname} ${item.lastname}`}
-                      key={item.id}
-                    >
-                      {`${
-                        item.firstname.charAt(0).toUpperCase() +
-                        item.firstname.slice(1)
-                      } ${
-                        item.lastname.charAt(0).toUpperCase() +
-                        item.lastname.slice(1)
+                  <MenuItem
+                    value={item.id}
+                    name={`${item.firstname} ${item.lastname}`}
+                    key={item.id}
+                  >
+                    {`${item.firstname.charAt(0).toUpperCase() +
+                      item.firstname.slice(1)
+                      } ${item.lastname.charAt(0).toUpperCase() +
+                      item.lastname.slice(1)
                       }`}
-                    </MenuItem>
-                  ))}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.student_id && formik.errors.student_id}
@@ -295,29 +294,6 @@ const PaymentFormComponent = ({
               formik.touched.academic_year && formik.errors.academic_year
             }
           />
-          <FormControl
-            variant="filled"
-            sx={{ minWidth: 120 }}
-            error={
-              !!formik.touched.payment_status && !!formik.errors.payment_status
-            }
-          >
-            <InputLabel>Payment Status</InputLabel>
-            <Select
-              variant="filled"
-              name="payment_status"
-              autoComplete="new-payment_status"
-              value={formik.values.payment_status}
-              onChange={formik.handleChange}
-            >
-              <MenuItem value={"pending"}>Pending</MenuItem>
-              <MenuItem value={"partial"}>Partial</MenuItem>
-              <MenuItem value={"full"}>Full</MenuItem>
-            </Select>
-            <FormHelperText>
-              {formik.touched.payment_status && formik.errors.payment_status}
-            </FormHelperText>
-          </FormControl>
           <TextField
             fullWidth
             variant="filled"
@@ -357,10 +333,11 @@ const PaymentFormComponent = ({
               value={formik.values.type}
               onChange={formik.handleChange}
             >
-              <MenuItem value="school">School</MenuItem>
-              <MenuItem value="event">Event</MenuItem>
-              <MenuItem value="cycle stand">Cycle Stand</MenuItem>
-              <MenuItem value="bus">Bus</MenuItem>
+              {Object.keys(config.type).map(item => (
+                <MenuItem key={item} value={item}>
+                  {config.type[item]}
+                </MenuItem>
+              ))}
             </Select>
             <FormHelperText>
               {formik.touched.type && formik.errors.type}
@@ -380,9 +357,11 @@ const PaymentFormComponent = ({
               value={formik.values.payment_method}
               onChange={formik.handleChange}
             >
-              <MenuItem value={"cash"}>Cash</MenuItem>
-              <MenuItem value={"credit card"}>Credit Card</MenuItem>
-              <MenuItem value={"online transfer"}>Online Transfer</MenuItem>
+              {Object.keys(config.payment_method).map(item => (
+                <MenuItem key={item} value={item}>
+                  {config.payment_method[item]}
+                </MenuItem>
+              ))}
             </Select>
             <FormHelperText>
               {formik.touched.payment_method && formik.errors.payment_method}
@@ -397,19 +376,23 @@ const PaymentFormComponent = ({
           >
             <InputLabel>Payment Status</InputLabel>
             <Select
-              name="payment_status"
               variant="filled"
+              name="payment_status"
+              autoComplete="new-payment_status"
               value={formik.values.payment_status}
               onChange={formik.handleChange}
             >
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="partial">Partial</MenuItem>
-              <MenuItem value="full">Full</MenuItem>
+              {Object.keys(config.payment_status).map(item => (
+                <MenuItem key={item} value={item}>
+                  {config.payment_status[item]}
+                </MenuItem>
+              ))}
             </Select>
             <FormHelperText>
               {formik.touched.payment_status && formik.errors.payment_status}
             </FormHelperText>
           </FormControl>
+          
 
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker

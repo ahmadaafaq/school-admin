@@ -26,6 +26,8 @@ import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { Utility } from "../utility";
 
+import config from '../config';
+
 const initialValues = {
     session: "",
     firstname: "",
@@ -188,8 +190,6 @@ const StudentFormComponent = ({
         }
     }, [formik.values?.class, classData?.length]);
 
-    console.log("subjects>>>", formik.values.subjects);
-
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -304,6 +304,118 @@ const StudentFormComponent = ({
                         error={!!formik.touched.email && !!formik.errors.email}
                         helperText={formik.touched.email && formik.errors.email}
                     />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="aadhaar_no"
+                        label="Aadhaar Number*"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.aadhaar_no}
+                        error={!!formik.touched.aadhaar_no && !!formik.errors.aadhaar_no}
+                        helperText={formik.touched.aadhaar_no && formik.errors.aadhaar_no}
+                    />
+                    <FormControlLabel label="Is Specially Abled" sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                        control={
+                            <Checkbox {...checkboxLabel} color="default"
+                                checked={formik.values.is_specially_abled ? true : false}
+                                name="is_specially_abled"
+                                onChange={(event, value) => formik.setFieldValue("is_specially_abled", value)}
+                                value={formik.values.is_specially_abled}
+                            />
+                        } />
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.gender && !!formik.errors.gender}
+                    >
+                        <InputLabel>Gender</InputLabel>
+                        <Select
+                            ref={genderRef}             //head ka issue hai
+                            variant="filled"
+                            name="gender"
+                            value={formik.values.gender}
+                            onChange={formik.handleChange}
+                        >
+                          {Object.keys(config.gender).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.gender[item]}
+                                </MenuItem>
+                            ))}  
+                        </Select>
+                        <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
+                    </FormControl>
+                    {userId && <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.head && !!formik.errors.head}
+                    >
+                        <InputLabel>{updatedValues?.gender === "male" ? "Head Boy" : updatedValues?.gender === "female" ? "Head Girl" : "Select Head of School"}</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="head"
+                            value={formik.values.head}
+                            onChange={event => {
+                                if (formik.values.gender) {
+                                    formik.setFieldValue("head", event.target.value);
+                                    if (event.target.value == 1) {
+                                        validateHead();
+                                    }
+                                } else {
+                                    toastAndNavigate(dispatch, true, "info", "Please Select Gender");
+                                }
+                            }}
+                        >
+                            <MenuItem value={1}>Appoint</MenuItem>
+                            <MenuItem value={0}>Remove</MenuItem>
+                        </Select>
+                        <FormHelperText>{formik.touched.head && formik.errors.head}</FormHelperText>
+                    </FormControl>}
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            format="DD MMMM YYYY"            //ex - 25 July 2023
+                            views={['day', "month", "year"]}
+                            label="Select Date Of Birth*"
+                            name="dob"
+                            value={formik.values.dob}
+                            onChange={newDob => formik.setFieldValue("dob", newDob)}
+                            slotProps={{
+                                textField: {
+                                    error: !!formik.touched.dob && !!formik.errors.dob,
+                                    helperText: formik.touched.dob && formik.errors.dob
+                                }
+                            }}
+                        />
+                        <DatePicker
+                            format="DD MMMM YYYY"
+                            views={['day', "month", "year"]}
+                            label="Select Admission Date*"
+                            name="admission_date"
+                            value={formik.values.admission_date}
+                            onChange={new_admission_date => formik.setFieldValue("admission_date", new_admission_date)}
+                            slotProps={{
+                                textField: {
+                                    error: !!formik.touched.admission_date && !!formik.errors.admission_date,
+                                    helperText: formik.touched.admission_date && formik.errors.admission_date
+                                }
+                            }}
+                        />
+                    </LocalizationProvider>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.admission_type && !!formik.errors.admission_type}
+                    >
+                        <InputLabel>Admission Type*</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="admission_type"
+                            value={formik.values.admission_type}
+                            onChange={formik.handleChange}
+                        >
+                            {Object.keys(config.admission_type).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.admission_type[item]}
+                                </MenuItem>
+                            ))} 
+                        </Select>
+                        <FormHelperText>{formik.touched.admission_type && formik.errors.admission_type}</FormHelperText>
+                    </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.class && !!formik.errors.class}
                     >
@@ -356,7 +468,7 @@ const StudentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.section && formik.errors.section}</FormHelperText>
                     </FormControl>
-                    
+
                     <Autocomplete
                         multiple
                         options={schoolSubjects?.listData || []}
@@ -389,14 +501,11 @@ const StudentFormComponent = ({
                             value={formik.values.blood_group}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value="A+">A+</MenuItem>
-                            <MenuItem value="A-">A-</MenuItem>
-                            <MenuItem value="B+">B+</MenuItem>
-                            <MenuItem value="B-">B-</MenuItem>
-                            <MenuItem value="AB+">AB+</MenuItem>
-                            <MenuItem value="AB-">AB-</MenuItem>
-                            <MenuItem value="O+">O+</MenuItem>
-                            <MenuItem value="O-">O-</MenuItem>
+                            {Object.keys(config.bloodGroups).map(bloodGroup => (
+                                <MenuItem key={bloodGroup} value={bloodGroup}>
+                                    {config.bloodGroups[bloodGroup]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.blood_group && formik.errors.blood_group}</FormHelperText>
                     </FormControl>
@@ -424,7 +533,7 @@ const StudentFormComponent = ({
                         error={!!formik.touched.religion && !!formik.errors.religion}
                         helperText={formik.touched.religion && formik.errors.religion}
                     />
-                     <FormControl variant="filled" sx={{ minWidth: 120 }}
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.nationality && !!formik.errors.nationality}
                     >
                         <InputLabel>Nationality</InputLabel>
@@ -434,9 +543,11 @@ const StudentFormComponent = ({
                             value={formik.values.nationality}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value="indian">Indian</MenuItem>
-                            <MenuItem value="nri">NRI</MenuItem>
-
+                            {Object.keys(config.nationality).map(casteGroup => (
+                                <MenuItem key={casteGroup} value={casteGroup}>
+                                    {config.nationality[casteGroup]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.nationality && formik.errors.nationality}</FormHelperText>
                     </FormControl>
@@ -450,10 +561,11 @@ const StudentFormComponent = ({
                             value={formik.values.caste_group}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value="general">General</MenuItem>
-                            <MenuItem value="obc">OBC</MenuItem>
-                            <MenuItem value="sc">SC</MenuItem>
-                            <MenuItem value="st">ST</MenuItem>
+                            {Object.keys(config.casteGroups).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.casteGroups[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.caste_group && formik.errors.caste_group}</FormHelperText>
                     </FormControl>
@@ -467,24 +579,27 @@ const StudentFormComponent = ({
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value="active">Active</MenuItem>
-                            <MenuItem value="inactive">Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
-                     
+
                     <Box
                         sx={{
                             border: '2px solid #BADFE7', borderRadius: '12px', display: "grid", gap: "40px", alignItems: 'center',
                             width: isMobile ? '100%' : formik.values.fee_waiver_type === "partial" && formik.values.is_fee_waiver ? '326%' :
-                                formik.values.is_fee_waiver ? '200%' : '290px' ,  padding: '5px',
+                                formik.values.is_fee_waiver ? '200%' : '290px', padding: '5px',
                             gridTemplateColumns: formik.values.fee_waiver_type === "partial" && formik.values.is_fee_waiver ? "repeat(3, minmax(0, 1fr))" :
                                 formik.values.is_fee_waiver ? "repeat(2, minmax(0, 1fr))" : '1fr', gridColumnStart: 1,
-                                "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
+                            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
                         }}
-                        
+
                     >
-                        
+
                         <FormControlLabel
                             label="Is Fee Waiver"
                             sx={{ gridColumn: isMobile ? "span 2" : "", margin: 'auto 0px' }}
@@ -516,8 +631,11 @@ const StudentFormComponent = ({
                                     value={formik.values.fee_waiver_type}
                                     onChange={formik.handleChange}
                                 >
-                                    <MenuItem value="partial">Partial</MenuItem>
-                                    <MenuItem value="full">Full</MenuItem>
+                                    {Object.keys(config.fee_waiver_type).map(item => (
+                                        <MenuItem key={item} value={item}>
+                                            {config.fee_waiver_type[item]}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                                 <FormHelperText>{formik.touched.fee_waiver_type && formik.errors.fee_waiver_type}</FormHelperText>
                             </FormControl>

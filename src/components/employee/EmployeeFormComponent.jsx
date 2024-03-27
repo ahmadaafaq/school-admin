@@ -18,6 +18,8 @@ import { useFormik } from "formik";
 
 import employeeValidation from "./Validation";
 
+import config from '../config';
+
 const initialValues = {
     firstname: "",
     lastname: "",
@@ -179,37 +181,36 @@ const EmployeeFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel>Gender</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="genderField"
-                            label="Gender"
                             name="gender"
-                            autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
+                            {Object.keys(config.gender).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.gender[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>

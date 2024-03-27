@@ -15,6 +15,7 @@ import { Select, TextField, useMediaQuery } from "@mui/material";
 import { useFormik } from "formik";
 
 import BusValidation from "./Validation";
+import config from "../config"
 
 const initialValues = {
     registration_no: "",
@@ -197,18 +198,18 @@ const BusFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
