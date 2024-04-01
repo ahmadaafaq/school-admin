@@ -52,8 +52,6 @@ const checkoutSchema = yup.object().shape({
         .required("This Field is Required"),
     admission_type: yup.string()
         .required("This Field is Required"),
-    age: yup.string()
-        .required("This Field is Required"),
     aadhaar_no: yup.string()
         .required("This Field is Required"),
     gender: yup.string(),
