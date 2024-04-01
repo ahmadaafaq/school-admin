@@ -7,11 +7,7 @@
 */
 
 import { Link } from 'react-router-dom';
-import { Button, Box } from '@mui/material';
-import FacebookOutlinedIcon from '@mui/icons-material/FacebookOutlined';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import TwitterIcon from '@mui/icons-material/Twitter';
+import { Button } from '@mui/material';
 
 import "./Animated404Component.css";
 

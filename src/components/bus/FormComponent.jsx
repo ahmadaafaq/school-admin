@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -15,14 +16,12 @@ import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import BusFormComponent from "./BusFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
@@ -36,8 +35,6 @@ const FormComponent = () => {
         imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
@@ -47,7 +44,6 @@ const FormComponent = () => {
 
     const busFormRef = useRef();
     const addressFormRef = useRef();
-    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -56,8 +52,7 @@ const FormComponent = () => {
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
+    const { toastAndNavigate, getLocalStorage } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting Bus id from url params
     let id = state?.id || userParams?.id;
@@ -82,12 +77,12 @@ const FormComponent = () => {
                 responses.forEach(response => {
                     if (response.data.status !== "Success") {
                         status = false;
-                    };
+                    }
                 });
                 if (status) {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/bus/listing/${getLocalStorage('class')}`);
-                };
+                }
                 setLoading(false);
             })
             .catch(err => {
@@ -97,7 +92,7 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateBusData = (id) => {
+    const populateBusData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/bus/${id}`, `/get-address/bus/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
@@ -119,9 +114,9 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    },[]);
 
-    const createBus = () => {
+    const createBus = useCallback(formData => {
         setLoading(true);
         API.BusAPI.createBus({ ...formData.busData.values })
             .then(({ data: bus }) => {
@@ -131,7 +126,7 @@ const FormComponent = () => {
                         parent_id: bus.data.id,
                         parent: 'bus',
                     })
-                        .then(address => {
+                        .then(() => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/bus/listing`);
                         })
@@ -140,14 +135,14 @@ const FormComponent = () => {
                             toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
                             throw err;
                         });
-                };
+                }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    },[formData]);
 
     //Create/Update/Populate Bus
     useEffect(() => {
@@ -156,7 +151,7 @@ const FormComponent = () => {
             populateBusData(id);
         }
         if (formData.busData.validated && formData.addressData.validated) {
-            formData.busData.values?.id ? updateBusAndAddress(formData) : createBus();
+            formData.busData.values?.id ? updateBusAndAddress(formData) : createBus(formData);
         } else {
             setSubmitted(false);
         }
@@ -184,7 +179,9 @@ const FormComponent = () => {
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "start",
                 backgroundSize: "cover",
-                backgroundAttachment: "fixed"
+                backgroundAttachment: "fixed",
+                marginBottom:"20px !important",
+                height:"95vh"
             }}
         >
             <Typography
@@ -228,7 +225,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

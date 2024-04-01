@@ -67,7 +67,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname || ''} ${params.row.lastname || ''}`
+            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
         },
         {
             field: "class",
@@ -104,7 +104,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
         },
         {
             field: "dob",
-            headerName: "Date Of Birth",
+            headerName: "Date of Birth",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -135,7 +135,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                            {status.charAt(0).toUpperCase() + status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

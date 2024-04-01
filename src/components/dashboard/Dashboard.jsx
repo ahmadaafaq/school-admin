@@ -8,6 +8,7 @@
 */
 
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -19,7 +20,7 @@ import HighchartsReact from 'highcharts-react-official';
 import "../common/index.css"
 import StatBox from "../common/StatBox";
 import { tokens, themeSettings } from "../../theme";
-import { studentData, lineData } from "../common/CustomCharts";
+import { studentData } from "../common/CustomCharts";
 import API from "../../apis";
 
 import dashBg from "../assets/formBg.png";
@@ -185,7 +186,6 @@ const Dashboard = ({ rolePriority = null }) => {
             color: colors.grey[100],
             fontWeight: "600",
             display: "inline-block",
-            textShadow: "1px 1px 10px white",
             backgroundColor: theme.palette.mode === 'light' ? "white" : "transparent",
             lineHeight: "0.8",
             paddingTop: "15px"
@@ -375,7 +375,7 @@ const Dashboard = ({ rolePriority = null }) => {
           />
         </Box>
 
-        <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "130%", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
+        <Box sx={{ width: isMobile ? "100%" : isTab ? "100%" : "130%", gridArea: "chart1", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
           <HighchartsReact highcharts={Highcharts} options={options1} /></Box>
 
         <Box sx={{ height: isMobile ? "100%" : isTab ? "100%" : "100%", width: isMobile ? "100%" : isTab ? "100%" : "70%", marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "30%", gridArea: "chart2", boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;", borderRadius: "20px", overflow: "hidden" }}>
@@ -384,6 +384,10 @@ const Dashboard = ({ rolePriority = null }) => {
       </Box>
     </Box >
   );
+
+}
+Dashboard.propTypes = {
+  rolePriority: PropTypes.number
 };
 
 export default Dashboard;
