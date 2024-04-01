@@ -459,6 +459,7 @@ const FormComponent = () => {
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
                 imageType="Display"
+                multiple={true}
                 ENV={ENV}
             />
             <ImagePicker
@@ -475,6 +476,7 @@ const FormComponent = () => {
                 deletedImage={deletedBannerImage}
                 setDeletedImage={setDeletedBannerImage}
                 imageType="Banner"
+                multiple={true}
                 ENV={ENV}
             />
 
