@@ -6,7 +6,6 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import * as React from 'react';
 import PropTypes from "prop-types";
 import Box from '@mui/material/Box';
 import CircularProgress, {
@@ -38,14 +37,24 @@ function FacebookCircularProgress({ progress }) {
                 }}
                 size={40}
                 thickness={4}
-                value={progress}
+                value={parseFloat(progress)}
             />
         </Box>
     );
 }
 
+FacebookCircularProgress.propTypes = {
+    progress: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+    ])
+};
+
 ProgressCircle.propTypes = {
-    progress: PropTypes.string
+    progress: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+    ])
 };
 
 export default function ProgressCircle({ progress }) {

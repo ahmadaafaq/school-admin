@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,7 +21,6 @@ import TimeTableFormComponent from "./TimeTableFormComponent";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
@@ -78,7 +78,6 @@ const FormComponent = () => {
                 duration: formData.timeTableData.values.duration[index],
                 subject_id: formData.timeTableData.values[`subject${index + 1}`],
             };
-            console.log("payloadupdate>>", payload);
             API.TimeTableAPI.updateTimeTable(payload);
         });
 
@@ -101,7 +100,6 @@ const FormComponent = () => {
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
-                console.log("response>>", response[0]?.data)
                 if (response[0].data.status === 'Success') {
                     const dataObj = {
                         timeTableData: response[0].data.data.rows
@@ -117,7 +115,6 @@ const FormComponent = () => {
     }, [class_id, section_id, day]);
 
     const createTimeTable = useCallback(formData => {
-        console.log("formData", formData.timeTableData.values);
         let promises = [];
         setLoading(true);
         let payloadBase = {
@@ -133,14 +130,13 @@ const FormComponent = () => {
                 duration: formData.timeTableData.values.duration[index],
                 subject_id: formData.timeTableData.values[`subject${index + 1}`]
             }
-            console.log("timetable payload object>>", payload);
             API.TimeTableAPI.createTimeTable(payload);
         });
 
         return Promise.all(promises)
             .then(() => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "success", "Successfully Created");
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
             })
             .catch(err => {
                 setLoading(false);
@@ -178,7 +174,7 @@ const FormComponent = () => {
     };
 
     return (
-        <Box  m="10px"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
@@ -221,7 +217,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

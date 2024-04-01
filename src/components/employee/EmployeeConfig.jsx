@@ -28,17 +28,17 @@ export const datagridColumns = (rolePriority = null) => {
     const columns = [
         {
             field: "fullname",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname || ''} ${params.row.lastname || ''}`
+            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
         },
         {
             field: "email",
-            headerName: "Email",
+            headerName: "E-mail",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -62,11 +62,12 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "dob",
-            headerName: "DATE OF BIRTH",
+            headerName: "Date of Birth",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
+
         },
         {
             field: "gender",
@@ -74,7 +75,10 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueGetter: (params) => `${params.row.gender.charAt(0).toUpperCase() + params.row.gender.slice(1) || ''}`
+
+
         },
         {
             field: "status",
@@ -101,7 +105,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );

@@ -59,10 +59,10 @@ const ListingComponent = ({ rolePriority = null }) => {
     };
 
     useEffect(() => {
-     const selectedMenu = getLocalStorage("menu");
-     dispatch(setMenuItem(selectedMenu.selected));
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);   
+        const selectedMenu = getLocalStorage("menu");
+        dispatch(setMenuItem(selectedMenu.selected));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <Box m="10px" position="relative"
@@ -107,7 +107,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    {rolePriority > 1 && (
+                    {(rolePriority > 1 && !listData.rows) && (
                         <Button
                             type="submit"
                             color="success"

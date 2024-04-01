@@ -8,13 +8,14 @@
 */
 
 import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
+import PropTypes, { object } from "prop-types";
 
 import { Autocomplete, Box, Checkbox, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
 import { Divider, InputLabel, MenuItem, Select, TextField, useMediaQuery } from "@mui/material";
 import { useFormik } from "formik";
 
 import schoolValidation from "./Validation";
+import config from "../config";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -352,9 +353,11 @@ const SchoolFormComponent = ({
                             value={formik.values.type}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"co-ed"}>Co-Ed</MenuItem>
-                            <MenuItem value={"boys"}>Boys</MenuItem>
-                            <MenuItem value={"girls"}>Girls</MenuItem>
+                            {Object.keys(config.schoolType).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.schoolType[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.type && formik.errors.type}</FormHelperText>
                     </FormControl>
@@ -369,10 +372,11 @@ const SchoolFormComponent = ({
                             value={formik.values.sub_type}
                             onChange={event => formik.setFieldValue("sub_type", event.target.value)}
                         >
-                            <MenuItem value={"playgroup"}>Playgroup</MenuItem>
-                            <MenuItem value={"junior"}>Junior</MenuItem>
-                            <MenuItem value={"senior"}>Senior</MenuItem>
-                            <MenuItem value={"senior-sec"}>Senior-Sec</MenuItem>
+                            {Object.keys(config.subSchoolType).map(item =>(
+                                <MenuItem key={item} value={item}>
+                                    {config.subSchoolType[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.sub_type && formik.errors.sub_type}</FormHelperText>
                     </FormControl>
@@ -388,8 +392,11 @@ const SchoolFormComponent = ({
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                     <FormControlLabel label="Is Boarding" sx={{ gridColumn: isMobile ? "span 2" : "" }}

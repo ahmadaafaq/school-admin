@@ -120,7 +120,7 @@ function App() {
         <div className="app">
           {getLocalStorage("auth")?.token &&
             <Suspense fallback={<div><img src={formBg} alt="" style={{ backgroundSize: 'cover', backgroundAttachment: 'fixed', backgroundPosition: "center" }} /></div>}>
-              <Sidebar roleName={userRole.name} rolePriority={userRole.priority} />
+              <Sidebar className="sidebar" roleName={userRole.name} rolePriority={userRole.priority} />
               <main className="content">
                 <Topbar roleName={userRole.name} rolePriority={userRole.priority} />
                 <Routes>

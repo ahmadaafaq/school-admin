@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,12 +8,14 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 import { Box, FormControl, InputLabel, MenuItem, FormHelperText } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
 import { useFormik } from "formik";
 
 import BusValidation from "./Validation";
+import config from "../config"
 
 const initialValues = {
     registration_no: "",
@@ -37,7 +40,6 @@ const BusFormComponent = ({
     const [initialState, setInitialState] = useState(initialValues);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
 
     const formik = useFormik({
         initialValues: initialState,
@@ -196,18 +198,18 @@ const BusFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
@@ -216,5 +218,15 @@ const BusFormComponent = ({
         </Box>
     );
 }
+BusFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object,
+};
 
 export default BusFormComponent;

@@ -23,6 +23,8 @@ export const datagridColumns = (rolePriority = null) => {
     const handleActionEdit = (id) => {
         navigateTo(`/holiday/update/${id}`, { state: { id: id } });
     };
+    
+    
 
     const columns = [
         {
@@ -31,18 +33,27 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120
+            minWidth: 120,
+            valueGetter: (params) => `${params.row.title.charAt(0).toUpperCase() + params.row.title.slice(1) || ''} `
         },
         {
-            field: "date",
-            headerName: "Date",
+            field: "startDate",
+            headerName: "From",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "note",
+            field: "endDate",
+            headerName: "To",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "notes",
             headerName: "Notes",
             headerAlign: "center",
             align: "center",
@@ -57,7 +68,11 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 120,
             renderCell: ({ row: { type } }) => {
+                const nameParts = type.split('_');
+                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                const typeAll = capitalizedParts.join(' ');
                 return (
+                  
                     <Box
                         width="60%"
                         m="0 auto"
@@ -76,7 +91,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {type}
+                           {typeAll}
                         </Typography>
                     </Box>
                 );
@@ -97,7 +112,6 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            disabled={rolePriority}
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >
