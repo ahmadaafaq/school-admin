@@ -22,7 +22,6 @@ import API from "../../apis";
 import Toast from "../common/Toast";
 import SignInLoader from "../common/SignInLoader";
 
-import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -92,9 +91,6 @@ const Login = () => {
             setLocalStorage("auth", authInfo);
             response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;
             if (getLocalStorage("navigatedPath")) {
-              const splittedPath = getLocalStorage("navigatedPath").split('/');
-              setLocalStorage("menu", { selected: splittedPath[splittedPath.length - 2] });
-              dispatch(setMenuItem(splittedPath[splittedPath.length - 2]));
               navigateTo(`${getLocalStorage("navigatedPath")}`);
               remLocalStorage("navigatedPath");       //removing path after navigating user
             } else {

@@ -35,7 +35,7 @@ const PreviewImage = ({
     useEffect(() => {
         const dbImgFiles = [];
         const pickerFiles = [];
-       
+
         if (updatedImage) {
             let countOld = 0;
             updatedImage.map(img => {
@@ -65,12 +65,12 @@ const PreviewImage = ({
             ...dbImgFiles,         //We are not doing ...preview because in imagePicker file we have already
             ...pickerFiles
         ]);
-    }, [updatedImage?.length]);
+    }, [updatedImage?.length, imageFiles, setPreview]);
 
     useEffect(() => {
         // On new image selection through picker
         if (imageFiles) {
-            
+
             const pickerFiles = [];
             const dbImgFiles = [];
 
@@ -104,7 +104,7 @@ const PreviewImage = ({
                 ...pickerFiles
             ]);
         }
-    }, [imageFiles]);
+    }, [imageFiles, setPreview, updatedImage]);
 
     const handleDeleteClick = (item) => {
         const previewIndex = preview.indexOf(item);

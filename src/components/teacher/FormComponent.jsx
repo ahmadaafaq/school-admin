@@ -223,6 +223,7 @@ const FormComponent = () => {
                 if (user?.status === 'Success') {
                     API.TeacherAPI.createTeacher({
                         ...formData.teacherData.values,
+                        parent_id: user.data.id,
                         password: password
                     })
                         .then(async ({ data: teacher }) => {
@@ -324,7 +325,7 @@ const FormComponent = () => {
     };
 
     return (
-        <Box  m="10px"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,

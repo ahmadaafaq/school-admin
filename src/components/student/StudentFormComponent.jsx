@@ -129,12 +129,6 @@ const StudentFormComponent = ({
         dispatch(setSchoolSubjects(selectedSubjects));
     };
 
-    const getAndSetSections = () => {
-        const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
-        const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-        dispatch(setSchoolSections(selectedSections));
-    };
-
     useEffect(() => {
         if (reset) {
             formik.resetForm();
@@ -160,6 +154,16 @@ const StudentFormComponent = ({
         }
     }, []);
 
+
+    useEffect(() => {
+        const getAndSetSections = () => {
+            const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
+            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+            dispatch(setSchoolSections(selectedSections));
+        };
+        getAndSetSections();
+    }, [formik.values?.class, classData?.length]);
+
     useEffect(() => {
         if (formik.values) {
             setICardDetails({
@@ -180,13 +184,7 @@ const StudentFormComponent = ({
         if (formik.values.section) {
             getAndSetSubjects();
         }
-    }, [formik.values?.section]);
-
-    useEffect(() => {
-        if (formik.values.class) {
-            getAndSetSections();
-        }
-    }, [formik.values?.class, classData?.length]);
+    }, [formik.values?.section, classData.length]);
 
     console.log("updatedvales>>>", updatedValues);
 
