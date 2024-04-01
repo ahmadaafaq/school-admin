@@ -12,7 +12,7 @@ import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import { useFormik } from "formik";
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete, Typography } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -44,6 +44,7 @@ const initialValues = {
     admission_date: null,
     admission_type: "regular",
     is_specially_abled: false,
+    is_taking_bus: false,
     blood_group: "",
     birth_mark: "",
     religion: "",
@@ -363,8 +364,11 @@ const StudentFormComponent = ({
                                 }
                             }}
                         >
-                            <MenuItem value={1}>Appoint</MenuItem>
-                            <MenuItem value={0}>Remove</MenuItem>
+                            {Object.keys(config.head).map(item =>(
+                               <MenuItem key={item} value={item}>
+                                {config.head[item]}
+                               </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.head && formik.errors.head}</FormHelperText>
                     </FormControl>}
@@ -587,6 +591,31 @@ const StudentFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
+
+                    <Box
+                        sx={{
+                            border: '2px solid #BADFE7', borderRadius: '12px', display: "grid", gap: "40px", alignItems: 'center',
+                            width: isMobile ? '100%' : formik.values.is_taking_bus ? '200%' :
+                                formik.values.is_taking_bus ? '200%' : '290px', padding: '5px',
+                            gridTemplateColumns: formik.values.is_taking_bus ? "repeat(2, minmax(0, 1fr))" : '1fr', gridColumnStart: 1,
+                            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
+                        }}
+                    >
+                    <FormControlLabel label="Is Taking Bus to School" sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                        control={
+                            <Checkbox {...checkboxLabel} color="default"
+                                checked={formik.values.is_taking_bus ? true : false}
+                                name="is_taking_bus"
+                                onChange={(event, value) => formik.setFieldValue("is_taking_bus", value)}
+                                value={formik.values.is_taking_bus}
+                            />
+                        } />
+
+                        {formik.values.is_taking_bus && (
+                            <Typography>hello</Typography>
+                        )}    
+                    </Box>
+                    
 
                     <Box
                         sx={{

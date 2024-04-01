@@ -35,13 +35,18 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 120,
             valueGetter: (params) => `${params.row.title.charAt(0).toUpperCase() + params.row.title.slice(1) || ''} `
-
-            
-
         },
         {
-            field: "date",
-            headerName: "Date",
+            field: "startDate",
+            headerName: "From",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "endDate",
+            headerName: "To",
             headerAlign: "center",
             align: "center",
             flex: 1,

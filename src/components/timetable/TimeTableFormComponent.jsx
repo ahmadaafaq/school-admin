@@ -15,6 +15,7 @@ import { Box, useMediaQuery, FormControl, InputLabel, Select, MenuItem, FormHelp
 import { useFormik } from "formik";
 
 import API from "../../apis";
+import config from "../config";
 import TimeTableValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
@@ -300,12 +301,11 @@ const TimeTableFormComponent = ({
                             value={formik.values.day}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"monday"}>Monday</MenuItem>
-                            <MenuItem value={"tuesday"}>Tuesday</MenuItem>
-                            <MenuItem value={"wednesday"}>Wednesday</MenuItem>
-                            <MenuItem value={"thursday"}>Thursday</MenuItem>
-                            <MenuItem value={"friday"}>Friday</MenuItem>
-                            <MenuItem value={"saturday"}>Saturday</MenuItem>
+                            {Object.keys(config.day).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.day[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.day && formik.errors.day}</FormHelperText>
                     </FormControl>

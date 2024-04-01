@@ -31,6 +31,10 @@ const config = {
         'indian': 'Indian',
         'nri': 'NRI'
     },
+    head:{
+        '1':'Appoint',
+        '0':'Not appointed'
+    },
     fee_waiver_type: {
         'partial': 'Partial',
         'full': 'Full'
@@ -54,12 +58,42 @@ const config = {
         'credit card':'Credit Card',
         'online transfer':'Online Transfer'
     },
+    //payment type \/ :-
     type:{
         'school':'School',
         'event':'Event',
         'cycle stand':'Cycle Stand',
         'bus':'Bus'
-    }          
+    },
+    holiday_type:{
+        'school_closure':'School Closure',
+        'partial_closure':'Partial Closure',
+        'staff_only':'Staff Only'
+    },
+    term:{
+        'I':'I',
+        'II':'II',
+        'III':'III'
+    },
+    day:{
+        'monday':'Monday',
+        'tuesday':'Tuesday',
+        'wednesday':'Wednesday',
+        'thursday':'Thursday',
+        'friday':'Friday',
+        'saturday':'Saturday'
+    },
+    schoolType:{
+        'co-ed':'Co-Ed',
+        'boys':'Boys',
+        'girls':'Girls'
+    },
+    subSchoolType:{
+        'playground':'Playground',
+        'junior':'Junior',
+        'senior':'Senior',
+        'senior-sec':'Senior-Sec'
+    }      
 };
 
 export default config;

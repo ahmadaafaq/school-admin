@@ -19,6 +19,7 @@ import {
   Select,
   MenuItem,
   FormHelperText,
+  useTheme
 } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {
@@ -57,6 +58,7 @@ const SchoolDurationFormComponent = ({
   const [initialState, setInitialState] = useState(initialValues);
 
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const theme = useTheme();
 
   const formik = useFormik({
     initialValues: initialState,
@@ -106,6 +108,21 @@ const SchoolDurationFormComponent = ({
   return (
     <Box m="20px">
       <form ref={refId}>
+
+      <fieldset style={{
+                    border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+                    borderRadius: "10px",
+                    padding: "10px",
+                    margin: "10px 0px 10px 0px"
+                }}>
+                    <legend style={{
+                        color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+                        fontWeight: "bold",
+                        padding: "5px",
+                        fontSize: "larger"
+                    }}>
+                       Junior Batch
+                    </legend>
         <Box
           display="grid"
           gap="30px"
@@ -135,7 +152,6 @@ const SchoolDurationFormComponent = ({
             label="Halves"
             autoComplete="new-halves"
             onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
             value={formik.values.halves}
             error={!!formik.touched.halves && !!formik.errors.halves}
             helperText={formik.touched.halves && formik.errors.halves}
@@ -394,6 +410,7 @@ const SchoolDurationFormComponent = ({
             )}
           </Box>
         </Box>
+        </fieldset>
       </form>
     </Box>
   );

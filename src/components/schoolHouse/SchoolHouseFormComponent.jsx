@@ -15,6 +15,7 @@ import { Box, TextField, useMediaQuery, FormControl, InputLabel, Select, MenuIte
 import { useFormik } from "formik";
 
 import API from "../../apis";
+import config from "../config";
 import SchoolHouseValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
@@ -207,8 +208,11 @@ const SchoolHouseFormComponent = ({
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value="active">Active</MenuItem>
-                            <MenuItem value="inactive">Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
