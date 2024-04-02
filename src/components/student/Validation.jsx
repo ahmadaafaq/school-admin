@@ -8,8 +8,7 @@
 
 import * as yup from "yup";
 
-const phoneRegExp =
-  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
+const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
 const emailRegExp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 
 const checkoutSchema = yup.object().shape({
@@ -51,8 +50,6 @@ const checkoutSchema = yup.object().shape({
     admission_date: yup.date()
         .required("This Field is Required"),
     admission_type: yup.string()
-        .required("This Field is Required"),
-    age: yup.string()
         .required("This Field is Required"),
     aadhaar_no: yup.string()
         .required("This Field is Required"),

@@ -49,7 +49,6 @@ const initialValues = {
     birth_mark: "",
     religion: "",
     nationality: "",
-    age: "",
     aadhaar_no: "",
     caste_group: "",
     gender: "",
@@ -70,8 +69,6 @@ const StudentFormComponent = ({
     setClassData,
     allSubjects,
     userId,
-    iCardDetails,
-    setICardDetails,
     updatedValues = null
 }) => {
     const [initialState, setInitialState] = useState(initialValues);
@@ -166,15 +163,6 @@ const StudentFormComponent = ({
         };
         getAndSetSections();
     }, [formik.values?.class, classData?.length]);
-
-    useEffect(() => {
-        if (formik.values) {
-            setICardDetails({
-                ...iCardDetails,
-                ...formik.values
-            });
-        }
-    }, [formik.values]);
 
     useEffect(() => {
         const selectedClassId = parseInt(getLocalStorage("class"));
@@ -335,11 +323,11 @@ const StudentFormComponent = ({
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
-                          {Object.keys(config.gender).map(item => (
+                            {Object.keys(config.gender).map(item => (
                                 <MenuItem key={item} value={item}>
                                     {config.gender[item]}
                                 </MenuItem>
-                            ))}  
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
@@ -362,10 +350,10 @@ const StudentFormComponent = ({
                                 }
                             }}
                         >
-                            {Object.keys(config.head).map(item =>(
-                               <MenuItem key={item} value={item}>
-                                {config.head[item]}
-                               </MenuItem>
+                            {Object.keys(config.head).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.head[item]}
+                                </MenuItem>
                             ))}
                         </Select>
                         <FormHelperText>{formik.touched.head && formik.errors.head}</FormHelperText>
@@ -414,7 +402,7 @@ const StudentFormComponent = ({
                                 <MenuItem key={item} value={item}>
                                     {config.admission_type[item]}
                                 </MenuItem>
-                            ))} 
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.admission_type && formik.errors.admission_type}</FormHelperText>
                     </FormControl>
@@ -599,21 +587,21 @@ const StudentFormComponent = ({
                             "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
                         }}
                     >
-                    <FormControlLabel label="Is Taking Bus to School" sx={{ gridColumn: isMobile ? "span 2" : "" }}
-                        control={
-                            <Checkbox {...checkboxLabel} color="default"
-                                checked={formik.values.is_taking_bus ? true : false}
-                                name="is_taking_bus"
-                                onChange={(event, value) => formik.setFieldValue("is_taking_bus", value)}
-                                value={formik.values.is_taking_bus}
-                            />
-                        } />
+                        <FormControlLabel label="Is Taking Bus to School" sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                            control={
+                                <Checkbox {...checkboxLabel} color="default"
+                                    checked={formik.values.is_taking_bus ? true : false}
+                                    name="is_taking_bus"
+                                    onChange={(event, value) => formik.setFieldValue("is_taking_bus", value)}
+                                    value={formik.values.is_taking_bus}
+                                />
+                            } />
 
                         {formik.values.is_taking_bus && (
                             <Typography>hello</Typography>
-                        )}    
+                        )}
                     </Box>
-                    
+
 
                     <Box
                         sx={{
@@ -704,9 +692,7 @@ StudentFormComponent.propTypes = {
     setClassData: PropTypes.func,
     allSubjects: PropTypes.array,
     userId: PropTypes.number,
-    updatedValues: PropTypes.object,
-    iCardDetails: PropTypes.object,
-    setICardDetails: PropTypes.func
+    updatedValues: PropTypes.object
 };
 
 export default StudentFormComponent;

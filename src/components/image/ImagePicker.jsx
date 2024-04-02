@@ -10,12 +10,14 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { useFormik } from "formik";
-import { Box, IconButton, TextField } from "@mui/material";
+import { ErrorMessage, useFormik } from "formik";
+import { Box, FormHelperText, IconButton, TextField } from "@mui/material";
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
+import imageValidation from "./Validation";
 import PreviewImage from "./PreviewImage";
 
+const initialValues = {};
 const ImagePicker = ({
     onChange,
     refId,
@@ -24,8 +26,6 @@ const ImagePicker = ({
     setReset,
     preview,
     setPreview,
-    iCardDetails = null,
-    setICardDetails = null,
     updatedImage = [],
     setUpdatedImage,
     deletedImage = [],
@@ -34,13 +34,12 @@ const ImagePicker = ({
     ENV,
     multiple = false
 }) => {
-    const initialValues = {};
     initialValues[`${imageType}`] = null;
-
     const [initialState, setInitialState] = useState(initialValues);
 
     const formik = useFormik({
         initialValues: initialState,
+        validationSchema: imageValidation,
         enableReinitialize: true,
         onSubmit: () => watchForm()
     });
@@ -77,22 +76,11 @@ const ImagePicker = ({
     }, [formik.dirty]);
 
     useEffect(() => {
-        if (iCardDetails && imageType === 'Student') {
-            if (preview.length > 0) {
-                setICardDetails({
-                    ...iCardDetails,
-                    Student: formik.values[imageType]
-                });
-                console.log('condition k ander')
-            }
-        }
-    }, [formik.values, imageType, preview?.length]);
-
-    useEffect(() => {
-        if (updatedImage) {
+        if (updatedImage?.length) {
             setInitialState(updatedImage);
         }
     }, [updatedImage?.length]);
+    console.log(Object.keys(formik.errors), 'formik image');
 
     return (
         <Box m="10px">
@@ -140,6 +128,11 @@ const ImagePicker = ({
                     />
                 </form>
             ) : null}
+            {/* {Object.keys(formik.errors) ? (
+                <p>
+                    {formik.touched[`${imageType}`] && formik.errors[`${imageType}`]}
+                </p>
+            ) : null} */}
             <PreviewImage
                 formik={formik}
                 deletedImage={deletedImage}
@@ -167,8 +160,6 @@ ImagePicker.propTypes = {
     setReset: PropTypes.func,
     preview: PropTypes.array,
     setPreview: PropTypes.func,
-    iCardDetails: PropTypes.object,
-    setICardDetails: PropTypes.func,
     updatedImage: PropTypes.array,
     setUpdatedImage: PropTypes.func,
     deletedImage: PropTypes.array,
