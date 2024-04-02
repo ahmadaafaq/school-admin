@@ -112,7 +112,7 @@ const HolidayFormComponent = ({
                         <DatePicker
                             format="DD MMMM YYYY"            //ex - 25 July 2023
                             views={['day', "month", "year"]}
-                            label="Closure Date"
+                            label="Closing Date"
                             name="startDate"
                             value={formik.values.startDate}
                             onChange={newStartDate => formik.setFieldValue("startDate", newStartDate)}
