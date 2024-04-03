@@ -156,15 +156,6 @@ const AddressFormComponent = ({
             });
     }, [formik.values.state, stateId]);
 
-    useEffect(() => {
-        if (iCardDetails) {
-            setICardDetails({
-                ...iCardDetails,
-                ...formik.values
-            });
-        }
-    }, [formik.values]);
-
     // useEffect(() => {
     //     if (formik.values.country) {
     //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
