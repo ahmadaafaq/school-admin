@@ -235,6 +235,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
 
@@ -270,6 +271,7 @@ const Dashboard = ({ rolePriority = null }) => {
                   sx={{ fontSize: isMobile ? "10px" : "26px" }}
                 />
               }
+              role={rolePriority}
             />
           </Box>
         )
@@ -304,6 +306,7 @@ const Dashboard = ({ rolePriority = null }) => {
                     sx={{ fontSize: isMobile ? "10px" : "26px" }}
                   />
                 }
+                role={rolePriority}
               />
             </Box>
           )
@@ -338,6 +341,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
         <Box
@@ -372,6 +376,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
 
