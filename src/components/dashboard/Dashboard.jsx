@@ -39,6 +39,7 @@ const Dashboard = ({ rolePriority = null }) => {
   const { typography } = themeSettings(theme.palette.mode);
   const dashboardAttributes = rolePriority === 1 ? ['student', 'school', 'teacher', 'employee']
     : rolePriority !== 1 ? ['student', 'bus', 'teacher', 'employee'] : null;
+    console.log(rolePriority, 'wwww')
 
   const options1 = {
     chart: {
@@ -235,6 +236,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
 
@@ -270,6 +272,7 @@ const Dashboard = ({ rolePriority = null }) => {
                   sx={{ fontSize: isMobile ? "10px" : "26px" }}
                 />
               }
+              role={rolePriority}
             />
           </Box>
         )
@@ -304,6 +307,7 @@ const Dashboard = ({ rolePriority = null }) => {
                     sx={{ fontSize: isMobile ? "10px" : "26px" }}
                   />
                 }
+                role={rolePriority}
               />
             </Box>
           )
@@ -338,6 +342,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
         <Box
@@ -372,6 +377,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
 
