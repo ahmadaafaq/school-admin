@@ -1,0 +1,1 @@
+import{N as s}from"./index-dsWAcX1f.js";const S=t=>({type:s.SET_LISTING_SECTIONS,payload:t}),e=t=>({type:s.SET_SCHOOL_SECTIONS,payload:t}),a=t=>({type:s.SET_All_SECTIONS,payload:t});export{e as a,S as b,a as s};
