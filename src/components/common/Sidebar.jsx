@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
 *
@@ -9,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar/dist";
 import "react-pro-sidebar/dist/css/styles.css";
 
@@ -18,26 +20,28 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import Diversity3Icon from '@mui/icons-material/Diversity3';
-import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import EventIcon from '@mui/icons-material/Event';
 import PaymentIcon from '@mui/icons-material/Payment';
-import amenityIcon from '../assets/amenityIcon.png';
-import classIcon from '../assets/classIcon.png';
-import sectionIcon from '../assets/sectionIcon.png'
-import subjectIcon from '../assets/subjectIcon.png'
-import roleIcon from '../assets/roleIcon.png'
+import FitbitIcon from '@mui/icons-material/Fitbit';
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom';
+import CategoryIcon from '@mui/icons-material/Category';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import EngineeringIcon from '@mui/icons-material/Engineering';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import BackupTableIcon from '@mui/icons-material/BackupTable';
+import HourglassBottomTwoToneIcon from '@mui/icons-material/HourglassBottomTwoTone';
+import EmojiFlagsRoundedIcon from '@mui/icons-material/EmojiFlagsRounded';
 
 import API from "../../apis";
-import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
 import { SidebarItem } from "./SidebarItem";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-import "../common/index.css";
+import "./index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/dps.png";
 
@@ -45,7 +49,8 @@ const Sidebar = ({ rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
   const selected = useSelector(state => state.menuItems.selected);
-  const formClassesInRedux = useSelector(state => state.allFormClasses);
+  const schoolClasses = useSelector(state => state.schoolClasses);
+  const allClasses = useSelector(state => state.allClasses);
 
   const dispatch = useDispatch();
   const location = useLocation();
@@ -53,7 +58,8 @@ const Sidebar = ({ rolePriority }) => {
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
-  const { customSort, createUniqueDataArray, getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
+  const { fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, remLocalStorage, addClassKeyword } = Utility();
+  const classData = (schoolClasses?.listData.length ? schoolClasses.listData : allClasses?.listData) || [];
 
   const closeSubMenu = () => {
     if (isSubMenuOpen) {
@@ -62,29 +68,20 @@ const Sidebar = ({ rolePriority }) => {
   };
 
   useEffect(() => {
+    if (!getLocalStorage("schoolInfo") && !allClasses?.listData?.length) {
+      fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+    }
+    if (getLocalStorage("schoolInfo") && !schoolClasses?.listData?.length) {
+      fetchAndSetSchoolData(dispatch, setSchoolClasses);
+    }
+  }, [schoolClasses?.listData, allClasses?.listData]);
+
+  useEffect(() => {
     // const regex = /^\d+/;
     if (!location.pathname.startsWith('/student/')) {
       getLocalStorage('class') ? remLocalStorage('class') : null;
     }
   }, [location.pathname]);
-
-  useEffect(() => {
-    if (!formClassesInRedux?.listData?.length) {
-      API.SchoolAPI.getSchoolClasses(5)
-        .then(classData => {
-          if (classData.status === 'Success') {
-            classData.data.sort(customSort);
-            const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-            dispatch(setFormClasses(uniqueClassDataArray));
-          } else {
-            console.log("Error Fetching ClassData, Please Try Again");
-          }
-        })
-        .catch(err => {
-          console.log("Error Fetching ClassData:", err);
-        });
-    }
-  }, [formClassesInRedux.listData.length]);
 
   useEffect(() => {
     setIsCollapsed(isMobile);
@@ -95,7 +92,7 @@ const Sidebar = ({ rolePriority }) => {
   }, [isTab]);
 
   const renderNotCollapsedStudents = () => {
-    return formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(classs => (
+    return classData?.length && classData.map(classs => (
       <SidebarItem
         key={classs.class_id}
         title={`${addClassKeyword(classs.class_name)}`}
@@ -117,7 +114,7 @@ const Sidebar = ({ rolePriority }) => {
   };
 
   const renderCollapsedStudents = () => {
-    return formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(classs => (
+    return classData?.length && classData.map(classs => (
       <SidebarItem
         key={classs.class_id}
         to={`/student/listing/${classs.class_id}`}
@@ -134,23 +131,66 @@ const Sidebar = ({ rolePriority }) => {
     <Box
       sx={{
         "& .pro-sidebar-inner": {
-          background: theme.palette.mode === 'light' ? '#ffffff' : `${colors.primary[400]} !important`,
+          background: theme.palette.mode === 'light' ? `#6ac6ff !important` : 'black',
+          boxShadow: "inset -5px 0 10px rgba(0, 0, 0, 0.3)",
           overflow: isMobile ? "hidden" : ""
         },
         "& .pro-icon-wrapper": {
           backgroundColor: `transparent !important`
         },
         "& .pro-inner-item": {
+          color: theme.palette.mode === 'light' ? `darkblue !important` : '',
           padding: `4px 35px 4px 15px !important`
         },
-        "& .pro-inner-item:hover": {
-          color: `#868dfb !important`
+        "& .pro-sidebar .pro-menu-item.active a::before": {
+          content: `''`,
+          position: "absolute",
+          top: "-50px",
+          right: "0px",
+          bottom: "100px",
+          left: "195px",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow: theme.palette.mode === 'light' ? "35px 35px 0 10px white" : "35px 35px 0 10px #141b2d"
+        },
+        " .pro-sidebar .pro-menu-item.active a::after": {
+          content: `''`,
+          position: "absolute",
+          bottom: "-50px",
+          right: "0px",
+          top: "43px",
+          left: "195px",
+          backgroundColor: "transparent",
+          width: "50px",
+          height: "50px",
+          borderRadius: "50%",
+          pointerEvents: "none",
+          boxShadow: theme.palette.mode === 'light' ? "35px -35px 0 10px white" : "35px -35px 0 10px #141b2d"
         },
         "& .pro-menu-item.active": {
-          color: `#6870fa !important`
+          color: `#868dfb !important`,
+          backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#141b2d',
+          borderRadius: " 20px 0 0px 20px;",
+          boxShadow: "1px 1px 7px black",
+          marginTop: "5px"
+        },
+        "& .pro-menu-item:hover": {
+          color: theme.palette.mode === 'light' ? `#868dfb !important` : `black !important`,
+          backgroundColor: theme.palette.mode === 'light' ? `white !important` : '#141b2d',
+          borderRadius: " 20px 0 0px 20px;",
+          boxShadow: "1px 1px 7px black",
+        },
+        "& .pro-sidebar .pro-menu .pro-menu-item .pro-inner-item:hover": {
+          color: "white"
+        },
+        "& .pro-menu-item a.active": {
+          color: theme.palette.mode === 'light' ? `darkblue !important` : '',
         },
         "& .pro-arrow-wrapper": {
-          marginRight: "50px"
+          marginRight: "50px",
         },
         "& .pro-menu-item.pro-sub-menu": {
           color: `${colors.primary[100]}`
@@ -158,11 +198,12 @@ const Sidebar = ({ rolePriority }) => {
         "& .pro-inner-list-item": {
           height: `${isSubMenuOpen ? "115px" : "0"}` + " !important",
           overflowY: isSubMenuOpen ? "scroll" : "hidden",
+          overflowX: "hidden",
           transition: 'height 0.3s ease-in-out !important'
         }
       }}
     >
-      <ProSidebar collapsed={isCollapsed}>
+      <ProSidebar collapsed={isCollapsed} >
         <Menu iconShape="square" onClick={(event) => closeSubMenu(event)}>
           {/* LOGO AND MENU ICON */}
           <MenuItem
@@ -181,7 +222,7 @@ const Sidebar = ({ rolePriority }) => {
                 ml="5px"
               >
                 <Typography variant="h3" color={colors.grey[100]}>
-                  {rolePriority > 1 ? getLocalStorage("auth")?.designation.charAt(0).toUpperCase() + getLocalStorage("auth")?.designation.slice(1) :
+                  {rolePriority > 1 ? getLocalStorage("auth")?.designation?.charAt(0)?.toUpperCase() + getLocalStorage("auth")?.designation?.slice(1) :
                     'Company Name'}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -237,6 +278,7 @@ const Sidebar = ({ rolePriority }) => {
                       rolePriority={rolePriority}
                       menuVisibility={5}
                       isSubMenu={true}
+                      mt="5px"
                     />
                     {renderCollapsedStudents()}
                   </SubMenu>
@@ -281,7 +323,7 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="Teacher"
               to="/teacher/listing"
-              icon={<Diversity3Icon />}
+              icon={<LocalLibraryIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
@@ -289,7 +331,7 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="User"
               to="/user/listing"
-              icon={<PregnantWomanIcon />}
+              icon={<AccountCircleIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
@@ -329,7 +371,31 @@ const Sidebar = ({ rolePriority }) => {
             <SidebarItem
               title="Marksheet"
               to="/marksheet/listing"
-              icon={<FormatListBulletedIcon />}
+              icon={<FactCheckIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
+            <SidebarItem
+              title="School House"
+              to="/school-house/listing"
+              icon={<EmojiFlagsRoundedIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
+            <SidebarItem
+              title="School Duration"
+              to="/school-duration/listing"
+              icon={<HourglassBottomTwoToneIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={4}
+            />
+            <SidebarItem
+              title="Time Table"
+              to="/time-table/listing"
+              icon={<BackupTableIcon />}
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
@@ -345,7 +411,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Amenity"
                 to="/amenity/listing"
-                icon={<img src={amenityIcon} height={35} width={35} />}
+                icon={< FitbitIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -353,7 +419,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Class"
                 to="/class/listing"
-                icon={<img src={classIcon} height={25} width={25} />}
+                icon={<MeetingRoomIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -361,7 +427,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Section"
                 to="/section/listing"
-                icon={<img src={sectionIcon} height={25} width={25} />}
+                icon={<CategoryIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -369,7 +435,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Subject"
                 to="/subject/listing"
-                icon={<img src={subjectIcon} height={25} width={25} />}
+                icon={<AutoStoriesIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -377,7 +443,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Role"
                 to="/role/listing"
-                icon={<img src={roleIcon} height={25} width={25} />}
+                icon={<EngineeringIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -386,8 +452,12 @@ const Sidebar = ({ rolePriority }) => {
           </Box>
         </Menu>
       </ProSidebar>
-    </Box >
+    </Box>
   );
+};
+
+Sidebar.propTypes = {
+  rolePriority: PropTypes.number
 };
 
 export default Sidebar;

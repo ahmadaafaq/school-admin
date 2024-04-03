@@ -60,18 +60,18 @@ export const SubjectAPI = {
     /** getting  subject  by class in the database
      */
     getSubjectsByClass: async (classId, cancel = false) => {
-        console.log('api class=', classId)
+        
         const { data: response } = await api.request({
             url: `/get-subjects-by-class/${classId}`,
             headers: {
                 "x-access-token": getLocalStorage("auth")?.token
             },
             method: "GET",
-            signal: cancel ? cancelApiObject[StudentAPI.getSubjectsByClass.name].handleRequestCancellation().signal : undefined,
+            signal: cancel ? cancelApiObject[this.getSubjectsByClass.name].handleRequestCancellation().signal : undefined,
         });
         return response;
     }
-}
+};
 
 // defining the cancel API object for SubjectAPI
 const cancelApiObject = defineCancelApiObject(SubjectAPI);

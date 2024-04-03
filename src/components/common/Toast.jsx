@@ -7,6 +7,7 @@
  */
 
 import * as React from 'react';
+import PropTypes from "prop-types";
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Snackbar from '@mui/material/Snackbar';
@@ -33,10 +34,11 @@ const Toast = ({
         }
         setState({
             ...state,
-            open: false,
+            open: false
         });
     };
 
+    // eslint-disable-next-line no-unused-vars
     const action = (
         <IconButton
             size="small"
@@ -64,6 +66,12 @@ const Toast = ({
             </Snackbar>}
         </div>
     );
+};
+
+Toast.propTypes = {
+    alerting: PropTypes.bool,
+    message: PropTypes.string,
+    severity: PropTypes.string
 };
 
 export default Toast;

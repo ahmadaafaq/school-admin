@@ -116,6 +116,55 @@ export const Utility = () => {
         });
     };
 
+    /** Fetches data from the specified API, dispatches the data to a Redux action and updates the state
+     * @param {function} dispatch - The dispatch function from the Redux store.
+     * @param {function} action - The Redux action to be dispatched with the fetched data.
+     * @param {object} api - An object containing methods for interacting with the API.
+     */
+    const fetchAndSetAll = (dispatch, action, api) => {
+        api.getAll(false, 0, 50)
+            .then(res => {
+                if (res?.status === 'Success') {
+                    dispatch(action(res.data.rows));
+                } else {
+                    console.log("An Error Occurred, Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.log('fetchandsetall function error:', err);
+            });
+    };
+
+    /**Fetches school data (classes and optionally sections) from API and dispatches actions to update the Redux store.
+     * @param {function} dispatch - The Redux dispatch function.
+     * @param {function} setClassesAction - The Redux action to set classes in the store.
+     * @param {function} [setSectionsAction] - The optional Redux action to set sections in the store.
+     * @param {function} [setClassData] - The optional local state to set the data fetched from API call.
+     */
+    const fetchAndSetSchoolData = (dispatch, setClassesAction = false, setSectionsAction = false, setClassData = false) => {
+        API.SchoolAPI.getSchoolClasses()
+            .then(classData => {
+                if (classData.status === 'Success') {
+                    if (setClassesAction) {
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setClassesAction(uniqueClassDataArray));
+                    }
+                    if (setSectionsAction) {        //why is this required, needs to be tested
+                        const uniqueSectionsDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
+                        dispatch(setSectionsAction(uniqueSectionsDataArray));
+                    }
+                    if (setClassData) {    //setting all classData in local state
+                        setClassData(classData.data);
+                    }
+                } else {
+                    console.log("Error Fetching School Data, Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.log("Error Fetching School Class Section Info:", err);
+            });
+    };
+
     /** Finds an object in a collection by its ID.
      * @param {number} id - The ID to search for.
      * @param {Array} model - The collection (array of objects) to search within.
@@ -125,7 +174,7 @@ export const Utility = () => {
         if (!model || !id) {
             return [];
         }
-        return model.find((obj => obj.id === id || obj.class_id === id));
+        return model.find((obj => obj.id === id || obj.class_id === id || obj.section_id === id));
     };
 
     /** Finds multiple objects in a collection by their IDs.
@@ -138,6 +187,19 @@ export const Utility = () => {
             return [];
         }
         return model.filter(obj => ids.split(',').indexOf(obj.id.toString()) > -1);
+    };
+
+    /** Formats an image name by appending a random number and removing special characters.
+     * @param {string} name - The original image name.
+     * @returns {string} - The formatted image name.
+     */
+    const formatImageName = (name) => {
+        const formattedName = Math.ceil(Math.random() * 100000000) + name
+            .toLowerCase()
+            .trim()
+            .replace(/[!@#$%^&*();:'"`~`'$]/g, "")
+            .replace(/\s+/g, "_");
+        return formattedName;
     };
 
     /** Gets user initials from the first and last name stored in auth information.
@@ -173,21 +235,24 @@ export const Utility = () => {
     };
 
     /** Extracts and concatenates IDs from array of objects.
-     * @param {Array} object - The array of objects from which to extract IDs.
+     * @param {Array} array - The array of objects from which to extract IDs.
      * @returns {string} - A comma-separated string of IDs.
      */
-    const getIdsFromObject = (object) => {
-        let objectId = [];
-        object?.forEach(object => {
-            objectId.push(object.id);
-        });
-        return objectId.toString();
+    const getIdsFromObject = (array) => {
+        let arrayId = [];
+        if (Array.isArray(array)) {
+            array.forEach(arr => {
+                arrayId.push(arr.id);
+            });
+        }
+        return arrayId.toString();
     };
 
     /** Get selected values by matching IDs from a comma-separated string.
      * @param {string} - A comma-separated string of IDs.
      * @returns {Array} - An array of objects of selected values.
      */
+    // remove it
     const getValuesFromArray = (ids, model) => {
         const idArray = ids?.split(",");
         if (idArray) {
@@ -234,6 +299,22 @@ export const Utility = () => {
             return authData.role;
         }
         return null;
+    };
+
+    /** Generates a random password of length 10, excluding certain special characters.
+     * @returns { string } The generated password.
+     */
+    const generatePassword = () => {
+        let pw = '';
+        for (let i = 0; i < 10; i++) {
+            const randomCharCode = Math.floor(Math.random() * 94) + 33;
+            if ([34, 38, 60, 62, 44, 96, 39].includes(randomCharCode)) {
+                pw += '#';
+            } else {
+                pw += String.fromCharCode(randomCharCode);
+            }
+        }
+        return pw;
     };
 
     /** Checks if an object is empty (has no own enumerable properties).
@@ -317,8 +398,11 @@ export const Utility = () => {
         createSession,
         customSort,
         createUniqueDataArray,
+        fetchAndSetAll,
+        fetchAndSetSchoolData,
         findById,
         findMultipleById,
+        formatImageName,
         getInitials,
         getNameAndType,
         getLocalStorage,
@@ -326,6 +410,7 @@ export const Utility = () => {
         getRoleAndPriorityById,
         getIdsFromObject,
         getValuesFromArray,
+        generatePassword,
         isObjEmpty,
         remLocalStorage,
         setLocalStorage,

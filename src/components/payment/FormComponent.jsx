@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -14,40 +15,30 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import dayjs from "dayjs";
 
 import API from "../../apis";
-import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import PaymentFormComponent from "./PaymentFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+
+import formBg from "../assets/formBg.png";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        paymentData: { values: null, validated: false },
-        addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true }
+        paymentData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-  //  const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
-
     const paymentFormRef = useRef();
-    const addressFormRef = useRef();
-    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -56,8 +47,7 @@ const FormComponent = () => {
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
+    const { toastAndNavigate, getLocalStorage } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting Payment id from url params
     let id = state?.id || userParams?.id;
@@ -67,93 +57,77 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updatePaymentAndAddress = useCallback(formData => {
-        console.log("formdataABCD", formData)
-        const dataFields = [
-            { ...formData.paymentData.values },
-            { ...formData.addressData.values }
-        ];
-        const paths = ["/update-payment", "/update-address"];
+    const updatePayment = useCallback(formData => {
         setLoading(true);
+        // eslint-disable-next-line no-unused-vars
+        const { class_id, section, ...modifiedObj } = formData.paymentData.values;
 
-        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
-                let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
-                        status = false;
-                    };
-                });
-                if (status) {
+        API.PaymentAPI.updatePayment(modifiedObj)
+            .then(({ data: payment }) => {
+                if (payment.status === 'Success') {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/payment/listing/${getLocalStorage('class')}`);
-                };
-                setLoading(false);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/payment/listing');
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log('Error in Updating Payment:', err);
             });
     }, [formData]);
 
-    const populatePaymentData = (id) => {
+    const populatePaymentData = useCallback(id => {
+        const path = [`/get-by-pk/payment/${id}`];
         setLoading(true);
-        const paths = [`/get-by-pk/payment/${id}`, `/get-address/payment/${id}`];
-        API.CommonAPI.multipleAPICall("GET", paths)
-            .then(responses => {
-                if (responses[0].data.data) {
-                   // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
-                    responses[0].data.data.dob = dayjs(responses[0].data.data.dob);
-                    responses[0].data.data.admission_date = dayjs(responses[0].data.data.admission_date);
-                }
-                const dataObj = {
-                    paymentData: responses[0].data.data,
-                    addressData: responses[1]?.data?.data
-                };
-                setUpdatedValues(dataObj);
-                setLoading(false);
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
-    };
 
-    const createPayment = () => {
-        setLoading(true);
-        API.PaymentAPI.createPayment({ ...formData.paymentData.values })
-            .then(({ data: payment }) => {
-                if (payment?.status === 'Success') {
-                    API.AddressAPI.createAddress({
-                        ...formData.addressData.values,
-                        parent_id: payment.data.id,
-                        parent: 'payment',
-                    })
-                        .then(address => {
+        API.CommonAPI.multipleAPICall("GET", path)
+            .then(res => {
+                const firstApiResponse = res[0].data;
+                if (firstApiResponse.status === 'Success') {
+                    firstApiResponse.data.payment_date = dayjs(firstApiResponse.data.payment_date);
+                    if (firstApiResponse.data.due_date != null) {
+                        firstApiResponse.data.due_date = dayjs(firstApiResponse.data.due_date);
+                    }
+                    const studentId = firstApiResponse.data.student_id;
+                    API.StudentAPI.getClassOfStudent(studentId)
+                        .then(result => {
+                            const dataObj = {
+                                ...firstApiResponse.data,
+                                class_id: result.data.class,
+                                section: result.data.section
+                            };
+                            setUpdatedValues(dataObj);
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/payment/listing`);
                         })
-                        .catch(err => {
-                            setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                            throw err;
+                        .catch(error => {
+                            console.log("Error in API calls of populating Payment:", error);
                         });
-                };
+                }
+            })
+            .catch(commonAPIError => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", commonAPIError ? commonAPIError?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+            });
+    }, [id]);
+
+    const createPayment = useCallback(formData => {
+        setLoading(true);
+        // eslint-disable-next-line no-unused-vars
+        const { class_id, section, ...modifiedObj } = formData.paymentData.values;
+
+        API.PaymentAPI.createPayment(modifiedObj)
+            .then(({ data: payment }) => {
+                if (payment.status === 'Success') {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/payment/listing');
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log('Error in Creating Payment:', err);
             });
-    };
-
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
+    }, [formData]);
 
     //Create/Update/Populate Payment
     useEffect(() => {
@@ -161,8 +135,8 @@ const FormComponent = () => {
             setTitle("Update");
             populatePaymentData(id);
         }
-        if (formData.paymentData.validated && formData.addressData.validated) {
-            formData.paymentData.values?.id ? updatePaymentAndAddress(formData) : createPayment();
+        if (formData.paymentData.validated) {
+            formData.paymentData.values?.id ? updatePayment(formData) : createPayment(formData);
         } else {
             setSubmitted(false);
         }
@@ -170,24 +144,25 @@ const FormComponent = () => {
 
     const handleSubmit = async () => {
         await paymentFormRef.current.Submit();
-        await addressFormRef.current.Submit();
-        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        if (form === 'payment') {
-            setFormData({ ...formData, paymentData: data });
-        } else if(form === 'address') {
-            setFormData({ ...formData, addressData: data });
-        }
-        // } else if (form === 'parent') {
-        //     setFormData({ ...formData, imageData: data });
-        // }
+        form === 'payment' ? setFormData({ ...formData, paymentData: data }) : null;
     };
 
     return (
-        <Box m="10px">
+        <Box m="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed",
+                height: "100%"
+            }}
+        >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -206,37 +181,8 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
-                userId={id}
-                updatedValues={updatedValues?.paymentData}
+                updatedValues={updatedValues}
             />
-            {/* <AddressFormComponent
-                onChange={(data) => {
-                    handleFormChange(data, 'address');
-                }}
-                refId={addressFormRef}
-                update={id ? true : false}
-                setDirty={setDirty}
-                reset={reset}
-                setReset={setReset}
-                updatedValues={updatedValues?.addressData}
-            /> */}
-            {/* <ImagePicker
-                key="image"
-                onChange={data => handleFormChange(data, 'parent')}
-                refId={imageFormRef}
-                reset={reset}
-                setReset={setReset}
-                setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
-                deletedImage={deletedImage}
-                setDeletedImage={setDeletedImage}
-                imageType="Guardian"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
-            /> */}
-
             <Box display="flex" justifyContent="end" m="20px">
                 {   //hide reset button on Payment update
                     title === "Update" ? null :
@@ -245,14 +191,14 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo(`/payment/listing/${getLocalStorage('class') || ''}`)}>
+                    onClick={() => navigateTo('/payment/listing')}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

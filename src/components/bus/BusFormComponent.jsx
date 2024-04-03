@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,23 +8,28 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 import { Box, FormControl, InputLabel, MenuItem, FormHelperText } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
 import { useFormik } from "formik";
 
 import BusValidation from "./Validation";
+import config from "../config"
 
 const initialValues = {
     registration_no: "",
     driver: "",
-    contact_no: "",
-    license_no: "",
+    driver_contact: "",
+    driver_license: "",
+    conductor: "",
+    conductor_contact: "",
+    conductor_aadhaar: "",
     route: "",
     status: "inactive"
 };
 
-const UserFormComponent = ({
+const BusFormComponent = ({
     onChange,
     refId,
     setDirty,
@@ -34,7 +40,6 @@ const UserFormComponent = ({
     const [initialState, setInitialState] = useState(initialValues);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
 
     const formik = useFormik({
         initialValues: initialState,
@@ -57,7 +62,7 @@ const UserFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     }
 
     useEffect(() => {
@@ -94,20 +99,6 @@ const UserFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        name="driver"
-                        label="Driver Name*"
-                        autoComplete="new-driver-name"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.driver}
-                        error={!!formik.touched.driver && !!formik.errors.driver}
-                        helperText={formik.touched.driver && formik.errors.driver}
-                        sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
                         name="registration_no"
                         label="Registration Number*"
                         onBlur={formik.handleBlur}
@@ -121,26 +112,75 @@ const UserFormComponent = ({
                         fullWidth
                         variant="filled"
                         type="text"
-                        label="Contact Number*"
-                        name="contact_no"
-                        autoComplete="new-contact"
+                        name="driver"
+                        label="Driver Name*"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-                        value={formik.values.contact_no}
-                        error={!!formik.touched.contact_no && !!formik.errors.contact_no}
-                        helperText={formik.touched.contact_no && formik.errors.contact_no}
+                        value={formik.values.driver}
+                        error={!!formik.touched.driver && !!formik.errors.driver}
+                        helperText={formik.touched.driver && formik.errors.driver}
+                        sx={{ gridColumn: "span 2" }}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Contact Number*"
+                        name="driver_contact"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.driver_contact}
+                        error={!!formik.touched.driver_contact && !!formik.errors.driver_contact}
+                        helperText={formik.touched.driver_contact && formik.errors.driver_contact}
                     />
                     <TextField
                         fullWidth
                         variant="filled"
                         type="text"
                         label="License Number*"
-                        name="license_no"
+                        name="driver_license"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
-                        value={formik.values.license_no}
-                        error={!!formik.touched.license_no && !!formik.errors.license_no}
-                        helperText={formik.touched.license_no && formik.errors.license_no}
+                        value={formik.values.driver_license}
+                        error={!!formik.touched.driver_license && !!formik.errors.driver_license}
+                        helperText={formik.touched.driver_license && formik.errors.driver_license}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        name="conductor"
+                        label="Conductor Name*"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.conductor}
+                        error={!!formik.touched.conductor && !!formik.errors.conductor}
+                        helperText={formik.touched.conductor && formik.errors.conductor}
+                        sx={{ gridColumn: "span 2" }}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Conductor Contact Number*"
+                        name="conductor_contact"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.conductor_contact}
+                        error={!!formik.touched.conductor_contact && !!formik.errors.conductor_contact}
+                        helperText={formik.touched.conductor_contact && formik.errors.conductor_contact}
+                    />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Conductor Aadhaar Number*"
+                        name="conductor_aadhaar"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.conductor_aadhaar}
+                        error={!!formik.touched.conductor_aadhaar && !!formik.errors.conductor_aadhaar}
+                        helperText={formik.touched.conductor_aadhaar && formik.errors.conductor_aadhaar}
                     />
                     <TextField
                         fullWidth
@@ -158,18 +198,18 @@ const UserFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
@@ -178,5 +218,15 @@ const UserFormComponent = ({
         </Box>
     );
 }
+BusFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object,
+};
 
-export default UserFormComponent;
+export default BusFormComponent;

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,55 +8,38 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-// import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-//import API from "../../apis";
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
-
+export const datagridColumns = (rolePriority = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/payment/update/${id}`, { state: { id: id } });
     };
 
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
-
     const columns = [
+        {
+            field: "student_id",
+            headerName: " Name",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 120
+        },
         {
             field: "academic_year",
             headerName: "Academic Year",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 120
         },
         {
             field: "amount",
@@ -71,6 +56,7 @@ export const datagridColumns = () => {
             align: "center",
             flex: 1,
             minWidth: 100
+             
         },
         {
             field: "type",
@@ -100,12 +86,12 @@ export const datagridColumns = () => {
                         }
                         borderRadius="4px"
                     >
-                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                        <Typography color={colors.grey[100]} >
+                            {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() || ''}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "payment_status",
@@ -117,7 +103,7 @@ export const datagridColumns = () => {
             renderCell: ({ row: { payment_status } }) => {
                 return (
                     <Box
-                        width="60%"
+                        width="100%"
                         m="0 auto"
                         p="5px"
                         display="flex"
@@ -133,12 +119,12 @@ export const datagridColumns = () => {
                         }
                         borderRadius="4px"
                     >
-                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {payment_status}
+                        <Typography color={colors.grey[100]} >
+                            {payment_status.charAt(0).toUpperCase() + payment_status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "payment_method",
@@ -150,11 +136,12 @@ export const datagridColumns = () => {
             renderCell: ({ row: { payment_method } }) => {
                 return (
                     <Box
-                        width="60%"
+                        width="100%"
                         m="0 auto"
                         p="5px"
                         display="flex"
                         justifyContent="center"
+                        borderRadius="4px"
                         backgroundColor={
                             payment_method === "cash"
                                 ? colors.greenAccent[600]
@@ -164,14 +151,13 @@ export const datagridColumns = () => {
                                         ? colors.blueAccent[800]
                                         : colors.blueAccent[800]
                         }
-                        borderRadius="4px"
                     >
-                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {payment_method}
+                        <Typography color={colors.grey[100]}>
+                            {payment_method.charAt(0).toUpperCase() + payment_method.slice(1) || ''}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
         {
             field: "payment_date",
@@ -181,15 +167,7 @@ export const datagridColumns = () => {
             flex: 1,
             minWidth: 100
         },
-        {
-            field: "late_fee",
-            headerName: "Late Fee",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -211,7 +189,7 @@ export const datagridColumns = () => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

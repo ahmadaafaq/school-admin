@@ -28,12 +28,12 @@ export const setAmenitiesReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };
 
 export const setFormAmenitiesReducer = (state = initialFormState, action) => {
     switch (action.type) {
-        case ActionTypes.SET_FORM_AMENITIES:
+        case ActionTypes.SET_All_AMENITIES:
             return {
                 ...state,
                 listData: action.payload.listData,
@@ -41,5 +41,5 @@ export const setFormAmenitiesReducer = (state = initialFormState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

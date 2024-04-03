@@ -33,7 +33,6 @@ export const UserAPI = {
         "x-access-token": getLocalStorage("auth").token
       },
       method: "GET",
-      data: token,
       signal: cancel ? cancelApiObject[this.profile.name].handleRequestCancellation().signal : undefined
     });
   },
@@ -79,6 +78,20 @@ export const UserAPI = {
       method: "PATCH",
       data: fields,
       signal: cancel ? cancelApiObject[this.update.name].handleRequestCancellation().signal : undefined
+    });
+  },
+
+  /** Change user password 
+   */
+  changeUserPw: async (fields, cancel = false) => {
+    return await api.request({
+      url: `/change-password`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "POST",
+      data: fields,
+      signal: cancel ? cancelApiObject[this.changeUserPw.name].handleRequestCancellation().signal : undefined
     });
   }
 };

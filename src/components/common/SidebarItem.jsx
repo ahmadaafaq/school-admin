@@ -2,13 +2,14 @@
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
 
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
+import PropTypes from "prop-types";
 import { MenuItem } from "react-pro-sidebar/dist";
 import { Typography, useTheme, Divider } from "@mui/material";
 
@@ -63,4 +64,16 @@ export const SidebarItem = ({
             <Divider />
         </>
     );
+};
+
+SidebarItem.propTypes = {
+    title: PropTypes.string,
+    to: PropTypes.string,
+    icon: PropTypes.object,
+    selected: PropTypes.string,
+    rolePriority: PropTypes.number,
+    menuVisibility: PropTypes.number,
+    className: PropTypes.string,
+    handleClassClick: PropTypes.func,
+    isSubMenu: PropTypes.bool
 };

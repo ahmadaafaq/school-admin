@@ -9,6 +9,7 @@
 import axios from "axios";
 import { Utility } from "../../components/utility";
 
+// eslint-disable-next-line react-refresh/only-export-components
 const ENV = import.meta.env;
 const { getLocalStorage } = Utility();
 
@@ -25,7 +26,7 @@ const errorHandler = (error) => {
   // logging only errors that are not 401
   if (statusCode && statusCode !== 401) {
     throw error;
-  };
+  }
 
   return Promise.reject(error);
 };

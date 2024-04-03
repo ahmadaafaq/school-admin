@@ -21,6 +21,7 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 import API from "../../apis";
 import Toast from "../common/Toast";
 import SignInLoader from "../common/SignInLoader";
+
 import { themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
@@ -39,8 +40,8 @@ const Login = () => {
   const [formData, setFormData] = useState(initialValues);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
   const toastInfo = useSelector(state => state.toastInfo);
+  const dispatch = useDispatch();
 
   const inputRef = useRef(null);
   const navigateTo = useNavigate();
@@ -48,7 +49,7 @@ const Login = () => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   const { typography } = themeSettings(theme.palette.mode);
-  const { toastAndNavigate, setLocalStorage } = Utility();
+  const { getLocalStorage, remLocalStorage, setLocalStorage, toastAndNavigate } = Utility();
 
   const boxstyle = {
     position: "absolute",
@@ -71,8 +72,10 @@ const Login = () => {
         .then(({ data: response }) => {
           setLoading(false);
           if (response.status === 'Success' &&
-            (response.data === "School Code must be specified" || response.data === "User does not exist" ||
-              response.data === "Username and Password do not match")) {
+            (response.data === "User does not exist" || response.data === "Username and Password do not match")) {
+            toastAndNavigate(dispatch, true, "info", response?.data);
+          } else if (response.status === 'Success' &&
+            (response.data === "School Code must be specified" || response.data === "School code is incorrect")) {
             toastAndNavigate(dispatch, true, "info", response?.data);
             inputRef.current.focus();
           }
@@ -82,12 +85,17 @@ const Login = () => {
               token: response.data.token,
               role: response.data.role,
               designation: response.data.designation,
-              username: response.data.username
+              username: response.data.username,
+              school: response.data.school_name
             };
             setLocalStorage("auth", authInfo);
             response.data?.school_info ? setLocalStorage("schoolInfo", response.data.school_info) : null;
-            navigateTo("/");
-            // authInfo?.role > 2 ? navigateTo("/user/listing") : navigateTo("/");
+            if (getLocalStorage("navigatedPath")) {
+              navigateTo(`${getLocalStorage("navigatedPath")}`);
+              remLocalStorage("navigatedPath");       //removing path after navigating user
+            } else {
+              navigateTo("/");
+            }
           }
         })
         .catch(err => {
@@ -95,7 +103,8 @@ const Login = () => {
           initialValues.password = '';
           toastAndNavigate(dispatch, true, "error", err?.message);
         });
-    };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData]);
 
   return (

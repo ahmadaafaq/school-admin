@@ -8,16 +8,23 @@
 
 import { ActionTypes } from "../constants/action-types";
 
-export const setSections = (sections) => {
+export const setListingSections = (sections) => {
     return {
         type: ActionTypes.SET_LISTING_SECTIONS,
         payload: sections
     };
 };
 
-export const setFormSections = (sections) => {
+export const setSchoolSections = (sections) => {
     return {
-        type: ActionTypes.SET_FORM_SECTIONS,
+        type: ActionTypes.SET_SCHOOL_SECTIONS,
+        payload: sections
+    };
+};
+
+export const setAllSections = (sections) => {
+    return {
+        type: ActionTypes.SET_All_SECTIONS,
         payload: sections
     };
 };

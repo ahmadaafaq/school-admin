@@ -5,121 +5,106 @@
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
 */
-import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, FormControl, InputLabel, Select, MenuItem, useTheme } from "@mui/material";
+import { Box, FormControl, useTheme } from "@mui/material";
 
-import API from "../../apis";
-import { setFormClasses } from "../../redux/actions/ClassAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
-import { setStudents } from "../../redux/actions/StudentAction";
-import { setMarksheetClass, setMarksheetSection } from "../../redux/actions/MarksheetAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
 
 //change name of dropdown to classsecdropdown
-function DropDown({ onSelectClass, onSelectSection, selectedClass, selectedSection }) {
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
+function DropDown({ marksheetClass = null, marksheetSection = null }) {
+    const formClassesInRedux = useSelector(state => state.schoolClasses);
+    const formSectionsInRedux = useSelector(state => state.schoolSections);
 
     const theme = useTheme();
     const dispatch = useDispatch();
     const colors = tokens(theme.palette.mode);
     const { getStudents } = useCommon();
-    const { customSort, createUniqueDataArray, findById } = Utility();
+    const { customSort, createUniqueDataArray, findById, setLocalStorage } = Utility();
 
-    const handleClassChange = (event) => {
-        const selectedClass = findById(event.target.value, formClassesInRedux?.listData);
-        onSelectClass(selectedClass.class_id);
-        dispatch(setMarksheetClass(selectedClass));
-    };
+    // const handleClassChange = (event) => {
+    //     let localStorageValue = findById(event.target.value, formClassesInRedux?.listData);
+    //     setLocalStorage("dropdown class", localStorageValue);
+    //     dispatch(setMarksheetClass(findById(event.target.value, formClassesInRedux?.listData)));
+    // };
 
-    const handleSectionChange = (event) => {
-        const selectedSection = findById(event.target.value, formSectionsInRedux?.listData);
-        onSelectSection(selectedSection.id);
-        dispatch(setMarksheetSection(selectedSection));
-    };
-    
-    useEffect(() => {
-        if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses(5)
-                .then(classData => {
-                    if (classData.status === 'Success') {
-                        classData.data.sort(customSort);
+    // const handleSectionChange = (event) => {
+    //     let localStorageValue = findById(event.target.value, formSectionsInRedux?.listData);
+    //     setLocalStorage("dropdown section", localStorageValue);
+    //     dispatch(setMarksheetSection(findById(event.target.value, formSectionsInRedux?.listData)));
+    // };
 
-                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name', 'class_subjects');
-                        dispatch(setFormClasses(uniqueClassDataArray));
+    //to be dicsussed
+    // useEffect(() => {
+    //     if (!formClassesInRedux?.listData[0]?.class_subjects || !formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
+    //         API.SchoolAPI.getSchoolClasses()
+    //             .then(classData => {
+    //                 if (classData.status === 'Success') {
+    //                     classData.data.sort(customSort);
 
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
-                        dispatch(setFormSections(uniqueSectionDataArray));
-                    }
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
-        }
-    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+    //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+    //                     dispatch(setSchoolClasses(uniqueClassDataArray));
 
-    useEffect(() => {
-        if (selectedClass && selectedSection) {
-            getStudents(selectedClass, selectedSection, setStudents, API);
-        }
-    }, [selectedClass, selectedSection]);
+    //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
+    //                     dispatch(setSchoolSections(uniqueSectionDataArray));
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 console.log("Error Fetching ClassData:", err);
+    //             });
+    //     }
+    // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+
+    // useEffect(() => {
+    //     if (marksheetClass?.class_id && marksheetSection?.id) {
+    //         getStudents(marksheetClass.class_id, marksheetSection.id, setStudents, API);
+    //     }
+    // }, [marksheetClass?.class_id, marksheetSection?.id]);
+
     return (
         <Box sx={{ display: "flex", marginRight: "10px", marginLeft: "10px" }}>
             <FormControl variant="filled" sx={{
                 minWidth: 120, marginRight: "10px",
                 "& .MuiInputBase-root": {
-                    height: "44px",
-                },
+                    height: "44px"
+                }
             }}>
-                <InputLabel id="classfield">Class</InputLabel>
+                {/* <InputLabel id="classfield">Class</InputLabel>
                 <Select
                     variant="filled"
                     labelId="classfield"
-                    label="class"
                     name="class_id"
-                    autoComplete="new-class_id"
-                    onChange={handleClassChange}
                     value={selectedClass || ''}
-                    sx={{
-                        height: "12vh",
-                        backgroundColor: colors.blueAccent[800]
-                    }}>
+                    onChange={handleClassChange}
+                    sx={{ backgroundColor: colors.blueAccent[800] }}>
                     {formClassesInRedux?.listData?.length && formClassesInRedux.listData.map(cls => (
-                        <MenuItem value={cls.class_id} key={cls.class_name}>
+                        <MenuItem value={cls.class_id} key={cls.class_id}>
                             {cls.class_name}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select> */}
             </FormControl>
             <FormControl variant="filled" sx={{
-                minWidth: 120, "& .MuiInputBase-root": {
+                minWidth: 120,
+                "& .MuiInputBase-root": {
                     height: "44px"
-                },
-            }}
-            // error={!!school_id && !!errors.school_id}
-            >
-                <InputLabel id="sectionfield">Section</InputLabel>
+                }
+            }}>
+                {/* <InputLabel id="sectionfield">Section</InputLabel>
                 <Select
                     variant="filled"
                     labelId="sectionfield"
-                    label="section"
                     name="section_id"
-                    autoComplete="new-section_id"
-                    onChange={handleSectionChange}
                     value={selectedSection || ''}
-                    sx={{
-                        backgroundColor: colors.greenAccent[600]
-                    }}
-                >
+                    onChange={handleSectionChange}
+                    sx={{ backgroundColor: colors.greenAccent[600] }}>
                     {formSectionsInRedux?.listData?.length && formSectionsInRedux.listData.map(section => (
-                        <MenuItem value={section.id} key={section.name}>
-                            {section.name}
+                        <MenuItem value={section.section_id} key={section.section_id}>
+                            {section.section_name}
                         </MenuItem>
                     ))}
-                </Select>
+                </Select> */}
             </FormControl>
         </Box>
     )

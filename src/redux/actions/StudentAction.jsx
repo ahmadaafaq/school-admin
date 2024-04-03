@@ -14,3 +14,10 @@ export const setStudents = (students) => {
         payload: students
     };
 };
+
+export const setAllStudents = (students) => {
+    return {
+        type: ActionTypes.SET_ALL_STUDENTS,
+        payload: students
+    };
+};

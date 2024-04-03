@@ -9,24 +9,18 @@
 import { ActionTypes } from "../constants/action-types";
 
 const initialState = {
-    marksheetClass: '',
-    marksheetSection: '',
+    marksheetClassData: {},
     listData: [],
     loading: true,
-    
+
 };
 
 export const setMarksheetsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ActionTypes.MARKSHEET_CLASS:
+        case ActionTypes.MARKSHEET_CLASSDATA:
             return {
                 ...state,
-                marksheetClass: action.payload
-            };
-        case ActionTypes.MARKSHEET_SECTION:
-            return {
-                ...state,
-                marksheetSection: action.payload
+                marksheetClassData: action.payload
             };
         case ActionTypes.SET_MARKSHEETS:
             return {
@@ -41,5 +35,5 @@ export const setMarksheetsReducer = (state = initialState, action) => {
         //     };
         default:
             return state;
-    };
+    }
 };

@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,61 +8,37 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-// import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-//import API from "../../apis";
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
-export const datagridColumns = () => {
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
+export const datagridColumns = (rolePriority = null) => {
 
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
 
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
-
     const handleActionEdit = (id) => {
         navigateTo(`/employee/update/${id}`, { state: { id: id } });
     };
 
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
-
     const columns = [
         {
             field: "fullname",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname || ''} ${params.row.lastname || ''}`
+            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
         },
         {
             field: "email",
-            headerName: "Email",
+            headerName: "E-mail",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -84,11 +62,12 @@ export const datagridColumns = () => {
         },
         {
             field: "dob",
-            headerName: "DATE OF BIRTH",
+            headerName: "Date of Birth",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
+
         },
         {
             field: "gender",
@@ -96,7 +75,10 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueGetter: (params) => `${params.row.gender.charAt(0).toUpperCase() + params.row.gender.slice(1) || ''}`
+
+
         },
         {
             field: "status",
@@ -123,13 +105,13 @@ export const datagridColumns = () => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -151,7 +133,7 @@ export const datagridColumns = () => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

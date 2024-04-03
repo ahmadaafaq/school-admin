@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,126 +8,60 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-import API from "../../apis";
-import { setSubjects } from "../../redux/actions/SubjectAction";
-import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
 export const datagridColumns = (rolePriority = null) => {
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
-    const subjectsInRedux = useSelector(state => state.allSubjects);
-    const studentsInRedux = useSelector(state => state.allStudents);
+    const schoolClasses = useSelector(state => state.schoolClasses);
+    const allClasses = useSelector(state => state.allClasses);
+    const schoolSections = useSelector(state => state.schoolSections);
+    const allSections = useSelector(state => state.allSections);
 
-    const dispatch = useDispatch();
+    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const navigateTo = useNavigate();
-    const { getPaginatedData } = useCommon();
     const { appendSuffix, findById } = Utility();
 
-    const handleActionEdit = (id, student_id) => {
-        navigateTo(`/marksheet/update/${id}`, { state: { id: id, student_id: student_id } });
+    const handleActionEdit = (id, student_id, term) => {
+        navigateTo(`/marksheet/update/${student_id}`, { state: { id: id, student_id: student_id, term: term } });
     };
 
-    // to be refactored
-    // useEffect(() => {
-    //     if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-    //         API.SchoolAPI.getSchoolClasses(5)
-    //             .then(classData => {
-    //                 if (classData.status === 'Success') {
-    //                     classData.data.sort(customSort);
-
-    //                     const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-    //                     dispatch(setFormClasses(uniqueClassDataArray));
-
-    //                     const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
-    //                     dispatch(setFormSections(uniqueSectionDataArray));
-    //                 }
-    //             })
-    //             .catch(err => {
-    //                 console.log("Error Fetching ClassData:", err);
-    //             });
-    //     }
-    // }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
-
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
-
-    useEffect(() => {
-        if (!studentsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setStudents, API.StudentAPI);
-        }
-    }, [studentsInRedux?.listData?.rows?.length]);
-
     const columns = [
-        // {
-        //     field: "roll no",
-        //     headerName: "ROLL NO",
-        //     headerAlign: "center",
-        //     align: "center",
-        //     flex: 1,
-        //     minWidth: 120,
-        // },
         {
-            field: "NAME",
-            headerName: "NAME",
+            field: "student_id",
+            headerName: "Student Id",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            renderCell: (params) => {
-                let studentName = findById(params?.row?.student_id, studentsInRedux?.listData?.rows);
-                return (
-                    <div>
-                        {studentName ? `${studentName.firstname} ${studentName.lastname}` : '/'}
-                    </div>
-                );
-            }
+            minWidth: 100
         },
         {
-            field: "class",
-            headerName: "CLASS",
+            field: "class_id",
+            headerName: "Class",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className = findById(params?.row?.class_id, formClassesInRedux?.listData)?.class_name;
-                let sectionName = findById(params?.row?.section_id, formSectionsInRedux?.listData)?.name;
-                // handleClassChange(params?.row?.class_id);
-                // handleSectionChange(params?.row?.section_id);
+                let className;
+                let sectionName;
+
+                if (allClasses?.listData?.length || allSections?.listData?.length) {
+                    className = findById(params?.row?.class_id, allClasses?.listData)?.class_name;
+                    sectionName = findById(params?.row?.section_id, allSections?.listData)?.section_name;
+                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+                    className = findById(params?.row?.class_id, schoolClasses?.listData)?.class_name;
+                    sectionName = findById(params?.row?.section_id, schoolSections?.listData)?.section_name;
+                }
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}
-                    </div>
-                );
-            }
-        },
-        {
-            field: "subjects",
-            headerName: "Subjects",
-            headerAlign: "center",
-            align: "center",
-            flex: 2,
-            minWidth: 120,
-            renderCell: (params) => {
-                let subjectName = findById(parseInt(params?.row?.subject_id), subjectsInRedux?.listData?.rows)?.name;
-                return (
-                    <div>
-                        {subjectName}
                     </div>
                 );
             }
@@ -136,11 +72,11 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 2,
-            minWidth: 80,
+            minWidth: 80
         },
         {
             field: "result",
-            headerName: "RESULT",
+            headerName: "Result",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -165,20 +101,20 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {result}
+                            {result.charAt(0).toUpperCase() + result.slice(1) || ''}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id, student_id } }) => {
+            renderCell: ({ row: { id, student_id, term } }) => {
                 return (
                     <Box width="30%"
                         m="0 auto"
@@ -186,15 +122,14 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            disabled={rolePriority}
-                            onClick={() => handleActionEdit(id)}
+                            onClick={() => handleActionEdit(id, student_id, term)}
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

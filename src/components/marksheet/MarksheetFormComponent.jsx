@@ -1,392 +1,447 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
-*/
+ */
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, Alert } from "@mui/material";
-import { Select, TextField, useMediaQuery } from "@mui/material";
-import CheckIcon from '@mui/icons-material/Check';
-import Snackbar from "@mui/material/Snackbar";
 import { useFormik } from "formik";
+import {
+  Box,
+  InputLabel,
+  MenuItem,
+  FormHelperText,
+  FormControl,
+} from "@mui/material";
+import { Select, TextField, useMediaQuery } from "@mui/material";
 
 import API from "../../apis";
+import config from "../config";
 import marksheetValidation from "./Validation";
-import { setSubjects } from "../../redux/actions/SubjectAction";
-import { setClasses } from "../../redux/actions/ClassAction";
-import { setSections } from "../../redux/actions/SectionAction";
-import { setStudents } from "../../redux/actions/StudentAction";
-import { useSelector } from "react-redux";
+
+import { setMarksheetClassData } from "../../redux/actions/MarksheetAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
+import { setAllStudents } from "../../redux/actions/StudentAction";
+import { useDispatch, useSelector } from "react-redux";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
 const initialValues = {
-    class: "",
-    section: "",
-    student: "",
-    subjects: [],
-    term: "",
-    marks_obtained: "",
-    total_marks: "",
-    grade: "",
-    remark: "",
-    result: ""
+  dbId: "",
+  session: "",
+  student: "",
+  class: "",
+  section: "",
+  term: "",
+  result: "",
+  subjects: [],
+  marks_obtained: "",
+  total_marks: "",
+  grade: "",
+  remark: "",
 };
 
 const MarksheetFormComponent = ({
-    onChange,
-    refId,
-    setDirty,
-    reset,
-    setReset,
-    userId,
-    updatedValues = null,
-    student_id = null
+  onChange,
+  refId,
+  setDirty,
+  reset,
+  setReset,
+  updatedValues = null,
 }) => {
+  const allSubjects = useSelector((state) => state.allSubjects);
+  const allStudents = useSelector((state) => state.allFormStudents);
+  const { marksheetClassData } = useSelector((state) => state.allMarksheets);
 
-    const [initialState, setInitialState] = useState(initialValues);
-    const [filteredSubjects, setFilteredSubjects] = useState([]);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const subjectsInRedux = useSelector(state => state.allSubjects);
-    const { marksheetClass, marksheetSection } = useSelector(state => state.allMarksheets);
-    const studentInRedux = useSelector(state => state.allStudents);
+  const dispatch = useDispatch();
+  const isNonMobile = useMediaQuery("(min-width:600px)");
+  const { getStudents } = useCommon();
+  const { createSession, findMultipleById, fetchAndSetAll } = Utility();
 
-    const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
-    const { getPaginatedData, getStudents } = useCommon();
-    const { findById } = Utility();
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: marksheetValidation,
+    enableReinitialize: true,
+    onSubmit: () => watchForm(),
+  });
 
-    const [state, setState] = useState({
-        vertical: 'top',
-        horizontal: 'center',
-    });
-    const { vertical, horizontal } = state;
+  React.useImperativeHandle(refId, () => ({
+    Submit: async () => {
+      await formik.submitForm();
+    },
+  }));
 
-    const formik = useFormik({
-        initialValues: initialState,
-        validationSchema: marksheetValidation,
-        enableReinitialize: true,
-        onSubmit: () => watchForm()
-    });
-
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
-
-    React.useImperativeHandle(refId, () => ({
-        Submit: async () => {
-            await formik.submitForm();
-        }
-    }));
-
-    const watchForm = () => {
-        if (onChange) {
-            onChange({
-                values: formik.values,
-                validated: formik.isSubmitting
-                    ? Object.keys(formik.errors).length === 0
-                    : false
-            });
-        };
-    };
-
-    useEffect(() => {
-        if (reset) {
-            formik.resetForm();
-            setReset(false);
-        }
-    }, [reset]);
-
-    useEffect(() => {
-        if (formik.dirty) {
-            setDirty(true);
-        }
-    }, [formik.dirty]);
-
-    useEffect(() => {
-        if (updatedValues) {
-            updatedValues.rows.map((sub, index) => {
-                formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
-                formik.setFieldValue(`total_marks_${index}`, sub.total_marks);
-                formik.setFieldValue(`grade_${index}`, sub.grade);
-                formik.setFieldValue(`remark_${index}`, sub.remark);
-            })
-        }
-    }, [updatedValues]);
-    console.log('updatedValues1=>', updatedValues);
-
-    useEffect(() => {
-        if (!subjectsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-        }
-    }, [subjectsInRedux?.listData?.rows?.length]);
-
-    console.log('class and students=', marksheetClass, marksheetSection)
-
-    useEffect(() => {
-        let classSubjects = [];
-        marksheetClass?.class_subjects?.split(',').map(sub => {
-            classSubjects.push({
-                subject_id: sub,
-                subject_name: findById(parseInt(sub), subjectsInRedux?.listData?.rows)?.name
-            });
-        })
-        if (classSubjects.length) {
-            setFilteredSubjects(classSubjects);
-            initialValues.class = marksheetClass?.class_name;
-            initialValues.section = marksheetSection?.name;
-            initialValues.subjects = marksheetClass?.class_subjects?.split(',');
-            initialValues.student = formik.values.student;
-            getStudents(marksheetClass?.class_id, marksheetSection?.id, setStudents, API);
-        }
-
-    }, [subjectsInRedux?.listData?.rows, marksheetClass, marksheetSection]);
-
-    if (updatedValues?.rows[0]?.term) {
-        console.log('add term')
-        formik.values.term = updatedValues?.rows[0]?.term;
+  const watchForm = () => {
+    if (onChange) {
+      onChange({
+        values: formik.values,
+        validated: formik.isSubmitting
+          ? Object.keys(formik.errors).length === 0
+          : false,
+      });
     }
+  };
 
-    console.log('dfdsfds', formik.values)
+  useEffect(() => {
+    if (reset) {
+      formik.resetForm();
+      setReset(false);
+    }
+  }, [reset]);
 
-    return (
-        <Box m="20px">
-            <Snackbar
-                anchorOrigin={{ vertical, horizontal }}
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={handleSnackbarClose}
-                key={vertical + horizontal}
+  useEffect(() => {
+    if (formik.dirty) {
+      setDirty(true);
+    }
+  }, [formik.dirty]);
+
+  useEffect(() => {
+    if (!allSubjects?.listData?.length) {
+      fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
+    }
+  }, []);
+
+  useEffect(() => {
+    // this will run when creating marksheet
+    if (marksheetClassData?.classDataObj) {
+      formik.setFieldValue("class", marksheetClassData.classDataObj.class_name);
+      formik.setFieldValue(
+        "section",
+        marksheetClassData.classDataObj.section_name
+      );
+      formik.setFieldValue(
+        "subjects",
+        marksheetClassData.classDataObj.subject_ids.split(",")
+      );
+      getStudents(
+        marksheetClassData.classDataObj.class_id,
+        marksheetClassData.classDataObj.section_id,
+        setAllStudents,
+        API
+      );
+    }
+  }, [marksheetClassData?.classDataObj]);
+
+  useEffect(() => {
+    if (updatedValues) {
+      let subjectIds = [];
+      updatedValues.map((sub, index) => {
+        formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
+        formik.setFieldValue(`total_marks_${index}`, sub.total_marks);
+        formik.setFieldValue(`grade_${index}`, sub.grade);
+        formik.setFieldValue(`remark_${index}`, sub.remark);
+        formik.setFieldValue(`result_${index}`, sub.result);
+        formik.setFieldValue(`dbId_${index}`, sub.id);
+        subjectIds.push(sub.subject_id);
+      });
+      let classSubjects;
+      if (subjectIds?.length) {
+        classSubjects = findMultipleById(
+          subjectIds.join(","),
+          allSubjects?.listData
+        );
+        formik.setFieldValue("subjects", subjectIds);
+      }
+      formik.setFieldValue("session", updatedValues[0]?.session);
+      formik.setFieldValue("student", updatedValues[0]?.student_id);
+      formik.setFieldValue("term", updatedValues[0]?.term);
+
+      dispatch(
+        setMarksheetClassData({
+          ...marksheetClassData,
+          selectedSubjects: classSubjects,
+        })
+      );
+    }
+  }, [updatedValues]);
+
+  return (
+    <Box m="20px">
+      <form ref={refId}>
+        <div
+          style={{
+            border: "2px solid #BADFE7",
+            padding: "25px 10px",
+            marginBottom: "40px",
+            borderRadius: "12px",
+          }}
+        >
+          <Box
+            display="grid"
+            gap="15px"
+            gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            marginBottom="20px"
+            sx={{
+              "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+            }}
+          >
+            <FormControl
+              variant="filled"
+              sx={{ minWidth: 120 }}
+              error={!!formik.touched.session && !!formik.errors.session}
             >
-                <Alert sx={{ width: '100%' }} icon={<CheckIcon fontSize="inherit" />} severity="error" >
-                    No Student Data
-                </Alert>
-            </Snackbar>
-            <form ref={refId}>
+              <InputLabel id="sessionField">Session</InputLabel>
+              <Select
+                variant="filled"
+                labelId="sessionField"
+                name="session"
+                value={formik.values.session}
+                onChange={(event) =>
+                  formik.setFieldValue("session", event.target.value)
+                }
+              >
+                {createSession().map((session) => (
+                  <MenuItem value={session} name={session} key={session}>
+                    {session}
+                  </MenuItem>
+                ))}
 
-                <Box
-                    display="grid"
-                    gap="10px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginBottom: "10px"
-                    }}
+              </Select>
+              <FormHelperText>
+                {formik.touched.session && formik.errors.session}
+              </FormHelperText>
+            </FormControl>
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              label="Class"
+              value={formik.values.class || ""}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              label="Section"
+              value={formik.values.section || ""}
+            />
+          </Box>
+          <Box
+            display="flex"
+            justifyContent="space-evenly"
+            alignItems="center"
+            mb={4}
+          >
+            <FormControl
+              variant="filled"
+              sx={{ minWidth: 320 }}
+              error={!!formik.touched.term && !!formik.errors.term}
+            >
+              <InputLabel id="termField">Term</InputLabel>
+              <Select
+                variant="filled"
+                labelId="termField"
+                name="term"
+                onChange={formik.handleChange}
+                value={formik.values.term}
+              >
+                {Object.keys(config.term).map(item => (
+                  <MenuItem key={item} value={item}>
+                    {config.term[item]}
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>{formik.touched.term && formik.errors.term}</FormHelperText>
+            </FormControl>
+
+            <FormControl
+              variant="filled"
+              sx={{ minWidth: 320 }}
+              error={!!formik.touched.student && !!formik.errors.student}
+            >
+              <InputLabel id="studentField">Student</InputLabel>
+              <Select
+                labelId="studentField"
+                name="student"
+                value={formik.values.student || ""}
+                onChange={(event) =>
+                  formik.setFieldValue("student", event.target.value)
+                }
+              >
+                {!allStudents?.listData?.rows?.length
+                  ? null
+                  : allStudents.listData.rows.map((item) => (
+                    <MenuItem
+                      value={item.id}
+                      name={`${item.firstname} ${item.lastname}`}
+                      key={item.id}
+                    >
+                      {`${item.firstname.charAt(0).toUpperCase() +
+                        item.firstname.slice(1)
+                        } ${item.lastname.charAt(0).toUpperCase() +
+                        item.lastname.slice(1)
+                        }`}
+                    </MenuItem>
+                  ))}
+              </Select>
+              <FormHelperText>
+                {formik.touched.session && formik.errors.session}
+              </FormHelperText>
+            </FormControl>
+          </Box>
+        </div>
+
+        <div
+          style={{
+            border: "2px solid #BADFE7",
+            padding: "25px 10px",
+            marginBottom: "30px",
+            borderRadius: "12px",
+          }}
+        >
+          {!marksheetClassData?.selectedSubjects
+            ? null
+            : marksheetClassData.selectedSubjects.map((subject, index) => (
+              <Box
+                key={index}
+                display="grid"
+                gap="15px"
+                gridTemplateColumns="repeat(6, minmax(0, 1fr))"
+                mb={2}
+              >
+                <Box display="flex" alignItems="center">
+                  {subject?.name}
+                </Box>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="text"
+                  name={`marks_obtained_${index}`}
+                  label="Marks Obtained*"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values[`marks_obtained_${index}`]}
+                  error={
+                    !!formik.touched[`marks_obtained_${index}`] &&
+                    !!formik.errors[`marks_obtained_${index}`]
+                  }
+                  helperText={
+                    formik.touched[`marks_obtained_${index}`] &&
+                    formik.errors[`marks_obtained_${index}`]
+                  }
+                  sx={{ width: "150px" }}
+                />
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  type="text"
+                  name={`total_marks_${index}`}
+                  label="Total Marks*"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values[`total_marks_${index}`]}
+                  error={
+                    !!formik.touched[`total_marks_${index}`] &&
+                    !!formik.errors[`total_marks_${index}`]
+                  }
+                  helperText={
+                    formik.touched[`total_marks_${index}`] &&
+                    formik.errors[`total_marks_${index}`]
+                  }
+                  sx={{ width: "150px" }}
+                />
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  name={`grade_${index}`}
+                  label="Grade*"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values[`grade_${index}`]}
+                  error={
+                    !!formik.touched[`grade_${index}`] &&
+                    !!formik.errors[`grade_${index}`]
+                  }
+                  helperText={
+                    formik.touched[`grade_${index}`] &&
+                    formik.errors[`grade_${index}`]
+                  }
+                  sx={{ width: "120px" }}
+                />
+                <TextField
+                  variant="outlined"
+                  type="text"
+                  name={`remark_${index}`}
+                  label="Remark"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values[`remark_${index}`]}
+                  error={
+                    !!formik.touched[`remark_${index}`] &&
+                    !!formik.errors[`remark_${index}`]
+                  }
+                  helperText={
+                    formik.touched[`remark_${index}`] &&
+                    formik.errors[`remark_${index}`]
+                  }
+                />
+                <FormControl
+                  variant="filled"
+                  error={
+                    !!formik.touched[`result_${index}`] &&
+                    !!formik.errors[`result_${index}`]
+                  }
                 >
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Class"
-                        value={formik.values.class}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Section"
-                        value={formik.values.section}
-                    />
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.student && !!formik.errors.student}
-                    >
-                        <InputLabel id="studentField">Student</InputLabel>
-                        <Select
-                            labelId="studentField"
-                            name="student"
-                            value={formik.values.student || student_id}
-                            onChange={event => {
-                                formik.setFieldValue("student", event.target.value);
-                            }}
-                        >
-                            {studentInRedux?.listData?.rows?.length && studentInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                    {`${item.firstname} ${item.lastname}`}
-                                </MenuItem>
-                            ))}
-                            {/* {students?.data?.map(student => {
-                                return (
-                                    <MenuItem key={student.id} value={student.id}>
-                                        {student.firstname} {student.lastname}
-                                    </MenuItem>
-                                )
-                            })} */}
-                        </Select>
-                        <FormHelperText>{formik.touched.student && formik.errors.student}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.term && !!formik.errors.term}
-                    >
-                        <InputLabel id="termField">Term</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="termField"
-                            name="term"
-                            value={formik.values.term}
-                            onChange={formik.handleChange}
-                        >
-                            <MenuItem value={"I"}>I</MenuItem>
-                            <MenuItem value={"II"}>II</MenuItem>
-                            <MenuItem value={"III"}>III</MenuItem>
-                        </Select>
-                        <FormHelperText>{formik.touched.term && formik.errors.term}</FormHelperText>
-                    </FormControl>
-                </Box>
-                <Box style={{ display: 'grid', gap: '10px', width: '171vh', gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
-                    {!updatedValues && filteredSubjects?.length && filteredSubjects.map((subject, index) => (
-                        <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '10px', }}>
-                            <Box style={{ width: "28vh", marginTop: "20px" }}>{subject.subject_name}</Box>
-                            {/* Add individual fields for each subject */}
-                            <TextField
-                                fullWidth
-                                variant="outlined"
-                                type="text"
-                                name={`marks_obtained_${index}`} // Use a unique name for each subject
-                                label={`Marks obtained*`}
-                                onBlur={formik.handleBlur}
-                                onChange={formik.handleChange}
-                                value={formik.values[`marks_obtained_${index}`]}
-                                error={!!formik.touched[`marks_obtained_${index}`] && !!formik.errors[`marks_obtained_${index}`]}
-                                helperText={formik.touched[`marks_obtained_${index}`] && formik.errors[`marks_obtained_${index}`]}
-                                sx={{ width: "26vh" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="outlined"
-                                type="text"
-                                name={`total_marks_${index}`} // Use a unique name for each subject
-                                label={`Total marks *`}
-                                onBlur={formik.handleBlur}
-                                onChange={formik.handleChange}
-                                value={formik.values[`total_marks_${index}`]}
-                                error={!!formik.touched[`total_marks_${index}`] && !!formik.errors[`total_marks_${index}`]}
-                                helperText={formik.touched[`total_marks_${index}`] && formik.errors[`total_marks_${index}`]}
-                                sx={{ width: "26vh", marginLeft: "-41px" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="outlined"
-                                type="text"
-                                name={`grade_${index}`} // Use a unique name for each grade field
-                                label={`Grade*`}
-                                onBlur={formik.handleBlur}
-                                onChange={formik.handleChange}
-                                value={formik.values[`grade_${index}`]} // Use the index here
-                                error={!!formik.touched[`grade_${index}`] && !!formik.errors[`grade_${index}`]}
-                                helperText={formik.touched[`grade_${index}`] && formik.errors[`grade_${index}`]}
-                                sx={{ width: "15vh", marginLeft: "-14vh" }}
-                            />
-                            <TextField
-                                fullWidth
-                                variant="outlined"
-                                type="text"
-                                name={`remark_${index}`} // Use a unique name for each remark field
-                                label={`Remark`}
-                                onBlur={formik.handleBlur}
-                                onChange={formik.handleChange}
-                                value={formik.values[`remark_${index}`]} // Use the index here
-                                error={!!formik.touched[`remark_${index}`] && !!formik.errors[`remark_${index}`]}
-                                helperText={formik.touched[`remark_${index}`] && formik.errors[`remark_${index}`]}
-                                sx={{ width: "65vh", marginLeft: "-32vh" }}
-                            />
-                        </div>
-                    ))}
+                  <InputLabel id="resultField">Result</InputLabel>
+                  <Select
+                    variant="filled"
+                    labelId="resultField"
+                    name={`result_${index}`}
+                    value={formik.values[`result_${index}`] || ""}
+                    onChange={(event) =>
+                      formik.setFieldValue(
+                        `result_${index}`,
+                        event.target.value
+                      )
+                    }
+                  >
+                    {!updatedValues?.length
+                      ? [
+                        <MenuItem key="pass" value="pass">
+                          Pass
+                        </MenuItem>,
+                        <MenuItem key="fail" value="fail">
+                          Fail
+                        </MenuItem>,
+                      ]
+                      : [
+                        <MenuItem key="pass" value="pass">
+                          {formik.values[`result_${index}`] || "Pass"}{" "}
+                        </MenuItem>,
+                        <MenuItem key="fail" value="fail">
+                          {formik.values[`result_${index}`] || "Fail"}{" "}
+                        </MenuItem>,
+                      ]}
+                  </Select>
+                  <FormHelperText>
+                    {formik.touched[`result_${index}`] &&
+                      formik.errors[`result_${index}`]}
+                  </FormHelperText>
+                </FormControl>
+              </Box>
+            ))}
+        </div>
+      </form>
+    </Box>
+  );
+};
 
-                    {updatedValues && updatedValues?.rows.map((subject, index) => {
-                        return (
-                            <div key={index} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '10px', }}>
-                                <Box style={{ width: "28vh", marginTop: "20px" }}>
-                                    {filteredSubjects.filter(sub => sub.subject_id === subject.subject_id)[0].subject_name}
-                                </Box>
-                                {/* Add individual fields for each subject */}
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    type="text"
-                                    name={`marks_obtained_${index}`} // Use a unique name for each subject
-                                    label={`Marks obtained*`}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    value={formik.values[`marks_obtained_${index}`]}
-                                    error={!!formik.touched[`marks_obtained_${index}`] && !!formik.errors[`marks_obtained_${index}`]}
-                                    helperText={formik.touched[`marks_obtained_${index}`] && formik.errors[`marks_obtained_${index}`]}
-                                    sx={{ width: "26vh" }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    type="text"
-                                    name={`total_marks_${index}`} // Use a unique name for each subject
-                                    label={`Total marks *`}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    value={formik.values[`total_marks_${index}`]}
-                                    error={!!formik.touched[`total_marks_${index}`] && !!formik.errors[`total_marks_${index}`]}
-                                    helperText={formik.touched[`total_marks_${index}`] && formik.errors[`total_marks_${index}`]}
-                                    sx={{ width: "26vh", marginLeft: "-41px" }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    type="text"
-                                    name={`grade_${index}`} // Use a unique name for each grade field
-                                    label={`Grade*`}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    value={formik.values[`grade_${index}`]} // Use the index here
-                                    error={!!formik.touched[`grade_${index}`] && !!formik.errors[`grade_${index}`]}
-                                    helperText={formik.touched[`grade_${index}`] && formik.errors[`grade_${index}`]}
-                                    sx={{ width: "15vh", marginLeft: "-14vh" }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    variant="outlined"
-                                    type="text"
-                                    name={`remark_${index}`} // Use a unique name for each remark field
-                                    label={`Remark`}
-                                    onBlur={formik.handleBlur}
-                                    onChange={formik.handleChange}
-                                    value={formik.values[`remark_${index}`]} // Use the index here
-                                    error={!!formik.touched[`remark_${index}`] && !!formik.errors[`remark_${index}`]}
-                                    helperText={formik.touched[`remark_${index}`] && formik.errors[`remark_${index}`]}
-                                    sx={{ width: "65vh", marginLeft: "-32vh" }}
-                                />
-                            </div>
-                        )
-                    })}
-                </Box>
-
-                {/* <Box display="grid"
-                    gap="10px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginTop: "30px"
-                    }}>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.result && !!formik.errors.result}
-                    >
-                        <InputLabel id="resultField">Result</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="resultField"
-                            name="result"
-                            value={formik.values.result}
-                            onChange={formik.handleChange}
-                        >
-                            <MenuItem value={"pass"}>Pass</MenuItem>
-                            <MenuItem value={"fail"}>Fail</MenuItem>
-                            <MenuItem value={"not_declared_yet"}>Not Declared Yet</MenuItem>
-                        </Select>
-                        <FormHelperText>{formik.touched.result && formik.errors.result}</FormHelperText>
-                    </FormControl>
-                </Box> */}
-            </form >
-        </Box >
-
-    );
-}
+MarksheetFormComponent.propTypes = {
+  onChange: PropTypes.func,
+  refId: PropTypes.shape({
+    current: PropTypes.any,
+  }),
+  setDirty: PropTypes.func,
+  reset: PropTypes.bool,
+  setReset: PropTypes.func,
+  userId: PropTypes.number,
+  studentId: PropTypes.number,
+  updatedValues: PropTypes.array,
+};
 
 export default MarksheetFormComponent;

@@ -1,12 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -19,13 +20,18 @@ import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import SchoolFormComponent from "./SchoolFormComponent";
 
+import { setAllClasses } from "../../redux/actions/ClassAction";
+import { setAllSections } from "../../redux/actions/SectionAction";
 import { setFormAmenities } from "../../redux/actions/AmenityAction";
-import { setFormClasses } from "../../redux/actions/ClassAction";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import { setFormSections } from "../../redux/actions/SectionAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+
+import formBg from "../assets/formBg.png";
+
+const ENV = import.meta.env;
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
@@ -38,17 +44,20 @@ const FormComponent = () => {
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
+    const [previewDisplay, setPreviewDisplay] = useState([]);
     const [deletedBannerImage, setDeletedBannerImage] = useState([]);
     const [previewBanner, setPreviewBanner] = useState([]);
+    const [updatedDisplayImage, setUpdatedDisplayImage] = useState([]);
+    const [updatedBannerImage, setUpdatedBannerImage] = useState([]);
 
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
+    const allClasses = useSelector(state => state.allClasses);
+    const allSections = useSelector(state => state.allSections);
+    const allSubjects = useSelector(state => state.allSubjects);
     const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
-    const formClassesInRedux = useSelector(state => state.allFormClasses);
-    const formSectionsInRedux = useSelector(state => state.allFormSections);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -66,8 +75,8 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { createSchoolCode, customSort, createUniqueDataArray, getLocalStorage,
-        getIdsFromObject, getValuesFromArray, toastAndNavigate } = Utility();
+    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, getValuesFromArray,
+        isObjEmpty, fetchAndSetAll, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -77,10 +86,10 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateSchoolAndAddress = useCallback(formData => {
+    const updateSchoolAndAddress = useCallback(async formData => {
         setLoading(true);
-
         const paths = ["/update-school", "/update-address"];
+
         const dataFields = [
             {
                 ...formData.schoolData.values,
@@ -89,60 +98,177 @@ const FormComponent = () => {
             { ...formData.addressData.values }
         ];
 
-        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
-                let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
-                        status = false;
-                    };
-                });
-                if (status) {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/${selected.toLowerCase()}/listing`);
-                };
-                setLoading(false);
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
+        try {
+            const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
+            if (responses) {
+                updateImageAndClassData(formData);
+            }
+        } catch (err) {
+            setLoading(false);
+            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+            throw err;
+        }
     }, [formData]);
 
-    const populateSchoolData = (id) => {
+    const updateImageAndClassData = useCallback(async formData => {
+
+        // delete the selected (removed) images from Azure which are in deletedImage state
+        // if (deletedImage.length) {
+        //     deletedImage.forEach(image => {
+        //         deleteFileFromAzure("school", image);
+        //         console.log("Deleted normal image from azure");
+        //     });
+        // }
+        // delete the selected (removed) images from Azure which are in deletedBannerImage state
+        // if (deletedBannerImage.length) {
+        //     deletedBannerImage.forEach(image => {
+        //         deleteFileFromAzure("school/banner", image);
+        //         console.log("Deleted  banner image from azure");
+        //     });
+        // }
+
+        // delete all images from db on every update and later insert new and old again
+        API.ImageAPI.deleteImage({
+            parent: "school",
+            parent_id: id
+        });
+
+        // delete all class sections from mapping table
+        await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
+
+        const updatePromises = formData.schoolData.values.sections.map((innerArray, classIndex) => {
+            const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+            // Iterating through each section in the class then associating subject ids for each section of class
+            innerArray.map((sectionData, sectionIndex) => {
+                const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
+                API.SchoolAPI.insertIntoMappingTable(
+                    [formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                );
+            });
+        });
+
+        try {
+            let status = null;
+            let formattedName;
+            await Promise.all(updatePromises);
+            if (!isObjEmpty(formData.imageData.values)) {
+                // upload new images display to backend folder and insert in db
+                if (formData.imageData.values?.Display) {
+                    Array.from(formData.imageData.values.Display).map(image => {
+                        formattedName = formatImageName(image.name);
+                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                        API.ImageAPI.createImage({
+                            image_src: formattedName,
+                            school_id: formData.schoolData.values.id,
+                            parent_id: formData.schoolData.values.id,
+                            parent: 'school',
+                            type: 'display'
+                        })
+                    });
+                    status = true;
+                }
+                // insert old images display only in db & not on azure
+                if (formData.imageData?.values) {
+                    formData.imageData.values.map(image => {
+                        API.ImageAPI.createImage({
+                            image_src: image.image_src,
+                            school_id: image.school_id,
+                            parent_id: image.parent_id,
+                            parent: image.parent,
+                            type: image.type
+                        })
+                    });
+                    status = true;
+                }
+            }
+            if (!isObjEmpty(formData.bannerImageData.values)) {
+                // upload new banner images to azure and insert in db
+                if (formData.bannerImageData.values?.Banner) {
+                    Array.from(formData.bannerImageData.values?.Banner).map(image => {
+                        let formattedName = formatImageName(image.name);
+                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                        API.ImageAPI.createImage({
+                            image_src: formattedName,
+                            school_id: formData.schoolData.values.id,
+                            parent_id: formData.schoolData.values.id,
+                            parent: 'school',
+                            type: 'banner'
+                        })
+                    });
+                    status = true;
+                }
+                // insert old images banner only in db & not on azure
+                if (formData.bannerImageData?.values) {
+                    formData.bannerImageData.values.map(image => {
+                        API.ImageAPI.createImage({
+                            image_src: image.image_src,
+                            school_id: image.school_id,
+                            parent_id: image.parent_id,
+                            parent: image.parent,
+                            type: image.type
+                        })
+                    });
+                    status = true;
+                }
+            } else {
+                status = true;      //ye hai isempty datafields[3]
+            }
+            if (status) {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
+            }
+        } catch (err) {
+            setLoading(false);
+            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+            throw err;
+        }
+    }, []);
+
+    const populateSchoolData = useCallback(id => {
         setLoading(true);
-        const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`, `/get-school-classes/${id}`];
+        const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`, `/get-image/school/${id}`];
+
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
-                if (responses[0].data.data) {
+                if (responses[0]?.data?.data) {
                     responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
                 }
-                const dataObj = {
-                    schoolData: {
-                        schoolData: responses[0].data.data,
-                        selectedClass: responses[2]?.data?.data,
-                    },
-                    addressData: responses[1]?.data?.data
-                };
-                setUpdatedValues(dataObj);
-                setLoading(false);
+                API.SchoolAPI.getSchoolClasses(id)
+                    .then(res => {
+                        const dataObj = {
+                            schoolData: {
+                                schoolData: responses[0].data.data,
+                                selectedClass: res?.data
+                            },
+                            addressData: responses[1]?.data?.data,
+                            imageData: responses[2]?.data?.data
+                        };
+                        setUpdatedValues(dataObj);
+                        setUpdatedDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
+                        setUpdatedBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
+                        setLoading(false);
+                    })
+                    .catch(err => {
+                        setLoading(false);
+                        toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
+                    });
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
             });
-    };
+    }, [formAmenitiesInRedux?.listData?.rows]);
 
-    const createSchool = () => {
+    const createSchool = useCallback(formData => {
         let promise1;
         let promise2;
+        let promise3;
+        let promise4;
         setLoading(true);
 
         formData.schoolData.values = {
             ...formData.schoolData.values,
-            school_code: createSchoolCode(formData.schoolData.values.name),
+            school_code: createSchoolCode(formData.schoolData.values?.name),
             amenities: getIdsFromObject(formData.schoolData.values?.amenities)
         };
 
@@ -153,37 +279,66 @@ const FormComponent = () => {
                         ...formData.addressData.values,
                         school_id: school.data.id,
                         parent_id: school.data.id,
-                        parent: 'school',
-                    })
+                        parent: 'school'
+                    });
 
-                    promise2 = formData.schoolData.values.sections.map((innerArray, index) => {
-                        const schoolClass = formData.schoolData.values.classes[index] || 0;
-                        // Associating each inner array with a class
-                        innerArray.map(sectionData => {
+                    promise2 = formData.schoolData.values.sections.map((innerArray, classIndex) => {
+                        const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                        // Iterating through each section in the class then associating subject ids for each section of class
+                        innerArray.map((sectionData, sectionIndex) => {
+                            const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
                             API.SchoolAPI.insertIntoMappingTable(
-                                [school.data.id, schoolClass, sectionData.id]
-                            )
-                        })
-                    })
+                                [school.data.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                            );
+                        });
+                    });
 
-                    return Promise.all([promise1, promise2])
-                        .then(data => {
+                    if (formData.imageData.values.Display?.length) {
+                        promise3 = Array.from(formData.imageData.values.Display).map(async (image) => {
+                            let formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                school_id: school.data.id,
+                                parent_id: school.data.id,
+                                parent: 'school',
+                                type: 'display'
+                            });
+                        });
+                    }
+
+                    if (formData.bannerImageData.values.Banner?.length) {
+                        promise4 = Array.from(formData.bannerImageData.values.Banner).map(async (image) => {
+                            let formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                school_id: school.data.id,
+                                parent_id: school.data.id,
+                                parent: 'school',
+                                type: 'banner'
+                            });
+                        });
+                    }
+
+                    return Promise.all([promise1, promise2, promise3, promise4])
+                        .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created");
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing');
                         })
                         .catch(err => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
+                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                             throw err;
                         });
-                };
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    };
+    }, []);
 
     useEffect(() => {
         if (!formAmenitiesInRedux?.listData?.rows?.length) {
@@ -192,43 +347,42 @@ const FormComponent = () => {
     }, [formAmenitiesInRedux?.listData?.rows?.length]);
 
     useEffect(() => {
-        if (!formClassesInRedux?.listData?.length || !formSectionsInRedux?.listData?.length) {
-            API.SchoolAPI.getSchoolClasses(5)
-                .then(classData => {
-                    if (classData.status === 'Success') {
-                        classData.data.sort(customSort);
-
-                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
-                        dispatch(setFormClasses(uniqueClassDataArray));
-
-                        const uniqueSectionDataArray = createUniqueDataArray(classData.data, 'id', 'name');
-                        dispatch(setFormSections(uniqueSectionDataArray));
-                    }
-                })
-                .catch(err => {
-                    console.log("Error Fetching ClassData:", err);
-                });
+        if (!allSubjects?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [formClassesInRedux.listData.length, formSectionsInRedux.listData.length]);
+    }, [allSubjects?.listData?.length]);
+
+    useEffect(() => {
+        if (!allClasses?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+        }
+    }, [allClasses?.listData?.length]);
+
+    useEffect(() => {
+        if (!allSections?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
+        }
+    }, [allSections?.listData?.length]);
 
     //Create/Update/Populate School
     useEffect(() => {
-        if (id && !submitted && formAmenitiesInRedux?.listData?.rows?.length) {
+        if (id && !submitted && formAmenitiesInRedux?.listData?.rows && allSubjects?.listData) {
             setTitle("Update");
             populateSchoolData(id);
         }
         if (formData.schoolData.validated && formData.addressData.validated) {
-            formData.schoolData.values?.id ? updateSchoolAndAddress(formData) : createSchool();
+            formData.schoolData.values?.id ? updateSchoolAndAddress(formData) : createSchool(formData);
         } else {
             setSubmitted(false);
         }
-    }, [id, submitted, formAmenitiesInRedux?.listData?.rows?.length]);
+    }, [id, submitted, formAmenitiesInRedux?.listData?.rows, allSubjects?.listData]);
+
 
     const handleSubmit = async () => {
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
-        await imageFormRef.current.Submit();
-        await bannerImageFormRef.current.Submit();
+        await imageFormRef.current?.Submit();
+        await bannerImageFormRef.current?.Submit();
         setSubmitted(true);
     };
 
@@ -245,7 +399,16 @@ const FormComponent = () => {
     };
 
     return (
-        <Box m="10px">
+        <Box m="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed"
+            }}
+        >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -265,9 +428,10 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 schoolId={id}
+                allClasses={allClasses?.listData}
+                allSections={allSections?.listData}
                 amenities={formAmenitiesInRedux?.listData?.rows}
-                classesInRedux={formClassesInRedux?.listData}
-                sectionsInRedux={formSectionsInRedux?.listData}
+                subjectsInRedux={allSubjects?.listData}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent
@@ -288,14 +452,15 @@ const FormComponent = () => {
                 reset={reset}
                 setReset={setReset}
                 setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
+                preview={previewDisplay}
+                setPreview={setPreviewDisplay}
+                updatedImage={updatedDisplayImage}            //these are updated Values
+                setUpdatedImage={setUpdatedDisplayImage}
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
                 imageType="Display"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
+                multiple={true}
+                ENV={ENV}
             />
             <ImagePicker
                 key="banner"
@@ -306,12 +471,13 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 preview={previewBanner}
                 setPreview={setPreviewBanner}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "banner")}
+                updatedImage={updatedBannerImage}             //these are updated Values
+                setUpdatedImage={setUpdatedBannerImage}
                 deletedImage={deletedBannerImage}
                 setDeletedImage={setDeletedBannerImage}
                 imageType="Banner"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}/banner`}
-            // ENV={ENV}
+                multiple={true}
+                ENV={ENV}
             />
 
             <Box display="flex" justifyContent="end" m="20px">
@@ -322,7 +488,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

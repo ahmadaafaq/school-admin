@@ -22,7 +22,6 @@ export const MarksheetAPI = {
             queryParam += `&${key}=${conditionObj[key]}`
           })
         }
-        console.log('connnnnn=>', conditionObj)
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
             url: `/get-marksheet?page=${page}&size=${size}${queryParam}${searchParam}`,
@@ -62,7 +61,7 @@ export const MarksheetAPI = {
             signal: cancel ? cancelApiObject[this.updateMarksheet.name].handleRequestCancellation().signal : undefined,
         });
     }
-}
+};
 
 // defining the cancel API object for marksheetAPI
 const cancelApiObject = defineCancelApiObject(MarksheetAPI);

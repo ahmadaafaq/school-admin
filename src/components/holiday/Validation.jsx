@@ -4,29 +4,22 @@
  * This software is the confidential information of School CRM Inc., and is licensed as
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
-*/
+ */
 
 import * as yup from "yup";
 
-const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-const emailRegExp = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-
 const checkoutSchema = yup.object().shape({
-    firstname: yup.string()
-        .min(2, 'Firstname is Too Short!')
-        .max(20, 'Firstname is Too Long!')
-        .required("This Field is Required"),
-    lastname: yup.string()
-        .min(2, 'Lastname is Too Short!')
-        .max(20, 'Lastname is Too Long!')
-        .required("This Field is Required"),
-    email: yup.string()
-        .matches(emailRegExp, "Email Address is Not Valid"),
-    contact_no: yup.string()
-        .matches(phoneRegExp, "Phone Number Is Not Valid")
-        .required("This Field is Required"),
-    gender: yup.string(),
-    status: yup.string()
+  title: yup
+    .string()
+    .min(2, "name is Too Short!")
+    .max(20, "name is Too Long!")
+    .required("This Field is Required"),
+  startDate: yup.date()
+    .required("This Field is Required"),
+  endDate: yup.date()
+    .required("This Field is Required"),
+    holiday_type: yup.string()
+    .required("This Field is Required"),
 });
 
 export default checkoutSchema;

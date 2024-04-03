@@ -6,29 +6,63 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { Box, useTheme,useMediaQuery} from "@mui/material";
+import PropTypes from "prop-types";
+import Box from '@mui/material/Box';
+import CircularProgress, {
+    circularProgressClasses,
+} from '@mui/material/CircularProgress';
 
-import { tokens } from "../../theme";
-
-const ProgressCircle = ({ progress = "0.75", size ="40", yellowColor }) => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const angle = progress * 360;
-    const isMobile = useMediaQuery("(max-width:480px)");
-
-
+function FacebookCircularProgress({ progress }) {
     return (
-        <Box
-            sx={{
-                background: `radial-gradient(${yellowColor} 55%, transparent 56%),
-            conic-gradient(transparent 0deg ${angle}deg, ${colors.primary[500]} ${angle}deg 360deg),
-            ${colors.greenAccent[500]}`,
-                borderRadius: "50%",
-                width:isMobile?"30px" : `${size}px`,
-                height:isMobile?"30px" : `${size}px`,
-            }}
-        />
+        <Box sx={{ position: 'relative' }}>
+            <CircularProgress
+                variant="determinate"
+                sx={{
+                    color: (theme) =>
+                        theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+                }}
+                size={40}
+                thickness={4}
+                value={100}
+            />
+            <CircularProgress
+                variant="determinate"
+                sx={{
+                    color: (theme) => (theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8'),
+                    position: 'absolute',
+                    left: 0,
+                    [`& .${circularProgressClasses.circle}`]: {
+                        strokeLinecap: 'round',
+                    },
+                }}
+                size={40}
+                thickness={4}
+                value={parseFloat(progress)}
+            />
+        </Box>
     );
+}
+
+FacebookCircularProgress.propTypes = {
+    progress: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+    ])
 };
 
-export default ProgressCircle;
+ProgressCircle.propTypes = {
+    progress: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+    ])
+};
+
+export default function ProgressCircle({ progress }) {
+    return (
+        <Box sx={{ flexGrow: 1 }}>
+            <FacebookCircularProgress progress={progress} />
+        </Box>
+    );
+}
+
+

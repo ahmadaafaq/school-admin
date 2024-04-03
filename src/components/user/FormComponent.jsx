@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,9 +7,10 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
 
@@ -22,17 +24,22 @@ import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
+import formBg from "../assets/formBg.png";
+
 const FormComponent = ({ rolePriority }) => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         userData: { values: null, validated: false },
-        addressData: { values: null, validated: false },
+        addressData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
+
+    const selected = useSelector(state => state.menuItems.selected);
+    const toastInfo = useSelector(state => state.toastInfo);
 
     const userFormRef = useRef();
     const addressFormRef = useRef();
@@ -43,9 +50,6 @@ const FormComponent = ({ rolePriority }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const toastInfo = useSelector(state => state.toastInfo);
     const { state } = useLocation();
     const { toastAndNavigate, getLocalStorage } = Utility();
     //after page refresh the id in router state becomes undefined, so getting user id from url params
@@ -66,31 +70,32 @@ const FormComponent = ({ rolePriority }) => {
 
         if (!formData.userData.password) {
             delete formData.userData.password;
-        };
+        }
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
                 let status = true;
                 responses.forEach(response => {
                     if (response.data.status !== "Success") {
                         status = false;
-                    };
+                    }
                 });
                 if (status) {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/${selected.toLowerCase()}/listing`);
-                };
+                }
                 setLoading(false);
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log('Error in user update', err);
             });
     }, [formData]);
 
-    const populateUserData = (id) => {
+    const populateUserData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/user/${id}`, `/get-address/user/${id}`];
+
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 const dataObj = {
@@ -102,13 +107,14 @@ const FormComponent = ({ rolePriority }) => {
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log('Error in user populate', err);
             });
-    };
+    }, []);
 
-    const registerUser = () => {
+    const registerUser = useCallback(formData => {
         setLoading(true);
+
         API.UserAPI.register({ ...formData.userData.values })
             .then(({ data: user }) => {
                 if (user?.status === 'Success') {
@@ -117,23 +123,23 @@ const FormComponent = ({ rolePriority }) => {
                         parent_id: user.data.id,
                         parent: 'user'
                     })
-                        .then(address => {
+                        .then(() => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
                         })
                         .catch(err => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
-                            throw err;
+                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                            console.log('Error in user create', err);
                         });
-                };
+                }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log('Error in user create', err);
             });
-    };
+    }, []);
 
     //Create/Update/Populate user
     useEffect(() => {
@@ -142,7 +148,7 @@ const FormComponent = ({ rolePriority }) => {
             populateUserData(id);
         }
         if (formData.userData.validated && formData.addressData.validated) {
-            formData.userData.values?.id ? updateUserAndAddress(formData) : registerUser();
+            formData.userData.values?.id ? updateUserAndAddress(formData) : registerUser(formData);
         } else {
             setSubmitted(false);
         }
@@ -160,7 +166,16 @@ const FormComponent = ({ rolePriority }) => {
     };
 
     return (
-        <Box m="10px">
+        <Box  m="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed"
+            }}
+        >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -203,7 +218,7 @@ const FormComponent = ({ rolePriority }) => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset
@@ -226,6 +241,10 @@ const FormComponent = ({ rolePriority }) => {
             {loading === true ? <Loader /> : null}
         </Box>
     );
+};
+
+FormComponent.propTypes = {
+    rolePriority: PropTypes.number
 };
 
 export default FormComponent;

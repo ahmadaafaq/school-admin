@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,7 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -15,16 +16,15 @@ import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
 import EmployeeFormComponent from "./EmployeeFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-// import { setSubjects } from "../../redux/actions/SubjectAction";
 import { tokens, themeSettings } from "../../theme";
-import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+
+import formBg from "../assets/formBg.png";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
@@ -35,19 +35,15 @@ const FormComponent = () => {
         imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
-    const [deletedImage, setDeletedImage] = useState([]);
-    const [preview, setPreview] = useState([]);
     const [dirty, setDirty] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [reset, setReset] = useState(false);
 
-    //  const subjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
     const employeeFormRef = useRef();
     const addressFormRef = useRef();
-    const imageFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -56,8 +52,7 @@ const FormComponent = () => {
     const colors = tokens(theme.palette.mode);
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
-    const { getPaginatedData } = useCommon();
-    const { toastAndNavigate, getLocalStorage, getIdsFromObjects, findMultipleById } = Utility();
+    const { toastAndNavigate, getLocalStorage } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting employee id from url params
     let id = state?.id || userParams?.id;
@@ -68,7 +63,7 @@ const FormComponent = () => {
     }, []);
 
     const updateEmployeeAndAddress = useCallback(formData => {
-        console.log("formdataABCD", formData)
+       
         const dataFields = [
             { ...formData.employeeData.values },
             { ...formData.addressData.values }
@@ -82,12 +77,12 @@ const FormComponent = () => {
                 responses.forEach(response => {
                     if (response.data.status !== "Success") {
                         status = false;
-                    };
+                    }
                 });
                 if (status) {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/employee/listing/${getLocalStorage('class')}`);
-                };
+                }
                 setLoading(false);
             })
             .catch(err => {
@@ -97,7 +92,7 @@ const FormComponent = () => {
             });
     }, [formData]);
 
-    const populateEmployeeData = (id) => {
+    const populateEmployeeData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/employee/${id}`, `/get-address/employee/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
@@ -119,9 +114,9 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
+    },[id]);
 
-    const createEmployee = () => {
+    const createEmployee = (formData => {
         setLoading(true);
         API.EmployeeAPI.createEmployee({ ...formData.employeeData.values })
             .then(({ data: employee }) => {
@@ -131,7 +126,7 @@ const FormComponent = () => {
                         parent_id: employee.data.id,
                         parent: 'employee',
                     })
-                        .then(address => {
+                        .then(() => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/employee/listing`);
                         })
@@ -140,20 +135,14 @@ const FormComponent = () => {
                             toastAndNavigate(dispatch, true, err ? err : "An Error Occurred");
                             throw err;
                         });
-                };
+                }
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
                 throw err;
             });
-    };
-
-    // useEffect(() => {
-    //     if (!subjectsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 50, setSubjects, API.SubjectAPI);
-    //     }
-    // }, [subjectsInRedux?.listData?.rows?.length]);
+    },[formData]);
 
     //Create/Update/Populate employee
     useEffect(() => {
@@ -162,7 +151,7 @@ const FormComponent = () => {
             populateEmployeeData(id);
         }
         if (formData.employeeData.validated && formData.addressData.validated) {
-            formData.employeeData.values?.id ? updateEmployeeAndAddress(formData) : createEmployee();
+            formData.employeeData.values?.id ? updateEmployeeAndAddress(formData) : createEmployee(formData);
         } else {
             setSubmitted(false);
         }
@@ -171,7 +160,6 @@ const FormComponent = () => {
     const handleSubmit = async () => {
         await employeeFormRef.current.Submit();
         await addressFormRef.current.Submit();
-        // await imageFormRef.current.Submit();
         setSubmitted(true);
     };
 
@@ -181,13 +169,19 @@ const FormComponent = () => {
         } else if (form === 'address') {
             setFormData({ ...formData, addressData: data });
         }
-        // } else if (form === 'parent') {
-        //     setFormData({ ...formData, imageData: data });
-        // }
     };
 
     return (
-        <Box m="10px">
+        <Box m="10px"
+            sx={{
+                backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "start",
+                backgroundSize: "cover",
+                backgroundAttachment: "fixed"
+            }}
+        >
             <Typography
                 fontFamily={typography.fontFamily}
                 fontSize={typography.h2.fontSize}
@@ -220,22 +214,6 @@ const FormComponent = () => {
                 setReset={setReset}
                 updatedValues={updatedValues?.addressData}
             />
-            {/* <ImagePicker
-                key="image"
-                onChange={data => handleFormChange(data, 'parent')}
-                refId={imageFormRef}
-                reset={reset}
-                setReset={setReset}
-                setDirty={setDirty}
-                preview={preview}
-                setPreview={setPreview}
-                // updatedValues={updatedValues?.imageData.filter(img => img.type === "normal")}
-                deletedImage={deletedImage}
-                setDeletedImage={setDeletedImage}
-                imageType="Guardian"
-            // azurePath={`${ENV.VITE_SAS_URL}/${ENV.VITE_PARENT_SALON}`}
-            // ENV={ENV}
-            /> */}
 
             <Box display="flex" justifyContent="end" m="20px">
                 {   //hide reset button on employee update
@@ -245,7 +223,7 @@ const FormComponent = () => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
-                                };
+                                }
                             }}
                         >
                             Reset

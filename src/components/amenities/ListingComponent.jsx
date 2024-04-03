@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -24,6 +25,8 @@ import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+
+import listBg from "../assets/listBG.jpg"
 
 const pageSizeOptions = [5, 10, 20];
 
@@ -67,7 +70,19 @@ const ListingComponent = () => {
     };
 
     return (
-        <Box m="10px" position="relative">
+        <Box m="10px" position="relative"
+            sx={{
+                borderRadius: "20px",
+                border: "0.5px solid black",
+                overflow: "hidden",
+                boxShadow: "1px 1px 10px black",
+                backgroundImage: theme.palette.mode === "light"
+                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover"
+            }}>
             <Box
                 height={isMobile ? "19vh" : isTab ? "8vh" : "11vh"}
                 borderRadius="4px"

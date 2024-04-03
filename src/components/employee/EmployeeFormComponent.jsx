@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,20 +8,17 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import PropTypes from 'prop-types';
 
-import { Box, InputLabel, MenuItem, FormHelperText, FormControl, FormControlLabel, Autocomplete } from "@mui/material";
-import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
+import { Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
-import API from "../../apis";
 import employeeValidation from "./Validation";
 
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
-import { useCommon } from "../hooks/common";
+import config from '../config';
 
 const initialValues = {
     firstname: "",
@@ -39,20 +37,12 @@ const EmployeeFormComponent = ({
     setDirty,
     reset,
     setReset,
-    userId,
     updatedValues = null
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-   // const [subjects, setSubjects] = useState([]);
 
-    // const classesInRedux = useSelector(state => state.allClasses);
-    // const sectionsInRedux = useSelector(state => state.allSections);
-
-    // const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const isMobile = useMediaQuery("(max-width:480px)");
-    // const { getPaginatedData } = useCommon();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -75,7 +65,7 @@ const EmployeeFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -96,33 +86,6 @@ const EmployeeFormComponent = ({
             setInitialState(updatedValues);
         }
     }, [updatedValues]);
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
-
-    // const getSubjectsByClass = (classId) => {
-    //     API.SubjectAPI.getSubjectsByClass(classId)
-    //         .then(subjects => {
-    //             console.log("subjects", subjects)
-    //             if (subjects.status === 'Success') {
-    //                 setSubjects(subjects.data);
-    //             } else {
-    //                 console.log("Error, Please Try Again");
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.log("Error, Fetching Subjects:", err);
-    //         })
-    // };
 
     return (
         <Box m="20px">
@@ -174,7 +137,6 @@ const EmployeeFormComponent = ({
                         value={formik.values.email}
                         error={!!formik.touched.email && !!formik.errors.email}
                         helperText={formik.touched.email && formik.errors.email}
-                       
                     />
                     <TextField
                         fullWidth
@@ -219,37 +181,36 @@ const EmployeeFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel>Gender</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="genderField"
-                            label="Gender"
                             name="gender"
-                            autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
+                            {Object.keys(config.gender).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.gender[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
@@ -258,5 +219,14 @@ const EmployeeFormComponent = ({
         </Box >
     );
 }
+
+EmployeeFormComponent.propTypes = {
+    onChange: PropTypes.func.isRequired,
+    refId: PropTypes.any.isRequired, 
+    setDirty: PropTypes.func.isRequired,
+    reset: PropTypes.func.isRequired,
+    setReset: PropTypes.func.isRequired,
+    updatedValues: PropTypes.object  
+};
 
 export default EmployeeFormComponent;

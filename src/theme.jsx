@@ -7,7 +7,7 @@
 */
 
 import { createContext, useState, useMemo } from "react";
-import { createTheme } from "@mui/material";
+import { Hidden, createTheme } from "@mui/material";
 
 // color design tokens
 export const tokens = (mode) => ({
@@ -45,7 +45,7 @@ export const tokens = (mode) => ({
                 700: "#00e272",
                 800: "#1e5245",
                 900: "#0f2922",
-                1000:"#44ff00"
+                1000: "#44ff00"
             },
             redAccent: {
                 100: "#f8dcdb",
@@ -69,11 +69,11 @@ export const tokens = (mode) => ({
                 800: "#2a2d64",
                 900: "#151632"
             },
-            yellowAccent:{
-                100:"#f8b114",
+            yellowAccent: {
+                100: "#f8b114",
             },
-            orangeAccent:{
-                100:"#ff991c"
+            orangeAccent: {
+                100: "#ff991c"
             },
 
         } : {
@@ -109,7 +109,7 @@ export const tokens = (mode) => ({
                 700: "#00e272",
                 800: "#b7ebde",
                 900: "#dbf5ee",
-                1000:"#133d04"
+                1000: "#133d04"
             },
             redAccent: {
                 100: "#2c100f",
@@ -133,11 +133,11 @@ export const tokens = (mode) => ({
                 800: "#c3c6fd",
                 900: "#e1e2fe"
             },
-            yellowAccent:{
-                100:"#f8b114",
+            yellowAccent: {
+                100: "#f8b114",
             },
-            orangeAccent:{
-                100:"#ff991c"
+            orangeAccent: {
+                100: "#ff991c"
             },
         })
 });
@@ -181,7 +181,57 @@ export const themeSettings = (mode) => {
                     background: {
                         default: "#fcfcfc"
                     }
-                })
+                }
+            )
+        },
+        components: {
+            MuiTextField: {
+                styleOverrides: {
+                    root: {
+                        '--TextField-brandBorderColor': mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        '--TextField-brandBorderHoverColor': mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        '--TextField-brandBorderFocusedColor': mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        '& label.Mui-focused': {
+                            color: mode === 'light' ? 'var(--TextField-brandBorderFocusedColor)' : 'white',
+                        },
+                        '& label.MuiFormLabel-root': {
+                            color: mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        },
+                        '& label.MuiInputLabel-root': {
+                            color: mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        },
+                        '& .MuiFilledInput-root':{
+                            backdropFilter:"blur(5px)",
+                            boxShadow: "1px 1px 10px rgba(0, 0, 0,0.2)",
+                            borderRadius:'10px'
+                        }
+                    },
+                },
+            },
+            MuiFormControl: {
+                styleOverrides: {
+                    root: {
+                        '--InputLabel-brandBorderColor': mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        '--InputLabel-brandBorderHoverColor': mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        '--InputLabel-brandBorderFocusedColor': mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        '& label.Mui-focused': {
+                          color: mode === 'light' ? 'var(--InputLabel-brandBorderFocusedColor)' : 'white',
+                        },
+                        '& .MuiFormLabel-root': {
+                          color: mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: mode === 'light' ? 'rgb(134, 14, 14)' : 'white',
+                        },
+                       
+                        '& .MuiFilledInput-root':{
+                            backdropFilter:"blur(5px)",
+                            boxShadow: "1px 1px 10px rgba(0, 0, 0, 0.2)",
+                            borderRadius:'10px'
+                        }
+                    },
+                },
+            }
         },
         typography: {
             fontFamily: ["Source Sans Pro", "sans-serif"].join(","),

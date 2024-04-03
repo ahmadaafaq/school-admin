@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -6,46 +8,23 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-// import { useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
-//import API from "../../apis";
-// import { setClasses } from "../../redux/actions/ClassAction";
-// import { setSections } from "../../redux/actions/SectionAction";
 import { tokens } from "../../theme";
-import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
 export const datagridColumns = (rolePriority = null) => {
-    const classesInRedux = useSelector(state => state.allClasses);
-    const sectionsInRedux = useSelector(state => state.allSections);
-
-    const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-
-    const { getPaginatedData } = useCommon();
-    const { appendSuffix, findById } = Utility();
+    const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
         navigateTo(`/holiday/update/${id}`, { state: { id: id } });
     };
-
-    // useEffect(() => {
-    //     if (!classesInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setClasses, API.ClassAPI);
-    //     }
-    // }, [classesInRedux?.listData?.rows?.length]);
-
-    // useEffect(() => {
-    //     if (!sectionsInRedux?.listData?.rows?.length) {
-    //         getPaginatedData(0, 20, setSections, API.SectionAPI);
-    //     }
-    // }, [sectionsInRedux?.listData?.rows?.length]);
+    
+    
 
     const columns = [
         {
@@ -55,17 +34,26 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 120,
+            valueGetter: (params) => `${params.row.title.charAt(0).toUpperCase() + params.row.title.slice(1) || ''} `
         },
         {
-            field: "date",
-            headerName: "Date",
+            field: "startDate",
+            headerName: "Closing Date",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100
         },
         {
-            field: "note",
+            field: "endDate",
+            headerName: "Opening Date",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "notes",
             headerName: "Notes",
             headerAlign: "center",
             align: "center",
@@ -80,9 +68,13 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 120,
             renderCell: ({ row: { type } }) => {
+                const nameParts = type.split('_');
+                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                const typeAll = capitalizedParts.join(' ');
                 return (
+                  
                     <Box
-                        width="60%"
+                        width="70%"
                         m="0 auto"
                         p="5px"
                         display="flex"
@@ -99,13 +91,13 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {type}
+                           {typeAll}
                         </Typography>
                     </Box>
                 );
-            },
+            }
         },
-        {
+        rolePriority !== 1 && {
             field: "action",
             headerName: "ACTION",
             headerAlign: "center",
@@ -120,7 +112,6 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            disabled={rolePriority}
                             onClick={() => handleActionEdit(id)}
                             sx={{ minWidth: "50px" }}
                         >
@@ -128,7 +119,7 @@ export const datagridColumns = (rolePriority = null) => {
                         </Button>
                     </Box>
                 );
-            },
+            }
         }
     ];
     return columns;

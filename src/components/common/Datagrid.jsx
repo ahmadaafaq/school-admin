@@ -7,13 +7,16 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import PropTypes from "prop-types";
 
-import { Box, useTheme } from "@mui/material";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { Box, useTheme, Button } from "@mui/material";
+import { DataGrid, GridToolbar, GridToolbarContainer } from "@mui/x-data-grid";
+import PostAddIcon from '@mui/icons-material/PostAdd';
+import ImportComponent from "../models/ImportModel";
 
 import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
+
 import { multipleSkeletons } from "./LoadingSkeleton";
 import { tokens } from "../../theme";
 
@@ -38,23 +41,26 @@ const ServerPaginationGrid = ({
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
+    const [openImport, setOpenImport] = useState(false);
 
     useEffect(() => {
         //TO BE REFACTORED
         if (!searchFlag.search && !searchFlag.searching) {
             getQuery(paginationModel.page, paginationModel.pageSize, action, api, condition);
             setOldPagination(paginationModel);
-        } else if (searchFlag.oldPagination && !searchFlag.searching) {
-            getQuery(searchFlag.oldPagination.page, searchFlag.oldPagination.pageSize, action, api, condition);
+        } else if (!searchFlag.searching) {
+            getQuery(searchFlag, searchFlag, action, api, condition);
             setPaginationModel({
-                page: searchFlag.oldPagination.page,
-                pageSize: searchFlag.oldPagination.pageSize
+                // page: searchFlag.oldPagination.page,
+                // pageSize: searchFlag.oldPagination.pageSize
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected, paginationModel.page, paginationModel.pageSize, searchFlag.searching]);
 
     useEffect(() => {
         setPaginationModel(initialState);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected]);
 
     // Some API clients return undefined while loading
@@ -67,12 +73,9 @@ const ServerPaginationGrid = ({
         );
     }, [count, setRowCountState]);
 
-    // console.log({rows});
-
     return (
-        <Box
+        <Box 
             m="30px 0 0 0"
-            // width="100vw"
             sx={{
                 "& .MuiDataGrid-root": {
                     border: "none",
@@ -80,7 +83,6 @@ const ServerPaginationGrid = ({
                 },
                 "& .MuiDataGrid-cell": {
                     borderBottom: "none",
-                    // minHeight: "100px !important"
                 },
                 "& .MuiDataGrid-cellCheckbox": {
                     borderBottom: "none"
@@ -119,14 +121,26 @@ const ServerPaginationGrid = ({
             <DataGrid
                 autoHeight
                 disableRowSelectionOnClick
+                getRowId={row => selected === 'Class' ? row.class_id : (selected === 'Section' ? row.section_id : row.id)}
                 rows={rows || []}
                 columns={columns}
                 loading={classNames.includes(selected) ? loading : loading}
                 rowCount={rowCountState}
                 components={{
-                    Toolbar: GridToolbar,
+                    Toolbar: () => (
+                        <Box display="flex" >
+                            <GridToolbar />
+                            <GridToolbarContainer>
+                                <Button sx={{ padding: "0px" }} onClick={() => setOpenImport(true)}>
+                                    <PostAddIcon sx={{ marginRight: "5px" }} />Import
+                                </Button>
+                            </GridToolbarContainer>
+                        </Box>
+                    ),
                     LoadingOverlay: multipleSkeletons,
                     noRowsOverlay: EmptyOverlayGrid
+
+                    // ... other components
                 }}
                 pagination
                 ServerPaginationGrid
@@ -136,8 +150,28 @@ const ServerPaginationGrid = ({
                 pageSizeOptions={pageSizeOptions}
                 keepNonExistentRowsSelected
             />
+
+            {openImport && <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} />}
         </Box>
     );
+};
+
+ServerPaginationGrid.propTypes = {
+    action: PropTypes.func,
+    api: PropTypes.object,
+    getQuery: PropTypes.func,
+    condition: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
+    columns: PropTypes.array,
+    rows: PropTypes.array,
+    count: PropTypes.number,
+    loading: PropTypes.bool,
+    selected: PropTypes.string,
+    pageSizeOptions: PropTypes.arrayOf(PropTypes.number),
+    searchFlag: PropTypes.shape({
+        search: PropTypes.bool,
+        searching: PropTypes.bool
+    }),
+    setOldPagination: PropTypes.func,
 };
 
 export default ServerPaginationGrid;

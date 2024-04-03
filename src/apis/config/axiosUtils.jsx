@@ -28,7 +28,7 @@ export function defineCancelApiObject(apiObject) {
                 if (cancellationControllerObject.controller) {
                     // canceling the request and returning this custom message
                     cancellationControllerObject.controller.abort();
-                };
+                }
 
                 // generating a new controller
                 // with the AbortController factory
@@ -39,4 +39,5 @@ export function defineCancelApiObject(apiObject) {
         };
     });
     return cancelApiObject;
-};
+}
+

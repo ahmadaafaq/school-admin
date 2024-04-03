@@ -57,10 +57,9 @@ export const SchoolAPI = {
     });
   },
 
-  /** Insert data into teacher_class_subject mapping table in the database
+  /** Insert data into school_class_section_subject mapping table in the database
     */
   insertIntoMappingTable: async (data, cancel = false) => {
-    console.log('api data=>', data)
     return await api.request({
       url: `/create-school-class-mapping`,
       headers: {
@@ -76,14 +75,29 @@ export const SchoolAPI = {
    */
   getSchoolClasses: async (school_id, cancel = false) => {
     const { data: response } = await api.request({
-      url: `/get-school-classes/${school_id}`,
+      url: `/get-school-classes`,
       headers: {
         "x-access-token": getLocalStorage("auth").token
       },
       method: "GET",
+      params: getLocalStorage("auth")?.role === 1 ? { school_id: school_id } : null,    //this is included in backend req.query
       signal: cancel ? cancelApiObject[this.getSchoolClasses.name].handleRequestCancellation().signal : undefined
     });
     return response;
+  },
+
+  /** delete values from school_class_section_subject mapping table on every update
+   */
+  deleteFromMappingTable: async (fields, cancel = false) => {
+    return await api.request({
+      url: `/delete-from-school-mapping`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "DELETE",
+      data: fields,
+      signal: cancel ? cancelApiObject[this.deleteFromMappingTable.name].handleRequestCancellation().signal : undefined,
+    });
   },
 
   /** Get school details for idCard

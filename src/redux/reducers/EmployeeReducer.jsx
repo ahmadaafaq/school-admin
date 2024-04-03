@@ -23,5 +23,5 @@ export const setEmployeesReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
 };

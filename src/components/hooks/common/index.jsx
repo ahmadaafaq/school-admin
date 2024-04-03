@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -51,9 +52,8 @@ export const useCommon = () => {
                 classId: class_id,
                 sectionId: section_id
             };
-
             // call api to get students
-            getPaginatedData(0, 20, setStudents, API.StudentAPI, condition);
+            getPaginatedData(0, 40, setStudents, API.StudentAPI, condition);
         }
     }, []);
 

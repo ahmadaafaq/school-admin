@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,13 +8,16 @@
 */
 
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
-import { useFormik } from "formik";
-import { Box, IconButton, TextField } from "@mui/material";
+import { ErrorMessage, useFormik } from "formik";
+import { Box, FormHelperText, IconButton, TextField } from "@mui/material";
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
+import imageValidation from "./Validation";
 import PreviewImage from "./PreviewImage";
 
+const initialValues = {};
 const ImagePicker = ({
     onChange,
     refId,
@@ -22,23 +26,20 @@ const ImagePicker = ({
     setReset,
     preview,
     setPreview,
-    iCardDetails = null,
-    setICardDetails = null,
-    updatedValues = null,
+    updatedImage = [],
+    setUpdatedImage,
     deletedImage = [],
     setDeletedImage,
     imageType,
-    azurePath,
-    ENV
+    ENV,
+    multiple = false
 }) => {
-    const initialValues = {};
-
     initialValues[`${imageType}`] = null;
-
     const [initialState, setInitialState] = useState(initialValues);
 
     const formik = useFormik({
         initialValues: initialState,
+        validationSchema: imageValidation,
         enableReinitialize: true,
         onSubmit: () => watchForm()
     });
@@ -57,7 +58,7 @@ const ImagePicker = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -74,95 +75,98 @@ const ImagePicker = ({
         }
     }, [formik.dirty]);
 
-
     useEffect(() => {
-        if (iCardDetails) {
-            setICardDetails({
-                ...iCardDetails,
-                ...formik.values
-            });
+        if (updatedImage?.length) {
+            setInitialState(updatedImage);
         }
-    }, [formik.values]);
+    }, [updatedImage?.length]);
+    console.log(Object.keys(formik.errors), 'formik image');
 
-    useEffect(() => {
-        if (updatedValues) {
-            console.log("Updated Values=>", updatedValues)
-            setInitialState(updatedValues);
-            // const srcArray = [];
-            // updatedValues.map(img => {
-            //     if (img.image_src) {
-            //         srcArray.push(`${azurePath}/${img.image_src}?${ENV.VITE_SAS_TOKEN}`);
-            //     }
-            // });
-            // setPreview(srcArray);
-        }
-    }, [updatedValues?.length]);
-
-    // useEffect(() => {
-    //     if (deletedImage) {
-    //         delete formik.values(deletedImage);
-    //     }
-    // }, [deletedImage?.length]);
-
-    console.log(`imagepicker formik values ${imageType}=>`, formik.values);
     return (
         <Box m="10px">
-            <form ref={refId} encType="multipart/form-data">
-                <TextField
-                    accept="image/*, application/pdf"
-                    name={imageType}
-                    label={`Upload ${imageType} Image`}
-                    value={undefined}
-                    size="small"
-                    onBlur={formik.handleBlur}
-                    InputProps={{
-                        multiple: true,
-                        startAdornment: (
-                            <IconButton component="label" sx={{ width: "88%" }}>
-                                <AddPhotoAlternateIcon />
-                                <input
-                                    hidden
-                                    multiple
-                                    type="file"
-                                    name="file"
-                                    onChange={(event) => {
-                                        console.log(`Onchange picker ${imageType} files=>`, event.target.files)
-                                        //keeping old image files also in formik while inserting new files, so
-                                        formik.values[`${imageType}`] ?     //we do not need to manual merge in
-                                            formik.setFieldValue(`${imageType}`,        //previewImage
-                                                [
+            {(multiple) || (formik.values[`${imageType}`] === undefined || !formik.values[`${imageType}`]?.length) ? (
+                <form ref={refId} encType="multipart/form-data">
+                    <TextField
+                        accept="image/*, application/pdf"
+                        name={imageType}
+                        label={`Upload ${imageType} Image`}
+                        value={undefined}
+                        size="small"
+                        onBlur={formik.handleBlur}
+                        InputProps={{
+                            multiple: multiple,
+                            startAdornment: (
+                                <IconButton component="label" sx={{ width: "88%" }}>
+                                    <AddPhotoAlternateIcon />
+                                    <input
+                                        hidden
+                                        multiple={multiple}
+                                        type="file"
+                                        name="file"
+                                        onChange={(event) => {
+                                            const newFiles = Array.from(event.target.files); // Convert FileList to array
+                                            // Check if formik.values[`${imageType}`] exists and is an array
+                                            if (Array.isArray(formik.values[`${imageType}`])) {
+                                                // Merge new files with existing files
+                                                formik.setFieldValue(`${imageType}`, [
                                                     ...formik.values[`${imageType}`],
-                                                    ...event.target.files
-                                                ]) : formik.setFieldValue(`${imageType}`, event.target.files);
-                                        setDirty(true);
-                                    }}
-                                />
-                            </IconButton>
-                        )
-                    }}
-                    error={formik.touched[`${imageType}`] && Boolean(formik.errors[`${imageType}`])}
-                    helperText={formik.touched[`${imageType}`] && formik.errors[`${imageType}`]}
-                    sx={{ m: 1, outline: "none", width: "15%" }}
-                />
-            </form>
-            {formik.values[`${imageType}`] || updatedValues?.length ?
-                <PreviewImage
-                    formik={formik}
-                    deletedImage={deletedImage}
-                    setDeletedImage={setDeletedImage}
-                    setDirty={setDirty}
-                    updatedValues={updatedValues}
-                    imageFiles={formik.values[`${imageType}`]}
-                    preview={preview}
-                    setPreview={setPreview}
-                    imageType={imageType}
-                    azurePath={azurePath}
-                    ENV={ENV}
-                    setInitialState={setInitialState}
-                />
-                : null}
+                                                    ...newFiles
+                                                ]);
+                                            } else {
+                                                // Assign new files directly
+                                                formik.setFieldValue(`${imageType}`, newFiles);
+                                            }
+                                            setDirty(true);
+                                        }}
+                                    />
+                                </IconButton>
+                            )
+                        }}
+                        error={formik.touched[`${imageType}`] && Boolean(formik.errors[`${imageType}`])}
+                        helperText={formik.touched[`${imageType}`] && formik.errors[`${imageType}`]}
+                        sx={{ m: 1, outline: "none", width: "13%" }}
+                    />
+                </form>
+            ) : null}
+            {/* {Object.keys(formik.errors) ? (
+                <p>
+                    {formik.touched[`${imageType}`] && formik.errors[`${imageType}`]}
+                </p>
+            ) : null} */}
+            <PreviewImage
+                formik={formik}
+                deletedImage={deletedImage}
+                setDeletedImage={setDeletedImage}
+                setDirty={setDirty}
+                updatedImage={updatedImage}
+                setUpdatedImage={setUpdatedImage}
+                imageFiles={formik.values[`${imageType}`]}
+                preview={preview}
+                setPreview={setPreview}
+                imageType={imageType}
+                ENV={ENV}
+            />
         </Box>
     );
 }
+
+ImagePicker.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    preview: PropTypes.array,
+    setPreview: PropTypes.func,
+    updatedImage: PropTypes.array,
+    setUpdatedImage: PropTypes.func,
+    deletedImage: PropTypes.array,
+    setDeletedImage: PropTypes.func,
+    imageType: PropTypes.string,
+    ENV: PropTypes.object,
+    multiple: PropTypes.bool
+};
 
 export default ImagePicker;

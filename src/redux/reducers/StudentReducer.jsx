@@ -13,6 +13,11 @@ const initialState = {
     loading: true
 };
 
+const allState = {
+    listData: [],
+    loading: true
+};
+
 export const setStudentsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_STUDENTS:
@@ -23,5 +28,18 @@ export const setStudentsReducer = (state = initialState, action) => {
             };
         default:
             return state;
-    };
+    }
+};
+
+export const setAllStudentsReducer = (state = allState, action) => {
+    switch (action.type) {
+        case ActionTypes.SET_ALL_STUDENTS:
+            return {
+                ...state,
+                listData: action.payload.listData,
+                loading: action.payload.loading
+            };
+        default:
+            return state;
+    }
 };

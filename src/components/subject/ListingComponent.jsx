@@ -19,11 +19,13 @@ import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./SubjectConfig";
-import { setSubjects } from "../../redux/actions/SubjectAction";
+import { setListingSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
 import { Utility } from "../utility";
+
+import listBg from "../assets/listBG.jpg";
 
 const pageSizeOptions = [5, 10, 20];
 
@@ -32,10 +34,10 @@ const ListingComponent = () => {
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
     const [oldPagination, setOldPagination] = useState();
+    const selected = useSelector(state => state.menuItems.selected);
+    const { listData, loading } = useSelector(state => state.listingSubjects);
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.allSubjects);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -49,6 +51,7 @@ const ListingComponent = () => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleReload = () => {
@@ -67,7 +70,19 @@ const ListingComponent = () => {
     };
 
     return (
-        <Box m="10px" position="relative">
+        <Box position="relative"
+            sx={{
+                borderRadius: "20px",
+                border: "0.5px solid black",
+                overflow: "hidden",
+                boxShadow: "1px 1px 10px black",
+                backgroundImage: theme.palette.mode === "light"
+                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+                backgroundSize: "cover"
+            }}>
             <Box
                 height={isMobile ? "19vh" : isTab ? "8vh" : "11vh"}
                 borderRadius="4px"
@@ -80,7 +95,6 @@ const ListingComponent = () => {
                     flexDirection={isMobile ? "column" : "row"}
                     justifyContent={"space-between"}
                     alignItems={isMobile ? "center" : "normal"}
-
                 >
                     <Typography
                         component="h2"
@@ -91,7 +105,7 @@ const ListingComponent = () => {
                         {selected}
                     </Typography>
                     <Search
-                        action={setSubjects}
+                        action={setListingSubjects}
                         api={API.SubjectAPI}
                         getSearchData={getPaginatedData}
                         oldPagination={oldPagination}
@@ -131,7 +145,7 @@ const ListingComponent = () => {
                 Back
             </Button>
             <ServerPaginationGrid
-                action={setSubjects}
+                action={setListingSubjects}
                 api={API.SubjectAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns(handleDialogOpen)}

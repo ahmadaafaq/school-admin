@@ -7,12 +7,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "predeploy" : "npm run build",
-    "deploy" : "gh-pages -d dist",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@alptugidin/react-circular-progress-bar": "^1.1.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.0",
@@ -20,6 +21,7 @@
     "@mui/x-data-grid": "^6.18.4",
     "@mui/x-data-grid-generator": "^6.18.4",
     "@mui/x-date-pickers": "^6.18.5",
+    "@mui/x-date-pickers-pro": "^6.19.5",
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
@@ -33,8 +35,10 @@
     "react-pro-sidebar": "^0.7.1",
     "react-redux": "^9.0.4",
     "react-router-dom": "^6.21.0",
+    "react-to-pdf": "^1.0.1",
     "redux": "^5.0.0",
     "redux-thunk": "^3.1.0",
+    "xlsx": "^0.18.5",
     "yup": "^1.3.2"
   },
   "devDependencies": {
@@ -46,6 +50,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "gh-pages": "^6.1.1",
+    "prop-types": "^15.8.1",
     "vite": "^5.0.8"
   },
   "optionalDependencies": {

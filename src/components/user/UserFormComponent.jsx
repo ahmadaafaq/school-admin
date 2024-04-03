@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,19 +8,22 @@
 */
 
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-
-import { Box, InputLabel, MenuItem, InputAdornment, IconButton, FormControl } from "@mui/material";
-import { Button, Select, TextField, useMediaQuery } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
 
 import { useFormik } from "formik";
+import { Box, InputLabel, MenuItem, InputAdornment, IconButton, FormControl, FormHelperText } from "@mui/material";
+import { Button, Select, TextField, useMediaQuery } from "@mui/material";
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
 import API from "../../apis";
 import userValidation from "./Validation";
-import { setSchools } from "../../redux/actions/SchoolAction";
-import { useCommon } from "../hooks/common";
+
+import { setAllSchools } from "../../redux/actions/SchoolAction";
+import { Utility } from "../utility";
+
+import config from '../config';
 
 const initialValues = {
     school_id: '',
@@ -49,14 +53,15 @@ const UserFormComponent = ({
         password: null
     });
     const [initialState, setInitialState] = useState(initialValues);
-    const [schoolId, setSchoolId] = useState(null);
+    const [_schoolId, setSchoolId] = useState(null);
     const [allRoles, setAllRoles] = useState([]);
-    const schoolsInRedux = useSelector(state => state.allSchools);
+    const allSchools = useSelector(state => state.allSchools);
 
+    const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
     const pwField = document.getElementById("pwField");
-    const { getPaginatedData } = useCommon();
+    const { fetchAndSetAll } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -82,7 +87,7 @@ const UserFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -110,10 +115,11 @@ const UserFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (!schoolsInRedux?.listData?.rows?.length) {
-            getPaginatedData(0, 50, setSchools, API.SchoolAPI);
+        // this will only fetch schools for admin
+        if (!allSchools?.listData?.length && rolePriority === 1) {
+            fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
         }
-    }, [schoolsInRedux]);
+    }, [allSchools?.listData]);
 
     useEffect(() => {
         const getRoles = () => {
@@ -149,7 +155,7 @@ const UserFormComponent = ({
                 clicked: true
             });
             formik.values.password = updatePassword.password;
-        };
+        }
     };
 
     return (
@@ -179,13 +185,12 @@ const UserFormComponent = ({
                         type="text"
                         name="username"
                         label="Username*"
-                        autoComplete="new-username"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.username}
                         error={!!formik.touched.username && !!formik.errors.username}
                         helperText={formik.touched.username && formik.errors.username}
-                        sx={{ gridColumn: "span 2", marginBottom: "20px" }}
+                        sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
                         fullWidth
@@ -194,7 +199,6 @@ const UserFormComponent = ({
                         label="Password*"
                         name="password"
                         type={showPassword ? "text" : "password"} // <-- This is where the pw toggle happens
-                        autoComplete="new-password"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.password}
@@ -222,7 +226,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Email"
                         name="email"
-                        autoComplete="new-email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.email}
@@ -236,7 +239,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Contact Number*"
                         name="contact_no"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.contact_no}
@@ -249,7 +251,6 @@ const UserFormComponent = ({
                         type="text"
                         label="Designation"
                         name="designation"
-                        autoComplete="new-contact"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.designation}
@@ -259,22 +260,23 @@ const UserFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.gender && !!formik.errors.gender}
                     >
-                        <InputLabel id="genderField">Gender</InputLabel>
+                        <InputLabel>Gender</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="genderField"
-                            label="Gender"
                             name="gender"
-                            autoComplete="new-gender"
                             value={formik.values.gender}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"male"}>Male</MenuItem>
-                            <MenuItem value={"female"}>Female</MenuItem>
-                            <MenuItem value={"other"}>Other</MenuItem>
+                            {Object.keys(config.gender).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.gender[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
+                        <FormHelperText>{formik.touched.gender && formik.errors.gender}</FormHelperText>
                     </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+
+                    {allSchools?.listData?.length ? <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.school_id && !!formik.errors.school_id}
                     >
                         <InputLabel id="schoolField">School</InputLabel>
@@ -283,7 +285,6 @@ const UserFormComponent = ({
                             labelId="schoolField"
                             label="School"
                             name="school_id"
-                            autoComplete="new-school_id"
                             value={formik.values.school_id}
                             onChange={event => {
                                 const selectedSchoolId = event.target.value;
@@ -291,13 +292,15 @@ const UserFormComponent = ({
                                 formik.setFieldValue("school_id", selectedSchoolId);
                             }}
                         >
-                            {schoolsInRedux?.listData?.rows?.length && schoolsInRedux.listData.rows.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
+                            {allSchools.listData.map(item => (
+                                <MenuItem value={item.id} name={item.name} key={item.id}>
                                     {item.name}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
+                        : null}
+
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.role && !!formik.errors.role}
                     >
@@ -307,40 +310,54 @@ const UserFormComponent = ({
                             labelId="roleField"
                             label="role"
                             name="role"
-                            autoComplete="new-role"
                             value={formik.values.role}
                             onChange={formik.handleChange}
                         >
-                            {allRoles.length && allRoles
-                                .filter(role => role.id > rolePriority)
-                                .map(role => (
-                                    <MenuItem value={role.id} name={role.name} key={role.name}>
-                                        {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
-                                    </MenuItem>
-                                ))}
+                            {rolePriority === 2 && !allRoles.length ? null :
+                                allRoles
+                                    .filter(role => role.id > rolePriority && role.id < 4)
+                                    .map(role => (
+                                        <MenuItem value={role.id} name={role.name} key={role.name}>
+                                            {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                                        </MenuItem>
+                                    ))}
                         </Select>
                     </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
-                        <InputLabel id="statusField">Status</InputLabel>
+                        <InputLabel>Status</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="statusField"
-                            label="Status"
                             name="status"
-                            autoComplete="new-status"
                             value={formik.values.status}
                             onChange={formik.handleChange}
                         >
-                            <MenuItem value={"active"}>Active</MenuItem>
-                            <MenuItem value={"inactive"}>Inactive</MenuItem>
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
                         </Select>
+                        <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
                 </Box>
             </form>
         </Box>
     );
-}
+};
+
+UserFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    userId: PropTypes.number,
+    rolePriority: PropTypes.number,
+    updatedValues: PropTypes.object
+};
 
 export default UserFormComponent;

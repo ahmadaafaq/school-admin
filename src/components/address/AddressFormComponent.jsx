@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -7,6 +8,7 @@
 */
 
 import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
 
 import { useFormik } from "formik";
 import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextField, useMediaQuery } from "@mui/material";
@@ -15,11 +17,12 @@ import './index.css';
 import API from "../../apis";
 import addressValidation from "./Validation";
 
+const countryId = import.meta.env.VITE_DEFAULT_COUNTRY_ID;
 const initialValues = {
     street: "",
     landmark: "",
     zipcode: "",
-    country: 0,
+    country: countryId,
     state: 0,
     city: 0
 };
@@ -37,12 +40,10 @@ const AddressFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    const [countries, setCountries] = useState([]);
-    const [countryId, setCountryId] = useState(null);
     const [states, setStates] = useState([]);
     const [stateId, setStateId] = useState(null);
     const [cities, setCities] = useState([]);
-    const [cityId, setCityId] = useState(null);
+    const [_cityId, setCityId] = useState(null);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
@@ -50,7 +51,7 @@ const AddressFormComponent = ({
         initialValues: initialState,
         validationSchema: addressValidation,
         enableReinitialize: true,
-        onSubmit: () => watchForm(),
+        onSubmit: () => watchForm()
     });
 
     React.useImperativeHandle(refId, () => ({
@@ -67,7 +68,7 @@ const AddressFormComponent = ({
                     ? Object.keys(formik.errors).length === 0
                     : false
             });
-        };
+        }
     };
 
     useEffect(() => {
@@ -89,31 +90,22 @@ const AddressFormComponent = ({
         }
     }, [updatedValues]);
 
-    useEffect(() => {
-        if (iCardDetails) {
-            setICardDetails({
-                ...iCardDetails,
-                ...formik.values
-            });
-        }
-    }, [formik.values]);
-
-    useEffect(() => {
-        const getCountry = () => {
-            API.CountryAPI.getCountries()
-                .then(country => {
-                    if (country?.status === 'Success') {
-                        setCountries(country.data.list);
-                    } else {
-                        console.log("An Error Occurred, Please Try Again");
-                    }
-                })
-                .catch(err => {
-                    throw err;
-                });
-        };
-        getCountry();
-    }, []);
+    // useEffect(() => {        not required now, because this web app is only for india
+    //     const getCountry = () => {
+    //         API.CountryAPI.getCountries()
+    //             .then(country => {
+    //                 if (country?.status === 'Success') {
+    //                     setCountries(country.data.list);
+    //                 } else {
+    //                     console.log("An Error Occurred, Please Try Again");
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 throw err;
+    //             });
+    //     };
+    //     getCountry();
+    // }, []);
 
     useEffect(() => {
         const getStates = () => {
@@ -131,12 +123,12 @@ const AddressFormComponent = ({
                             setCities([]);
                             formik.setFieldValue("state", 0);
                             formik.setFieldValue("city", 0);
-                        };
+                        }
                     })
                     .catch(err => {
                         throw err;
                     });
-            };
+            }
         }
         getStates();
     }, [formik.values.country, countryId]);
@@ -155,14 +147,53 @@ const AddressFormComponent = ({
                 } else {
                     setCities([]);
                     formik.setFieldValue("city", 0);
-                };
+                }
             })
             .catch(err => {
                 setCities([]);
                 formik.setFieldValue("city", 0);
-                throw err;
+                console.log('Error getting cities', err);
             });
     }, [formik.values.state, stateId]);
+
+    // useEffect(() => {
+    //     if (formik.values.country) {
+    //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
+    //         console.log(selectedObj, 'db country');
+    //         if (iCardDetails) {
+    //             setICardDetails({
+    //                 ...iCardDetails,
+    //                 studentCountry: selectedObj[0]?.name
+    //             });
+    //         }
+    //     }
+    // }, [formik.values?.country]);
+
+    useEffect(() => {
+        if (formik.values.state) {
+            const selectedObj = states.filter(obj => obj.id === formik.values.state) || [];
+            console.log(selectedObj, 'db state');
+            if (iCardDetails) {
+                setICardDetails({
+                    ...iCardDetails,
+                    studentState: selectedObj[0]?.name
+                });
+            }
+        }
+    }, [formik.values?.state]);
+
+    useEffect(() => {
+        if (formik.values.city) {
+            const selectedObj = cities.filter(obj => obj.id === formik.values.city) || [];
+            console.log(selectedObj, 'db city');
+            if (iCardDetails) {
+                setICardDetails({
+                    ...iCardDetails,
+                    studentCity: selectedObj[0]?.name
+                });
+            }
+        }
+    }, [formik.values?.city]);
 
     return (
         <Box m="20px" marginBottom="60px">
@@ -176,7 +207,7 @@ const AddressFormComponent = ({
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
                         transform: 'translate(0)',
-                        transformStyle: 'preserve-3d',
+                        transformStyle: 'preserve-3d'
                     }}
                 >
                     <TextField
@@ -219,44 +250,18 @@ const AddressFormComponent = ({
                         value={formik.values.zipcode}
                         error={!!formik.touched.zipcode && !!formik.errors.zipcode}
                         helperText={formik.touched.zipcode && formik.errors.zipcode}
-                        sx={{ gridColumn: "span 1" }}
                     />
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.country && !!formik.errors.country}
-                    >
-                        <InputLabel id="countryField">--Select Country*--</InputLabel>
-                        <Select
-                            autoComplete="new-country"
-                            name="country"
-                            variant="filled"
-                            value={formik.values.country}
-                            onChange={event => {
-                                const getCountryId = event.target.value;
-                                setCountryId(getCountryId);
-                                formik.setFieldValue("country", event.target.value);
-                            }}
-                        >
-                            {countries.map(item => (
-                                <MenuItem value={item.id} name={item.name} key={item.name}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.country && formik.errors.country}</FormHelperText>
-                    </FormControl>
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.state && !!formik.errors.state}
                     >
                         <InputLabel id="stateField">--Select State*--</InputLabel>
                         <Select
-                            autoComplete="new-state"
-                            defaultValue={null}
+                            id="state"
                             name="state"
                             variant="filled"
                             value={formik.values.state}
                             onChange={event => {
-                                const getStateId = event.target.value;
-                                setStateId(getStateId);
+                                setStateId(event.target.value);
                                 formik.setFieldValue("state", event.target.value);
                             }}
                         >
@@ -273,14 +278,12 @@ const AddressFormComponent = ({
                     >
                         <InputLabel id="cityField">--Select City*--</InputLabel>
                         <Select
-                            autoComplete="new-city"
-                            defaultValue=""
+                            id="city"
                             name="city"
                             variant="filled"
                             value={formik.values.city}
                             onChange={event => {
-                                const getCityId = event.target.value;
-                                setCityId(getCityId);
+                                setCityId(event.target.value);
                                 formik.setFieldValue("city", event.target.value);
                             }}
                         >
@@ -296,6 +299,20 @@ const AddressFormComponent = ({
             </form>
         </Box>
     );
+};
+
+AddressFormComponent.propTypes = {
+    onChange: PropTypes.func,
+    refId: PropTypes.shape({
+        current: PropTypes.any
+    }),
+    update: PropTypes.bool,
+    setDirty: PropTypes.func,
+    reset: PropTypes.bool,
+    setReset: PropTypes.func,
+    updatedValues: PropTypes.object,
+    iCardDetails: PropTypes.object,
+    setICardDetails: PropTypes.func
 };
 
 export default AddressFormComponent;
