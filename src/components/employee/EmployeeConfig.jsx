@@ -42,7 +42,8 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            renderCell: (params) => params.value || 'N/A' ,
         },
         {
             field: "contact_no",
