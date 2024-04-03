@@ -28,12 +28,12 @@ export const datagridColumns = () => {
 
     const columns = [
         {
-            field: "affiliation_no",
-            headerName: "Affiliation Number",
+            field: "city",
+            headerName: "City",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 120,   
         },
         {
             field: "name",
