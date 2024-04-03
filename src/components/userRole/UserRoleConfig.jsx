@@ -27,7 +27,7 @@ export const datagridColumns = (handleDialogOpen) => {
     const columns = [
         {
             field: "name",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -52,7 +52,7 @@ export const datagridColumns = (handleDialogOpen) => {
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -83,7 +83,7 @@ export const datagridColumns = (handleDialogOpen) => {
         },
         {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

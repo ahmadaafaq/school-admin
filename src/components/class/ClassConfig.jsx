@@ -27,7 +27,7 @@ export const datagridColumns = (handleDialogOpen) => {
     const columns = [
         {
             field: "class_name",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
