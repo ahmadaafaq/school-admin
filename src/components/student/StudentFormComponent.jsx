@@ -73,18 +73,16 @@ const initialValues = {
 };
 
 const StudentFormComponent = ({
-  onChange,
-  refId,
-  setDirty,
-  reset,
-  setReset,
-  classData,
-  setClassData,
-  allSubjects,
-  userId,
-  iCardDetails,
-  setICardDetails,
-  updatedValues = null,
+    onChange,
+    refId,
+    setDirty,
+    reset,
+    setReset,
+    classData,
+    setClassData,
+    allSubjects,
+    userId,
+    updatedValues = null
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const schoolClasses = useSelector((state) => state.schoolClasses);
