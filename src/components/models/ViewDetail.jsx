@@ -75,9 +75,6 @@ const ViewDetail = ({ detail = null, countryData, stateData, cityData, onClose =
                     <span className='heading-text1'>Class:</span>
                     <span className='normal-text1'>{className ? appendSuffix(className) : ""} {sectionName}</span>
 
-                    <span className='heading-text1'>Age:</span>
-                    <span className='normal-text1'>{detail?.studentData?.age}</span>
-
                     <span className='heading-text1'>DOB:</span>
                     <span className='normal-text1'>{detail?.studentData?.dob}</span>
 
