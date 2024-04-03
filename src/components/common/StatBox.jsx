@@ -14,7 +14,6 @@ import ProgressCircle from "./ProgressCircle";
 const StatBox = ({ title, subtitle, icon, progress, increase, role }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
-  console.log(role,'sdfg')
 
   const textShadowColor = theme.palette.mode == "light" ? "white" : "black";
 

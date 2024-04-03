@@ -39,7 +39,6 @@ const Dashboard = ({ rolePriority = null }) => {
   const { typography } = themeSettings(theme.palette.mode);
   const dashboardAttributes = rolePriority === 1 ? ['student', 'school', 'teacher', 'employee']
     : rolePriority !== 1 ? ['student', 'bus', 'teacher', 'employee'] : null;
-    console.log(rolePriority, 'wwww')
 
   const options1 = {
     chart: {
