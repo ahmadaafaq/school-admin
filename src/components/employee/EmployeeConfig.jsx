@@ -83,7 +83,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -114,7 +114,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         rolePriority !== 1 && {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,
