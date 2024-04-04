@@ -44,7 +44,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase, role }) => {
         >
           {subtitle.charAt(0).toUpperCase() + subtitle.slice(1)}
         </Typography>
-        <Typography
+       {role !== 1 && <Typography
           variant={isMobile ? "h6" : "h5"}
           fontStyle="italic"
           fontWeight="900"
@@ -53,7 +53,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase, role }) => {
           }}
         >
           {increase}
-        </Typography>
+        </Typography>}
       </Box>
     </Box>
   );
