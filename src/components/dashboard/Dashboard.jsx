@@ -266,6 +266,7 @@ const Dashboard = ({ rolePriority = null }) => {
             progress={`${dashboardCount.student / 5000}`}
             increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
             icon={<Groups3Icon sx={{ fontSize: isMobile ? "10px" : "26px" }} />}
+            role={rolePriority}
           />
         </Box>
 
@@ -303,6 +304,7 @@ const Dashboard = ({ rolePriority = null }) => {
                   sx={{ fontSize: isMobile ? "10px" : "26px" }}
                 />
               }
+              role={rolePriority}
             />
           </Box>
         ) : rolePriority !== 1 ? (
@@ -338,6 +340,7 @@ const Dashboard = ({ rolePriority = null }) => {
                   sx={{ fontSize: isMobile ? "10px" : "26px" }}
                 />
               }
+              role={rolePriority}
             />
           </Box>
         ) : null}
@@ -371,6 +374,7 @@ const Dashboard = ({ rolePriority = null }) => {
             icon={
               <Diversity3Icon sx={{ fontSize: isMobile ? "10px" : "26px" }} />
             }
+            role={rolePriority}
           />
         </Box>
         <Box
@@ -407,6 +411,7 @@ const Dashboard = ({ rolePriority = null }) => {
                 sx={{ fontSize: isMobile ? "10px" : "26px" }}
               />
             }
+            role={rolePriority}
           />
         </Box>
 
