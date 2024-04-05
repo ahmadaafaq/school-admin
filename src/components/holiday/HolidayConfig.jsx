@@ -38,7 +38,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "startDate",
-            headerName: "From",
+            headerName: "Closing Date",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -46,7 +46,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "endDate",
-            headerName: "To",
+            headerName: "Opening Date",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -74,7 +74,7 @@ export const datagridColumns = (rolePriority = null) => {
                 return (
                   
                     <Box
-                        width="60%"
+                        width="70%"
                         m="0 auto"
                         p="5px"
                         display="flex"
@@ -99,7 +99,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         rolePriority !== 1 && {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

@@ -160,7 +160,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
 
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', columnGap: '10px', rowGap: '5px' }}>
                             <span className='heading-text'> Father&apos;s Name: </span>
-                            <span className='normal-text'> {iCardDetails.father_name ? iCardDetails.father_name : iCardDetails.guardian} </span>
+                            <span className='normal-text'> {iCardDetails?.father_name?.charAt(0)?.toUpperCase() + iCardDetails?.father_name?.slice(1) ? iCardDetails?.father_name?.charAt(0)?.toUpperCase() + iCardDetails?.father_name?.slice(1) : iCardDetails?.gaurdian?.charAt(0)?.toUpperCase() + iCardDetails?.gaurdian?.slice(1)} </span>
 
                             <span className='heading-text'>Class:</span>
                             <span className='normal-text'>{className ? `${appendSuffix(className)} ${sectionName}` : ''}</span>

@@ -70,7 +70,6 @@ const PreviewImage = ({
     useEffect(() => {
         // On new image selection through picker
         if (imageFiles) {
-
             const pickerFiles = [];
             const dbImgFiles = [];
 
@@ -124,15 +123,13 @@ const PreviewImage = ({
                 updatedImage.splice(item.index, 1);
                 setUpdatedImage(updatedImage); // update picker image files
             }
-
             setDirty(true);     //to enable the submit button
         }
-
         // On form update
         if (updatedImage) {
             setDeletedImage([
                 ...deletedImage,
-                updatedImage[previewIndex]?.image_src,
+                updatedImage[previewIndex]?.image_src
             ]);
         }
     };
@@ -182,8 +179,7 @@ const PreviewImage = ({
             )) : <Loader />}
         </ImageList>
     );
-}
-
+};
 
 PreviewImage.propTypes = {
     formik: PropTypes.shape({
@@ -192,7 +188,7 @@ PreviewImage.propTypes = {
     setDirty: PropTypes.func,
     preview: PropTypes.array,
     setPreview: PropTypes.func,
-    imageFiles: PropTypes.object,
+    imageFiles: PropTypes.array,
     updatedImage: PropTypes.array,
     setUpdatedImage: PropTypes.func,
     deletedImage: PropTypes.array,

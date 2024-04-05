@@ -48,6 +48,11 @@ const config = {
         'regular':'Regular',
         'midsession':'Mid-Session'
     },
+    grade:{
+        'primary_teacher':'Primary Teacher',
+        'trained_graduate_teacher':'Trained Graduate Teacher',
+        'post_graduate_teacher':'Post Graduate Teacher'
+    },
     payment_status:{
         'pending':'Pending',
         'partial':'Partial',

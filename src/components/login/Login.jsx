@@ -31,9 +31,10 @@ import SignInLoader from "../common/SignInLoader"
 import { themeSettings } from "../../theme"
 import { Utility } from "../utility"
 
-import bgImg from "../assets/school_children.jpeg"
+import bgImg from "../assets/newbg12.jpeg";
 import bg from "../assets/school_stuff.png"
 import "../../index.css"
+
 
 const initialValues = {
   school_code: "",
@@ -67,7 +68,7 @@ const Login = () => {
 
   const boxstyle = {
     position: "absolute",
-    top: isMobile ? "49%" : "45%",
+    top: isMobile ? "49%" : "48%",
     right: isMobile ? "-25%" : "-8%",
     boxShadow: 24,
     borderRadius: 6,
@@ -154,6 +155,7 @@ const Login = () => {
         backgroundImage: `url(${bgImg})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
         height: "99.9vh",
         width: "100vw",
         color: "#f5f5f5",
@@ -187,6 +189,7 @@ const Login = () => {
                 height: isMobile ? "38vh" : isTab ? "27vh" : "49vh",
                 backgroundColor: "#3b33d5",
                 borderRadius: 26,
+                backgroundAttachment: "fixed",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
