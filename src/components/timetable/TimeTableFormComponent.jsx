@@ -82,11 +82,12 @@ const TimeTableFormComponent = ({
         }
     };
 
-    const openingTime = new Date(schoolId?.[0]?.opening_time).toLocaleString('en-US', {
+    const openingTime = new Date(schoolId?.opening_time ? schoolId?.opening_time : schoolId?.eve_opening_time).toLocaleString('en-US', {
         hour: 'numeric',
         minute: 'numeric',
         hour12: true,
     });
+    console.log("schoolId",schoolId);
 
     function convertToAMPM(timeString) {
         const [hours, minutes] = timeString.split(':');
@@ -112,7 +113,6 @@ const TimeTableFormComponent = ({
         return new Intl.DateTimeFormat('en-US', options).format(date);
     }
 
-
     const schoolPeriodDuration = (hours = 0, minutes = 0, condition, half_duration) => {
         const timeslots = [];
         const startTime = new Date();
@@ -127,7 +127,7 @@ const TimeTableFormComponent = ({
         return timeslots;
     };
 
-    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 2).replace(':', '').padStart(2, '0'), openingTime.slice(2, 5).replace(':', ''), schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.first_half_period_duration);
+    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 2).replace(':', '').padStart(2, '0'), openingTime.slice(2, 5).replace(':', ''), schoolId?.period / schoolId?.halves, schoolId?.first_half_period_duration);
     let secondHalfDuration = [];
     let totalDuration = [];
 
@@ -136,15 +136,13 @@ const TimeTableFormComponent = ({
         let secondOpeningTimeHr = openingTimes.split('-').splice(1).join('').slice(0, 2).replace(':', '').padStart(2, '0');
         let secondOpeningTimeMi = openingTimes.split('-').splice(1).join('').slice(2, 5).replace(':', '');
 
-        let secondMinTotal = parseInt(secondOpeningTimeMi, 10) + parseInt(schoolId?.[0]?.recess_time, 10);
-        secondHalfDuration = schoolPeriodDuration(secondOpeningTimeHr, secondMinTotal, schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.second_half_period_duration);
+        let secondMinTotal = parseInt(secondOpeningTimeMi, 10) + parseInt(schoolId?.recess_time, 10);
+        secondHalfDuration = schoolPeriodDuration(secondOpeningTimeHr, secondMinTotal, schoolId?.period / schoolId?.halves, schoolId?.second_half_period_duration);
         if (secondHalfDuration.length) {
             totalDuration = [...firstHalfDuration, ...secondHalfDuration];
         }
-        console.log("yuguy",secondOpeningTimeHr)
     }
    
-
     useEffect(() => {
         if (formik.values.class && classData?.length) {
             const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
@@ -204,13 +202,19 @@ const TimeTableFormComponent = ({
                 .then(result => {
                     if (result.status === 'Success') {
                         const schoolObj = schoolDuration?.listData?.rows?.filter(obj => `${obj.school_id}` === result.data);
-                        setSchoolId(schoolObj);
+                        if(formik.values.batches == "senior" || formik.values.batches == "both"){
+                            setSchoolId(schoolObj[0]);
+                        }else {
+                            setSchoolId(schoolObj[1]);
+                        }
+                        console.log("schoolObj",schoolObj)
+                        
                     } else if (result.status === 'Error') {
                         console.log('Error Decrypting Data');
                     }
                 });
         }
-    }, [schoolDuration?.listData?.rows?.length]);
+    }, [schoolDuration?.listData?.rows?.length,formik.values.batches]);
 
     useEffect(() => {
         if (totalDuration?.length && !formik?.values?.duration?.length) {
@@ -219,11 +223,13 @@ const TimeTableFormComponent = ({
     }, [totalDuration]);
 
     useEffect(() => {
-        if (schoolId?.[0]?.period) {
-            const totalPeriodArray = Array.from({ length: schoolId[0].period }, (_, index) => index + 1);
+        if (schoolId?.period) {
+            const totalPeriodArray = Array.from({ length: schoolId.period }, (_, index) => index + 1);
             formik.setFieldValue('period', totalPeriodArray);
         }
     }, [schoolId]);
+
+    console.log("formuk",formik.values)
 
     return (
         <Box m="20px">
@@ -231,7 +237,7 @@ const TimeTableFormComponent = ({
                 <Box
                     display="grid"
                     gap="30px"
-                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginBottom: "50px"
                     }}
@@ -310,11 +316,30 @@ const TimeTableFormComponent = ({
                         <FormHelperText>{formik.touched.day && formik.errors.day}</FormHelperText>
                     </FormControl>
 
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.batches && !!formik.errors.batches}
+                    >
+                        <InputLabel>Batches</InputLabel>
+                        <Select
+                            name="batches"
+                            value={formik.values.batches || ''}
+                            onChange={event => formik.setFieldValue("batches", event.target.value)}
+                        >
+                            {!schoolDuration?.listData?.rows ? null :
+                                schoolDuration?.listData?.rows?.map(item => (
+                                    <MenuItem value={item.batch} name={`${item.batch}`} key={item.id}>
+                                        {`${item.batch}`}
+                                    </MenuItem>
+                                ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.batches && formik.errors.batches}</FormHelperText>
+                    </FormControl>
+
                 </Box>
 
-                {schoolId?.[0]?.period > 0 && (
+                {schoolId?.period > 0 && (
                     <>
-                        {[...Array((schoolId[0].period) / 2)].map((_, index) => {
+                        {[...Array((schoolId?.period) / 2)].map((_, index) => {
                             let key = index + 1;
                             return (
                                 <Box key={index} style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', margin: '0px 100px 20px 100px ', justifyItems: "center", alignItems: "center" }}>
@@ -350,14 +375,14 @@ const TimeTableFormComponent = ({
                     </>
                 )}
                 <Divider sx={{ width: '99%', marginBottom: "20px" }}>
-                    <Chip color='info' label={`Recess Time ${schoolId?.[0]?.recess_time} min`}
+                    <Chip color='info' label={`Recess Time ${schoolId?.recess_time} min`}
                         sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
                     />
                 </Divider>
-                {(schoolId?.[0]?.period) / 2 > 0 && (
+                    {(schoolId?.period) / 2 > 0 && (
                     <>
-                        {[...Array((schoolId[0].period) / 2)].map((_, index) => {
-                            let condition = (schoolId?.[0]?.period) / 2 + 1;
+                        {[...Array((schoolId?.period) / 2)].map((_, index) => {
+                            let condition = (schoolId?.period) / 2 + 1;
 
                             return (
                                 <Box key={index} sx={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', margin: '0px 100px 20px 100px ', justifyItems: "center", alignItems: "center" }}>

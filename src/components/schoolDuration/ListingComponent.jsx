@@ -107,7 +107,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    {(rolePriority > 1 && !listData.rows) && (
+                    {rolePriority > 1 && (
                         <Button
                             type="submit"
                             color="success"
