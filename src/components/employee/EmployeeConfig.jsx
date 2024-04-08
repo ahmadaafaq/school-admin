@@ -42,7 +42,8 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            renderCell: (params) => params.value || 'N/A' ,
         },
         {
             field: "contact_no",
@@ -82,7 +83,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -113,7 +114,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         rolePriority !== 1 && {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

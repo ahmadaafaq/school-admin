@@ -3,7 +3,7 @@
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
  * This software is the confidential information of School CRM Inc., and is licensed as
- * restricted rights software. The use,reproduction, or disclosure of this software is subject to
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
  */
 
@@ -16,11 +16,11 @@ import dayjs from "dayjs";
 
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
-import ImagePicker from "../image/ImagePicker";
 import ICardModal from "../models/ICardModal";
+import ImagePicker from "../image/ImagePicker";
 import Loader from "../common/Loader";
-import Toast from "../common/Toast";
 import StudentFormComponent from "./StudentFormComponent";
+import Toast from "../common/Toast";
 
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
@@ -37,7 +37,7 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         studentData: { values: null, validated: false },
         addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true },
+        imageData: { values: null, validated: false },
         parentImageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
@@ -78,6 +78,7 @@ const FormComponent = () => {
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
     const showIdCard = !id || (id && !updatedValues?.studentData?.id_card);
+    const formValidated = formData.studentData.validated && formData.addressData.validated && formData.imageData.validated;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -118,7 +119,7 @@ const FormComponent = () => {
             parent: "student",
             parent_id: id
         });
-        console.log(`Deleted all images of id ${id} from db`)
+        console.log(`Deleted all images of id ${id} from db`);
 
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
@@ -136,7 +137,7 @@ const FormComponent = () => {
                                     parent_id: formData.studentData.values.id,
                                     parent: 'student',
                                     type: 'normal'
-                                })
+                                });
                             });
                             status = true;
                         }
@@ -149,7 +150,7 @@ const FormComponent = () => {
                                     parent_id: image.parent_id,
                                     parent: image.parent,
                                     type: image.type
-                                })
+                                });
                             });
                             status = true;
                         }
@@ -165,7 +166,7 @@ const FormComponent = () => {
                                     parent_id: formData.studentData.values.id,
                                     parent: 'parent',
                                     type: 'normal'
-                                })
+                                });
                             });
                             console.log("Created new parent image")
                             status = true;
@@ -179,7 +180,7 @@ const FormComponent = () => {
                                     parent_id: image.parent_id,
                                     parent: image.parent,
                                     type: image.type
-                                })
+                                });
                             });
                             console.log("Created old parent image only in db")
                             status = true;
@@ -327,13 +328,26 @@ const FormComponent = () => {
         }
     }, [formSubjectsInRedux?.listData?.length]);
 
+    useEffect(() => {
+        if (formValidated) {
+            setICardDetails({
+                ...iCardDetails,
+                studenData: formData.studentData.values,
+                addressData: formData.addressData.values,
+                Student: formData.imageData.values
+            });
+        }
+    }, [formData.studentData, formData.addressData]);
+
     //Create/Update/Populate student
     useEffect(() => {
         if (id && !submitted && formSubjectsInRedux?.listData) {
             setTitle("Update");
             populateStudentData(id);
         }
-        if (formData.studentData.validated && formData.addressData.validated) {
+        if (formValidated) {
+            console.log('ander aaya');
+            console.log(formData, 'formdata ander wala');
             formData.studentData.values?.id ? updateStudentAndAddress(formData) : createStudent(formData);
         } else {
             setSubmitted(false);
@@ -359,6 +373,8 @@ const FormComponent = () => {
             setFormData({ ...formData, parentImageData: data });
         }
     };
+    console.log(formValidated, 'formValidated');
+    console.log(formData, 'formdata');
 
     return (
         <Box m="10px"
@@ -393,8 +409,6 @@ const FormComponent = () => {
                 setClassData={setClassData}
                 allSubjects={formSubjectsInRedux?.listData}
                 updatedValues={updatedValues?.studentData}
-                iCardDetails={iCardDetails}
-                setICardDetails={setICardDetails}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -422,8 +436,6 @@ const FormComponent = () => {
                 setDeletedImage={setDeletedImage}
                 updatedImage={updatedStudentImage}            //these are updated Values
                 setUpdatedImage={setUpdatedStudentImage}
-                iCardDetails={iCardDetails}
-                setICardDetails={setICardDetails}
                 imageType="Student"
                 ENV={ENV}
             />
@@ -440,8 +452,6 @@ const FormComponent = () => {
                 setDeletedImage={setDeletedParentImage}
                 updatedImage={updatedParentImage}            //these are updated Values
                 setUpdatedImage={setUpdatedParentImage}
-                iCardDetails={iCardDetails}
-                setICardDetails={setICardDetails}
                 imageType="Parent"
                 ENV={ENV}
             />
@@ -450,6 +460,7 @@ const FormComponent = () => {
                 {showIdCard && <>
                     <Button color="info" variant="contained" sx={{ mr: 30 }}
                         onClick={() => setOpenDialog(!openDialog)}
+                        disabled={!formValidated || !previewStudent?.length}
                     >
                         Generate ICard
                     </Button>
