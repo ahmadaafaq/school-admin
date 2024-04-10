@@ -16,7 +16,7 @@ import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRen
 
 import { tokens } from "../../theme";
 
-export const datagridColumns = (setOpen = null) => {
+export const datagridColumns = () => {
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);

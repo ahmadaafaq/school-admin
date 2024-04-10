@@ -10,31 +10,42 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-import { Box, Button, Typography, useTheme } from '@mui/material';
-import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
+import { Box, Button, Typography, useTheme } from "@mui/material";
+import DriveFileRenameOutlineOutlinedIcon from "@mui/icons-material/DriveFileRenameOutlineOutlined";
 
 import { tokens } from "../../theme";
 
 export const datagridColumns = () => {
-    const theme = useTheme();
-    const colors = tokens(theme.palette.mode);
-    const selected = useSelector(state => state.menuItems.selected);
-    const navigateTo = useNavigate();
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  const selected = useSelector((state) => state.menuItems.selected);
+  const navigateTo = useNavigate();
 
-    const handleActionEdit = (id) => {
-        navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
-    };
+  const handleActionEdit = (id) => {
+    navigateTo(`/${selected.toLowerCase()}/update/${id}`, {
+      state: { id: id },
+    });
+  };
 
-    const columns = [
+  const columns = [
+    {
+      field: "username",
+      headerName: "Username",
+      headerAlign: "center",
+      align: "center",
+      flex: 1,
+      minWidth: 120,
+      valueGetter: (params) =>
+        params.row.username.charAt(0).toUpperCase() +
+          params.row.username.slice(1) || "",
+    },
         {
-            field: "username",
-            headerName: "Username",
+            field: "role",
+            headerName: "Role",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
-            valueGetter: (params) => params.row.username.charAt(0).toUpperCase() + params.row.username.slice(1) || ''
-
+            minWidth: 100
         },
         {
             field: "contact_no",
@@ -59,11 +70,34 @@ export const datagridColumns = () => {
             align: "center",
             flex: 1,
             minWidth: 100,
-            valueFormatter: params => params?.value.substring(0, 10)
+            valueFormatter: (params) => {
+        const date = new Date(params.value);
+
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+
+        const formattedDate = `${date.getDate()}-${
+          monthNames[date.getMonth()]
+        }-${date.getFullYear()}`;
+
+        return formattedDate;
+}
         },
         {
             field: "status",
-            headerName: "Status",
+            headerName: "STATUS",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -94,7 +128,7 @@ export const datagridColumns = () => {
         },
         {
             field: "action",
-            headerName: "Action",
+            headerName: "ACTION",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -117,5 +151,5 @@ export const datagridColumns = () => {
             },
         }
     ];
-    return columns;
+    return columns    
 };
