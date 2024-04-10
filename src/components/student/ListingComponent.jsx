@@ -22,7 +22,7 @@ import {
 import ReplayIcon from "@mui/icons-material/Replay";
 
 import API from "../../apis";
-import BasicModal from "../models/CustomModal";
+import BasicModal from "./CustomModal";
 import classNames from "../modules";
 import Search from "../common/Search";
 import ServerPaginationGrid from "../common/Datagrid";

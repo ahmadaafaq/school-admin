@@ -12,7 +12,7 @@ import PropTypes from "prop-types";
 import { Card, CardContent, CardMedia, Typography, Divider, CardHeader, Avatar, Box, IconButton, useTheme } from '@mui/material';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 
-import './styles.css';
+import '../models/styles.css';
 import { Utility } from '../utility';
 
 import listBg from "../assets/listBG.jpg";

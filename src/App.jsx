@@ -133,17 +133,13 @@ function App() {
 
   useEffect(() => {
     verifyToken().then((result) => {
-      console.log("result", result)
-      console.log("pathname", pathname)
       if (!result && pathname === "reset-password") {
-        console.log("IF set token")
         const token = splittedPath[2]
         setLocalStorage("auth", {
           token: token,
         })
         navigateTo(`/reset-password/${token}`, { replace: true })
       } else if (!result && pathname !== "login") {
-        console.log("ELSE")
         localStorage.clear()
         setLocalStorage("navigatedPath", pathname)
         navigateTo("/login", { replace: true })
@@ -151,7 +147,7 @@ function App() {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  console.log("pathname new=>", pathname)
+  
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>

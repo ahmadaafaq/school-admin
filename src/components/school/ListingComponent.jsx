@@ -16,6 +16,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
+import BasicModal from "../student/CustomModal";
 
 import { datagridColumns } from "./SchoolConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
@@ -29,6 +30,8 @@ import listBg from "../assets/listBG.jpg";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = () => {
+
+    const [openModal, setOpenModal ] = useState(false);
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -140,7 +143,7 @@ const ListingComponent = () => {
                 action={setListingSchools}
                 api={API.SchoolAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns()}
+                columns={datagridColumns( setOpenModal )}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -150,6 +153,7 @@ const ListingComponent = () => {
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
             />
+            <BasicModal open={openModal} setOpen={setOpenModal} />
         </Box>
     );
 };

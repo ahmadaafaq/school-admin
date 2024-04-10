@@ -9,6 +9,19 @@ export const studentData = [
     { month: 'July', students: 1500, newStudents: 2400 },
     { month: 'Aug', students: 1500, newStudents: 2004 },
     { month: 'Sep', students: 1500, newStudents: 2004 },
+    // Add more data points as needed
+  ];
+
+  export const schoolData = [
+    { years: '2001', schools: 1 },
+    { years: '2002', schools: 1 },
+    { years: '2003', schools: 3 },
+    { years: '2004', schools: 1 },
+    { years: '2005', schools: 1 },
+    { years: '2006', schools: 4 },
+    { years: '2007', schools: 1 },
+    { years: '2009', schools: 0 },
+    { years: '2010', schools: 1 },
 
     // Add more data points as needed
   ];

@@ -11,11 +11,12 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
+import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
 
-export const datagridColumns = () => {
+export const datagridColumns = (setOpen = null) => {
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -26,6 +27,13 @@ export const datagridColumns = () => {
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
     };
 
+    const handleActionShow = (id) => {
+        setOpen(true);
+        navigateTo("#", { state: { id: id } });
+        console.log("id>>>", id);
+
+    };
+
     const columns = [
         {
             field: "city",
@@ -33,7 +41,7 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,   
+            minWidth: 120,
         },
         {
             field: "name",
@@ -118,6 +126,13 @@ export const datagridColumns = () => {
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
+                        </Button>
+
+                        <Button color="info" variant="contained"
+                            onClick={() => handleActionShow(id)}
+                            sx={{ minWidth: "50px" }}
+                        >
+                            <PreviewIcon />
                         </Button>
                     </Box>
                 );
