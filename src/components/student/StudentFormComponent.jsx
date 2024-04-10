@@ -73,16 +73,16 @@ const initialValues = {
 };
 
 const StudentFormComponent = ({
-    onChange,
-    refId,
-    setDirty,
-    reset,
-    setReset,
-    classData,
-    setClassData,
-    allSubjects,
-    userId,
-    updatedValues = null
+  onChange,
+  refId,
+  setDirty,
+  reset,
+  setReset,
+  classData,
+  setClassData,
+  allSubjects,
+  userId,
+  updatedValues = null,
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const schoolClasses = useSelector((state) => state.schoolClasses);
@@ -90,6 +90,7 @@ const StudentFormComponent = ({
   const schoolSubjects = useSelector((state) => state.schoolSubjects);
   const toastInfo = useSelector((state) => state.toastInfo);
   const allBuses = useSelector((state) => state.allBuses);
+  const [iCardDetails, setICardDetails] = useState({});
 
   console.log("Bus data", allBuses);
 
@@ -717,7 +718,7 @@ const StudentFormComponent = ({
               {formik.touched.status && formik.errors.status}
             </FormHelperText>
           </FormControl>
-          
+
           <Box
             sx={{
               border: "2px solid #BADFE7",
