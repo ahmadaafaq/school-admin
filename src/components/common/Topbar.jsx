@@ -5,36 +5,56 @@
  * This software is the confidential information of School CRM Inc., and is licensed as
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
-*/
+ */
 
 import { useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import { Avatar, Box, Divider, useTheme, IconButton, Tooltip, MenuItem } from "@mui/material";
-import { Autocomplete, Paper, Menu, ListItemIcon, TextField, Typography, useMediaQuery } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Divider,
+  useTheme,
+  IconButton,
+  Tooltip,
+  MenuItem,
+} from "@mui/material";
+import {
+  Autocomplete,
+  Paper,
+  Menu,
+  ListItemIcon,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import Logout from '@mui/icons-material/Logout';
-import LockResetIcon from '@mui/icons-material/LockReset';
+import Logout from "@mui/icons-material/Logout";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import * as React from "react";
 
 import API from "../../apis";
 import ChangePwModal from "../models/ChangePwModal";
+import "./index.css"
 
 import { setAllSchools } from "../../redux/actions/SchoolAction";
 import { ColorModeContext, tokens } from "../../theme";
 import { Utility } from "../utility";
 import { useNavigate } from "react-router-dom";
+import { red } from "@mui/material/colors";
 
 const Topbar = ({ roleName = null, rolePriority = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [isOpen, setIsOpen] = useState(true);
   const [changePwModalOpen, setChangePwModalOpen] = useState(false);
-  const [schoolName, setSchoolName] = useState('');
+  const [schoolName, setSchoolName] = useState("");
   const [schoolObj, setSchoolObj] = useState({});
-  const allSchools = useSelector(state => state.allSchools);
+  const allSchools = useSelector((state) => state.allSchools);
 
   const dispatch = useDispatch();
   const navigateTo = useNavigate();
@@ -44,13 +64,20 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
 
-  const { fetchAndSetAll, getInitials, getNameAndType, getLocalStorage, remLocalStorage, setLocalStorage } = Utility();
+  const {
+    fetchAndSetAll,
+    getInitials,
+    getNameAndType,
+    getLocalStorage,
+    remLocalStorage,
+    setLocalStorage,
+  } = Utility();
   const { username, role } = getNameAndType(roleName);
   const schoolInfo = getLocalStorage("schoolInfo");
 
   const CustomOption = {
     id: "all-schools",
-    name: "All Schools"
+    name: "All Schools",
   };
 
   const handleClick = (event) => {
@@ -63,7 +90,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
 
   const handleSignOut = () => {
     localStorage.clear();
-    navigateTo('/login', { replace: true });
+    navigateTo("/login", { replace: true });
     location.reload();
   };
 
@@ -76,18 +103,19 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
   //on refresh autocomplete state gets empty so doing this
   useEffect(() => {
     if (schoolInfo?.encrypted_id) {
-      API.CommonAPI.decryptText(schoolInfo)
-        .then(result => {
-          if (result.status === 'Success') {
-            const filteredSchool = allSchools?.listData.find(value => value.id === parseInt(result.data));
-            setSchoolObj({
-              id: filteredSchool?.id,
-              name: filteredSchool?.name
-            });
-          } else if (result.status === 'Error') {
-            console.log('Error Encrypting Data');
-          }
-        });
+      API.CommonAPI.decryptText(schoolInfo).then((result) => {
+        if (result.status === "Success") {
+          const filteredSchool = allSchools?.listData.find(
+            (value) => value.id === parseInt(result.data)
+          );
+          setSchoolObj({
+            id: filteredSchool?.id,
+            name: filteredSchool?.name,
+          });
+        } else if (result.status === "Error") {
+          console.log("Error Encrypting Data");
+        }
+      });
     }
   }, [schoolInfo?.encrypted_id, allSchools?.listData]);
 
@@ -97,13 +125,20 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
     }
   }, []);
 
+  // Close the tooltip after 6 seconds
+  setTimeout(() => {
+    setIsOpen(false);
+  }, 6000);
+
   return (
     <>
       <Box
         display="flex"
         textAlign="center"
         justifyContent="space-between"
-        backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+        backgroundColor={
+          theme.palette.mode === "light" ? `white !important` : "#141b2d"
+        }
         boxShadow="1px 1px 10px black"
         position="sticky"
         top="0px"
@@ -118,75 +153,115 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               fontWeight: "bolder",
               textAlign: "center",
               textShadow: " 2px 8px 10px #aba8a8;",
-              color: theme.palette.mode === 'light' ? `rgb(51 153 254) !important` : 'white',
-              wordSpacing: "5px"
+              color:
+                theme.palette.mode === "light"
+                  ? `rgb(51 153 254) !important`
+                  : "white",
+              wordSpacing: "5px",
             }}
           >
-            {schoolName ? schoolName : ''}
+            {schoolName ? schoolName : ""}
           </Typography>
         </Box>
-        <Box display="flex"
+        <Box
+          display="flex"
           textAlign="center"
-          justifyContent="flex-end" p={2}
-          backgroundColor={theme.palette.mode === 'light' ? `white !important` : '#141b2d'}
+          justifyContent="flex-end"
+          p={2}
+          backgroundColor={
+            theme.palette.mode === "light" ? `white !important` : "#141b2d"
+          }
         >
-
           {rolePriority === 1 && (
-            <Autocomplete
-              options={[CustomOption, ...(allSchools?.listData || [])]}
-              getOptionLabel={option => option.name || ''}
-              disableCloseOnSelect
-              value={schoolObj}
-              onChange={(event, value) => {
-                if (value && value.id === "all-schools") {
-                  remLocalStorage("schoolInfo");
-                  location.reload();
-                }
-                setSchoolObj({
-                  id: value.id,
-                  name: value.name
-                });
-                API.CommonAPI.encryptText({ data: value?.id })
-                  .then(result => {
-                    if (result.status === 'Success') {
-                      setLocalStorage("schoolInfo", result.data);
-                      location.reload();
-                    } else if (result.status === 'Error') {
-                      console.log('Error Encrypting Data');
-                    }
-                  });
+            <Tooltip
+              title="Select School"
+              placement="left-start"
+              open={isOpen}
+              arrow
+              componentsProps={{
+                arrow:{
+                  sx:{
+                    color: "#f50057",
+                  
+                  }
+                },
+                tooltip: {
+                  sx: {
+                    animation: 'blinking 1s infinite',
+                    backgroundColor: "#f50057", // Background color
+                    color: "#ffffff", // Text color
+                    padding: "8px 16px", // Padding
+                    borderRadius: "4px", // Border radius
+                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)", // Box shadow
+                    fontSize: "14px", // Font size
+                    fontWeight: "bold", // Font weight
+                    letterSpacing: "0.5px", // Letter spacing
+                  },
+                },
               }}
-              sx={{ width: '280px', marginRight: '10px' }}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  label="Select School"
-                  sx={{
-                    fieldset: {
-                      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                      borderRadius: "50px"
+            >
+              <Autocomplete
+                options={[CustomOption, ...(allSchools?.listData || [])]}
+                getOptionLabel={(option) => option.name || ""}
+                disableCloseOnSelect
+                value={schoolObj}
+                onChange={(event, value) => {
+                  if (value && value.id === "all-schools") {
+                    remLocalStorage("schoolInfo");
+                    location.reload();
+                  }
+                  setSchoolObj({
+                    id: value.id,
+                    name: value.name,
+                  });
+                  API.CommonAPI.encryptText({ data: value?.id }).then(
+                    (result) => {
+                      if (result.status === "Success") {
+                        setLocalStorage("schoolInfo", result.data);
+                        location.reload();
+                      } else if (result.status === "Error") {
+                        console.log("Error Encrypting Data");
+                      }
                     }
-                  }}
-                />
-              )}
-              PaperComponent={props => (
-                <Paper
-                  sx={{
-                    background: theme.palette.mode === 'light' ? `#6ac6ff !important` : 'black',
-                    borderRadius: "20px",
-                    boxShadow: "rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;",
-                    color: colors.redAccent[400],
-                    fontSize: "25px",
-                    "&:hover": {
-                      border: "1px solid #00FF00",
-                      color: "gray",
-                      backgroundColor: "white !important"
-                    }
-                  }}
-                  {...props}
-                />
-              )}
-            />)}
+                  );
+                }}
+                sx={{ width: "280px", marginRight: "10px" }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select School"
+                    sx={{
+                      fieldset: {
+                        boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                        borderRadius: "50px",
+                      },
+                    }}
+                  />
+                )}
+                PaperComponent={(props) => (
+                  <Paper
+                    sx={{
+                      background:
+                        theme.palette.mode === "light"
+                          ? `#6ac6ff !important`
+                          : "black",
+                      borderRadius: "20px",
+                      boxShadow:
+                        "rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;",
+                      color: colors.redAccent[400],
+                      fontSize: "25px",
+                      "&:hover": {
+                        border: "1px solid #00FF00",
+                        color: "gray",
+                        backgroundColor: "white !important",
+                      },
+                    }}
+                    {...props}
+                  />
+                )}
+              />
+            </Tooltip>
+          )}
 
           <IconButton onClick={colorMode.toggleColorMode}>
             {theme.palette.mode === "dark" ? (
@@ -219,7 +294,14 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               aria-haspopup="true"
               aria-expanded={open ? "true" : undefined}
             >
-              <Avatar sx={{ padding: "2px", width: 36, height: 33, bgcolor: colors.grey[100] }}>
+              <Avatar
+                sx={{
+                  padding: "2px",
+                  width: 36,
+                  height: 33,
+                  bgcolor: colors.grey[100],
+                }}
+              >
                 {getInitials()}
               </Avatar>
             </IconButton>
@@ -234,33 +316,33 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
           PaperProps={{
             elevation: 0,
             sx: {
-              overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+              overflow: "visible",
+              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
               mt: 1.5,
-              '& .MuiAvatar-root': {
+              "& .MuiAvatar-root": {
                 width: 32,
                 height: 32,
                 ml: -0.5,
                 mr: 1,
               },
-              '&:before': {
+              "&:before": {
                 content: '""',
-                display: 'block',
-                position: 'absolute',
+                display: "block",
+                position: "absolute",
                 top: 0,
                 right: 14,
                 width: 10,
                 height: 10,
-                bgcolor: 'background.paper',
-                transform: 'translateY(-50%) rotate(45deg)',
+                bgcolor: "background.paper",
+                transform: "translateY(-50%) rotate(45deg)",
                 zIndex: 0,
               },
             },
           }}
-          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          <MenuItem onClick={handleClose} sx={{ flexDirection: 'column' }}>
+          <MenuItem onClick={handleClose} sx={{ flexDirection: "column" }}>
             <Box textAlign="center">
               <Typography
                 variant="h3"
@@ -270,35 +352,52 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               >
                 {username}
               </Typography>
-              <Typography variant="h5" color={colors.greenAccent[1000]}> {role} </Typography>
+              <Typography variant="h5" color={colors.greenAccent[1000]}>
+                {" "}
+                {role}{" "}
+              </Typography>
             </Box>
           </MenuItem>
 
           <Divider />
-          <MenuItem onClick={() => setChangePwModalOpen(true)} sx={{ color: colors.blueAccent[300], justifyContent: "center" }}>
-            <ListItemIcon >
-              <LockResetIcon sx={{ color: colors.blueAccent[300], fontSize: '22px' }} />
+          <MenuItem
+            onClick={() => setChangePwModalOpen(true)}
+            sx={{ color: colors.blueAccent[300], justifyContent: "center" }}
+          >
+            <ListItemIcon>
+              <LockResetIcon
+                sx={{ color: colors.blueAccent[300], fontSize: "22px" }}
+              />
             </ListItemIcon>
             <Typography variant="h5"> Change Password </Typography>
           </MenuItem>
 
           <Divider />
-          <MenuItem onClick={handleSignOut} sx={{ color: colors.blueAccent[300] }}>
-            <ListItemIcon >
-              <Logout fontSize="medium" sx={{ color: colors.blueAccent[300] }} />
+          <MenuItem
+            onClick={handleSignOut}
+            sx={{ color: colors.blueAccent[300] }}
+          >
+            <ListItemIcon>
+              <Logout
+                fontSize="medium"
+                sx={{ color: colors.blueAccent[300] }}
+              />
             </ListItemIcon>
             <Typography variant="h5"> Logout </Typography>
           </MenuItem>
         </Menu>
       </Box>
-      <ChangePwModal openDialog={changePwModalOpen} setOpenDialog={setChangePwModalOpen} />
+      <ChangePwModal
+        openDialog={changePwModalOpen}
+        setOpenDialog={setChangePwModalOpen}
+      />
     </>
   );
 };
 
 Topbar.propTypes = {
   roleName: PropTypes.string,
-  rolePriority: PropTypes.number
+  rolePriority: PropTypes.number,
 };
 
 export default Topbar;
