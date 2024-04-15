@@ -160,7 +160,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               wordSpacing: "5px",
             }}
           >
-            {schoolName ? schoolName : ""}
+            {schoolName && rolePriority !== 1 ? schoolName : ""}
           </Typography>
         </Box>
         <Box

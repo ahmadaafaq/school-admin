@@ -35,6 +35,14 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       minWidth: 120,
+      renderCell: (params) => {
+        let cityName = params?.row?.city;
+        return (
+            <div>
+                {cityName ? cityName : '/' }
+            </div>
+        );
+    }
     },
     {
       field: "name",

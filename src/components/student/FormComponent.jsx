@@ -87,17 +87,32 @@ const FormComponent = () => {
 
     const updateStudentAndAddress = useCallback(formData => {
         setLoading(true);
-        const paths = ["/update-student", "/update-address"];
+        // const paths = ["/update-student", "/update-address"];
+        const paths = [];
+        const dataFields = [];
 
-        const dataFields = [
-            {
+        // const dataFields = [
+        //     { ...formData.addressData.values },
+        //     { ...formData.imageData.values },
+        //     { ...formData.parentImageData.values }
+        // ];
+
+        if (formData.studentData.dirty) {
+            paths.push("/update-student");
+            dataFields.push({
                 ...formData.studentData.values,
                 subjects: getIdsFromObject(formData.studentData.values.subjects)
-            },
-            { ...formData.addressData.values },
-            { ...formData.imageData.values },
-            { ...formData.parentImageData.values }
-        ];
+            });
+        }
+
+        if (formData.addressData.dirty) {
+            paths.push("/update-address");
+            dataFields.push({ ...formData.addressData.values });
+        }
+
+        console.log(paths, "weqwettjj");
+        // const paths = ["/update-address"];
+
 
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
@@ -114,13 +129,6 @@ const FormComponent = () => {
         //     });
         // }
 
-        // delete all images from db on every update and later insert new and old again
-        API.ImageAPI.deleteImage({
-            parent: "student",
-            parent_id: id
-        });
-        console.log(`Deleted all images of id ${id} from db`);
-
         API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
             .then(responses => {
                 let status = null;
@@ -129,6 +137,13 @@ const FormComponent = () => {
                     if (!isObjEmpty(dataFields[2])) {
                         // upload new images to backend folder and insert in db
                         if (formData.imageData?.values?.Student?.length) {
+                            dataFields.push({ ...formData.imageData.values });
+                            // delete all images from db on every update and later insert new and old again
+                            API.ImageAPI.deleteImage({
+                                parent: "student",
+                                parent_id: id
+                            });
+
                             Array.from(formData.imageData.values.Student).map(image => {
                                 formattedName = formatImageName(image.name);
                                 API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
@@ -158,6 +173,13 @@ const FormComponent = () => {
                     if (!isObjEmpty(dataFields[3])) {
                         // upload new parent images to azure and insert in db
                         if (formData.parentImageData?.values?.Parent) {
+                            dataFields.push({ ...formData.parentImageData.values });
+                            // delete all images from db on every update and later insert new and old again
+                            API.ImageAPI.deleteImage({
+                                parent: "parent",
+                                parent_id: id
+                            });
+
                             Array.from(formData.parentImageData.values.Parent).map(image => {
                                 let formattedName = formatImageName(image.name);
                                 API.ImageAPI.uploadImage({ image: image, imageName: formattedName });

@@ -62,36 +62,57 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateEmployeeAndAddress = useCallback(formData => {
-       
-        const dataFields = [
-            { ...formData.employeeData.values },
-            { ...formData.addressData.values }
-        ];
-        const paths = ["/update-employee", "/update-address"];
-        setLoading(true);
-
-        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
-            .then(responses => {
-                let status = true;
-                responses.forEach(response => {
-                    if (response.data.status !== "Success") {
-                        status = false;
-                    }
-                });
-                if (status) {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/employee/listing/${getLocalStorage('class')}`);
-                }
-                setLoading(false);
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
-                throw err;
-            });
-    }, [formData]);
-
+    const updateEmployeeAndAddress = useCallback(
+        async (formData) => {
+          setLoading(true);
+          const paths = [];
+          const dataFields = [];
+    
+          //   [      { ...formData.employeerData.values },
+          //         { ...formData.addressData.values },
+          //       ];
+    
+          try {
+            if (formData.employeeData.dirty) {
+              paths.push("/update-employee");
+              dataFields.push(formData.employeeData.values);
+            }
+            if (formData.addressData.dirty) {
+              paths.push("/update-address");
+              dataFields.push(formData.addressData.values);
+            }
+            console.log("paths", paths);
+            const responses = await API.CommonAPI.multipleAPICall(
+              "PATCH",
+              paths,
+              dataFields
+            );
+            if (responses) {
+              toastAndNavigate(
+                dispatch,
+                true,
+                "info",
+                "Successfully Updated",
+                navigateTo,
+                `/employee/listing/${getLocalStorage("class") || ""}`
+              );
+            }
+            setLoading(false);
+          } catch (err) {
+            setLoading(false);
+            toastAndNavigate(
+              dispatch,
+              true,
+              "error",
+              err ? err?.response?.data?.msg : "An Error Occurred",
+              navigateTo,
+              0
+            );
+            throw err;
+          }
+        },
+        [formData]
+      );
     const populateEmployeeData = useCallback(id => {
         setLoading(true);
         const paths = [`/get-by-pk/employee/${id}`, `/get-address/employee/${id}`];
