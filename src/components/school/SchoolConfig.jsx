@@ -16,7 +16,7 @@ import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRen
 
 import { tokens } from "../../theme";
 
-export const datagridColumns = () => {
+export const datagridColumns = ( setOpen = null ) => {
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -31,7 +31,6 @@ export const datagridColumns = () => {
         setOpen(true);
         navigateTo("#", { state: { id: id } });
         console.log("id>>>", id);
-
     };
 
     const columns = [

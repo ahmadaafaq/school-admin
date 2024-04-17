@@ -6,8 +6,8 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
@@ -16,9 +16,10 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import API from "../../apis";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
-import BasicModal from "../student/CustomModal";
+import ViewDetailModal from "../common/ViewDetailModal";
 
 import { datagridColumns } from "./SchoolConfig";
+import { setFormAmenities } from "../../redux/actions/AmenityAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setListingSchools } from "../../redux/actions/SchoolAction";
 import { tokens } from "../../theme";
@@ -31,15 +32,23 @@ const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = () => {
 
-    const [openModal, setOpenModal ] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [schoolDetail, setSchoolDetail] = useState([]);
+    const [countryData, setCountryData] = useState([]);
+    const [stateData, setStateData] = useState([]);
+    const [cityData, setCityData] = useState([]);
+
+    const selected = useSelector(state => state.menuItems.selected);
+    const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
+    const { listData, loading } = useSelector(state => state.listingSchools);
+
     const theme = useTheme();
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
+    const { state } = useLocation();
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
-
-    const selected = useSelector(state => state.menuItems.selected);
-    const { listData, loading } = useSelector(state => state.listingSchools);
+    let id = state?.id;
 
     //revisit for pagination
     const [searchFlag, setSearchFlag] = useState({ search: false, searching: false });
@@ -48,7 +57,7 @@ const ListingComponent = () => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
     const { getPaginatedData } = useCommon();
-    const { getLocalStorage } = Utility();
+    const { findMultipleById, getLocalStorage, toastAndNavigate } = Utility();
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -65,6 +74,97 @@ const ListingComponent = () => {
             oldPagination
         });
     };
+
+    const populateData = useCallback(id => {
+        const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`, `/get-image/school/${id}`];
+
+        API.CommonAPI.multipleAPICall("GET", paths)
+            .then(responses => {
+                if (responses[0]?.data?.data) {
+                    responses[0].data.data.amenities = findMultipleById(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
+                }
+                API.SchoolAPI.getSchoolClasses(id)
+                    .then(res => {
+                        const dataObj = {
+                            schoolData: {
+                                schoolData: responses[0].data.data,
+                                selectedClass: res?.data
+                            },
+                            addressData: responses[1]?.data?.data,
+                            imageData: responses[2]?.data?.data
+                        };
+                        setSchoolDetail(dataObj);
+                    })
+                    .catch(err => {
+                        toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
+                    });
+            })
+            .catch(err => {
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
+            });
+    }, [formAmenitiesInRedux?.listData?.rows]);
+
+    useEffect(() => {
+        if (!formAmenitiesInRedux?.listData?.rows?.length) {
+            getPaginatedData(0, 50, setFormAmenities, API.AmenityAPI);
+        }
+    }, [formAmenitiesInRedux?.listData?.rows?.length]);
+
+    useEffect(() => {
+        if (id) {
+            populateData(id);
+
+            API.CountryAPI.getCountries()
+                .then(countries => {
+                    if (countries.status === 'Success') {
+                        setCountryData(countries.data.list);
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+
+            API.StateAPI.getAllStates()
+                .then(states => {
+                    if (states.status === 'Success') {
+                        setStateData(states.data.rows);
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+
+            API.CityAPI.getAllCities()
+                .then(cities => {
+                    if (cities.status === 'Success') {
+                        setCityData(cities.data.rows);
+                    }
+                })
+                .catch(err => {
+                    throw err;
+                });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id]);
+    console.log(schoolDetail, 'schoolDetail in listing')
+
+    const horizontalData = {
+        Registration_year: schoolDetail?.schoolData?.schoolData?.registration_year,
+        Registered_by: schoolDetail?.schoolData?.schoolData?.registered_by,
+        Name: schoolDetail?.schoolData?.schoolData?.name,
+        Board: schoolDetail?.schoolData?.schoolData?.board,
+        Email: schoolDetail?.schoolData?.schoolData?.email,
+        Director: schoolDetail?.schoolData?.schoolData?.director,
+        School_code: schoolDetail?.schoolData?.schoolData?.school_code
+    };
+    const verticalData = {
+        Contact_no: schoolDetail?.schoolData?.schoolData?.contact_no_1,
+        Type: schoolDetail?.schoolData?.schoolData?.type,
+        Sub_type: schoolDetail?.schoolData?.schoolData?.sub_type,
+        Principal: schoolDetail?.schoolData?.schoolData?.principal,
+
+    };
+
 
     return (
         <Box m="10px" position="relative"
@@ -143,7 +243,7 @@ const ListingComponent = () => {
                 action={setListingSchools}
                 api={API.SchoolAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns( setOpenModal )}
+                columns={datagridColumns(setOpenModal)}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -153,7 +253,17 @@ const ListingComponent = () => {
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
             />
-            <BasicModal open={openModal} setOpen={setOpenModal} />
+            <ViewDetailModal
+                open={openModal}
+                setOpen={setOpenModal}
+                title='School Details'
+                horizontalData={horizontalData}
+                verticalData={verticalData}
+                detail={schoolDetail}
+                countryData={countryData}
+                stateData={stateData}
+                cityData={cityData}
+            />
         </Box>
     );
 };
