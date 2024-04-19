@@ -88,19 +88,25 @@ const FormComponent = () => {
 
     const updateSchoolAndAddress = useCallback(async formData => {
         setLoading(true);
-        const paths = ["/update-school", "/update-address"];
+        const paths = [];
+        const dataFields = [];
 
-        const dataFields = [
-            {
+        if (formData.schoolData.dirty) {
+            paths.push("/update-school");
+            dataFields.push({
                 ...formData.schoolData.values,
                 amenities: getIdsFromObject(formData.schoolData.values.amenities)
-            },
-            { ...formData.addressData.values }
-        ];
+            });
+        }
+
+        if (formData.addressData.dirty) {
+            paths.push("/update-address");
+            dataFields.push({ ...formData.addressData.values });
+        }
 
         try {
             const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
-            if (responses) {
+            if (responses) {        //due to this if schoolform or address form is dirty, then other forms are also manipulated
                 updateImageAndClassData(formData);
             }
         } catch (err) {
@@ -111,7 +117,6 @@ const FormComponent = () => {
     }, [formData]);
 
     const updateImageAndClassData = useCallback(async formData => {
-
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
         //     deletedImage.forEach(image => {
@@ -127,91 +132,104 @@ const FormComponent = () => {
         //     });
         // }
 
-        // delete all images from db on every update and later insert new and old again
-        API.ImageAPI.deleteImage({
-            parent: "school",
-            parent_id: id
-        });
+        let updatePromises = [];
+        let status = null;
 
-        // delete all class sections from mapping table
-        await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
+        if (formData.schoolData.dirty) {
+            await (async () => {
+                // delete all class sections from mapping table
+                await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
 
-        const updatePromises = formData.schoolData.values.sections.map((innerArray, classIndex) => {
-            const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
-            // Iterating through each section in the class then associating subject ids for each section of class
-            innerArray.map((sectionData, sectionIndex) => {
-                const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                API.SchoolAPI.insertIntoMappingTable(
-                    [formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
-                );
-            });
-        });
+                updatePromises = formData.schoolData.values.sections.map((innerArray, classIndex) => {
+                    const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                    // Iterating through each section in the class then associating subject ids for each section of class
+                    innerArray.map((sectionData, sectionIndex) => {
+                        const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
+                        API.SchoolAPI.insertIntoMappingTable(
+                            [formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                        );
+                    });
+                });
+                await Promise.all(updatePromises);
+            })();
+        }
 
-        try {
-            let status = null;
+        try {       //image is not working
             let formattedName;
-            await Promise.all(updatePromises);
-            if (!isObjEmpty(formData.imageData.values)) {
-                // upload new images display to backend folder and insert in db
-                if (formData.imageData.values?.Display) {
-                    Array.from(formData.imageData.values.Display).map(image => {
-                        formattedName = formatImageName(image.name);
-                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                        API.ImageAPI.createImage({
-                            image_src: formattedName,
-                            school_id: formData.schoolData.values.id,
-                            parent_id: formData.schoolData.values.id,
-                            parent: 'school',
-                            type: 'display'
-                        })
+            console.log('formData.imageData=>', formData.imageData, formData.imageData.values.constructor === Array)
+            console.log('formData.bannerImageData=>', formData.bannerImageData, formData.bannerImageData.values.constructor === Array)
+
+            if (formData.imageData.dirty) {
+                if (!isObjEmpty(formData.imageData.values)) {
+                    // delete all images from db on every update and later insert new and old again
+                    API.ImageAPI.deleteImage({
+                        parent: "school",
+                        parent_id: id
                     });
-                    status = true;
-                }
-                // insert old images display only in db & not on azure
-                if (formData.imageData?.values) {
-                    formData.imageData.values.map(image => {
-                        API.ImageAPI.createImage({
-                            image_src: image.image_src,
-                            school_id: image.school_id,
-                            parent_id: image.parent_id,
-                            parent: image.parent,
-                            type: image.type
-                        })
-                    });
-                    status = true;
+
+                    // upload new images display to backend folder and insert in db
+                    if (formData.imageData.values?.image) {
+                        Array.from(formData.imageData.values.image).map(image => {
+                            formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                school_id: formData.schoolData.values.id,
+                                parent_id: formData.schoolData.values.id,
+                                parent: 'school',
+                                type: 'display'
+                            })
+                        });
+                        status = true;
+                    }
+                    // insert old images display only in db & not on azure
+                    if (formData.imageData.values.constructor === Array) {
+                        formData.imageData.values.map(image => {
+                            API.ImageAPI.createImage({
+                                image_src: image.image_src,
+                                school_id: image.school_id,
+                                parent_id: image.parent_id,
+                                parent: image.parent,
+                                type: image.type
+                            });
+                        });
+                        status = true;
+                    }
                 }
             }
-            if (!isObjEmpty(formData.bannerImageData.values)) {
-                // upload new banner images to azure and insert in db
-                if (formData.bannerImageData.values?.Banner) {
-                    Array.from(formData.bannerImageData.values?.Banner).map(image => {
-                        let formattedName = formatImageName(image.name);
-                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                        API.ImageAPI.createImage({
-                            image_src: formattedName,
-                            school_id: formData.schoolData.values.id,
-                            parent_id: formData.schoolData.values.id,
-                            parent: 'school',
-                            type: 'banner'
-                        })
-                    });
-                    status = true;
-                }
-                // insert old images banner only in db & not on azure
-                if (formData.bannerImageData?.values) {
-                    formData.bannerImageData.values.map(image => {
-                        API.ImageAPI.createImage({
-                            image_src: image.image_src,
-                            school_id: image.school_id,
-                            parent_id: image.parent_id,
-                            parent: image.parent,
-                            type: image.type
-                        })
-                    });
-                    status = true;
+            if (formData.bannerImageData.dirty) {
+                if (!isObjEmpty(formData.bannerImageData.values)) {
+                    // upload new banner images to azure and insert in db
+                    if (formData.bannerImageData.values?.image) {
+                        Array.from(formData.bannerImageData.values?.image).map(image => {
+                            let formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                            API.ImageAPI.createImage({
+                                image_src: formattedName,
+                                school_id: formData.schoolData.values.id,
+                                parent_id: formData.schoolData.values.id,
+                                parent: 'school',
+                                type: 'banner'
+                            })
+                        });
+                        status = true;
+                    }
+                    // insert old images banner only in db & not on azure
+                    if (formData.bannerImageData.values.constructor === Array) {
+                        formData.bannerImageData.values.map(image => {
+                            API.ImageAPI.createImage({
+                                image_src: image.image_src,
+                                school_id: image.school_id,
+                                parent_id: image.parent_id,
+                                parent: image.parent,
+                                type: image.type
+                            })
+                        });
+                        status = true;
+                    }
                 }
             } else {
-                status = true;      //ye hai isempty datafields[3]
+                status = true;
             }
             if (status) {
                 setLoading(false);
@@ -293,7 +311,7 @@ const FormComponent = () => {
                         });
                     });
 
-                    if (formData.imageData.values.Display?.length) {
+                    if (formData.imageData.values?.Display?.length) {
                         promise3 = Array.from(formData.imageData.values.Display).map(async (image) => {
                             let formattedName = formatImageName(image.name);
                             API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
@@ -379,6 +397,7 @@ const FormComponent = () => {
 
 
     const handleSubmit = async () => {
+        console.log('imageFormRef.current', imageFormRef.current)
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
         await imageFormRef.current?.Submit();
@@ -459,7 +478,6 @@ const FormComponent = () => {
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
                 imageType="Display"
-                multiple={true}
                 ENV={ENV}
             />
             <ImagePicker

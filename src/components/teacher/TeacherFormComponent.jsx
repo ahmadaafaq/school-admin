@@ -105,17 +105,12 @@ const TeacherFormComponent = ({
         validated: formik.isSubmitting
           ? Object.keys(formik.errors).length === 0
           : false,
+        dirty: formik.dirty
       });
     }
   };
 
   const getAndSetSubjects = () => {
-    console.log(
-      formik.values.sections,
-      " innnnformik.values.sections",
-      formik.values.classes,
-      classData
-    );
     const sectionSubjects = {};
     classData.forEach((obj) => {
       if (
@@ -139,8 +134,7 @@ const TeacherFormComponent = ({
     // Dispatch the sectionSubjects to redux
     dispatch(setSchoolSubjects(sectionSubjects));
   };
-  console.log(schoolSections?.listData, "innnschool sections");
-  console.log(schoolSubjects?.listData, "innnschool subjects");
+
   const getAndSetSections = () => {
     const selectedSectionsSet = new Set();
     for (const obj of classData) {
@@ -151,7 +145,6 @@ const TeacherFormComponent = ({
           )) ||
         (!formik.values.classes.length && obj.class_id === formik.values.class)
       ) {
-        console.log("innnside section set of classdata", classData);
         selectedSectionsSet.add({
           section_id: obj.section_id,
           section_name: obj.section_name,
@@ -164,11 +157,6 @@ const TeacherFormComponent = ({
         (selectedSection) => selectedSection.section_id === section.section_id
       )
     );
-    console.log(
-      filteredSections,
-      "innnfilteredsections",
-      selectedSectionsArray
-    );
     dispatch(setSchoolSections(filteredSections));
   };
 
@@ -177,14 +165,12 @@ const TeacherFormComponent = ({
       formik.values.sections.some((innerArray) => innerArray.length > 0) &&
       classData.length
     ) {
-      console.log("innnnside get subjects");
       getAndSetSubjects();
     }
   }, [formik.values?.sections, classData.length]);
 
   useEffect(() => {
     if ((formik.values?.classes || formik.values?.class) && classData.length) {
-      console.log("innnnside get sections");
       getAndSetSections();
     }
   }, [formik.values?.classes, formik.values?.class, classData.length]);
@@ -231,22 +217,18 @@ const TeacherFormComponent = ({
 
       // Check if splittedArray is not empty and has keys
       const hasData = splittedArray && Object.keys(splittedArray).length > 0;
-      console.log(splittedArray, "splittedarray");
 
       const assignUpdatedSections = (sectionData) => {
         let filteredSectionArray = [];
         sectionData.map((sections) => {
-          console.log(sections, "section");
 
           // Filter out sections from allSections that have matching ids in the current section
           let filteredSection = allSections?.filter((obj) =>
             sections.some((sect) => sect.section_id === obj.section_id)
           );
-          console.log(filteredSection, "filteredSection");
           filteredSectionArray.push(filteredSection);
         });
 
-        console.log(filteredSectionArray, "filteredSectioArrayn");
         return filteredSectionArray;
       };
 
@@ -275,10 +257,7 @@ const TeacherFormComponent = ({
       });
     }
   }, [updatedValues]);
-  console.log("innn formik sections=>", formik.values.sections);
-  console.log(initialState?.sections?.length, "innn updarws values");
-  console.log("innn formik subjects=>", formik.values.subjects);
-  console.log("innn classdata=>", classData);
+
   return (
     <Box m="20px">
       <form ref={refId}>
@@ -581,6 +560,28 @@ const TeacherFormComponent = ({
               </FormControl>
             </>
           )}
+
+<FormControl
+            variant="filled"
+            sx={{ minWidth: 120 }}
+            error={!!formik.touched.nationality && !!formik.errors.nationality}
+          >
+            <InputLabel>Caste Group</InputLabel>
+            <Select
+              variant="filled"
+              name="caste_group"
+              value={formik.values.caste_group}
+              onChange={formik.handleChange}
+            >
+              <MenuItem value="general">General</MenuItem>
+              <MenuItem value="obc">OBC</MenuItem>
+              <MenuItem value="sc">SC</MenuItem>
+              <MenuItem value="st">ST</MenuItem>
+            </Select>
+            <FormHelperText>
+              {formik.touched.caste_group && formik.errors.caste_group}
+            </FormHelperText>
+          </FormControl>
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
@@ -690,7 +691,6 @@ const TeacherFormComponent = ({
                   onChange={(event, value) => {
                     const sectArr = [...formik.values.sections];
                     sectArr[index] = value;
-                    console.log("sections", sectArr);
                     formik.setFieldValue("sections", sectArr);
                   }}
                   sx={{ gridColumn: "span 2" }}
