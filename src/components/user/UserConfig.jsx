@@ -50,9 +50,7 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       minWidth: 120,
-      valueGetter: (params) =>
-        params.row.username.charAt(0).toUpperCase() +
-          params.row.username.slice(1) || "",
+      valueGetter: (params) => params.row.username.charAt(0).toUpperCase() + params.row.username.slice(1) || ""
     },
     {
       field: "role",
@@ -63,13 +61,12 @@ export const datagridColumns = () => {
       minWidth: 100,
       renderCell: (params) => {
         let roleName = findById(params?.row?.role, allUserRoles?.listData)?.name;
-        console.log(roleName?.name)
         return (
-            <div>
-                {roleName ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : '/' }
-            </div>
+          <div>
+            {roleName ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : '/'}
+          </div>
         );
-    }
+      }
     },
     {
       field: "contact_no",
@@ -77,7 +74,7 @@ export const datagridColumns = () => {
       headerAlign: "center",
       align: "center",
       flex: 1,
-      minWidth: 100,
+      minWidth: 100
     },
     {
       field: "email",
@@ -85,7 +82,7 @@ export const datagridColumns = () => {
       headerAlign: "center",
       align: "center",
       flex: 1,
-      minWidth: 200,
+      minWidth: 200
     },
     {
       field: "updated_at",
@@ -94,7 +91,28 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       minWidth: 100,
-      valueFormatter: (params) => params?.value.substring(0, 10),
+      valueFormatter: (params) => {
+        const date = new Date(params.value);
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+
+        const formattedDate = `${date.getDate()}-${monthNames[date.getMonth()]
+          }-${date.getFullYear()}`;
+
+        return formattedDate;
+      }
     },
     {
       field: "status",
@@ -115,8 +133,8 @@ export const datagridColumns = () => {
               status === "active"
                 ? colors.greenAccent[600]
                 : status === "inactive"
-                ? colors.redAccent[700]
-                : colors.redAccent[700]
+                  ? colors.redAccent[700]
+                  : colors.redAccent[700]
             }
             borderRadius="4px"
           >
@@ -125,7 +143,7 @@ export const datagridColumns = () => {
             </Typography>
           </Box>
         );
-      },
+      }
     },
     {
       field: "action",
@@ -153,8 +171,8 @@ export const datagridColumns = () => {
             </Button>
           </Box>
         );
-      },
-    },
+      }
+    }
   ];
   return columns;
 };

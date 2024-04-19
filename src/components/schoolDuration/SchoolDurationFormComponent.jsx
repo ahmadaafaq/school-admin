@@ -32,6 +32,7 @@ import { useFormik } from "formik";
 import SchoolPeriodValidation from "./Validation";
 
 const initialValues = {
+    batch:"",
     period: "",
     halves: 2,
     recess_time: "",
@@ -108,21 +109,6 @@ const SchoolDurationFormComponent = ({
   return (
     <Box m="20px">
       <form ref={refId}>
-
-      <fieldset style={{
-                    border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
-                    borderRadius: "10px",
-                    padding: "10px",
-                    margin: "10px 0px 10px 0px"
-                }}>
-                    <legend style={{
-                        color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
-                        fontWeight: "bold",
-                        padding: "5px",
-                        fontSize: "larger"
-                    }}>
-                       Junior Batch
-                    </legend>
         <Box
           display="grid"
           gap="30px"
@@ -131,6 +117,28 @@ const SchoolDurationFormComponent = ({
             "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
           }}
         >
+          <FormControl
+              variant="filled"
+              sx={{ minWidth: 220 }}
+              error={!!formik.touched.batch && !!formik.errors.batch}
+            >
+              <InputLabel>Batch</InputLabel>
+              <Select
+                variant="filled"
+                name="batch"
+                autoComplete="new-batch"
+                value={formik.values.batch}
+                onChange={formik.handleChange}
+              >
+                <MenuItem value={"junior"}>Junior</MenuItem>
+                <MenuItem value={"senior"}>Senior</MenuItem>
+                <MenuItem value={"both"}>Both</MenuItem>
+              </Select>
+              <FormHelperText>
+                {formik.touched.batch && formik.errors.batch}
+              </FormHelperText>
+            </FormControl>
+
           <TextField
             fullWidth
             variant="filled"
@@ -410,7 +418,6 @@ const SchoolDurationFormComponent = ({
             )}
           </Box>
         </Box>
-        </fieldset>
       </form>
     </Box>
   );

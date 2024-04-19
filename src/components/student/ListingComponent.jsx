@@ -7,27 +7,23 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import PropTypes from "prop-types";
+
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
-import PropTypes from "prop-types";
-import {
-  Box,
-  Button,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
 
 import API from "../../apis";
-import BasicModal from "../models/CustomModal";
+import ViewDetailModal from "../common/ViewDetailModal";
 import classNames from "../modules";
 import Search from "../common/Search";
 import ServerPaginationGrid from "../common/Datagrid";
 
 import { datagridColumns } from "./StudentConfig";
+import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { setStudents } from "../../redux/actions/StudentAction";
 import { tokens } from "../../theme";
@@ -40,33 +36,43 @@ const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
   const [openModal, setOpenModal] = useState(false);
+  const [studentDetail, setStudentDetail] = useState([]);
+  const [countryData, setCountryData] = useState([]);
+  const [stateData, setStateData] = useState([]);
+  const [cityData, setCityData] = useState([]);
+
   const selected = useSelector((state) => state.menuItems.selected);
+  const subjectsInRedux = useSelector(state => state.allSubjects);
+  const formSectionsInRedux = useSelector(state => state.schoolSections);   //for custom modal
+  const formClassesInRedux = useSelector(state => state.schoolClasses);
   const { listData, loading } = useSelector((state) => state.allStudents);
 
   const theme = useTheme();
   const navigateTo = useNavigate();
   const dispatch = useDispatch();
   const URLParams = useParams();
+  const { state } = useLocation();
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
+  let id = state?.id;
 
   //revisit for pagination
   const [searchFlag, setSearchFlag] = useState({
     search: false,
-    searching: false,
+    searching: false
   });
   const [oldPagination, setOldPagination] = useState();
 
   const { getPaginatedData } = useCommon();
-  const { getLocalStorage, setLocalStorage } = Utility();
+  const { findMultipleById, findById, fetchAndSetAll, getLocalStorage, setLocalStorage, toastAndNavigate } = Utility();
   const reloadBtn = document.getElementById("reload-btn");
   const classId = URLParams ? URLParams.classId : null; // grab class id from url
+  const sectionName = findById(studentDetail?.studentData?.section, formSectionsInRedux?.listData)?.section_name;
+  const className = findById(studentDetail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
 
   let classConditionObj = classId
-    ? {
-        classId: classId,
-      }
+    ? { classId: classId }
     : null;
 
   // Logged in with parent role
@@ -87,6 +93,70 @@ const ListingComponent = ({ rolePriority = null }) => {
     });
   };
 
+  const populateData = useCallback(id => {
+    const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
+    API.CommonAPI.multipleAPICall("GET", paths)
+      .then(responses => {
+        console.log(responses, 'res')
+        if (responses[0].data.data) {
+          responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+        }
+        const dataObj = {
+          studentData: responses[0].data.data,
+          addressData: responses[1]?.data?.data,
+          imageData: responses[2]?.data?.data
+        };
+        setStudentDetail(dataObj);
+      })
+      .catch(err => {
+        toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred");
+        throw err;
+      });
+  }, [subjectsInRedux?.listData?.rows, id]);
+
+  useEffect(() => {
+    if (!subjectsInRedux?.listData?.length) {
+      fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
+    }
+  }, [subjectsInRedux?.listData?.length]);
+
+  useEffect(() => {
+    if (id) {
+      populateData(id);
+
+      API.CountryAPI.getCountries()
+        .then(countries => {
+          if (countries.status === 'Success') {
+            setCountryData(countries.data.list);
+          }
+        })
+        .catch(err => {
+          throw err;
+        });
+
+      API.StateAPI.getAllStates()
+        .then(states => {
+          if (states.status === 'Success') {
+            setStateData(states.data.rows);
+          }
+        })
+        .catch(err => {
+          throw err;
+        });
+
+      API.CityAPI.getAllCities()
+        .then(cities => {
+          if (cities.status === 'Success') {
+            setCityData(cities.data.rows);
+          }
+        })
+        .catch(err => {
+          throw err;
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   useEffect(() => {
     const selectedMenu = getLocalStorage("menu");
     dispatch(setMenuItem(selectedMenu.selected));
@@ -95,6 +165,29 @@ const ListingComponent = ({ rolePriority = null }) => {
   useEffect(() => {
     classId ? setLocalStorage("class", classId) : null;
   }, [classId]);
+  console.log(studentDetail, 'studentDetail in listing')
+  console.log("class in listing>>", formClassesInRedux?.listData, studentDetail?.studentData?.class, className)
+
+  const horizontalData = {
+    Session: studentDetail?.studentData?.session,
+    Name: studentDetail?.studentData?.firstname,
+    Email: studentDetail?.studentData?.email,
+    Dob: studentDetail?.studentData?.dob,
+    Admission_date: studentDetail?.studentData?.admission_date,
+    Blood_group: studentDetail?.studentData?.blood_group,
+    Class: className,
+    Section: sectionName
+};
+const verticalData ={
+  Father_name: studentDetail?.studentData?.father_name,
+  Mother_name: studentDetail?.studentData?.mother_name,
+  Guardian: studentDetail?.studentData?.guardian,
+  Contact_no: studentDetail?.studentData?.contact_no,
+  Religion: studentDetail?.studentData?.religion,
+  Caste_group: studentDetail?.studentData?.caste_group,
+  Gender: studentDetail?.studentData?.gender,
+}
+
 
   return (
     <Box
@@ -196,7 +289,17 @@ const ListingComponent = ({ rolePriority = null }) => {
         searchFlag={searchFlag}
         setSearchFlag={setSearchFlag}
       />
-      <BasicModal open={openModal} setOpen={setOpenModal} />
+      <ViewDetailModal
+        open={openModal}
+        setOpen={setOpenModal}
+        title='Student Details'
+        horizontalData={horizontalData}
+        verticalData={verticalData}
+        detail={studentDetail}
+        countryData={countryData}
+        stateData={stateData}
+        cityData={cityData}
+      />
     </Box>
   );
 };
