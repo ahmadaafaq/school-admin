@@ -83,65 +83,45 @@ const FormComponent = () => {
     dispatch(setMenuItem(selectedMenu.selected));
   }, []);
 
-  const updateTeacherAndAddress = useCallback(
-    async (formData) => {
-      setLoading(true);
-      const paths = [];
-      const dataFields = [];
+  const updateTeacherAndAddress = useCallback(async formData => {
+    setLoading(true);
+    const paths = [];
+    const dataFields = [];
 
-      //   [      { ...formData.teacherData.values },
-      //         { ...formData.addressData.values },
-      //       ];
-      const username =
-        formData.teacherData.values?.firstname.toLowerCase() +
-        (formData.teacherData.values?.lastname
-          ? `${formData.teacherData.values?.lastname.toLowerCase()}`
-          : "");
+    const username = formData.teacherData.values?.firstname.toLowerCase() +
+      (formData.teacherData.values?.lastname ? `${formData.teacherData.values?.lastname.toLowerCase()}`
+        : "");
 
-      try {
-        if (formData.teacherData.dirty) {
-          await API.UserAPI.update({
-            userId: formData.teacherData.values.parent_id,
-            id: formData.teacherData.values.parent_id,
-            username: username,
-            email: formData.teacherData.values.email,
-            contact_no: formData.teacherData.values.contact_no,
-            status: formData.teacherData.values.status,
-          });
-        }
-
-        if (formData.teacherData.dirty) {
-          paths.push("/update-teacher");
-          dataFields.push(formData.teacherData.values);
-        }
-        if (formData.addressData.dirty) {
-          paths.push("/update-address");
-          dataFields.push(formData.addressData.values);
-        }
-        console.log("paths", paths);
-        const responses = await API.CommonAPI.multipleAPICall(
-          "PATCH",
-          paths,
-          dataFields
-        );
-        if (responses) {
-          updateImageAndClassData(formData);
-        }
-      } catch (err) {
-        setLoading(false);
-        toastAndNavigate(
-          dispatch,
-          true,
-          "error",
-          err ? err?.response?.data?.msg : "An Error Occurred",
-          navigateTo,
-          0
-        );
-        throw err;
+    try {
+      if (formData.teacherData.dirty) {
+        await API.UserAPI.update({
+          userId: formData.teacherData.values.parent_id,
+          id: formData.teacherData.values.parent_id,
+          username: username,
+          email: formData.teacherData.values.email,
+          contact_no: formData.teacherData.values.contact_no,
+          status: formData.teacherData.values.status
+        });
       }
-    },
-    [formData]
-  );
+      if (formData.teacherData.dirty) {
+        paths.push("/update-teacher");
+        dataFields.push(formData.teacherData.values);
+      }
+      if (formData.addressData.dirty) {
+        paths.push("/update-address");
+        dataFields.push(formData.addressData.values);
+      }
+      console.log('img dataFields=>', dataFields);
+      const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
+      if (responses) {
+        updateImageAndClassData(formData);
+      }
+    } catch (err) {
+      setLoading(false);
+      toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+      throw err;
+    }
+  }, [formData]);
 
   const updateImageAndClassData = useCallback(async (formData) => {
     // delete the selected (removed) images from Azure which are in deletedImage state
@@ -152,70 +132,73 @@ const FormComponent = () => {
     //     });
     // }
     let updatePromises = [];
+    let status = null;
+
     if (formData.teacherData.dirty) {
-      updatePromises = formData.teacherData.values.sections.map(
-        (innerArray, classIndex) => {
-          const teacherClass =
-            formData.teacherData.values.classes[classIndex] || 0;
-          // Iterating through each section in the class then associating subject ids for each section of class
-          innerArray.map((sectionData, sectionIndex) => {
-            const subjectArray =
-              formData.teacherData.values.subjects[classIndex][sectionIndex] ||
-              [];
-            API.TeacherAPI.insertIntoMappingTable([
-              formData.teacherData.values.id,
-              teacherClass,
-              sectionData.section_id,
-              getIdsFromObject(subjectArray, allSubjects?.listData),
-            ]);
-          });
-        }
-      );
+      await (async () => {
+        // delete all class sections from mapping table
+        await API.TeacherAPI.deleteFromMappingTable({ teacher_id: id });
+
+        updatePromises = formData.teacherData.values.sections.map(
+          (innerArray, classIndex) => {
+            const teacherClass =
+              formData.teacherData.values.classes[classIndex] || 0;
+            // Iterating through each section in the class then associating subject ids for each section of class
+            innerArray.map((sectionData, sectionIndex) => {
+              const subjectArray =
+                formData.teacherData.values.subjects[classIndex][sectionIndex] ||
+                [];
+              API.TeacherAPI.insertIntoMappingTable([
+                formData.teacherData.values.id,
+                teacherClass,
+                sectionData.section_id,
+                getIdsFromObject(subjectArray, allSubjects?.listData),
+              ]);
+            });
+          }
+        );
+        await Promise.all(updatePromises);
+      })();
     }
 
-    try {
-      let status = null;
+    try {   //image is not working
       let formattedName;
-      await Promise.all(updatePromises);
-      if (!isObjEmpty(formData.imageData.values)) {
-        // upload new images to backend folder and insert in db
-        if (formData.imageData?.values?.Teacher?.length) {
+      if (formData.imageData.dirty) {
+        if (!isObjEmpty(formData.imageData.values)) {
+          console.log('img UPLOAD IMAGE AND SAVE IN DB');
+          console.log('img DELETE OLD')
           // delete all images from db on every update and later insert new and old again
           API.ImageAPI.deleteImage({
             parent: "teacher",
             parent_id: id,
           });
-
-          // delete all class sections from mapping table
-          await API.TeacherAPI.deleteFromMappingTable({ teacher_id: id });
-
-          Array.from(formData.imageData.values.Teacher).map((image) => {
-            formattedName = formatImageName(image.name);
-            API.ImageAPI.uploadImage({
-              image: image,
-              imageName: formattedName,
+          // upload new images to backend folder and insert in db
+          if (formData.imageData?.values?.image?.length) {
+            Array.from(formData.imageData.values.image).map((image) => {
+              formattedName = formatImageName(image.name);
+              API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+              API.ImageAPI.createImage({
+                image_src: formattedName,
+                parent_id: formData.teacherData.values.id,
+                parent: "teacher",
+                type: "normal",
+              });
             });
-            API.ImageAPI.createImage({
-              image_src: formattedName,
-              parent_id: formData.teacherData.values.id,
-              parent: "teacher",
-              type: "normal",
+            status = true;
+          }
+          // insert old images only in db & not on azure
+          if (formData.imageData.values.constructor === Array) {
+            formData.imageData.values.map((oldIimage) => {
+              API.ImageAPI.createImage({
+                image_src: oldIimage.image_src,
+                school_id: oldIimage.school_id,
+                parent_id: oldIimage.parent_id,
+                parent: oldIimage.parent,
+                type: oldIimage.type,
+              });
             });
-          });
-          status = true;
-        }
-        // insert old images only in db & not on azure
-        if (formData.imageData?.values) {
-          formData.imageData.values.map((oldIimage) => {
-            API.ImageAPI.createImage({
-              image_src: oldIimage.image_src,
-              school_id: oldIimage.school_id,
-              parent_id: oldIimage.parent_id,
-              parent: oldIimage.parent,
-              type: oldIimage.type,
-            });
-          });
-          status = true;
+            status = true;
+          }
         }
       } else {
         status = true;
@@ -321,7 +304,7 @@ const FormComponent = () => {
                   innerArray.map((sectionData, sectionIndex) => {
                     const subjectArray =
                       formData.teacherData.values.subjects[classIndex][
-                        sectionIndex
+                      sectionIndex
                       ] || [];
                     API.TeacherAPI.insertIntoMappingTable([
                       teacher.data.id,
@@ -333,8 +316,8 @@ const FormComponent = () => {
                 }
               );
 
-              if (formData.imageData.values.Teacher?.length) {
-                promise3 = Array.from(formData.imageData.values.Teacher).map(
+              if (formData.imageData.values.image?.length) {
+                promise3 = Array.from(formData.imageData.values.image).map(
                   async (image) => {
                     let formattedName = formatImageName(image.name);
                     API.ImageAPI.uploadImage({
@@ -447,6 +430,8 @@ const FormComponent = () => {
     }
   };
 
+  console.log('img formData', formData)
+
   return (
     <Box
       m="10px"
@@ -498,7 +483,9 @@ const FormComponent = () => {
       />
       <ImagePicker
         key="image"
-        onChange={(data) => handleFormChange(data, "image")}
+        onChange={(data) => {
+          handleFormChange(data, "image");
+        }}
         refId={imageFormRef}
         reset={reset}
         setReset={setReset}

@@ -123,12 +123,15 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
     if (!allSchools?.listData?.length) {
       fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
     }
+
   }, []);
 
-  // Close the tooltip after 6 seconds
-  setTimeout(() => {
-    setIsOpen(false);
-  }, 6000);
+  useEffect(() => {
+    // Close the tooltip after 6 seconds
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 6000);
+  }, []);
 
   return (
     <>
@@ -179,10 +182,10 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               open={isOpen}
               arrow
               componentsProps={{
-                arrow:{
-                  sx:{
+                arrow: {
+                  sx: {
                     color: "#f50057",
-                  
+
                   }
                 },
                 tooltip: {

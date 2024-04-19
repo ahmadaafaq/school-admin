@@ -30,6 +30,7 @@ import listBg from "../assets/listBG.jpg";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
+    const [teacherDetail, setTeacherDetail] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const { listData, loading } = useSelector(state => state.allTeachers);
 
@@ -63,6 +64,31 @@ const ListingComponent = ({ rolePriority = null }) => {
         dispatch(setMenuItem(selectedMenu.selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+//     useEffect(() => {
+//         let teacherIds = [];
+//         let updatePromises = [];
+//         if (listData?.rows) {
+//             listData.rows.map((item) => {
+//                 if (item.is_class_teacher === false) {
+//                     teacherIds.push(item.id);
+//                 }
+//             });
+//             console.log('teacher ids', teacherIds);
+//             updatePromises = teacherIds.map((id) => {
+//                 API.TeacherAPI.getTeacherDetail(id)
+//                     .then((detail) => {
+//                         if(detail.status === 'Success'){
+//                             console.log(detail, 'class sect')
+// setTeacherDetail({item.id: })
+//                         }
+//                     })
+//             });
+//         }
+//     }, [listData?.rows?.length])
+
+
+    console.log('teacher listdata', listData)
 
     return (
         <Box m="10px" position="relative"
@@ -128,7 +154,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 zIndex: 1,
                 borderRadius: "20%",
                 color: colors.grey[100],
-                marginLeft:"14vh"
+                marginLeft: "14vh"
             }}
                 id="reload-btn"
                 type="button"

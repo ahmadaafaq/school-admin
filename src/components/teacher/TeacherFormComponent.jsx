@@ -560,6 +560,28 @@ const TeacherFormComponent = ({
               </FormControl>
             </>
           )}
+
+<FormControl
+            variant="filled"
+            sx={{ minWidth: 120 }}
+            error={!!formik.touched.nationality && !!formik.errors.nationality}
+          >
+            <InputLabel>Caste Group</InputLabel>
+            <Select
+              variant="filled"
+              name="caste_group"
+              value={formik.values.caste_group}
+              onChange={formik.handleChange}
+            >
+              <MenuItem value="general">General</MenuItem>
+              <MenuItem value="obc">OBC</MenuItem>
+              <MenuItem value="sc">SC</MenuItem>
+              <MenuItem value="st">ST</MenuItem>
+            </Select>
+            <FormHelperText>
+              {formik.touched.caste_group && formik.errors.caste_group}
+            </FormHelperText>
+          </FormControl>
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}

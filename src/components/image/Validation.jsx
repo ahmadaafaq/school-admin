@@ -20,7 +20,7 @@ function isValidFileType(fileName) {
 }
 
 const checkoutSchema = yup.object().shape({
-    Student: yup.mixed()
+    image: yup.mixed()
         .required("This Field is Required")
         .test("is-valid-type", "Invalid file type", (value) => {
             if (!value.length) return true;
