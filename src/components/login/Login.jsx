@@ -31,9 +31,11 @@ import SignInLoader from "../common/SignInLoader"
 import { themeSettings } from "../../theme"
 import { Utility } from "../utility"
 
-import "../../index.css"
 import bgImg from "../assets/newbg12.jpeg";
-import bg from "../assets/school_stuff.png";
+import bg from "../assets/school_stuff.png"
+import "../../index.css"
+import ForgetPassword from "./ForgetPw"
+
 
 const initialValues = {
   school_code: "",
@@ -48,11 +50,11 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [isFliped, setIsFliped] = useState(false)
   const [loading, setLoading] = useState(false)
-  const toastInfo = useSelector((state) => state.toastInfo)
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const toastInfo = useSelector(state => state.toastInfo)
 
+  const dispatch = useDispatch()
   const inputRef = useRef(null)
+  const formikRef = useRef(null); // Ref to hold Formik instance
   const navigateTo = useNavigate()
   const theme = useTheme()
   const isMobile = useMediaQuery("(max-width:480px)")
@@ -80,22 +82,11 @@ const Login = () => {
 
   const flipCard = () => {
     // Flip the state to activate password reset mode
-    setIsFliped(!isFliped)
-  }
-
-  const handleSubmit = (values) => {
-    API.UserAPI.forgotPassword(values)
-      .then((res) => {
-        console.log("ress",res);
-        if (res.data.Status === "Success") {
-          navigate("/login")
-          toastAndNavigate(dispatch, true, "info", "Forgot password link is been sent to the Email");
-          location.reload()
-        } else if(res.data.Status === "User not existed"){
-          toastAndNavigate(dispatch, true, "info", "User not existed");
-        }
-      })
-      .catch((err) => console.log(err))
+    setIsFliped(!isFliped);
+    if (formikRef.current) {
+      formikRef.current.resetForm();
+      setLoading(false);
+    }
   }
 
   //make the POST API call when submit button is clicked
@@ -214,6 +205,7 @@ const Login = () => {
               </Typography>
               <ReactCardFlip flipDirection="horizontal" isFlipped={isFliped}>
                 <Formik
+                  innerRef={formikRef}
                   onSubmit={(values) => setFormData(values)}
                   initialValues={initialValues}
                 >
@@ -224,7 +216,7 @@ const Login = () => {
                     dirty,
                     handleBlur,
                     handleChange,
-                    handleSubmit,
+                    handleSubmit
                   }) => (
                     <form
                       onSubmit={handleSubmit}
@@ -239,13 +231,12 @@ const Login = () => {
                         variant="filled"
                         type="text"
                         inputRef={inputRef}
-                        autoComplete="new-school_code"
                         onBlur={handleBlur}
                         onChange={handleChange}
                         value={values.school_code}
                         error={!!touched.school_code && !!errors.school_code}
                         helperText={touched.school_code && errors.school_code}
-                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius:"20px",overflow:"hidden" }}
+                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius: "20px", overflow: "hidden" }}
                       />
                       <TextField
                         required
@@ -260,7 +251,7 @@ const Login = () => {
                         value={values.email}
                         error={!!touched.email && !!errors.email}
                         helperText={touched.email && errors.email}
-                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius:"20px",overflow:"hidden"  }}
+                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius: "20px", overflow: "hidden" }}
                       />
                       <TextField
                         required
@@ -275,7 +266,7 @@ const Login = () => {
                         value={values.password}
                         error={!!touched.contact_no && !!errors.contact_no}
                         helperText={touched.contact_no && errors.contact_no}
-                        sx={{ margin: "5px", backgroundColor: "white", borderRadius:"20px",overflow:"hidden"  }}
+                        sx={{ margin: "5px", backgroundColor: "white", borderRadius: "20px", overflow: "hidden" }}
                         InputProps={{
                           // <-- This is where the toggle button is added
                           endAdornment: (
@@ -298,7 +289,7 @@ const Login = () => {
                         }}
                       />
 
-                      <Button onClick={flipCard} sx={{color:"white"}}>Forgot Password?</Button>
+                      <Button onClick={flipCard} sx={{ color: "white" }}>Forgot Password?</Button>
 
                       <Button
                         disabled={!dirty || loading}
@@ -313,8 +304,8 @@ const Login = () => {
                           minWidth: isMobile
                             ? "170px"
                             : isTab
-                            ? "200px"
-                            : "200px",
+                              ? "200px"
+                              : "200px",
                           backgroundColor: "#FF9A01",
                           borderRadius: 28,
                         }}
@@ -324,68 +315,9 @@ const Login = () => {
                     </form>
                   )}
                 </Formik>
-
-                <Box width={300} height={300}>
-                  <div>
-                    <h4>Forgot Password</h4>
-                    <Formik
-                      initialValues={{ email: "" }}
-                      onSubmit={handleSubmit}
-                      validate={(values) => {
-                        const errors = {}
-                        if (!values.email) {
-                          errors.email = "Email is required"
-                        } else if (
-                          !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(
-                            values.email
-                          )
-                        ) {
-                          errors.email = "Invalid email address"
-                        }
-                        return errors
-                      }}
-                    >
-                      {({ values, errors, touched, handleChange, handleSubmit }) => (
-                        <Form onSubmit={handleSubmit} 
-                        sx={{
-                          width: isMobile ? "40vw" : isTab ? "28vw" : "21vw"
-                        }}>
-                          <div>
-                            <TextField
-                              fullWidth
-                              name="email"
-                              label="Email"
-                              placeholder="Enter Email"
-                              onChange={handleChange}
-                              value={values.email}
-                              variant="filled"
-                              error={!!errors.email && touched.email}
-                              helperText={
-                                errors.email && touched.email && errors.email
-                              }
-                              sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius:"20px",overflow:"hidden"  }}
-                            />
-                          </div>
-                          <Button
-                            type="submit"
-                            variant="contained"
-                            color="success"
-                            fullWidth
-                            sx={{ borderRadius:"20px",overflow:"hidden" }}
-                          >
-                            Send
-                          </Button>
-                        </Form>
-                      )}
-                    </Formik>
-                    {/* <Toast
-        alerting={toastInfo.toastAlert}
-        severity={toastInfo.toastSeverity}
-        message={toastInfo.toastMessage}
-      /> */}
-                  </div>
-                  <Button onClick={flipCard} sx={{color:"white"}}>Back to Login</Button>
-                </Box>
+                <ForgetPassword Api={API.UserAPI} isFliped={isFliped} setIsFliped={setIsFliped} dispatch={dispatch} toastAndNavigate={toastAndNavigate}
+                  isMobile={isMobile} isTab={isTab}
+                />
               </ReactCardFlip>
             </Box>
           </Grid>

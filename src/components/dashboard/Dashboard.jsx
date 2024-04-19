@@ -20,7 +20,7 @@ import HighchartsReact from "highcharts-react-official";
 import "../common/index.css";
 import StatBox from "../common/StatBox";
 import { tokens, themeSettings } from "../../theme";
-import { studentData } from "../common/CustomCharts";
+import { studentData, schoolData } from "../common/CustomCharts";
 import API from "../../apis";
 
 import dashBg from "../assets/formBg.png";
@@ -60,11 +60,11 @@ const Dashboard = ({ rolePriority = null }) => {
       },
     },
     xAxis: {
-      categories: studentData.map((dataPoint) => dataPoint.month),
+      categories: rolePriority !== 1 ? studentData.map((dataPoint) => dataPoint.month) : schoolData.map((dataPoint) => dataPoint.years),
     },
     yAxis: {
       title: {
-        text: "Number of Students",
+        text: `Number of ${rolePriority !== 1 ? "Students" : "Schools"}`,
         style: {
           color: colors.greenAccent[400],
         },
@@ -75,15 +75,10 @@ const Dashboard = ({ rolePriority = null }) => {
     },
     series: [
       {
-        name: "Passing %",
-        data: studentData.map((dataPoint) => dataPoint.students),
+        name: rolePriority !== 1 ? 'Passing %' : 'Schools Adding %',
+        data: rolePriority !== 1 ? studentData.map((dataPoint) => dataPoint.students) : schoolData.map((dataPoint) => dataPoint.schools),
         color: colors.greenAccent[800],
-      },
-      {
-        name: "Failing %",
-        data: studentData.map((dataPoint) => dataPoint.newStudents),
-        color: colors.redAccent[900],
-      },
+      }
     ],
   };
   const option = {

@@ -80,7 +80,6 @@ const ImagePicker = ({
             setInitialState(updatedImage);
         }
     }, [updatedImage?.length]);
-    console.log(Object.keys(formik.errors), 'formik image');
 
     return (
         <Box m="10px">

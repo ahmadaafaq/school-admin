@@ -112,24 +112,26 @@ export const UserAPI = {
       data: fields,
       signal: cancel
         ? cancelApiObject[this.changeUserPw.name].handleRequestCancellation()
-            .signal
+          .signal
         : undefined,
     });
   },
+
   forgotPassword: async (fields, cancel = false) => {
-    console.log("fields=>", fields);
-    return await api.request({
+    const { data: response } = await api.request({
       url: `/forgot-password`,
       method: "POST",
       data: fields,
       signal: cancel
         ? cancelApiObject[this.forgotPassword.name].handleRequestCancellation()
-            .signal
+          .signal
         : undefined,
     });
+    return response;
   },
+
   resetPassword: async (fields, cancel = false) => {
-    console.log(fields, 'reset api')
+
     const { data: response } = await api.request({
       url: `/reset-password`,
       headers: {
@@ -139,10 +141,10 @@ export const UserAPI = {
       data: fields,
       signal: cancel
         ? cancelApiObject[this.resetPassword.name].handleRequestCancellation()
-            .signal
+          .signal
         : undefined
     });
-    console.log(response, 'reset pw api')
+    
     return response;
   },
 };

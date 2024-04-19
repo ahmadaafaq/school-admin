@@ -26,12 +26,23 @@ export const datagridColumns = (rolePriority = null) => {
 
     const columns = [
         {
-            field: "student_id",
+            field: "fullname",
             headerName: " Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120
+            minWidth: 120,
+            valueGetter: (params) => {
+                // Access firstname and lastname properties
+                const firstName = params.row["student.firstname"] || "";
+                const lastName = params.row["student.lastname"] || "";
+
+                // Combine firstname and lastname into full name
+                const fullName = `${firstName} ${lastName}`.trim();
+
+                console.log(params.row); // Log params.row
+                return fullName;
+            }
         },
         {
             field: "academic_year",
@@ -48,15 +59,6 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 100
-        },
-        {
-            field: "due_date",
-            headerName: "Due Date",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-             
         },
         {
             field: "type",
@@ -126,47 +128,39 @@ export const datagridColumns = (rolePriority = null) => {
                 );
             }
         },
-        {
-            field: "payment_method",
-            headerName: "Payment Method",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 120,
-            renderCell: ({ row: { payment_method } }) => {
-                return (
-                    <Box
-                        width="100%"
-                        m="0 auto"
-                        p="5px"
-                        display="flex"
-                        justifyContent="center"
-                        borderRadius="4px"
-                        backgroundColor={
-                            payment_method === "cash"
-                                ? colors.greenAccent[600]
-                                : payment_method === "credit card"
-                                    ? colors.redAccent[700]
-                                    : payment_method === "online transfer"
-                                        ? colors.blueAccent[800]
-                                        : colors.blueAccent[800]
-                        }
-                    >
-                        <Typography color={colors.grey[100]}>
-                            {payment_method.charAt(0).toUpperCase() + payment_method.slice(1) || ''}
-                        </Typography>
-                    </Box>
-                );
-            }
-        },
-        {
-            field: "payment_date",
-            headerName: "Payment Date",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
+        // {
+        //     field: "payment_method",
+        //     headerName: "Payment Method",
+        //     headerAlign: "center",
+        //     align: "center",
+        //     flex: 1,
+        //     minWidth: 120,
+        //     renderCell: ({ row: { payment_method } }) => {
+        //         return (
+        //             <Box
+        //                 width="100%"
+        //                 m="0 auto"
+        //                 p="5px"
+        //                 display="flex"
+        //                 justifyContent="center"
+        //                 borderRadius="4px"
+        //                 backgroundColor={
+        //                     payment_method === "cash"
+        //                         ? colors.greenAccent[600]
+        //                         : payment_method === "credit card"
+        //                             ? colors.redAccent[700]
+        //                             : payment_method === "online transfer"
+        //                                 ? colors.blueAccent[800]
+        //                                 : colors.blueAccent[800]
+        //                 }
+        //             >
+        //                 <Typography color={colors.grey[100]}>
+        //                     {payment_method.charAt(0).toUpperCase() + payment_method.slice(1) || ''}
+        //                 </Typography>
+        //             </Box>
+        //         );
+        //     }
+        // },
         rolePriority !== 1 && {
             field: "action",
             headerName: "Action",
