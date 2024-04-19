@@ -306,21 +306,7 @@ const PaymentFormComponent = ({
             error={!!formik.touched.amount && !!formik.errors.amount}
             helperText={formik.touched.amount && formik.errors.amount}
           />
-
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              format="DD MMMM YYYY" //ex - 25 July 2023
-              views={["day", "month", "year"]}
-              label="Select Due Date"
-              name="due_date"
-              required
-              value={formik.values.due_date}
-              onChange={(newDue_Date) => {
-                formik.setFieldValue("date", newDue_Date);
-              }}
-            />
-          </LocalizationProvider>
-
+          
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
