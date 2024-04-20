@@ -63,7 +63,6 @@ const ListingComponent = ({ rolePriority = null }) => {
         dispatch(setMenuItem(selectedMenu.selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-    console.log('data', listData)
 
     return (
         <Box m="10px" position="relative"
@@ -128,7 +127,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 zIndex: 1,
                 borderRadius: "20%",
                 color: colors.grey[100],
-                marginLeft:"14vh"
+                marginLeft: "14vh"
             }}
                 id="reload-btn"
                 type="button"
