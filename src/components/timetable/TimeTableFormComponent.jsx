@@ -31,6 +31,7 @@ const initialValues = {
     day: "",
     class: "",
     section: "",
+    batch:"",
     subject: [],
     duration: []
 };
@@ -183,8 +184,10 @@ const TimeTableFormComponent = ({
             formik.setFieldValue(`class`, updatedValues[0]?.class_id);
             formik.setFieldValue(`section`, updatedValues[0]?.section_id);
             formik.setFieldValue(`day`, updatedValues[0]?.day);
+            formik.setFieldValue(`batch`, updatedValues[0]?.batch);
         }
     }, [updatedValues]);
+    console.log("updated",updatedValues)
 
     useEffect(() => {
         if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
@@ -202,10 +205,18 @@ const TimeTableFormComponent = ({
                 .then(result => {
                     if (result.status === 'Success') {
                         const schoolObj = schoolDuration?.listData?.rows?.filter(obj => `${obj.school_id}` === result.data);
-                        if(formik.values.batches == "senior" || formik.values.batches == "both"){
+                        if(formik.values.batch == "both"){
                             setSchoolId(schoolObj[0]);
-                        }else {
-                            setSchoolId(schoolObj[1]);
+                        }else if( schoolObj.length > 0){
+
+                            const seniorRow = schoolObj.find(obj => obj.batch === "senior");
+                            const juniorRow = schoolObj.find(obj => obj.batch === "junior");
+
+                            if(formik.values.batch == "senior"){
+                                setSchoolId(seniorRow)
+                            }else{
+                                setSchoolId(juniorRow)
+                            }
                         }
                         console.log("schoolObj",schoolObj)
                         
@@ -214,7 +225,7 @@ const TimeTableFormComponent = ({
                     }
                 });
         }
-    }, [schoolDuration?.listData?.rows?.length,formik.values.batches]);
+    }, [schoolDuration?.listData?.rows?.length,formik.values.batch]);
 
     useEffect(() => {
         if (totalDuration?.length && !formik?.values?.duration?.length) {
@@ -317,13 +328,13 @@ const TimeTableFormComponent = ({
                     </FormControl>
 
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.batches && !!formik.errors.batches}
+                        error={!!formik.touched.batch && !!formik.errors.batch}
                     >
-                        <InputLabel>Batches</InputLabel>
+                        <InputLabel>Batch</InputLabel>
                         <Select
-                            name="batches"
-                            value={formik.values.batches || ''}
-                            onChange={event => formik.setFieldValue("batches", event.target.value)}
+                            name="batch"
+                            value={formik.values.batch || ''}
+                            onChange={event => formik.setFieldValue("batch", event.target.value)}
                         >
                             {!schoolDuration?.listData?.rows ? null :
                                 schoolDuration?.listData?.rows?.map(item => (
@@ -332,7 +343,7 @@ const TimeTableFormComponent = ({
                                     </MenuItem>
                                 ))}
                         </Select>
-                        <FormHelperText>{formik.touched.batches && formik.errors.batches}</FormHelperText>
+                        <FormHelperText>{formik.touched.batch && formik.errors.batch}</FormHelperText>
                     </FormControl>
 
                 </Box>
