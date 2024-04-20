@@ -9,7 +9,7 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { Box, Button, useTheme } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import DriveFileRenameOutlineOutlinedIcon from "@mui/icons-material/DriveFileRenameOutlineOutlined";
 
 import { Utility } from "../utility";
@@ -23,11 +23,10 @@ export const datagridColumns = () => {
   const navigateTo = useNavigate();
   const { appendSuffix, findById } = Utility();
 
-  const handleActionEdit = (class_id, section_id, day) => {
+  const handleActionEdit = (class_id, section_id, day, batch) => {
     navigateTo(`/time-table/update/${class_id}/${section_id}`, {
-      state: { class_id: class_id, section_id: section_id, day: day },
+      state: { class_id: class_id, section_id: section_id, day: day, batch: batch }
     });
-
   };
 
   const columns = [
@@ -43,26 +42,11 @@ export const datagridColumns = () => {
         let sectionName;
 
         if (allClasses?.listData?.length || allSections?.listData?.length) {
-          className = findById(
-            params?.row?.class_id,
-            allClasses?.listData
-          )?.class_name;
-          sectionName = findById(
-            params?.row?.section_id,
-            allSections?.listData
-          )?.section_name;
-        } else if (
-          schoolClasses?.listData?.length ||
-          schoolSections?.listData?.length
-        ) {
-          className = findById(
-            params?.row?.class_id,
-            schoolClasses?.listData
-          )?.class_name;
-          sectionName = findById(
-            params?.row?.section_id,
-            schoolSections?.listData
-          )?.section_name;
+          className = findById(params?.row?.class_id, allClasses?.listData)?.class_name;
+          sectionName = findById(params?.row?.section_id, allSections?.listData)?.section_name;
+        } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+          className = findById(params?.row?.class_id, schoolClasses?.listData)?.class_name;
+          sectionName = findById(params?.row?.section_id, schoolSections?.listData)?.section_name;
         }
         return (
           <div>
@@ -72,30 +56,24 @@ export const datagridColumns = () => {
       },
     },
     {
-        field: "day",
-        headerName: "Day",
-        headerAlign: "center",
-        align: "center",
-        flex: 1,
-        // minWidth: 100,
-        valueGetter: (params) => `${params.row.day.charAt(0).toUpperCase() + params.row.day.slice(1) || ''} `
-
-      },
-    {
-      field: "subject_id",
-      headerName: "Subject",
+      field: "batch",
+      headerName: "Batch",
       headerAlign: "center",
       align: "center",
       flex: 1,
-      // minWidth: 100
+      // minWidth: 100,
+      valueGetter: (params) => `${params.row.batch.charAt(0).toUpperCase() + params.row.batch.slice(1) || ''} `
+
     },
     {
-      field: "duration",
-      headerName: "Duration",
+      field: "day",
+      headerName: "Day",
       headerAlign: "center",
       align: "center",
       flex: 1,
-      // minWidth: 100
+      // minWidth: 100,
+      valueGetter: (params) => `${params.row.day.charAt(0).toUpperCase() + params.row.day.slice(1) || ''} `
+
     },
     {
       field: "action",
@@ -104,7 +82,7 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       // minWidth: 75,
-      renderCell: ({ row: { class_id, section_id, day } }) => {
+      renderCell: ({ row: { class_id, section_id, day, batch } }) => {
         return (
           <Box
             width="30%"
@@ -116,7 +94,7 @@ export const datagridColumns = () => {
             <Button
               color="info"
               variant="contained"
-              onClick={() => handleActionEdit(class_id, section_id, day)}
+              onClick={() => handleActionEdit(class_id, section_id, day, batch)}
               sx={{ minWidth: "50px" }}
             >
               <DriveFileRenameOutlineOutlinedIcon />

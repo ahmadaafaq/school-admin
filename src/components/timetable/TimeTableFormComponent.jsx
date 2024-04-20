@@ -31,7 +31,7 @@ const initialValues = {
     day: "",
     class: "",
     section: "",
-    batch:"",
+    batch: "",
     subject: [],
     duration: []
 };
@@ -88,7 +88,7 @@ const TimeTableFormComponent = ({
         minute: 'numeric',
         hour12: true,
     });
-    console.log("schoolId",schoolId);
+    console.log("schoolObj", schoolId);
 
     function convertToAMPM(timeString) {
         const [hours, minutes] = timeString.split(':');
@@ -143,7 +143,7 @@ const TimeTableFormComponent = ({
             totalDuration = [...firstHalfDuration, ...secondHalfDuration];
         }
     }
-   
+
     useEffect(() => {
         if (formik.values.class && classData?.length) {
             const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
@@ -187,7 +187,7 @@ const TimeTableFormComponent = ({
             formik.setFieldValue(`batch`, updatedValues[0]?.batch);
         }
     }, [updatedValues]);
-    console.log("updated",updatedValues)
+    console.log("updated", updatedValues)
 
     useEffect(() => {
         if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
@@ -205,27 +205,27 @@ const TimeTableFormComponent = ({
                 .then(result => {
                     if (result.status === 'Success') {
                         const schoolObj = schoolDuration?.listData?.rows?.filter(obj => `${obj.school_id}` === result.data);
-                        if(formik.values.batch == "both"){
+                        if (formik.values.batch == "both") {
                             setSchoolId(schoolObj[0]);
-                        }else if( schoolObj.length > 0){
+                        } else if (schoolObj.length > 0) {
 
                             const seniorRow = schoolObj.find(obj => obj.batch === "senior");
                             const juniorRow = schoolObj.find(obj => obj.batch === "junior");
 
-                            if(formik.values.batch == "senior"){
+                            if (formik.values.batch == "senior") {
                                 setSchoolId(seniorRow)
-                            }else{
+                            } else {
                                 setSchoolId(juniorRow)
                             }
                         }
-                        console.log("schoolObj",schoolObj)
-                        
+                        console.log("schoolObj", schoolObj)
+
                     } else if (result.status === 'Error') {
                         console.log('Error Decrypting Data');
                     }
                 });
         }
-    }, [schoolDuration?.listData?.rows?.length,formik.values.batch]);
+    }, [schoolDuration?.listData?.rows?.length, formik.values.batch]);
 
     useEffect(() => {
         if (totalDuration?.length && !formik?.values?.duration?.length) {
@@ -240,7 +240,7 @@ const TimeTableFormComponent = ({
         }
     }, [schoolId]);
 
-    console.log("formuk",formik.values)
+    console.log("formik time table form", formik.values)
 
     return (
         <Box m="20px">
@@ -338,8 +338,8 @@ const TimeTableFormComponent = ({
                         >
                             {!schoolDuration?.listData?.rows ? null :
                                 schoolDuration?.listData?.rows?.map(item => (
-                                    <MenuItem value={item.batch} name={`${item.batch}`} key={item.id}>
-                                        {`${item.batch}`}
+                                    <MenuItem value={item.batch} name={item.batch} key={item.id}>
+                                        {item.batch}
                                     </MenuItem>
                                 ))}
                         </Select>
@@ -390,7 +390,7 @@ const TimeTableFormComponent = ({
                         sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
                     />
                 </Divider>
-                    {(schoolId?.period) / 2 > 0 && (
+                {(schoolId?.period) / 2 > 0 && (
                     <>
                         {[...Array((schoolId?.period) / 2)].map((_, index) => {
                             let condition = (schoolId?.period) / 2 + 1;
@@ -442,7 +442,7 @@ TimeTableFormComponent.propTypes = {
     setDirty: PropTypes.func,
     reset: PropTypes.bool,
     setReset: PropTypes.func,
-    classData: PropTypes.array, 
+    classData: PropTypes.array,
     setClassData: PropTypes.func,
     allSubjects: PropTypes.array,
     updatedValues: PropTypes.object
