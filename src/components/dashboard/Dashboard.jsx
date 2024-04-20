@@ -412,7 +412,7 @@ const Dashboard = ({ rolePriority = null }) => {
 
         <Box
           sx={{
-            width: isMobile ? "100%" : isTab ? "100%" : "200%",
+            width: isMobile ? "100%" : isTab ? "100%" : rolePriority ===1 ? "200%" : "135%" ,
             gridArea: "chart1",
             boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;",
             borderRadius: "20px",

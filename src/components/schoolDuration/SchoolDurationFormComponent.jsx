@@ -104,8 +104,6 @@ const SchoolDurationFormComponent = ({
     }
   }, [updatedValues]);
 
-  console.log("first>>>", formik?.values);
-
   return (
     <Box m="20px">
       <form ref={refId}>
