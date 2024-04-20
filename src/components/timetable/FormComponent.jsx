@@ -96,7 +96,7 @@ const FormComponent = () => {
     }, [formData]);
 
 
-    const populateTimeTableData = useCallback((class_id, section_id, day ,batch) => {
+    const populateTimeTableData = useCallback((class_id, section_id, day, batch) => {
         setLoading(true);
         const path = [`/get-time-tables/?page=0&size=12&classId=${class_id}&section=${section_id}&day=${day}&batch=${batch}`];
 
@@ -114,7 +114,7 @@ const FormComponent = () => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
             });
-    }, [class_id, section_id, day,batch]);
+    }, [class_id, section_id, day, batch]);
 
     const createTimeTable = useCallback(formData => {
         let promises = [];
@@ -133,19 +133,19 @@ const FormComponent = () => {
                 duration: formData.timeTableData.values.duration[index],
                 subject_id: formData.timeTableData.values[`subject${index + 1}`]
             }
-            API.TimeTableAPI.createTimeTable(payload);
+            // API.TimeTableAPI.createTimeTable(payload);
         });
 
-        return Promise.all(promises)
-            .then(() => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log("error creating time table", err);
-            });
+        // return Promise.all(promises)
+        //     .then(() => {
+        //         setLoading(false);
+        //         toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
+        //     })
+        //     .catch(err => {
+        //         setLoading(false);
+        //         toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+        //         console.log("error creating time table", err);
+        //     });
     }, [formData]);
 
     useEffect(() => {
@@ -175,6 +175,7 @@ const FormComponent = () => {
     const handleFormChange = (data, form) => {
         form == 'timeTable' ? setFormData({ ...formData, timeTableData: data }) : null;
     };
+    console.log(formData, 'in timetable form')
 
     return (
         <Box m="10px"
