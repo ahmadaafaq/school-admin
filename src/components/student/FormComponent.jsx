@@ -172,8 +172,8 @@ const FormComponent = () => {
                 status = true;
             }
             // insert old images only in db & not on azure
-            if (formData.imageData.values.constructor === Array) {
-                formData.imageData.values.map(image => {
+            if (formData?.imageData?.values?.constructor === Array) {
+                formData?.imageData?.values.map(image => {
                     API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
@@ -195,7 +195,7 @@ const FormComponent = () => {
             }
             console.log('picker formData.parentImageData?.values', formData.parentImageData?.values)
             // upload new parent images to azure and insert in db
-            if (formData.parentImageData?.values?.image) {
+            if (formData?.parentImageData?.values?.image) {
                 Array.from(formData.parentImageData.values.image).map(image => {
                     let formattedName = formatImageName(image.name);
                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
@@ -210,8 +210,8 @@ const FormComponent = () => {
                 status = true;
             }
             // insert old images parent only in db & not on azure
-            if (formData.bannerImageData.values.constructor === Array) {
-                formData.parentImageData.values.map(image => {
+            if (formData?.bannerImageData?.values?.constructor === Array) {
+                formData?.parentImageData?.values?.map(image => {
                     API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,

@@ -133,19 +133,19 @@ const FormComponent = () => {
                 duration: formData.timeTableData.values.duration[index],
                 subject_id: formData.timeTableData.values[`subject${index + 1}`]
             }
-            // API.TimeTableAPI.createTimeTable(payload);
+            API.TimeTableAPI.createTimeTable(payload);
         });
 
-        // return Promise.all(promises)
-        //     .then(() => {
-        //         setLoading(false);
-        //         toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
-        //     })
-        //     .catch(err => {
-        //         setLoading(false);
-        //         toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-        //         console.log("error creating time table", err);
-        //     });
+        return Promise.all(promises)
+            .then(() => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
+            })
+            .catch(err => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                console.log("error creating time table", err);
+            });
     }, [formData]);
 
     useEffect(() => {
