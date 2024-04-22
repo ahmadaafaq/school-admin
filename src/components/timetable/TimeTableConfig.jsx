@@ -63,7 +63,6 @@ export const datagridColumns = () => {
       flex: 1,
       // minWidth: 100,
       valueGetter: (params) => `${params.row.batch.charAt(0).toUpperCase() + params.row.batch.slice(1) || ''} `
-
     },
     {
       field: "day",
