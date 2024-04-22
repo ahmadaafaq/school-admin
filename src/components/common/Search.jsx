@@ -9,13 +9,15 @@
 import { useState } from "react";
 import PropTypes from 'prop-types';
 
-import { Box, IconButton, InputBase, useMediaQuery, useTheme } from "@mui/material";
+import { Box, IconButton, InputBase, useMediaQuery, useTheme, Button } from "@mui/material";
+import ReplayIcon from "@mui/icons-material/Replay";
 import SearchIcon from "@mui/icons-material/Search";
 
 import { tokens } from "../../theme";
 
 const Search = ({
     getSearchData,
+    handleReload,
     condition,
     setSearchFlag,
     reloadBtn,
@@ -51,25 +53,50 @@ const Search = ({
 
     return (
         <Box
+
             backgroundColor={colors.primary[400]}
             borderRadius="10px"
             width="40vw"
             height={isTab ? "4vh" : "auto"}
             position="relative"
         >
-            <InputBase sx={{
-                ml: 2,
-                flex: 1,
-                width: "88%",
-                position: "absolute",
-                mt: isMobile ? 0 : 1
-            }}
+            <InputBase
+                sx={{
+                    ml: 2,
+                    flex: 1,
+                    width: "88%",
+                    position: "absolute",
+                    mt: isMobile ? 0 : 1
+                }}
                 placeholder="Search"
                 id="input"
                 value={inputValue}
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
+                autoComplete="off" // Add this attribute to disable suggestions
             />
+
+
+            <Button
+                sx={{
+                    display: "none",
+                    zIndex: 1,
+                    borderRadius: "20%",
+                    color: colors.grey[100],
+                    float: "right",
+                    marginRight: "30px",
+                    marginTop: "6px"
+                }}
+                id="reload-btn"
+                type="button"
+                onClick={handleReload}
+            >
+                <span style={{ display: "inherit", marginRight: "5px" }}>
+                    <ReplayIcon />
+                </span>
+                Back
+            </Button>
+
             <IconButton sx={{
                 p: 1,
                 position: "absolute",
@@ -87,9 +114,9 @@ const Search = ({
 
 Search.propTypes = {
     getSearchData: PropTypes.func,
-    condition: PropTypes.any, 
+    condition: PropTypes.any,
     setSearchFlag: PropTypes.func,
-    reloadBtn: PropTypes.object, 
+    reloadBtn: PropTypes.object,
     action: PropTypes.func,
     api: PropTypes.object
 };
