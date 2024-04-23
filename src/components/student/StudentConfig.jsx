@@ -108,7 +108,29 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueFormatter: (params) => {
+                const date = new Date(params.value);
+                const monthNames = [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ];
+        
+                const formattedDate = `${date.getDate()}-${monthNames[date.getMonth()]
+                  }-${date.getFullYear()}`;
+        
+                return formattedDate;
+              }
         },
         {
             field: "status",

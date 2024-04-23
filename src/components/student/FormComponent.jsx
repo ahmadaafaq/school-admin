@@ -97,19 +97,19 @@ const FormComponent = () => {
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
         }
         try {
-            if (formData.studentData.dirty) {
+            if (formData?.studentData?.dirty) {
                 await API.UserAPI.register({
-                    userId: formData.teacherData.values.parent_id,
-                    id: formData.teacherData.values.parent_id,
+                    userId: formData?.teacherData?.values?.parent_id,
+                    id: formData?.teacherData?.values?.parent_id,
                     username: username,
-                    email: formData.studentData.values.email,
-                    contact_no: formData.studentData.values.contact_no,
-                    status: formData.studentData.values.status
+                    email: formData?.studentData?.values?.email,
+                    contact_no: formData?.studentData?.values?.contact_no,
+                    status: formData?.studentData?.values?.status
                 });
                 paths.push("/update-student");
                 dataFields.push({
-                    ...formData.studentData.values,
-                    subjects: getIdsFromObject(formData.studentData.values.subjects)
+                    ...formData?.studentData?.values,
+                    subjects: getIdsFromObject(formData?.studentData?.values?.subjects)
                 });
             }
             if (formData.addressData.dirty) {
@@ -159,7 +159,7 @@ const FormComponent = () => {
 
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
-                Array.from(formData.imageData.values.image).map(image => {
+                Array.from(formData.imageData.values?.image).map(image => {
                     formattedName = formatImageName(image.name);
                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                     API.ImageAPI.createImage({
@@ -385,7 +385,7 @@ const FormComponent = () => {
         if (formValidated) {
             console.log('ander aaya');
             console.log(formData, 'formdata ander wala');
-            formData.studentData.values?.id ? updateStudentAndAddress(formData) : createStudent(formData);
+            formData?.studentData?.values?.id ? updateStudentAndAddress(formData) : createStudent(formData);
         } else {
             setSubmitted(false);
         }
