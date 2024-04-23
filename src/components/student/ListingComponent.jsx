@@ -15,12 +15,11 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Button, Typography, useMediaQuery, useTheme } from "@mui/material";
 
-
 import API from "../../apis";
-import ViewDetailModal from "../common/ViewDetailModal";
 import classNames from "../modules";
 import Search from "../common/Search";
 import ServerPaginationGrid from "../common/Datagrid";
+import ViewDetailModal from "../common/ViewDetailModal";
 
 import { datagridColumns } from "./StudentConfig";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
@@ -83,15 +82,6 @@ const ListingComponent = ({ rolePriority = null }) => {
       parentId: parentId,
     };
   }
-
-  const handleReload = () => {
-    reloadBtn.style.display = "none";
-    setSearchFlag({
-      search: false,
-      searching: false,
-      oldPagination,
-    });
-  };
 
   const populateData = useCallback(id => {
     const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
@@ -177,16 +167,16 @@ const ListingComponent = ({ rolePriority = null }) => {
     Blood_group: studentDetail?.studentData?.blood_group,
     Class: className,
     Section: sectionName
-};
-const verticalData ={
-  Father_name: studentDetail?.studentData?.father_name,
-  Mother_name: studentDetail?.studentData?.mother_name,
-  Guardian: studentDetail?.studentData?.guardian,
-  Contact_no: studentDetail?.studentData?.contact_no,
-  Religion: studentDetail?.studentData?.religion,
-  Caste_group: studentDetail?.studentData?.caste_group,
-  Gender: studentDetail?.studentData?.gender,
-}
+  };
+  const verticalData = {
+    Father_name: studentDetail?.studentData?.father_name,
+    Mother_name: studentDetail?.studentData?.mother_name,
+    Guardian: studentDetail?.studentData?.guardian,
+    Contact_no: studentDetail?.studentData?.contact_no,
+    Religion: studentDetail?.studentData?.religion,
+    Caste_group: studentDetail?.studentData?.caste_group,
+    Gender: studentDetail?.studentData?.gender,
+  };
 
 
   return (
@@ -235,7 +225,6 @@ const verticalData ={
             oldPagination={oldPagination}
             reloadBtn={reloadBtn}
             setSearchFlag={setSearchFlag}
-            handleReload={handleReload}
           />
 
           {rolePriority > 1 && (
@@ -255,7 +244,7 @@ const verticalData ={
           )}
         </Box>
       </Box>
-            <ServerPaginationGrid
+      <ServerPaginationGrid
         action={setStudents}
         api={API.StudentAPI}
         getQuery={getPaginatedData}
