@@ -123,14 +123,18 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
     if (!allSchools?.listData?.length) {
       fetchAndSetAll(dispatch, setAllSchools, API.SchoolAPI);
     }
-
   }, []);
 
   useEffect(() => {
-    // Close the tooltip after 6 seconds
-    setTimeout(() => {
+    // Set up the timeout to close the tooltip after 6 seconds
+    const timeoutId = setTimeout(() => {
       setIsOpen(false);
     }, 6000);
+
+    // Cleanup function to clear the timeout
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (
@@ -179,7 +183,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
             <Tooltip
               title="Select School"
               placement="left-start"
-              open={isOpen}
+              open={isOpen && allSchools?.listData?.length > 0}
               arrow
               componentsProps={{
                 arrow: {
@@ -191,16 +195,16 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
                 tooltip: {
                   sx: {
                     animation: 'blinking 1s infinite',
-                    backgroundColor: "#f50057", // Background color
-                    color: "#ffffff", // Text color
-                    padding: "8px 16px", // Padding
-                    borderRadius: "4px", // Border radius
-                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)", // Box shadow
-                    fontSize: "14px", // Font size
-                    fontWeight: "bold", // Font weight
-                    letterSpacing: "0.5px", // Letter spacing
-                  },
-                },
+                    backgroundColor: "#f50057",
+                    color: "#ffffff",
+                    padding: "8px 16px",
+                    borderRadius: "4px",
+                    boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    letterSpacing: "0.5px"
+                  }
+                }
               }}
             >
               <Autocomplete
