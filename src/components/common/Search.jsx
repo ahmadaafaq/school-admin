@@ -17,7 +17,6 @@ import { tokens } from "../../theme";
 
 const Search = ({
     getSearchData,
-    handleReload,
     condition,
     setSearchFlag,
     reloadBtn,
@@ -36,7 +35,6 @@ const Search = ({
 
     const handleSearch = () => {
         getSearchData(0, 5, action, api, condition, inputValue);
-        setInputValue('');
         setSearchFlag({
             search: true,
             searching: true,
@@ -51,22 +49,28 @@ const Search = ({
         }
     };
 
+    const handleReload = () => {
+        reloadBtn.style.display = "none";
+        setInputValue('');
+        setSearchFlag({
+            search: false,
+            searching: false
+        });
+    };
+
     return (
         <Box
-
             backgroundColor={colors.primary[400]}
             borderRadius="10px"
             width="40vw"
             height={isTab ? "4vh" : "auto"}
-            position="relative"
+            display="flex"
         >
             <InputBase
                 sx={{
                     ml: 2,
                     flex: 1,
                     width: "88%",
-                    position: "absolute",
-                    mt: isMobile ? 0 : 1
                 }}
                 placeholder="Search"
                 id="input"
@@ -75,34 +79,21 @@ const Search = ({
                 onKeyDown={handleKeyDown}
                 autoComplete="off" // Add this attribute to disable suggestions
             />
-
-
-            <Button
-                sx={{
-                    display: "none",
-                    zIndex: 1,
-                    borderRadius: "20%",
-                    color: colors.grey[100],
-                    float: "right",
-                    marginRight: "30px",
-                    marginTop: "6px"
-                }}
+            <Button sx={{
+                display: "none",
+                zIndex: 1,
+                borderRadius: "50%",
+                color: colors.grey[100],
+                float: "right",
+            }}
                 id="reload-btn"
                 type="button"
                 onClick={handleReload}
             >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
+                <ReplayIcon />
             </Button>
-
             <IconButton sx={{
-                p: 1,
-                position: "absolute",
-                top: isTab ? "0" : "6px",
-                right: isTab ? "2px" : "2px",
-                "&:hover": { backgroundColor: colors.greenAccent[600] }
+                p: 2
             }}
                 onClick={handleSearch}
             >

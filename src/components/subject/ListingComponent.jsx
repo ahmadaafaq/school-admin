@@ -11,7 +11,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import FormComponent from "./FormInModalComponent";
@@ -53,16 +52,6 @@ const ListingComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-        reloadBtn.style.display = "none";
-        setSearchFlag({
-            search: false,
-            searching: false,
-            oldPagination
-        });
-    };
 
     //For form modal to open
     const handleDialogOpen = () => {
@@ -126,24 +115,6 @@ const ListingComponent = () => {
                     </Button>
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
-                color: colors.grey[100]
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setListingSubjects}
                 api={API.SubjectAPI}

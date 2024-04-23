@@ -11,7 +11,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import Search from "../common/Search";
@@ -64,16 +63,6 @@ const ListingComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-        reloadBtn.style.display = "none";
-        setSearchFlag({
-            search: false,
-            searching: false,
-            oldPagination
-        });
-    };
 
     const populateData = useCallback(id => {
         const paths = [`/get-by-pk/school/${id}`, `/get-address/school/${id}`, `/get-image/school/${id}`];
@@ -221,24 +210,6 @@ const ListingComponent = () => {
                     </Button>
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "202px" : isTab ? "142px" : "110px",
-                left: isMobile ? "320px" : isTab ? "320px" : "325px",
-                zIndex: 10,
-                borderRadius: "10%",
-                color: colors.grey[100]
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setListingSchools}
                 api={API.SchoolAPI}

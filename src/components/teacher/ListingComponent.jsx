@@ -12,7 +12,6 @@ import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import Search from "../common/Search";
@@ -30,7 +29,6 @@ import listBg from "../assets/listBG.jpg";
 const pageSizeOptions = [5, 10, 20];
 
 const ListingComponent = ({ rolePriority = null }) => {
-    const [teacherDetail, setTeacherDetail] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const { listData, loading } = useSelector(state => state.allTeachers);
 
@@ -86,9 +84,6 @@ const ListingComponent = ({ rolePriority = null }) => {
 //             });
 //         }
 //     }, [listData?.rows?.length])
-
-
-    console.log('teacher listdata', listData)
 
     return (
         <Box m="10px" position="relative"
@@ -146,25 +141,6 @@ const ListingComponent = ({ rolePriority = null }) => {
                         </Button>)}
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
-                color: colors.grey[100],
-                marginLeft: "14vh"
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setTeachers}
                 api={API.TeacherAPI}
