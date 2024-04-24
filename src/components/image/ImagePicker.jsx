@@ -11,7 +11,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { ErrorMessage, useFormik } from "formik";
-import { Box, IconButton, TextField } from "@mui/material";
+import { Box, IconButton, TextField,Typography } from "@mui/material";
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 import imageValidation from "./Validation";
@@ -87,7 +87,7 @@ const ImagePicker = ({
             {/* {!multiple || formik.values[`${image}`] ? ( */}
             <form ref={refId} encType="multipart/form-data" style={{ display: multiple || (showPicker && !updatedImage?.length) ? "block" : "none" }}>
                 <TextField
-                    accept="image/*, application/pdf"
+                    accept=".jpg, .gif, .png, .jpeg, .svg, .webp, application/pdf"
                     name={image}
                     label={`Upload ${imageType} Image`}
                     value={formik.values[`${image}`] || ''}
@@ -122,8 +122,6 @@ const ImagePicker = ({
                             </IconButton>
                         )
                     }}
-                    error={formik.touched[`${image}`] && Boolean(formik.errors[`${image}`])}
-                    helperText={formik.touched[`${image}`] && formik.errors[`${image}`]}
                     sx={{ m: 1, outline: "none", width: "13%" }}
                 />
             </form>
@@ -146,6 +144,13 @@ const ImagePicker = ({
                 imageType={image}
                 ENV={ENV}
             />
+            {formik.touched[`${image}`] && formik.errors[`${image}`] && (
+                <Typography variant="body2" color="error" mb="10%">
+                    {formik.errors[`${image}`]}
+                </Typography>
+            )}
+
+
         </Box>
     );
 }
