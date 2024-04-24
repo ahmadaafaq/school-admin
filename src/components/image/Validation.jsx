@@ -8,7 +8,7 @@
 
 import * as yup from "yup";
 
-const MAX_FILE_SIZE = 10240000; //1MB
+const MAX_FILE_SIZE = 1048576; //1MB
 
 const validFileExtensions = ['jpg', 'gif', 'png', 'jpeg', 'svg', 'webp'];
 

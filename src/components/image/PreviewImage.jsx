@@ -135,7 +135,7 @@ const PreviewImage = ({
     };
 
     return (
-        <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit", marginBottom: "8%" }}
+        <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit" }}
             cols={3} rowHeight={isMobile ? 80 : isTab ? 160 : 220} gap={8}>
             {preview ? preview.map((item, index) => (
                 <ImageListItem key={index}>
