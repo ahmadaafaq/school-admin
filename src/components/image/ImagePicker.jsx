@@ -11,7 +11,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { ErrorMessage, useFormik } from "formik";
-import { Box, FormHelperText, IconButton, TextField } from "@mui/material";
+import { Box, IconButton, TextField } from "@mui/material";
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 import imageValidation from "./Validation";

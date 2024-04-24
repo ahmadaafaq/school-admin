@@ -31,74 +31,74 @@ const config = {
         'indian': 'Indian',
         'nri': 'NRI'
     },
-    head:{
-        '1':'Appoint',
-        '0':'Not appointed'
+    head: {
+        '1': 'Appoint',
+        '0': 'Not appointed'
     },
     fee_waiver_type: {
         'partial': 'Partial',
         'full': 'Full'
     },
-    gender:{
-        'male':'Male',
-        'female':'Female',
-        'other':'Other'
+    gender: {
+        'male': 'Male',
+        'female': 'Female',
+        'other': 'Other'
     },
-    admission_type:{
-        'regular':'Regular',
-        'midsession':'Mid-Session'
+    admission_type: {
+        'regular': 'Regular',
+        'midsession': 'Mid-Session'
     },
-    grade:{
-        'primary_teacher':'Primary Teacher',
-        'trained_graduate_teacher':'Trained Graduate Teacher',
-        'post_graduate_teacher':'Post Graduate Teacher'
+    grade: {
+        'primary_teacher': 'Primary Teacher',
+        'trained_graduate_teacher': 'Trained Graduate Teacher',
+        'post_graduate_teacher': 'Post Graduate Teacher'
     },
-    payment_status:{
-        'pending':'Pending',
-        'partial':'Partial',
-        'full':'Full'
+    payment_status: {
+        'pending': 'Pending',
+        'partial': 'Partial',
+        'full': 'Full'
     },
-    payment_method:{
-        'cash':'Cash',
-        'credit card':'Credit Card',
-        'online transfer':'Online Transfer'
+    payment_method: {
+        'cash': 'Cash',
+        'credit card': 'Credit Card',
+        'online transfer': 'Online Transfer'
     },
     //payment type \/ :-
-    type:{
-        'school':'School',
-        'event':'Event',
-        'cycle stand':'Cycle Stand',
-        'bus':'Bus'
+    type: {
+        'school': 'School',
+        'event': 'Event',
+        'cycle stand': 'Cycle Stand',
+        'bus': 'Bus'
     },
-    holiday_type:{
-        'school_closure':'School Closure',
-        'partial_closure':'Partial Closure',
-        'staff_only':'Staff Only'
+    holiday_type: {
+        'school_closure': 'School Closure',
+        'partial_closure': 'Partial Closure',
+        'staff_only': 'Staff Only'
     },
-    term:{
-        'I':'I',
-        'II':'II',
-        'III':'III'
+    term: {
+        'I': 'I',
+        'II': 'II',
+        'III': 'III'
     },
-    day:{
-        'monday':'Monday',
-        'tuesday':'Tuesday',
-        'wednesday':'Wednesday',
-        'thursday':'Thursday',
-        'friday':'Friday',
-        'saturday':'Saturday'
+    day: {
+        'monday': 'Monday',
+        'tuesday': 'Tuesday',
+        'wednesday': 'Wednesday',
+        'thursday': 'Thursday',
+        'friday': 'Friday',
+        'saturday': 'Saturday'
     },
-    schoolType:{
-        'co-ed':'Co-Ed',
-        'boys':'Boys',
-        'girls':'Girls'
+    schoolType: {
+        'co-ed': 'Co-Ed',
+        'boys': 'Boys',
+        'girls': 'Girls'
     },
-    subSchoolType:{
-        'playground':'Playground',
-        'junior':'Junior',
-        'senior':'Senior',
-        'senior-sec':'Senior-Sec'
-    }      
+    subSchoolType: {
+        'playgroup': 'Playgroup',
+        'junior': 'Junior',
+        'senior': 'Senior',
+        'senior-sec': 'Senior-Sec'
+    }
 };
 
 export default config;

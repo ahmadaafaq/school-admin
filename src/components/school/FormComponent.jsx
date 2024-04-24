@@ -76,7 +76,7 @@ const FormComponent = () => {
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
     const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, getValuesFromArray,
-        isObjEmpty, fetchAndSetAll, toastAndNavigate } = Utility();
+        fetchAndSetAll, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -131,104 +131,86 @@ const FormComponent = () => {
         //         console.log("Deleted  banner image from azure");
         //     });
         // }
-
-        let updatePromises = [];
         let status = null;
 
         if (formData.schoolData.dirty) {
-            await (async () => {
-                // delete all class sections from mapping table
-                await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
+            // Delete all class sections from the mapping table
+            await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
 
-                updatePromises = formData.schoolData.values.sections.map((innerArray, classIndex) => {
-                    const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
-                    // Iterating through each section in the class then associating subject ids for each section of class
-                    innerArray.map((sectionData, sectionIndex) => {
-                        const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                        API.SchoolAPI.insertIntoMappingTable(
-                            [formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
-                        );
-                    });
-                });
-                await Promise.all(updatePromises);
-            })();
+            const updatedClassData = formData.schoolData.values.sections.map(async (innerArray, classIndex) => {
+                const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                // Iterating through each section in the class then associating subject ids for each section of class
+                return Promise.all(innerArray.map(async (sectionData, sectionIndex) => {
+                    const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
+                    await API.SchoolAPI.insertIntoMappingTable([formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]);
+                }));
+            });
+
+            await Promise.all(updatedClassData);
         }
 
-        try {       //image is not working
+        try {
             let formattedName;
-            console.log('formData.imageData=>', formData.imageData, formData.imageData.values.constructor === Array)
-            console.log('formData.bannerImageData=>', formData.bannerImageData, formData.bannerImageData.values.constructor === Array)
-
-            if (formData.imageData.dirty) {
-                if (!isObjEmpty(formData.imageData.values)) {
-                    // delete all images from db on every update and later insert new and old again
-                    API.ImageAPI.deleteImage({
-                        parent: "school",
-                        parent_id: id
+            // delete all images from db on every update and later insert new and old again
+            await API.ImageAPI.deleteImage({
+                parent: "school",
+                parent_id: id
+            });
+            // upload new images to backend folder and insert in db
+            if (formData.imageData?.values?.image) {
+                Array.from(formData.imageData.values?.image).map(image => {
+                    formattedName = formatImageName(image.name);
+                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                    API.ImageAPI.createImage({
+                        image_src: formattedName,
+                        school_id: formData.schoolData.values.id,
+                        parent_id: formData.schoolData.values.id,
+                        parent: 'school',
+                        type: 'display'
                     });
-
-                    // upload new images display to backend folder and insert in db
-                    if (formData.imageData.values?.image) {
-                        Array.from(formData.imageData.values.image).map(image => {
-                            formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: formData.schoolData.values.id,
-                                parent_id: formData.schoolData.values.id,
-                                parent: 'school',
-                                type: 'display'
-                            })
-                        });
-                        status = true;
-                    }
-                    // insert old images display only in db & not on azure
-                    if (formData.imageData.values.constructor === Array) {
-                        formData.imageData.values.map(image => {
-                            API.ImageAPI.createImage({
-                                image_src: image.image_src,
-                                school_id: image.school_id,
-                                parent_id: image.parent_id,
-                                parent: image.parent,
-                                type: image.type
-                            });
-                        });
-                        status = true;
-                    }
-                }
+                });
+                status = true;
             }
-            if (formData.bannerImageData.dirty) {
-                if (!isObjEmpty(formData.bannerImageData.values)) {
-                    // upload new banner images to azure and insert in db
-                    if (formData.bannerImageData.values?.image) {
-                        Array.from(formData.bannerImageData.values?.image).map(image => {
-                            let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: formData.schoolData.values.id,
-                                parent_id: formData.schoolData.values.id,
-                                parent: 'school',
-                                type: 'banner'
-                            })
-                        });
-                        status = true;
-                    }
-                    // insert old images banner only in db & not on azure
-                    if (formData.bannerImageData.values.constructor === Array) {
-                        formData.bannerImageData.values.map(image => {
-                            API.ImageAPI.createImage({
-                                image_src: image.image_src,
-                                school_id: image.school_id,
-                                parent_id: image.parent_id,
-                                parent: image.parent,
-                                type: image.type
-                            })
-                        });
-                        status = true;
-                    }
-                }
-            } else {
+            // insert old images only in db & not on azure
+            if (formData.imageData?.values?.constructor === Array) {
+                formData.imageData.values.map(image => {
+                    API.ImageAPI.createImage({
+                        image_src: image.image_src,
+                        school_id: image.school_id,
+                        parent_id: image.parent_id,
+                        parent: image.parent,
+                        type: image.type
+                    });
+                });
+                status = true;
+            }
+
+            // upload new parent images to azure and insert in db
+            if (formData.bannerImageData?.values?.image) {
+                Array.from(formData.bannerImageData.values.image).map(image => {
+                    let formattedName = formatImageName(image.name);
+                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                    API.ImageAPI.createImage({
+                        image_src: formattedName,
+                        school_id: formData.schoolData.values.id,
+                        parent_id: formData.schoolData.values.id,
+                        parent: 'school',
+                        type: 'banner'
+                    });
+                });
+                status = true;
+            }
+            // insert old images parent only in db & not on azure
+            if (formData.bannerImageData?.values?.constructor === Array) {
+                formData.bannerImageData.values.map(image => {
+                    API.ImageAPI.createImage({
+                        image_src: image.image_src,
+                        school_id: image.school_id,
+                        parent_id: image.parent_id,
+                        parent: image.parent,
+                        type: image.type
+                    });
+                });
                 status = true;
             }
             if (status) {
@@ -240,7 +222,7 @@ const FormComponent = () => {
             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
             throw err;
         }
-    }, []);
+    }, [formData]);
 
     const populateSchoolData = useCallback(id => {
         setLoading(true);
@@ -273,7 +255,7 @@ const FormComponent = () => {
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error in MultipleApiCall", navigateTo, 0);
             });
     }, [formAmenitiesInRedux?.listData?.rows]);
 
@@ -311,8 +293,8 @@ const FormComponent = () => {
                         });
                     });
 
-                    if (formData.imageData.values?.Display?.length) {
-                        promise3 = Array.from(formData.imageData.values.Display).map(async (image) => {
+                    if (formData.imageData.values?.image?.length) {
+                        promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
                             API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                             API.ImageAPI.createImage({
@@ -325,8 +307,8 @@ const FormComponent = () => {
                         });
                     }
 
-                    if (formData.bannerImageData.values.Banner?.length) {
-                        promise4 = Array.from(formData.bannerImageData.values.Banner).map(async (image) => {
+                    if (formData.bannerImageData.values.image?.length) {
+                        promise4 = Array.from(formData.bannerImageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
                             API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                             API.ImageAPI.createImage({
@@ -397,7 +379,6 @@ const FormComponent = () => {
 
 
     const handleSubmit = async () => {
-        console.log('imageFormRef.current', imageFormRef.current)
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
         await imageFormRef.current?.Submit();

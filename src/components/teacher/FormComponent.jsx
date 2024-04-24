@@ -37,7 +37,7 @@ const FormComponent = () => {
   const [formData, setFormData] = useState({
     teacherData: { values: null, validated: false },
     addressData: { values: null, validated: false },
-    imageData: { values: null, validated: true },
+    imageData: { values: null, validated: false },
   });
   const [updatedValues, setUpdatedValues] = useState(null);
   const [updatedImage, setUpdatedImage] = useState([]);
@@ -89,8 +89,7 @@ const FormComponent = () => {
     const dataFields = [];
 
     const username = formData.teacherData.values?.firstname.toLowerCase() +
-      (formData.teacherData.values?.lastname ? `${formData.teacherData.values?.lastname.toLowerCase()}`
-        : "");
+      (formData.teacherData.values?.lastname ? `${formData.teacherData.values?.lastname.toLowerCase()}` : "");
 
     try {
       if (formData.teacherData.dirty) {
@@ -102,8 +101,6 @@ const FormComponent = () => {
           contact_no: formData.teacherData.values.contact_no,
           status: formData.teacherData.values.status
         });
-      }
-      if (formData.teacherData.dirty) {
         paths.push("/update-teacher");
         dataFields.push(formData.teacherData.values);
       }
@@ -111,7 +108,6 @@ const FormComponent = () => {
         paths.push("/update-address");
         dataFields.push(formData.addressData.values);
       }
-      console.log('img dataFields=>', dataFields);
       const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
       if (responses) {
         updateImageAndClassData(formData);
@@ -161,47 +157,42 @@ const FormComponent = () => {
       })();
     }
 
-    try {   //image is not working
+    try {
       let formattedName;
-      if (formData.imageData.dirty) {
-        if (!isObjEmpty(formData.imageData.values)) {
-          console.log('img UPLOAD IMAGE AND SAVE IN DB');
-          console.log('img DELETE OLD')
-          // delete all images from db on every update and later insert new and old again
-          API.ImageAPI.deleteImage({
-            parent: "teacher",
-            parent_id: id,
+      if (!isObjEmpty(formData.imageData.values)) {
+        // delete all images from db on every update and later insert new and old again
+        API.ImageAPI.deleteImage({
+          parent: "teacher",
+          parent_id: id,
+        });
+        // upload new images to backend folder and insert in db
+        if (formData.imageData?.values?.image) {
+          Array.from(formData.imageData.values.image).map((image) => {
+            formattedName = formatImageName(image.name);
+            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+            API.ImageAPI.createImage({
+              image_src: formattedName,
+              school_id: formData.teacherData.values.id,
+              parent_id: formData.teacherData.values.id,
+              parent: "teacher",
+              type: "normal"
+            });
           });
-          // upload new images to backend folder and insert in db
-          if (formData.imageData?.values?.image?.length) {
-            Array.from(formData.imageData.values.image).map((image) => {
-              formattedName = formatImageName(image.name);
-              API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-              API.ImageAPI.createImage({
-                image_src: formattedName,
-                parent_id: formData.teacherData.values.id,
-                parent: "teacher",
-                type: "normal",
-              });
-            });
-            status = true;
-          }
-          // insert old images only in db & not on azure
-          if (formData.imageData.values.constructor === Array) {
-            formData.imageData.values.map((oldIimage) => {
-              API.ImageAPI.createImage({
-                image_src: oldIimage.image_src,
-                school_id: oldIimage.school_id,
-                parent_id: oldIimage.parent_id,
-                parent: oldIimage.parent,
-                type: oldIimage.type,
-              });
-            });
-            status = true;
-          }
+          status = true;
         }
-      } else {
-        status = true;
+        // insert old images only in db & not on azure
+        if (formData.imageData.values.constructor === Array) {
+          formData.imageData.values.map(oldIimage => {
+            API.ImageAPI.createImage({
+              image_src: oldIimage.image_src,
+              school_id: oldIimage.school_id,
+              parent_id: oldIimage.parent_id,
+              parent: oldIimage.parent,
+              type: oldIimage.type,
+            });
+          });
+          status = true;
+        }
       }
       if (status) {
         setLoading(false);
@@ -226,7 +217,7 @@ const FormComponent = () => {
       );
       throw err;
     }
-  }, []);
+  }, [formData]);
 
   const populateTeacherData = useCallback((id) => {
     setLoading(true);
@@ -261,16 +252,14 @@ const FormComponent = () => {
       });
   }, []);
 
-  const createTeacher = useCallback((formData) => {
+  const createTeacher = useCallback(formData => {
     let promise1;
     let promise2;
     let promise3;
     setLoading(true);
     const username =
-      formData.teacherData.values?.firstname.toLowerCase() +
-      (formData.teacherData.values?.lastname
-        ? `${formData.teacherData.values?.lastname.toLowerCase()}`
-        : "");
+      formData.teacherData.values?.firstname.toLowerCase() + (formData.teacherData.values?.lastname
+        ? `${formData.teacherData.values?.lastname.toLowerCase()}` : "");
     const password = generatePassword();
 
     API.UserAPI.register({
@@ -280,71 +269,55 @@ const FormComponent = () => {
       contact_no: formData.teacherData.values.contact_no,
       role: 4,
       designation: "teacher",
-      status: formData.teacherData.values.status,
+      status: formData.teacherData.values.status
     })
       .then(({ data: user }) => {
         if (user?.status === "Success") {
           API.TeacherAPI.createTeacher({
             ...formData.teacherData.values,
             parent_id: user.data.id,
-            password: password,
+            password: password
           })
             .then(async ({ data: teacher }) => {
               promise1 = API.AddressAPI.createAddress({
                 ...formData.addressData.values,
+                school_id: teacher.data.school_id,
                 parent_id: teacher.data.id,
-                parent: "teacher",
+                parent: "teacher"
               });
 
-              promise2 = formData.teacherData.values.sections.map(
-                (innerArray, classIndex) => {
-                  const teacherClass =
-                    formData.teacherData.values.classes[classIndex] || 0;
-                  // Iterating through each section in the class then associating subject ids for each section of class
-                  innerArray.map((sectionData, sectionIndex) => {
-                    const subjectArray =
-                      formData.teacherData.values.subjects[classIndex][
-                      sectionIndex
-                      ] || [];
-                    API.TeacherAPI.insertIntoMappingTable([
-                      teacher.data.id,
-                      teacherClass,
-                      sectionData.section_id,
-                      getIdsFromObject(subjectArray, allSubjects?.listData),
-                    ]);
-                  });
-                }
-              );
+              promise2 = formData.teacherData.values.sections.map((innerArray, classIndex) => {
+                const teacherClass = formData.teacherData.values.classes[classIndex] || 0;
+                // Iterating through each section in the class then associating subject ids for each section of class
+                innerArray.map((sectionData, sectionIndex) => {
+                  const subjectArray = formData.teacherData.values.subjects[classIndex][sectionIndex] || [];
+                  API.TeacherAPI.insertIntoMappingTable([
+                    teacher.data.id,
+                    teacherClass,
+                    sectionData.section_id,
+                    getIdsFromObject(subjectArray, allSubjects?.listData),
+                  ]);
+                });
+              });
 
               if (formData.imageData.values.image?.length) {
-                promise3 = Array.from(formData.imageData.values.image).map(
-                  async (image) => {
-                    let formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({
-                      image: image,
-                      imageName: formattedName,
-                    });
-                    API.ImageAPI.createImage({
-                      image_src: formattedName,
-                      parent_id: teacher.data.id,
-                      parent: "teacher",
-                      type: "normal",
-                    });
-                  }
-                );
+                promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
+                  let formattedName = formatImageName(image.name);
+                  API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                  API.ImageAPI.createImage({
+                    image_src: formattedName,
+                    school_id: school.data.school_id,
+                    parent_id: teacher.data.id,
+                    parent: "teacher",
+                    type: "normal"
+                  });
+                });
               }
 
               try {
                 await Promise.all([promise1, promise2, promise3]);
                 setLoading(false);
-                toastAndNavigate(
-                  dispatch,
-                  true,
-                  "success",
-                  "Successfully Created",
-                  navigateTo,
-                  `/teacher/listing`
-                );
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/teacher/listing`);
               } catch (err) {
                 setLoading(false);
                 toastAndNavigate(
@@ -355,19 +328,12 @@ const FormComponent = () => {
                   navigateTo,
                   0
                 );
-                console.log("Error in teacher create", err);
+                console.log("Error in Teacher Create", err);
               }
             })
             .catch((err) => {
               setLoading(false);
-              toastAndNavigate(
-                dispatch,
-                true,
-                "error",
-                err ? err?.response?.data?.msg : "An Error Occurred",
-                navigateTo,
-                0
-              );
+              toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
               console.log("Error in teacher create", err);
             });
         }
