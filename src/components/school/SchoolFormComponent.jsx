@@ -365,10 +365,9 @@ const SchoolFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.sub_type && !!formik.errors.sub_type}
                     >
-                        <InputLabel id="sub_typeField">Sub Type</InputLabel>
+                        <InputLabel>Sub Type</InputLabel>
                         <Select
                             variant="filled"
-                            labelId="sub_typeField"
                             name="sub_type"
                             value={formik.values.sub_type}
                             onChange={event => formik.setFieldValue("sub_type", event.target.value)}

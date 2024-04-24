@@ -97,19 +97,19 @@ const FormComponent = () => {
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
         }
         try {
-            if (formData?.studentData?.dirty) {
+            if (formData.studentData?.dirty) {
                 await API.UserAPI.register({
-                    userId: formData?.teacherData?.values?.parent_id,
-                    id: formData?.teacherData?.values?.parent_id,
+                    userId: formData.teacherData?.values?.parent_id,
+                    id: formData.teacherData?.values?.parent_id,
                     username: username,
-                    email: formData?.studentData?.values?.email,
-                    contact_no: formData?.studentData?.values?.contact_no,
-                    status: formData?.studentData?.values?.status
+                    email: formData.studentData?.values?.email,
+                    contact_no: formData.studentData?.values?.contact_no,
+                    status: formData.studentData?.values?.status
                 });
                 paths.push("/update-student");
                 dataFields.push({
-                    ...formData?.studentData?.values,
-                    subjects: getIdsFromObject(formData?.studentData?.values?.subjects)
+                    ...formData.studentData.values,
+                    subjects: getIdsFromObject(formData.studentData.values?.subjects)
                 });
             }
             if (formData.addressData.dirty) {
@@ -146,9 +146,6 @@ const FormComponent = () => {
 
         try {
             let formattedName;
-            console.log(formData.imageData.dirty, formData.imageData, 'photo dirty')
-            // if (formData.imageData.dirty) {
-            console.log('image dirtyStudent', id)
             // delete all images from db on every update and later insert new and old again
             if (deletedImage.length) {
                 API.ImageAPI.deleteImage({
@@ -156,7 +153,6 @@ const FormComponent = () => {
                     parent_id: id
                 });
             }
-
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
                 Array.from(formData.imageData.values?.image).map(image => {
@@ -164,6 +160,7 @@ const FormComponent = () => {
                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                     API.ImageAPI.createImage({
                         image_src: formattedName,
+                        school_id: formData.studentData.values.school_id,
                         parent_id: formData.studentData.values.id,
                         parent: 'student',
                         type: 'normal'
@@ -172,8 +169,8 @@ const FormComponent = () => {
                 status = true;
             }
             // insert old images only in db & not on azure
-            if (formData?.imageData?.values?.constructor === Array) {
-                formData?.imageData?.values.map(image => {
+            if (formData.imageData?.values?.constructor === Array) {
+                formData.imageData.values.map(image => {
                     API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
@@ -184,34 +181,24 @@ const FormComponent = () => {
                 });
                 status = true;
             }
-            // }
-            // if (formData.parentImageData.dirty) {
-            console.log('photo dirtyBaap', id)
-            if (deletedParentImage.length) {
-                API.ImageAPI.deleteImage({
-                    parent: "parent",
-                    parent_id: id
-                });
-            }
-            console.log('picker formData.parentImageData?.values', formData.parentImageData?.values)
             // upload new parent images to azure and insert in db
-            if (formData?.parentImageData?.values?.image) {
+            if (formData.parentImageData?.values?.image) {
                 Array.from(formData.parentImageData.values.image).map(image => {
                     let formattedName = formatImageName(image.name);
                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                     API.ImageAPI.createImage({
                         image_src: formattedName,
+                        school_id: formData.studentData.values.school_id,
                         parent_id: formData.studentData.values.id,
                         parent: 'parent',
                         type: 'normal'
                     });
                 });
-                console.log("photo Created new parent image")
                 status = true;
             }
             // insert old images parent only in db & not on azure
-            if (formData?.bannerImageData?.values?.constructor === Array) {
-                formData?.parentImageData?.values?.map(image => {
+            if (formData.parentImageData?.values?.constructor === Array) {
+                formData.parentImageData.values.map(image => {
                     API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
@@ -220,13 +207,8 @@ const FormComponent = () => {
                         type: image.type
                     });
                 });
-                console.log("photo Created old parent image only in db")
                 status = true;
             }
-            // } else {
-            //     console.log('photo not inside any condition')
-            //     status = true;
-            // }
             if (status) {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/student/listing/${getLocalStorage('class') || ''}`);
@@ -300,34 +282,37 @@ const FormComponent = () => {
                     API.StudentAPI.createStudent({
                         ...formData.studentData.values,
                         parent_id: user.data.id,
-                        password: password,
+                        password: password
                     })
                         .then(async ({ data: student }) => {
                             promise1 = API.AddressAPI.createAddress({
                                 ...formData.addressData.values,
+                                school_id: student.data.school_id,
                                 parent_id: student.data.id,
                                 parent: 'student'
                             });
 
-                            if (formData.imageData?.values?.Student?.length) {
-                                promise2 = Array.from(formData.imageData.values.Student).map(async (image) => {
+                            if (formData.imageData.values?.image?.length) {
+                                promise2 = Array.from(formData.imageData.values.image).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
                                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                                     API.ImageAPI.createImage({
                                         image_src: formattedName,
+                                        school_id: student.data.school_id,
                                         parent_id: student.data.id,
                                         parent: 'student',
                                         type: 'normal'
-                                    })
+                                    });
                                 });
                             }
 
-                            if (formData.parentImageData?.values?.Parent?.length) {
-                                promise3 = Array.from(formData.parentImageData.values.Parent).map(async (image) => {
+                            if (formData.parentImageData.values?.image?.length) {
+                                promise3 = Array.from(formData.parentImageData.values.image).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
                                     API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
                                     API.ImageAPI.createImage({
                                         image_src: formattedName,
+                                        school_id: student.data.school_id,
                                         parent_id: student.data.id,
                                         parent: 'parent',
                                         type: 'normal'
