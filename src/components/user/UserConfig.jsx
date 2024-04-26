@@ -26,6 +26,8 @@ export const datagridColumns = () => {
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const { capitalizeEveryWord, formatDate } = Utility();
+
   const dispatch = useDispatch();
   const navigateTo = useNavigate();
   const { findById, fetchAndSetAll } = Utility();
@@ -50,7 +52,8 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       minWidth: 120,
-      valueGetter: (params) => params.row.username.charAt(0).toUpperCase() + params.row.username.slice(1) || ""
+      valueGetter: (params) => `${capitalizeEveryWord(params.row.username) || ""}`,
+
     },
     {
       field: "role",
@@ -63,7 +66,7 @@ export const datagridColumns = () => {
         let roleName = findById(params?.row?.role, allUserRoles?.listData)?.name;
         return (
           <div>
-            {roleName ? roleName.charAt(0).toUpperCase() + roleName.slice(1) : '/'}
+            {roleName ? capitalizeEveryWord(roleName) : '/'}
           </div>
         );
       }
@@ -91,32 +94,11 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       minWidth: 100,
-      valueFormatter: (params) => {
-        const date = new Date(params.value);
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-
-        const formattedDate = `${date.getDate()}-${monthNames[date.getMonth()]
-          }-${date.getFullYear()}`;
-
-        return formattedDate;
-      }
+      valueFormatter: (params) => `${ formatDate(params.value)}`
     },
     {
       field: "status",
-      headerName: "STATUS",
+      headerName: "Status",
       headerAlign: "center",
       align: "center",
       flex: 1,
@@ -139,7 +121,8 @@ export const datagridColumns = () => {
             borderRadius="4px"
           >
             <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-              {status.charAt(0).toUpperCase() + status.slice(1) || ""}
+              {capitalizeEveryWord(status) || ''}
+
             </Typography>
           </Box>
         );
@@ -147,7 +130,7 @@ export const datagridColumns = () => {
     },
     {
       field: "action",
-      headerName: "ACTION",
+      headerName: "Action",
       headerAlign: "center",
       align: "center",
       flex: 1,

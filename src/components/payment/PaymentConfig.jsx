@@ -14,11 +14,14 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
 
 export const datagridColumns = (rolePriority = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { capitalizeEveryWord } = Utility();
+
 
     const handleActionEdit = (id) => {
         navigateTo(`/payment/update/${id}`, { state: { id: id } });
@@ -33,16 +36,20 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 120,
             valueGetter: (params) => {
-                // Access firstname and lastname properties
+                
                 const firstName = params.row["student.firstname"] || "";
                 const lastName = params.row["student.lastname"] || "";
 
-                // Combine firstname and lastname into full name
-                const fullName = `${firstName} ${lastName}`.trim();
+                const capitalizedFirstName = capitalizeEveryWord(firstName);
+                const capitalizedLastName = capitalizeEveryWord(lastName);
 
-                console.log(params.row); // Log params.row
+                const fullName = `${capitalizedFirstName} ${capitalizedLastName}`.trim();
+
+                console.log(params.row);
                 return fullName;
             }
+
+
         },
         {
             field: "academic_year",
@@ -89,7 +96,8 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} >
-                            {type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() || ''}
+                        {capitalizeEveryWord(type) || ''}
+
                         </Typography>
                     </Box>
                 );
@@ -122,7 +130,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} >
-                            {payment_status.charAt(0).toUpperCase() + payment_status.slice(1) || ''}
+                            {capitalizeEveryWord(payment_status) || ''}
                         </Typography>
                     </Box>
                 );

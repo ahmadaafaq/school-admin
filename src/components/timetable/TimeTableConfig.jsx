@@ -14,6 +14,7 @@ import DriveFileRenameOutlineOutlinedIcon from "@mui/icons-material/DriveFileRen
 
 import { Utility } from "../utility";
 
+
 export const datagridColumns = () => {
   const schoolClasses = useSelector((state) => state.schoolClasses);
   const allClasses = useSelector((state) => state.allClasses);
@@ -21,7 +22,7 @@ export const datagridColumns = () => {
   const allSections = useSelector((state) => state.allSections);
 
   const navigateTo = useNavigate();
-  const { appendSuffix, findById } = Utility();
+  const { appendSuffix, findById, capitalizeEveryWord} = Utility();
 
   const handleActionEdit = (class_id, section_id, day, batch) => {
     navigateTo(`/time-table/update/${class_id}/${section_id}`, {
@@ -56,13 +57,16 @@ export const datagridColumns = () => {
       },
     },
     {
+
       field: "batch",
       headerName: "Batch",
       headerAlign: "center",
       align: "center",
       flex: 1,
       // minWidth: 100,
-      valueGetter: (params) => `${params.row.batch.charAt(0).toUpperCase() + params.row.batch.slice(1) || ''} `
+      valueGetter: (params) => `${capitalizeEveryWord(params.row.batch) || ''} `
+
+
     },
     {
       field: "day",
@@ -71,7 +75,8 @@ export const datagridColumns = () => {
       align: "center",
       flex: 1,
       // minWidth: 100,
-      valueGetter: (params) => `${params.row.day.charAt(0).toUpperCase() + params.row.day.slice(1) || ''} `
+      valueGetter: (params) => `${capitalizeEveryWord(params.row.day) || ''} `
+     
 
     },
     {

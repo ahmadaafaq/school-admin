@@ -33,7 +33,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage } = Utility();
+    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, capitalizeEveryWord, formatDate } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/student/update/${id}`, { state: { id: id } });
@@ -67,7 +67,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
+            valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''} ${capitalizeEveryWord(params.row.lastname)|| ''}`
         },
         {
             field: "class",
@@ -109,28 +109,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             align: "center",
             flex: 1,
             minWidth: 100,
-            valueFormatter: (params) => {
-                const date = new Date(params.value);
-                const monthNames = [
-                  "Jan",
-                  "Feb",
-                  "Mar",
-                  "Apr",
-                  "May",
-                  "Jun",
-                  "Jul",
-                  "Aug",
-                  "Sep",
-                  "Oct",
-                  "Nov",
-                  "Dec",
-                ];
-        
-                const formattedDate = `${date.getDate()}-${monthNames[date.getMonth()]
-                  }-${date.getFullYear()}`;
-        
-                return formattedDate;
-              }
+            valueFormatter: (params) => `${ formatDate(params.value)}`
         },
         {
             field: "status",
@@ -157,7 +136,8 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status.charAt(0).toUpperCase() + status.slice(1) || ''}
+                            
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
