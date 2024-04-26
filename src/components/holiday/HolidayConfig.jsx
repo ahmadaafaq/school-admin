@@ -14,10 +14,12 @@ import { Box, Button, Typography, useTheme } from "@mui/material";
 import DriveFileRenameOutlineOutlinedIcon from "@mui/icons-material/DriveFileRenameOutlineOutlined";
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
 
 export const datagridColumns = (rolePriority = null) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const { capitalizeEveryWord, formatDate } = Utility();
   const navigateTo = useNavigate();
 
   const handleActionEdit = (id) => {
@@ -34,8 +36,7 @@ export const datagridColumns = (rolePriority = null) => {
       minWidth: 120,
       valueGetter: (params) =>
         `${
-          params.row.title.charAt(0).toUpperCase() +
-            params.row.title.slice(1) || ""
+          capitalizeEveryWord(params.row.title) || ""
         } `,
     },
     {
@@ -45,30 +46,7 @@ export const datagridColumns = (rolePriority = null) => {
       align: "center",
       flex: 1,
       minWidth: 100,
-      valueFormatter: (params) => {
-        const date = new Date(params.value);
-
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-
-        const formattedDate = `${date.getDate()}-${
-          monthNames[date.getMonth()]
-        }-${date.getFullYear()}`;
-
-        return formattedDate;
-      },
+      valueFormatter: (params) => `${ formatDate(params.value)}`
     },
     {
       field: "endDate",
@@ -77,30 +55,7 @@ export const datagridColumns = (rolePriority = null) => {
       align: "center",
       flex: 1,
       minWidth: 100,
-      valueFormatter: (params) => {
-        const date = new Date(params.value);
-
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-
-        const formattedDate = `${date.getDate()}-${
-          monthNames[date.getMonth()]
-        }-${date.getFullYear()}`;
-
-        return formattedDate;
-      },
+      valueFormatter: (params) => `${formatDate(params.value)}`
     },
     {
       field: "notes",
@@ -109,6 +64,7 @@ export const datagridColumns = (rolePriority = null) => {
       align: "center",
       flex: 1,
       minWidth: 100,
+      valueFormatter :(params) => `${capitalizeEveryWord(params.value) || ""}`,
     },
     {
       field: "type",

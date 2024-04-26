@@ -375,6 +375,46 @@ export const Utility = () => {
         }, 2000);
     };
 
+    /**
+ * Capitalizes the first character of each word in a given string.
+ * 
+ * @param {string} str - The input string to capitalize.
+ * @returns {string} - The string with the first character of each word capitalized.
+ */
+    const capitalizeEveryWord = (str) => {
+        // Use a regular expression to match the first character of each word and capitalize it
+        return str.replace(/\b\w/g, function (char) {
+            return char.toUpperCase();
+        });
+    }
+    /**
+ * Formats a date value into a string in the format: "DD-MMM-YYYY".
+ * 
+ * @param {string | number | Date} value - The date value to format.
+ * @returns {string} - The formatted date string.
+ */
+    const formatDate = (value) => {
+        // Create a new Date object from the provided value
+        const date = new Date(value);
+
+        // Array of month names
+        const monthNames = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
+        // Extract day, month, and year from the date object
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+
+        // Construct the formatted date string in the format: "DD-MMM-YYYY"
+        const formattedDate = `${day}-${month}-${year}`;
+
+        return formattedDate;
+    }
+
+
     /** Verifies a token using an asynchronous API call.
      * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,
      *                                       or a string containing an error message if verification fails.
@@ -415,6 +455,8 @@ export const Utility = () => {
         remLocalStorage,
         setLocalStorage,
         toastAndNavigate,
+        capitalizeEveryWord,
+        formatDate,
         verifyToken
     };
 };

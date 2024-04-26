@@ -19,6 +19,7 @@ import { Utility } from '../utility';
 import listBg from "../assets/listBG.jpg";
 
 const ENV = import.meta.env;
+const { capitalizeEveryWord } = Utility();
 
 const ViewDetailModal = ({
   open,
@@ -94,7 +95,7 @@ const ViewDetailModal = ({
               horizontalData[key] && (
                 <React.Fragment key={index}>
                   <span className='heading-text1'>{key.replace(/_/g, ' ')}:</span>
-                  <span className='normal-text1'>{horizontalData[key]}</span>
+                  <span className='normal-text1'>{capitalizeEveryWord(horizontalData[key])}</span>
                 </React.Fragment>
               )
             ))}
@@ -111,7 +112,7 @@ const ViewDetailModal = ({
               verticalData[key] && (
                 <React.Fragment key={index}>
                   <span className='heading-text1'>{key.replace(/_/g, ' ')}:</span>
-                  <span className='normal-text1'>{verticalData[key]}</span>
+                  <span className='normal-text1'>{capitalizeEveryWord(verticalData[key])}</span>
                 </React.Fragment>
               )
             ))}
