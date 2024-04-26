@@ -159,9 +159,8 @@ const FormComponent = () => {
 
     try {
       let formattedName;
-      if (!isObjEmpty(formData.imageData.values)) {
         // delete all images from db on every update and later insert new and old again
-        API.ImageAPI.deleteImage({
+        await API.ImageAPI.deleteImage({
           parent: "teacher",
           parent_id: id,
         });
@@ -193,7 +192,7 @@ const FormComponent = () => {
           });
           status = true;
         }
-      }
+      
       if (status) {
         setLoading(false);
         toastAndNavigate(

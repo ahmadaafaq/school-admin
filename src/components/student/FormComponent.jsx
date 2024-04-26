@@ -96,11 +96,12 @@ const FormComponent = () => {
             ...formData.studentData.values,
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
         }
+        console.log("FormData:", formData); // Debugging statement
         try {
             if (formData.studentData?.dirty) {
-                await API.UserAPI.register({
-                    userId: formData.teacherData?.values?.parent_id,
-                    id: formData.teacherData?.values?.parent_id,
+                await API.UserAPI.update({
+                    userId: formData.studentData?.values?.parent_id,
+                    id: formData.studentData?.values?.parent_id,
                     username: username,
                     email: formData.studentData?.values?.email,
                     contact_no: formData.studentData?.values?.contact_no,
@@ -147,12 +148,10 @@ const FormComponent = () => {
         try {
             let formattedName;
             // delete all images from db on every update and later insert new and old again
-            if (deletedImage.length) {
-                API.ImageAPI.deleteImage({
-                    parent: "student",
-                    parent_id: id
-                });
-            }
+            await API.ImageAPI.deleteImage({
+                parent: ["student","parent"],
+                parent_id: id
+            });
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
                 Array.from(formData.imageData.values?.image).map(image => {
