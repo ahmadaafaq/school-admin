@@ -38,6 +38,7 @@ import { setTeachersReducer } from "./TeacherReducer";
 import { setAllTeachersReducer } from "./TeacherReducer";
 import { setUsersReducer } from "./UserReducer";
 import { setUserRolesReducer } from "./UserRoleReducer";
+import { setNoticeBoardReducer } from "./NoticeBoardReducer";
 
 const reducers = combineReducers({
     auth: authReducer,
@@ -64,6 +65,7 @@ const reducers = combineReducers({
     allFormTeachers: setAllTeachersReducer,
     allUsers: setUsersReducer,
     allEmployees: setEmployeesReducer,
+    allNotices: setNoticeBoardReducer,
     allUserRoles: setUserRolesReducer,
     allHolidays: setHolidaysReducer,
     allPayments: setPaymentsReducer,
