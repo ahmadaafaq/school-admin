@@ -22,7 +22,6 @@ export const datagridColumns = (rolePriority = null) => {
     const colors = tokens(theme.palette.mode);
 
     const handleActionEdit = (id) => {
-        console.log("id to update the record >>>>>>>>>>>>>> ", id)
         navigateTo(`/noticeboard/update/${id}`, { state: { id: id } });
     };
 
@@ -34,8 +33,6 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 120
-            // this function combines the values of firstname and lastname into one string
-            //valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
         },
         {
             field: "description",
