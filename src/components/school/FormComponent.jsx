@@ -138,11 +138,18 @@ const FormComponent = () => {
             await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
 
             const updatedClassData = formData.schoolData.values.sections.map(async (innerArray, classIndex) => {
+                // Get class-related data or default to 0 if not available
                 const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                const classFee = formData.schoolData.values.classes_fee[classIndex] || 0;
+                const classCapacity = formData.schoolData.values.classes_capacity[classIndex] || 0;
+
                 // Iterating through each section in the class then associating subject ids for each section of class
                 return Promise.all(innerArray.map(async (sectionData, sectionIndex) => {
                     const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                    await API.SchoolAPI.insertIntoMappingTable([formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]);
+                    await API.SchoolAPI.insertIntoMappingTable(
+                        [formData.schoolData.values.id, schoolClass, sectionData.section_id,
+                        getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity]
+                    );
                 }));
             });
 
@@ -283,16 +290,21 @@ const FormComponent = () => {
                     });
 
                     promise2 = formData.schoolData.values.sections.map((innerArray, classIndex) => {
+                        // Get class-related data or default to 0 if not available
                         const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                        const classFee = formData.schoolData.values.classes_fee[classIndex] || 0;
+                        const classCapacity = formData.schoolData.values.classes_capacity[classIndex] || 0;
+
                         // Iterating through each section in the class then associating subject ids for each section of class
                         innerArray.map((sectionData, sectionIndex) => {
+                            // Get subject array for the current section or default to empty array
                             const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
                             API.SchoolAPI.insertIntoMappingTable(
-                                [school.data.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                                [school.data.id, schoolClass, sectionData.section_id,
+                                getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity]
                             );
                         });
                     });
-
                     if (formData.imageData.values?.image?.length) {
                         promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
@@ -338,7 +350,7 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    }, []);
+    }, [formData]);
 
     useEffect(() => {
         if (!formAmenitiesInRedux?.listData?.rows?.length) {
