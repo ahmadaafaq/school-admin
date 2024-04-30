@@ -387,6 +387,7 @@ export const Utility = () => {
             return char.toUpperCase();
         });
     }
+
     /**
  * Formats a date value into a string in the format: "DD-MMM-YYYY".
  * 

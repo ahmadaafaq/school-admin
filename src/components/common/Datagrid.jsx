@@ -83,6 +83,8 @@ const ServerPaginationGrid = ({
                 },
                 "& .MuiDataGrid-cell": {
                     borderBottom: "none",
+                    whiteSpace: "normal !important",
+                    wordWrap: "break-word !important",
                 },
                 "& .MuiDataGrid-cellCheckbox": {
                     borderBottom: "none"
@@ -95,6 +97,7 @@ const ServerPaginationGrid = ({
                 },
                 "& .name-column--cell": {
                     color: colors.greenAccent[300],
+
                 },
                 "& .MuiDataGrid-columnHeaders": {
                     backgroundColor: colors.blueAccent[700],
