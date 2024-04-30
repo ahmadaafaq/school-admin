@@ -21,11 +21,19 @@ const checkoutSchema = yup.object().shape({
     contact_no_1: yup.string()
         .matches(phoneRegExp, "Phone Number Is Not Valid")
         .required("This Field is Required"),
+    contact_no_2: yup.string()
+        .matches(phoneRegExp, "Phone Number Is Not Valid"),
     director: yup.string()
         .required("This Field is Required"),
     principal: yup.string()
         .required("This Field is Required"),
     board: yup.string()
+        .required("This Field is Required"),
+    registered_by: yup.string()
+        .required("This Field is Required"),
+    registration_year: yup.string()
+        .required("This Field is Required"),
+    affiliation_no: yup.string()
         .required("This Field is Required"),
     status: yup.string()
 });
