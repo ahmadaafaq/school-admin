@@ -32,7 +32,7 @@ export const datagridColumns = (rolePriority = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, capitalizeEveryWord } = Utility();
+    const { fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, capitalizeEveryWord } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/teacher/update/${id}`, { state: { id: id } });
@@ -54,39 +54,55 @@ export const datagridColumns = (rolePriority = null) => {
 
     const columns = [
         {
-            field: "fullname",
+            field: "teacherName",
             headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''} ${capitalizeEveryWord(params.row.lastname) || ''}`
+            // valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''}`
         },
         {
-            field: "class",
+            field: "classes",
             headerName: "Class",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100,
             renderCell: (params) => {
-                let className;
-                let sectionName;
+                console.log("row", params.row.is_class_teacher);
+                if (params.row.is_class_teacher.data[0] === 1) {
+                    const classnamesArray = params.row.classnames.split(',');
+                    console.log("classnamesArray",classnamesArray)
+                    if (classnamesArray.includes(params.row.class_section_name)) { 
+                        return (
+                            <div>
+                                {classnamesArray.map((classname, index) => (
 
-                if (allClasses?.listData?.length || allSections?.listData?.length) {
-                    className = findById(params?.row?.class, allClasses?.listData)?.class_name;
-                    sectionName = findById(params?.row?.section, allSections?.listData)?.section_name;
-                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
-                    className = findById(params?.row?.class, schoolClasses?.listData)?.class_name;
-                    sectionName = findById(params?.row?.section, schoolSections?.listData)?.section_name;
+                                    <span key={index} style={{ color: classname === params.row.class_section_name ? colors.redAccent[700] : colors.whiteAccent[100] }}>
+                                        {classname}
+                                        {index !== classnamesArray.length - 1 && ','} 
+                                    </span>
+                                ))}
+                            </div>
+                        );
+                    }
+                }else {
+                    return(
+                        <div>{params.row.classnames}</div>
+                    )
                 }
-                return (
-                    <div>
-                        {className ? appendSuffix(className) : '/'} {sectionName}
-                    </div>
-                );
             }
+            
+        },
+        {
+            field: "subjects",
+            headerName: "Subjects",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100
         },
         {
             field: "contact_no",

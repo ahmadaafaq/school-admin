@@ -382,13 +382,14 @@ export const Utility = () => {
  * @returns {string} - The string with the first character of each word capitalized.
  */
     const capitalizeEveryWord = (str) => {
-        if(str.length > 0){
-        // Use a regular expression to match the first character of each word and capitalize it
-        return str.replace(/\b\w/g, function (char) {
-            return char.toUpperCase();
-        });
-    }
-    }
+        if (str.length > 0) {
+            // Use a regular expression to match the first character of each word and capitalize it
+            return str.replace(/\b\w/g, function (char) {
+                return char.toUpperCase();
+            });
+        }
+    };
+
     /**
  * Formats a date value into a string in the format: "DD-MMM-YYYY".
  * 
@@ -415,7 +416,6 @@ export const Utility = () => {
 
         return formattedDate;
     }
-
 
     /** Verifies a token using an asynchronous API call.
      * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,
