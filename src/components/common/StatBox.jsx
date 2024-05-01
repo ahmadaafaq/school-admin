@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 
 import ProgressCircle from "./ProgressCircle";
 
-const StatBox = ({ title, subtitle, icon, progress, increase, role }) => {
+const StatBox = ({ title, subtitle, icon, progress, increase, role, showPercentage }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
 
@@ -32,7 +32,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase, role }) => {
             {title}
           </Typography>
         </Box>
-        <Box>{role !== 1 && <ProgressCircle progress={progress} />}</Box>
+        <Box>{role !== 1 && showPercentage && <ProgressCircle progress={progress} />}</Box>
       </Box>
       <Box display="flex" justifyContent="space-between" mt="2px">
         <Typography
@@ -44,7 +44,7 @@ const StatBox = ({ title, subtitle, icon, progress, increase, role }) => {
         >
           {subtitle.charAt(0).toUpperCase() + subtitle.slice(1)}
         </Typography>
-       {role !== 1 && <Typography
+       {role !== 1 && showPercentage && <Typography
           variant={isMobile ? "h6" : "h5"}
           fontStyle="italic"
           fontWeight="900"

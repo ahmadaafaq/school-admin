@@ -258,6 +258,7 @@ const Dashboard = ({ rolePriority = null }) => {
           <StatBox
             title={dashboardCount.student}
             subtitle="Students"
+            showPercentage={true}
             progress={`${dashboardCount.student / 5000}`}
             increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
             icon={<Groups3Icon sx={{ fontSize: isMobile ? "10px" : "26px" }} />}

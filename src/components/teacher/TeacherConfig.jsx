@@ -70,31 +70,25 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 100,
-            renderCell: (params) => {
-                console.log("row", params.row.is_class_teacher);
-                if (params.row.is_class_teacher.data[0] === 1) {
-                    const classnamesArray = params.row.classnames.split(',');
-                    console.log("classnamesArray",classnamesArray)
-                    if (classnamesArray.includes(params.row.class_section_name)) { 
-                        return (
-                            <div>
-                                {classnamesArray.map((classname, index) => (
-
-                                    <span key={index} style={{ color: classname === params.row.class_section_name ? colors.redAccent[700] : colors.whiteAccent[100] }}>
+            renderCell: ({ row }) => {
+                if (row.is_class_teacher.data[0] === 1) {
+                    const classnamesArray = row.classnames.split(',');
+                    console.log("array", classnamesArray);
+                    return (
+                        <div>
+                            {classnamesArray.map((classname, index) => {
+                              console.log(classname, 'classname', classname === row.class_section_name)
+                              return (
+                                    <span key={index} style={{ color: classname === row.class_section_name ? colors.redAccent[700] : colors.whiteAccent[100] }}>
                                         {classname}
-                                        {index !== classnamesArray.length - 1 && ','} 
+                                        {index !== classnamesArray.length - 1 && ','}
                                     </span>
-                                ))}
-                            </div>
-                        );
-                    }
-                }else {
-                    return(
-                        <div>{params.row.classnames}</div>
-                    )
+                                )
+                            })}
+                        </div>
+                    );
                 }
             }
-            
         },
         {
             field: "subjects",
