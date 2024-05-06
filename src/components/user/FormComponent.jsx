@@ -125,7 +125,7 @@ const FormComponent = ({ rolePriority }) => {
                     })
                         .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/user/listing`);
                         })
                         .catch(err => {
                             setLoading(false);

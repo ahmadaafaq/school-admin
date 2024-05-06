@@ -4,7 +4,7 @@
  * This software is the confidential information of School CRM Inc., and is licensed as
  * restricted rights software. The use,reproduction, or disclosure of this software is subject to
  * restrictions set forth in your license agreement with School CRM.
-*/
+ */
 
 import { combineReducers } from "redux";
 
@@ -12,9 +12,11 @@ import { authReducer } from "./AuthReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
 import { setEmployeesReducer } from "./EmployeeReducer";
-import { setHolidaysReducer } from "./HolidayReducer"
+import { setHolidaysReducer } from "./HolidayReducer";
 import { setMarksheetsReducer } from "./MarksheetReducer";
 import { setPaymentsReducer } from "./PaymentReducer";
+import { setAllPaymentMethodsReducer } from "./PaymentMethodReducer";
+import { setListingPaymentMethodsReducer } from "./PaymentMethodReducer";
 import { setAmenitiesReducer } from "./AmenityReducer";
 import { setFormAmenitiesReducer } from "./AmenityReducer";
 import { setBusesReducer } from "./BusReducer";
@@ -37,41 +39,45 @@ import { setTimeTablesReducer } from "./TimeTableReducer";
 import { setTeachersReducer } from "./TeacherReducer";
 import { setAllTeachersReducer } from "./TeacherReducer";
 import { setUsersReducer } from "./UserReducer";
-import { setUserRolesReducer } from "./UserRoleReducer";
+import { setAllUserRolesReducer } from "./UserRoleReducer";
+import { setListingUserRolesReducer } from "./UserRoleReducer";
 import { setNoticeBoardReducer } from "./NoticeBoardReducer";
 
 const reducers = combineReducers({
-    auth: authReducer,
-    allAmenities: setAmenitiesReducer,
-    allFormAmenities: setFormAmenitiesReducer,
-    allBuses: setBusesReducer,
-    allClasses: setAllClassesReducer,
-    listingClasses: setListingClassesReducer,
-    schoolClasses: setSchoolClassesReducer,
-    allMarksheets: setMarksheetsReducer,
-    allSections: setAllSectionsReducer,
-    listingSections: setListingSectionsReducer,
-    schoolSections: setSchoolSectionsReducer,
-    listingSchools: setListingSchoolsReducer,
-    allSchools: setAllSchoolsReducer,
-    listingSchoolHouses: setListingSchoolHousesReducer,
-    allStudents: setStudentsReducer,
-    allFormStudents: setAllStudentsReducer,
-    allSubjects: setAllSubjectsReducer,
-    listingSubjects: setListingSubjectsReducer,
-    schoolSubjects: setSchoolSubjectsReducer,
-    allTimeTables: setTimeTablesReducer,
-    allTeachers: setTeachersReducer,
-    allFormTeachers: setAllTeachersReducer,
-    allUsers: setUsersReducer,
-    allEmployees: setEmployeesReducer,
-    allNotices: setNoticeBoardReducer,
-    allUserRoles: setUserRolesReducer,
-    allHolidays: setHolidaysReducer,
-    allPayments: setPaymentsReducer,
-    allSchoolDurations: setSchoolDurationsReducer,
-    menuItems: menuItemReducer,
-    toastInfo: displayToastReducer
+  auth: authReducer,
+  allAmenities: setAmenitiesReducer,
+  allFormAmenities: setFormAmenitiesReducer,
+  allBuses: setBusesReducer,
+  allClasses: setAllClassesReducer,
+  listingClasses: setListingClassesReducer,
+  schoolClasses: setSchoolClassesReducer,
+  allMarksheets: setMarksheetsReducer,
+  allSections: setAllSectionsReducer,
+  listingSections: setListingSectionsReducer,
+  schoolSections: setSchoolSectionsReducer,
+  listingSchools: setListingSchoolsReducer,
+  allSchools: setAllSchoolsReducer,
+  listingSchoolHouses: setListingSchoolHousesReducer,
+  allStudents: setStudentsReducer,
+  allFormStudents: setAllStudentsReducer,
+  allSubjects: setAllSubjectsReducer,
+  listingSubjects: setListingSubjectsReducer,
+  schoolSubjects: setSchoolSubjectsReducer,
+  allTimeTables: setTimeTablesReducer,
+  allTeachers: setTeachersReducer,
+  allFormTeachers: setAllTeachersReducer,
+  allUsers: setUsersReducer,
+  allEmployees: setEmployeesReducer,
+  listingUserRoles: setListingUserRolesReducer,
+  allUserRoles: setAllUserRolesReducer,
+  allHolidays: setHolidaysReducer,
+   allNotices: setNoticeBoardReducer,
+  allPayments: setPaymentsReducer,
+  listingPaymentMethods: setListingPaymentMethodsReducer,
+  allPaymentMethods: setAllPaymentMethodsReducer,
+  allSchoolDurations: setSchoolDurationsReducer,
+  menuItems: menuItemReducer,
+  toastInfo: displayToastReducer
 });
 
 export default reducers;

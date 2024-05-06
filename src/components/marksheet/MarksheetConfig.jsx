@@ -26,7 +26,7 @@ export const datagridColumns = (rolePriority = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { appendSuffix, findById } = Utility();
+    const { appendSuffix, findById, capitalizeEveryWord} = Utility();
 
     const handleActionEdit = (id, student_id, term) => {
         navigateTo(`/marksheet/update/${student_id}`, { state: { id: id, student_id: student_id, term: term } });
@@ -75,12 +75,14 @@ export const datagridColumns = (rolePriority = null) => {
             minWidth: 80
         },
         {
+
             field: "result",
             headerName: "Result",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
+            valueFormatter: (params) => `${capitalizeEveryWord(params.value) || ""}`,
             renderCell: ({ row: { result } }) => {
                 return (
                     <Box
@@ -101,11 +103,13 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {result.charAt(0).toUpperCase() + result.slice(1) || ''}
+                            {capitalizeEveryWord(result) || ''}
                         </Typography>
                     </Box>
                 );
+
             }
+
         },
         rolePriority !== 1 && {
             field: "action",

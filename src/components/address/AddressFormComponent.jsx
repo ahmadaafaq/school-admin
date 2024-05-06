@@ -66,7 +66,8 @@ const AddressFormComponent = ({
                 values: formik.values,
                 validated: formik.isSubmitting
                     ? Object.keys(formik.errors).length === 0
-                    : false
+                    : false,
+                dirty: formik.dirty
             });
         }
     };
@@ -172,7 +173,6 @@ const AddressFormComponent = ({
     useEffect(() => {
         if (formik.values.state) {
             const selectedObj = states.filter(obj => obj.id === formik.values.state) || [];
-            console.log(selectedObj, 'db state');
             if (iCardDetails) {
                 setICardDetails({
                     ...iCardDetails,
@@ -185,7 +185,6 @@ const AddressFormComponent = ({
     useEffect(() => {
         if (formik.values.city) {
             const selectedObj = cities.filter(obj => obj.id === formik.values.city) || [];
-            console.log(selectedObj, 'db city');
             if (iCardDetails) {
                 setICardDetails({
                     ...iCardDetails,

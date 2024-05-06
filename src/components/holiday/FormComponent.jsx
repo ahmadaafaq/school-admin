@@ -93,7 +93,8 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0].data.data) {
-                    responses[0].data.data.date = dayjs(responses[0].data.data.date);
+                    responses[0].data.data.startDate = dayjs(responses[0]?.data?.data?.startDate);
+                    responses[0].data.data.endDate = dayjs(responses[0]?.data?.data?.endDate);
                 }
                 const dataObj = {
                     holidayData: responses[0].data.data

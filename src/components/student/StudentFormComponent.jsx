@@ -73,16 +73,16 @@ const initialValues = {
 };
 
 const StudentFormComponent = ({
-    onChange,
-    refId,
-    setDirty,
-    reset,
-    setReset,
-    classData,
-    setClassData,
-    allSubjects,
-    userId,
-    updatedValues = null
+  onChange,
+  refId,
+  setDirty,
+  reset,
+  setReset,
+  classData,
+  setClassData,
+  allSubjects,
+  userId,
+  updatedValues = null,
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const schoolClasses = useSelector((state) => state.schoolClasses);
@@ -90,6 +90,7 @@ const StudentFormComponent = ({
   const schoolSubjects = useSelector((state) => state.schoolSubjects);
   const toastInfo = useSelector((state) => state.toastInfo);
   const allBuses = useSelector((state) => state.allBuses);
+  const [iCardDetails, setICardDetails] = useState({});
 
   console.log("Bus data", allBuses);
 
@@ -129,6 +130,7 @@ const StudentFormComponent = ({
         validated: formik.isSubmitting
           ? Object.keys(formik.errors).length === 0
           : false,
+        dirty: formik.dirty
       });
     }
   };
@@ -423,8 +425,8 @@ const StudentFormComponent = ({
                 {updatedValues?.gender === "male"
                   ? "Head Boy"
                   : updatedValues?.gender === "female"
-                  ? "Head Girl"
-                  : "Select Head of School"}
+                    ? "Head Girl"
+                    : "Select Head of School"}
               </InputLabel>
               <Select
                 variant="filled"
@@ -541,14 +543,14 @@ const StudentFormComponent = ({
               {!schoolClasses?.listData?.length
                 ? null
                 : schoolClasses.listData.map((cls) => (
-                    <MenuItem
-                      value={cls.class_id}
-                      name={cls.class_name}
-                      key={cls.class_id}
-                    >
-                      {cls.class_name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem
+                    value={cls.class_id}
+                    name={cls.class_name}
+                    key={cls.class_id}
+                  >
+                    {cls.class_name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.class && formik.errors.class}
@@ -574,14 +576,14 @@ const StudentFormComponent = ({
               {!schoolSections?.listData?.length
                 ? null
                 : schoolSections.listData.map((section) => (
-                    <MenuItem
-                      value={section.section_id}
-                      name={section.section_name}
-                      key={section.section_id}
-                    >
-                      {section.section_name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem
+                    value={section.section_id}
+                    name={section.section_name}
+                    key={section.section_id}
+                  >
+                    {section.section_name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.section && formik.errors.section}
@@ -717,7 +719,7 @@ const StudentFormComponent = ({
               {formik.touched.status && formik.errors.status}
             </FormHelperText>
           </FormControl>
-          
+
           <Box
             sx={{
               border: "2px solid #BADFE7",
@@ -728,10 +730,10 @@ const StudentFormComponent = ({
               width: isMobile
                 ? "100%"
                 : formik.values.is_taking_bus
-                ? "215%"
-                : formik.values.is_taking_bus
-                ? "200%"
-                : "290px",
+                  ? "215%"
+                  : formik.values.is_taking_bus
+                    ? "200%"
+                    : "290px",
               padding: "5px",
               gridTemplateColumns: formik.values.is_taking_bus
                 ? "repeat(2, minmax(0, 1fr))"
@@ -771,14 +773,14 @@ const StudentFormComponent = ({
                   {!allBuses?.listData?.rows?.length
                     ? null
                     : allBuses.listData.rows.map((item) => (
-                        <MenuItem
-                          value={item.id}
-                          name={`${item.registration_no}`}
-                          key={item.id}
-                        >
-                          {`${item.registration_no}`}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        value={item.id}
+                        name={`${item.registration_no}`}
+                        key={item.id}
+                      >
+                        {`${item.registration_no}`}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <FormHelperText>
                   {formik.touched.bus && formik.errors.bus}
@@ -797,18 +799,18 @@ const StudentFormComponent = ({
                 ? "100%"
                 : formik.values.fee_waiver_type === "partial" &&
                   formik.values.is_fee_waiver
-                ? "326%"
-                : formik.values.is_fee_waiver
-                ? "200%"
-                : "290px",
+                  ? "326%"
+                  : formik.values.is_fee_waiver
+                    ? "200%"
+                    : "290px",
               padding: "5px",
               gridTemplateColumns:
                 formik.values.fee_waiver_type === "partial" &&
-                formik.values.is_fee_waiver
+                  formik.values.is_fee_waiver
                   ? "repeat(3, minmax(0, 1fr))"
                   : formik.values.is_fee_waiver
-                  ? "repeat(2, minmax(0, 1fr))"
-                  : "1fr",
+                    ? "repeat(2, minmax(0, 1fr))"
+                    : "1fr",
               gridColumnStart: 1,
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}

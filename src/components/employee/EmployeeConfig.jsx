@@ -14,12 +14,15 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
 
 export const datagridColumns = (rolePriority = null) => {
 
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { capitalizeEveryWord, formatDate } = Utility();
+
 
     const handleActionEdit = (id) => {
         navigateTo(`/employee/update/${id}`, { state: { id: id } });
@@ -34,7 +37,8 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
+            valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''} ${capitalizeEveryWord(params.row.lastname) || ''}`
+
         },
         {
             field: "email",
@@ -42,7 +46,8 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            renderCell: (params) => params.value || 'N/A',
         },
         {
             field: "contact_no",
@@ -66,7 +71,8 @@ export const datagridColumns = (rolePriority = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 100,
+            valueFormatter: (params) => `${formatDate(params.value)}`
 
         },
         {
@@ -105,7 +111,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );

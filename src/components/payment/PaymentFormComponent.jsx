@@ -7,17 +7,13 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 
-import {
-  Box,
-  InputLabel,
-  MenuItem,
-  FormHelperText,
-  FormControl,
-} from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+
+import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -28,24 +24,23 @@ import config from '../config';
 import paymentValidation from "./Validation";
 import Toast from "../common/Toast";
 
-import { setSchoolClasses } from "../../redux/actions/ClassAction";
-import { setSchoolSections } from "../../redux/actions/SectionAction";
-import { setAllStudents } from "../../redux/actions/StudentAction";
-import { useCommon } from "../hooks/common";
+
+import { setPayments } from "../../redux/actions/PaymentAction";
+import { setAllPaymentMethods } from "../../redux/actions/PaymentMethodAction";
 import { Utility } from "../utility";
+import { useCommon } from "../hooks/common";
 
 const initialValues = {
-  class_id: "",
-  section: "",
   student_id: "",
+  method: "",
+  fee: "",
+  type: "",
+  type_duration: "",
   academic_year: "",
   amount: "",
   due_date: null,
-  type: "school",
-  payment_status: "pending",
-  payment_method: "cash",
-  payment_date: null,
   late_fee: "",
+  class_fee_by_mapping: ""
 };
 
 const PaymentFormComponent = ({
@@ -54,32 +49,34 @@ const PaymentFormComponent = ({
   setDirty,
   reset,
   setReset,
-  updatedValues = null,
+  updatedValues = null
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
-  const [classData, setClassData] = useState([]);
-  const schoolClasses = useSelector((state) => state.schoolClasses);
-  const schoolSections = useSelector((state) => state.schoolSections);
-  const allStudents = useSelector((state) => state.allFormStudents);
+  const allPaymentMethods = useSelector(state => state.allPaymentMethods);
   const toastInfo = useSelector((state) => state.toastInfo);
 
   const dispatch = useDispatch();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   // const isMobile = useMediaQuery("(max-width:480px)");
-  const { getStudents } = useCommon();
-  const { toastAndNavigate, fetchAndSetSchoolData } = Utility();
+  const { state } = useLocation();
+  const { getPaginatedData } = useCommon();
+  const { createDivider, createDropdown, createSchoolFee, createSession, fetchAndSetSchoolData, fetchAndSetAll, toastAndNavigate } = Utility();
+
+  const studentId = state?.id;
+  const studentClass = state.cls;
+  const studentSection = state.section;
 
   const formik = useFormik({
     initialValues: initialState,
     validationSchema: paymentValidation,
     enableReinitialize: true,
-    onSubmit: () => watchForm(),
+    onSubmit: () => watchForm()
   });
 
   React.useImperativeHandle(refId, () => ({
     Submit: async () => {
       await formik.submitForm();
-    },
+    }
   }));
 
   const watchForm = () => {
@@ -88,8 +85,36 @@ const PaymentFormComponent = ({
         values: formik.values,
         validated: formik.isSubmitting
           ? Object.keys(formik.errors).length === 0
-          : false,
+          : false
       });
+    }
+  };
+
+  const typeDuration = formik.values.type;    // Variable created after initializing formik
+  const renderMonthsDropdown = () => {
+    if (typeDuration !== 'annually') {
+      return (
+        <FormControl
+          variant="filled"
+          sx={{ minWidth: 120 }}
+          error={!!formik.touched.type_duration && !!formik.errors.type_duration}
+        >
+          <InputLabel>Period</InputLabel>
+          <Select
+            name="type_duration"
+            variant="filled"
+            value={formik.values.type_duration}
+            onChange={event => formik.setFieldValue('type_duration', event.target.value)}
+          >
+            {createDropdown(createDivider(typeDuration)).map((period, index) => (
+              <MenuItem key={index} value={period}>
+                {period}
+              </MenuItem>
+            ))}
+          </Select>
+          <FormHelperText> {formik.touched.type_duration && formik.errors.type_duration} </FormHelperText>
+        </FormControl>
+      );
     }
   };
 
@@ -112,39 +137,45 @@ const PaymentFormComponent = ({
     }
   }, [updatedValues]);
 
+
   useEffect(() => {
-    if (!schoolClasses?.listData?.length || !schoolSections?.listData?.length) {
-      fetchAndSetSchoolData(
-        dispatch,
-        setSchoolClasses,
-        setSchoolSections,
-        setClassData
-      );
+      // getPaginatedData(0, 5, setPayments, API.PaymentAPI, classConditionObj);
+      // console.log('inside if condition', classSectionObj, classConditionObj)
+  }, []);
+
+  useEffect(() => {
+    if (!allPaymentMethods?.listData?.length) {
+      fetchAndSetAll(dispatch, setAllPaymentMethods, API.PaymentMethodAPI);
     }
   }, []);
 
-  // filter out class section from the classData object
   useEffect(() => {
-    const getAndSetSections = () => {
-      const classSections =
-        classData?.filter((obj) => obj.class_id === formik.values?.class_id) ||
-        [];
-      const selectedSections = classSections.map(
-        ({ section_id, section_name }) => ({ section_id, section_name })
-      );
-      dispatch(setSchoolSections(selectedSections));
-    };
-    getAndSetSections();
-  }, [formik.values?.class_id, classData?.length]);
+    API.SchoolAPI.getSchoolClasses()
+      .then(res => {
+        const selectedClassData = res.data.filter(item => item.class_id === studentClass &&
+          item.section_id === studentSection);
+        formik.setFieldValue("class_fee_by_mapping", ...selectedClassData);   // If we directly update the amount field here then,
+        console.log(selectedClassData, 'filteredobj')                         // without selecting fee it will show amount
+      })
+      .catch(err => {
+        console.log('error occured in school mapping api', err)
+      })
+  }, []);
+
+  // Updates the "amount" field in the form based on the selected fee type and typeDuration.
+  useEffect(() => {
+    if (formik.values.fee === 'school' && typeDuration !== 'annually') {
+      formik.setFieldValue("amount", createSchoolFee(createDivider(typeDuration), formik.values.class_fee_by_mapping?.class_fee));
+    } else if (formik.values.fee === 'school' && typeDuration === 'annually') {
+      formik.setFieldValue("amount", createSchoolFee(createDivider(typeDuration), formik.values.class_fee_by_mapping?.class_fee));
+    }
+  }, [formik.values.fee, typeDuration]);
 
   useEffect(() => {
-    getStudents(
-      formik.values.class_id,
-      formik.values.section,
-      setAllStudents,
-      API
-    );
-  }, [formik.values.class_id, formik.values.section]);
+    formik.setFieldValue("student_id", studentId);
+  }, [studentId]);
+
+  console.log(formik.values.class_fee_by_mapping?.class_fee, 'formik.values.class_fee by mapping', formik.values.amount)
 
   return (
     <Box m="20px">
@@ -154,146 +185,78 @@ const PaymentFormComponent = ({
           gap="30px"
           gridTemplateColumns="repeat(4, minmax(0, 1fr))"
           sx={{
-            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }
           }}
         >
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
-            error={!!formik.touched.class_id && !!formik.errors.class_id}
+            error={!!formik.touched.academic_year && !!formik.errors.academic_year}
           >
-            <InputLabel>--Class*--</InputLabel>
+            <InputLabel>Academic Year</InputLabel>
             <Select
-              name="class_id"
               variant="filled"
-              value={formik.values.class_id}
-              onChange={(event) => {
-                formik.setFieldValue("class_id", event.target.value);
-                if (formik.values.section) {
-                  //if old values are there, clean them according to change
-                  formik.setFieldValue("section", "");
-                }
-                if (formik.values.student_id) {
-                  formik.setFieldValue("student_id", "");
-                }
-              }}
+              name="academic_year"
+              value={formik.values.academic_year}
+              onChange={event => formik.setFieldValue("academic_year", event.target.value)}
             >
-              {!schoolClasses?.listData?.length
-                ? null
-                : schoolClasses.listData.map((cls) => (
-                  <MenuItem
-                    value={cls.class_id}
-                    name={cls.class_name}
-                    key={cls.class_id}
-                  >
-                    {cls.class_name}
-                  </MenuItem>
-                ))}
+              {createSession().map(year => (
+                <MenuItem value={year} name={year} key={year}>
+                  {year}
+                </MenuItem>
+              ))}
             </Select>
             <FormHelperText>
-              {formik.touched.class_id && formik.errors.class_id}
+              {formik.touched.academic_year && formik.errors.academic_year}
             </FormHelperText>
           </FormControl>
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
-            error={!!formik.touched.section && !!formik.errors.section}
+            error={!!formik.touched.fee && !!formik.errors.fee}
           >
-            <InputLabel>--Section*--</InputLabel>
+            <InputLabel>Fee</InputLabel>
             <Select
-              name="section"
+              name="fee"
               variant="filled"
-              value={formik.values.section}
-              onChange={(event) =>
-                formik.setFieldValue("section", event.target.value)
-              }
-              onFocus={() => {
-                if (!formik.values.class_id) {
-                  toastAndNavigate(
-                    dispatch,
-                    true,
-                    "info",
-                    "Please Select a Class First"
-                  );
-                }
-              }}
+              value={formik.values.fee}
+              onChange={formik.handleChange}
             >
-              {!schoolSections?.listData?.length
-                ? null
-                : schoolSections.listData.map((section) => (
-                  <MenuItem
-                    value={section.section_id}
-                    name={section.section_name}
-                    key={section.section_id}
-                  >
-                    {section.section_name}
-                  </MenuItem>
-                ))}
+              {Object.keys(config.fee).map(item => (
+                <MenuItem key={item} value={item}>
+                  {config.fee[item]}
+                </MenuItem>
+              ))}
             </Select>
-            <FormHelperText>
-              {formik.touched.section && formik.errors.section}
-            </FormHelperText>
+            <FormHelperText> {formik.touched.fee && formik.errors.fee} </FormHelperText>
           </FormControl>
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
-            error={!!formik.touched.student_id && !!formik.errors.student_id}
+            error={!!formik.touched.type && !!formik.errors.type}
           >
-            <InputLabel>--Student*--</InputLabel>
+            <InputLabel>Type</InputLabel>
             <Select
-              name="student_id"
+              name="type"
               variant="filled"
-              value={formik.values.student_id}
-              onChange={(event) =>
-                formik.setFieldValue("student_id", event.target.value)
-              }
-              onFocus={() => {
-                if (!formik.values.class_id) {
-                  toastAndNavigate(
-                    dispatch,
-                    true,
-                    "info",
-                    "Please Select a Class First"
-                  );
-                }
+              value={formik.values.type}
+              onChange={event => {
+                formik.setFieldValue('type', event.target.value);
+                formik.setFieldValue('type_duration', '');
               }}
             >
-              {!allStudents?.listData?.rows?.length
-                ? null
-                : allStudents.listData.rows.map((item) => (
-                  <MenuItem
-                    value={item.id}
-                    name={`${item.firstname} ${item.lastname}`}
-                    key={item.id}
-                  >
-                    {`${item.firstname.charAt(0).toUpperCase() +
-                      item.firstname.slice(1)
-                      } ${item.lastname.charAt(0).toUpperCase() +
-                      item.lastname.slice(1)
-                      }`}
-                  </MenuItem>
-                ))}
+              {Object.keys(config.payment_type).map(item => (
+                <MenuItem key={item} value={item}>
+                  {config.payment_type[item]}
+                </MenuItem>
+              ))}
             </Select>
-            <FormHelperText>
-              {formik.touched.student_id && formik.errors.student_id}
-            </FormHelperText>
+            <FormHelperText> {formik.touched.type && formik.errors.type} </FormHelperText>
           </FormControl>
-          <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="academic_year"
-            label="Academic Year"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.academic_year}
-            error={
-              !!formik.touched.academic_year && !!formik.errors.academic_year
-            }
-            helperText={
-              formik.touched.academic_year && formik.errors.academic_year
-            }
-          />
+          {formik.values.type &&
+            renderMonthsDropdown()
+          }
+
           <TextField
             fullWidth
             variant="filled"
@@ -306,128 +269,42 @@ const PaymentFormComponent = ({
             error={!!formik.touched.amount && !!formik.errors.amount}
             helperText={formik.touched.amount && formik.errors.amount}
           />
-
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              format="DD MMMM YYYY" //ex - 25 July 2023
-              views={["day", "month", "year"]}
-              label="Select Due Date"
-              name="due_date"
-              required
-              value={formik.values.due_date}
-              onChange={(newDue_Date) => {
-                formik.setFieldValue("date", newDue_Date);
-              }}
-            />
-          </LocalizationProvider>
-
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
-            error={!!formik.touched.type && !!formik.errors.type}
-          >
-            <InputLabel>Type</InputLabel>
-            <Select
-              name="type"
-              variant="filled"
-              value={formik.values.type}
-              onChange={formik.handleChange}
-            >
-              {Object.keys(config.type).map(item => (
-                <MenuItem key={item} value={item}>
-                  {config.type[item]}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText>
-              {formik.touched.type && formik.errors.type}
-            </FormHelperText>
-          </FormControl>
-          <FormControl
-            variant="filled"
-            sx={{ minWidth: 120 }}
-            error={
-              !!formik.touched.payment_method && !!formik.errors.payment_method
-            }
+            error={!!formik.touched.method && !!formik.errors.method}
           >
             <InputLabel>Payment Method</InputLabel>
             <Select
               variant="filled"
-              name="payment_method"
-              value={formik.values.payment_method}
-              onChange={formik.handleChange}
+              name="method"
+              value={formik.values.method}
+              onChange={event => formik.setFieldValue("method", event.target.value)}
             >
-              {Object.keys(config.payment_method).map(item => (
-                <MenuItem key={item} value={item}>
-                  {config.payment_method[item]}
-                </MenuItem>
-              ))}
+              {!allPaymentMethods?.listData?.length ? null :
+                allPaymentMethods.listData.map(value => (
+                  <MenuItem value={value.id} name={value.name} key={value.id}>
+                    {value.name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
-              {formik.touched.payment_method && formik.errors.payment_method}
+              {formik.touched.method && formik.errors.method}
             </FormHelperText>
           </FormControl>
-          <FormControl
-            variant="filled"
-            sx={{ minWidth: 120 }}
-            error={
-              !!formik.touched.payment_status && !!formik.errors.payment_status
-            }
-          >
-            <InputLabel>Payment Status</InputLabel>
-            <Select
-              variant="filled"
-              name="payment_status"
-              autoComplete="new-payment_status"
-              value={formik.values.payment_status}
-              onChange={formik.handleChange}
-            >
-              {Object.keys(config.payment_status).map(item => (
-                <MenuItem key={item} value={item}>
-                  {config.payment_status[item]}
-                </MenuItem>
-              ))}
-            </Select>
-            <FormHelperText>
-              {formik.touched.payment_status && formik.errors.payment_status}
-            </FormHelperText>
-          </FormControl>
-          
-
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              format="DD MMMM YYYY" //ex - 25 July 2023
-              views={["day", "month", "year"]}
-              label="Select Payment Date"
-              name="payment_date"
-              value={formik.values.payment_date}
-              onChange={(newPayment_date) =>
-                formik.setFieldValue("payment_date", newPayment_date)
-              }
-              slotProps={{
-                textField: {
-                  error:
-                    !!formik.touched.payment_date &&
-                    !!formik.errors.payment_date,
-                  helperText:
-                    formik.touched.payment_date && formik.errors.payment_date,
-                },
-              }}
-            />
             <DatePicker
               format="DD MMMM YYYY" //ex - 25 July 2023
               views={["day", "month", "year"]}
               label="Due Date"
               name="due_date"
               value={formik.values.due_date}
-              onChange={(newDue_Date) =>
-                formik.setFieldValue("due_date", newDue_Date)
-              }
+              onChange={newDue_Date => formik.setFieldValue("due_date", newDue_Date)}
               slotProps={{
                 textField: {
                   error: !!formik.touched.due_date && !!formik.errors.due_date,
-                  helperText: formik.touched.due_date && formik.errors.due_date,
-                },
+                  helperText: formik.touched.due_date && formik.errors.due_date
+                }
               }}
             />
           </LocalizationProvider>
@@ -462,7 +339,7 @@ PaymentFormComponent.propTypes = {
   setDirty: PropTypes.func,
   reset: PropTypes.bool,
   setReset: PropTypes.func,
-  updatedValues: PropTypes.object,
+  updatedValues: PropTypes.object
 };
 
 export default PaymentFormComponent;

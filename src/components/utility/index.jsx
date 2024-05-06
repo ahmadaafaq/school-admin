@@ -9,7 +9,11 @@
 import API from "../../apis";
 import { displayToast } from "../../redux/actions/ToastAction";
 
+const months = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];      // For createDropdown function
+
 export const Utility = () => {
+
     /** Adds the keyword "Class" to a number, creating a formatted class representation.
      * @param {number} num - The number to be formatted.
      * @returns {string|number} - The formatted class representation with the keyword "Class" or the original number if not a valid number.
@@ -41,6 +45,64 @@ export const Utility = () => {
                 return `${num}rd`;
             default:
                 return `${num}th`;
+        }
+    };
+
+    /** Determines the divider based on the duration type.
+     * @param {string} duration - The type of duration (monthly, quarterly, half-yearly).
+     * @returns {number} The divider value.
+     */
+    const createDivider = duration => {
+        let divider;
+        switch (duration) {
+            case 'monthly':
+                divider = 1;
+                break;
+            case 'quarterly':
+                divider = 4;
+                break;
+            case 'half-yearly':
+                divider = 2;
+                break;
+            default:
+                divider = 0;
+                break;
+        }
+        return divider;
+    };
+
+    /** Creates an array of dropdown options based on the divider value.
+     * @param {number} divider - The divider value to determine the period length.
+     * @returns {string[]} An array of dropdown options.
+     */
+    const createDropdown = divider => {
+        const dropdownArray = [];
+        let index = 0;
+        let periodLength = months.length / divider;
+        if (divider === 0) return [];
+        if (divider === 1) return months;
+        while (divider--) {
+            dropdownArray.push(`${months[periodLength * index]} - ${months[(periodLength * (index + 1)) - 1]}`);
+            index++;
+        }
+        return dropdownArray;
+    };
+
+    /** Calculates the school fee based on the divider value. 
+     * @param {number} divider - The divider value to determine the fee calculation method.
+     * @param {number} amount - The total amount of school fee.
+     * @returns {number} The calculated school fee.
+     */
+    const createSchoolFee = (divider, amount) => {
+        switch (divider) {
+            case 1:
+                return Math.ceil(amount / 12);
+            case 2:
+                return Math.ceil(amount / 2);
+            case 4:
+                return Math.ceil(amount / 4);
+            default:
+                return amount; // Default to returning the total amount
         }
     };
 
@@ -364,16 +426,61 @@ export const Utility = () => {
      * @param {string|null} path - The optional path to navigate to after hiding the toast alert.
      * @returns {void} - This function does not return any value.
      */
-    const toastAndNavigate = (dispatch, display, severity, msg, navigateTo, path = null) => {
+    const toastAndNavigate = (dispatch, display, severity, msg, navigateTo, path = null, reload = false) => {
         dispatch(displayToast({ toastAlert: display, toastSeverity: severity, toastMessage: msg }));
 
         setTimeout(() => {
             dispatch(displayToast({ toastAlert: !display, toastSeverity: "", toastMessage: "" }));
             if (path) {
                 navigateTo(path);
+                if (reload) {
+                    location.reload();
+                }
             }
         }, 2000);
     };
+
+    /**
+ * Capitalizes the first character of each word in a given string.
+ * 
+ * @param {string} str - The input string to capitalize.
+ * @returns {string} - The string with the first character of each word capitalized.
+ */
+    const capitalizeEveryWord = (str) => {
+        if (str.length > 0) {
+            // Use a regular expression to match the first character of each word and capitalize it
+            return str.replace(/\b\w/g, function (char) {
+                return char.toUpperCase();
+            });
+        }
+    };
+
+    /**
+ * Formats a date value into a string in the format: "DD-MMM-YYYY".
+ * 
+ * @param {string | number | Date} value - The date value to format.
+ * @returns {string} - The formatted date string.
+ */
+    const formatDate = (value) => {
+        // Create a new Date object from the provided value
+        const date = new Date(value);
+
+        // Array of month names
+        const monthNames = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
+        // Extract day, month, and year from the date object
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+
+        // Construct the formatted date string in the format: "DD-MMM-YYYY"
+        const formattedDate = `${day}-${month}-${year}`;
+
+        return formattedDate;
+    }
 
     /** Verifies a token using an asynchronous API call.
      * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,
@@ -394,6 +501,10 @@ export const Utility = () => {
     return {
         addClassKeyword,
         appendSuffix,
+        capitalizeEveryWord,
+        createDivider,
+        createDropdown,
+        createSchoolFee,
         createSchoolCode,
         createSession,
         customSort,
@@ -402,6 +513,7 @@ export const Utility = () => {
         fetchAndSetSchoolData,
         findById,
         findMultipleById,
+        formatDate,
         formatImageName,
         getInitials,
         getNameAndType,

@@ -23,7 +23,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ReplayIcon from "@mui/icons-material/Replay";
 
 import API from "../../apis";
 import Search from "../common/Search";
@@ -31,18 +30,9 @@ import ServerPaginationGrid from "../common/Datagrid";
 
 import { datagridColumns } from "./MarksheetConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import {
-  setMarksheets,
-  setMarksheetClassData,
-} from "../../redux/actions/MarksheetAction";
-import {
-  setAllClasses,
-  setSchoolClasses,
-} from "../../redux/actions/ClassAction";
-import {
-  setAllSections,
-  setSchoolSections,
-} from "../../redux/actions/SectionAction";
+import { setMarksheets, setMarksheetClassData } from "../../redux/actions/MarksheetAction";
+import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAction";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -89,28 +79,18 @@ const ListingComponent = ({ rolePriority = null }) => {
   // here, you are seeing marksheet listing with class & section dropdown, when u select class, all its section objects are filtered
   // from total classes of that school, now when a section is selected, then the subject ids are filtered from all SUbjects to get
   // individual subjects of that section, these are dispatched in marksheetClassData action
-  const handleReload = () => {
-    // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-    reloadBtn.style.display = "none";
-    setSearchFlag({
-      search: false,
-      searching: false,
-      oldPagination,
-    });
-  };
-
   // to bring marksheet data for selected class & section selected in dropdown
   let classConditionObj = classSectionObj?.class_id
     ? {
-        classId: classSectionObj.class_id,
-      }
+      classId: classSectionObj.class_id,
+    }
     : null;
 
   classConditionObj = classSectionObj?.section_id
     ? {
-        ...classConditionObj,
-        sectionId: classSectionObj.section_id,
-      }
+      ...classConditionObj,
+      sectionId: classSectionObj.section_id,
+    }
     : null;
 
   useEffect(() => {
@@ -154,9 +134,9 @@ const ListingComponent = ({ rolePriority = null }) => {
       );
       const selectedSubjects = sectionSubjects
         ? findMultipleById(
-            sectionSubjects[0]?.subject_ids,
-            allSubjects?.listData
-          )
+          sectionSubjects[0]?.subject_ids,
+          allSubjects?.listData
+        )
         : [];
       dispatch(
         setMarksheetClassData({
@@ -290,17 +270,17 @@ const ListingComponent = ({ rolePriority = null }) => {
             >
               {allClasses?.listData?.length
                 ? allClasses.listData.map((cls) => (
-                    <MenuItem value={cls.class_id} key={cls.class_id}>
-                      {cls.class_name}
-                    </MenuItem>
-                  ))
+                  <MenuItem value={cls.class_id} key={cls.class_id}>
+                    {cls.class_name}
+                  </MenuItem>
+                ))
                 : schoolClasses?.listData?.length
-                ? schoolClasses.listData.map((cls) => (
+                  ? schoolClasses.listData.map((cls) => (
                     <MenuItem value={cls.class_id} key={cls.class_id}>
                       {cls.class_name}
                     </MenuItem>
                   ))
-                : null}
+                  : null}
             </Select>
           </FormControl>
           <FormControl
@@ -329,15 +309,15 @@ const ListingComponent = ({ rolePriority = null }) => {
             >
               {allSections?.listData?.length
                 ? allSections.listData.map((section) => (
-                    <MenuItem
-                      value={section.section_id}
-                      key={section.section_id}
-                    >
-                      {section.section_name}
-                    </MenuItem>
-                  ))
+                  <MenuItem
+                    value={section.section_id}
+                    key={section.section_id}
+                  >
+                    {section.section_name}
+                  </MenuItem>
+                ))
                 : schoolSections?.listData?.length
-                ? schoolSections.listData.map((section) => (
+                  ? schoolSections.listData.map((section) => (
                     <MenuItem
                       value={section.section_id}
                       key={section.section_id}
@@ -345,7 +325,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                       {section.section_name}
                     </MenuItem>
                   ))
-                : null}
+                  : null}
             </Select>
           </FormControl>
 
@@ -365,26 +345,6 @@ const ListingComponent = ({ rolePriority = null }) => {
           )}
         </Box>
       </Box>
-      <Button
-        sx={{
-          display: "none",
-          position: "absolute",
-          top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-          left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-          zIndex: 1,
-          borderRadius: "20%",
-          color: colors.grey[100],
-          marginLeft: "14vh",
-        }}
-        id="reload-btn"
-        type="button"
-        onClick={handleReload}
-      >
-        <span style={{ display: "inherit", marginRight: "5px" }}>
-          <ReplayIcon />
-        </span>
-        Back
-      </Button>
       <ServerPaginationGrid
         action={setMarksheets}
         api={API.MarksheetAPI}

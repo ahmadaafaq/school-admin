@@ -14,10 +14,13 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
 
 export const datagridColumns = (rolePriority = null) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { capitalizeEveryWord } = Utility();
+
     const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
@@ -40,7 +43,7 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 120,
-            valueGetter: (params) => params.row.driver.charAt(0).toUpperCase() + params.row.driver.slice(1) || ''
+            valueGetter: (params) => `${capitalizeEveryWord(params.row.driver) || ""}`,
 
         },
         {
@@ -84,7 +87,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );

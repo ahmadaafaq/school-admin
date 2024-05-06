@@ -11,19 +11,30 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
+import PreviewIcon from '@mui/icons-material/Preview';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
 
-export const datagridColumns = () => {
+
+export const datagridColumns = (setOpen = null) => {
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { capitalizeEveryWord } = Utility();
+
     const selected = useSelector(state => state.menuItems.selected);
     const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
         navigateTo(`/${selected.toLowerCase()}/update/${id}`, { state: { id: id } });
+    };
+
+    const handleActionShow = (id) => {
+        setOpen(true);
+        navigateTo("#", { state: { id: id } });
+        console.log("id>>>", id);
     };
 
     const columns = [
@@ -33,7 +44,15 @@ export const datagridColumns = () => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,   
+            minWidth: 120,
+            renderCell: (params) => {
+                let cityName = params?.row?.city;
+                return (
+                    <div>
+                        {cityName ? cityName : '/'}
+                    </div>
+                );
+            }
         },
         {
             field: "name",
@@ -52,13 +71,16 @@ export const datagridColumns = () => {
             minWidth: 80
         },
         {
+
             field: "sub_type",
             headerName: "Sub Type",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 80,
-            valueGetter: params => params.row.sub_type.charAt(0).toUpperCase() + params.row.sub_type.slice(1)
+            valueGetter: params => capitalizeEveryWord(params.row.sub_type) || ''
+
+
         },
         {
             field: "contact_no_1",
@@ -93,7 +115,7 @@ export const datagridColumns = () => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
@@ -118,6 +140,13 @@ export const datagridColumns = () => {
                             sx={{ minWidth: "50px" }}
                         >
                             <DriveFileRenameOutlineOutlinedIcon />
+                        </Button>
+
+                        <Button color="info" variant="contained"
+                            onClick={() => handleActionShow(id)}
+                            sx={{ minWidth: "50px" }}
+                        >
+                            <PreviewIcon />
                         </Button>
                     </Box>
                 );
