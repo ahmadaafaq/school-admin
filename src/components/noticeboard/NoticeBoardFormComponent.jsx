@@ -108,45 +108,38 @@ const NoticeBoardFormComponent = ({
                         error={!!formik.touched.title && !!formik.errors.title}
                         helperText={formik.touched.title && formik.errors.title}
                     />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Description"
-                        name="description"
-                        autoComplete="new-description"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.description}
-                        error={!!formik.touched.description && !!formik.errors.description}
-                        helperText={formik.touched.description && formik.errors.description}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Publish Date"
-                        name="publish_date"
-                        autoComplete="new-publish_date"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.publish_date}
-                        error={!!formik.touched.publish_date && !!formik.errors.publish_date}
-                        helperText={formik.touched.publish_date && formik.errors.publish_date}
-                    />
-                    <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Expiry Date"
-                        name="expiry_date"
-                        autoComplete="new-expiry_date"
-                        onBlur={formik.handleBlur}
-                        onChange={formik.handleChange}
-                        value={formik.values.expiry_date}
-                        error={!!formik.touched.expiry_date && !!formik.errors.expiry_date}
-                        helperText={formik.touched.expiry_date && formik.errors.expiry_date}
-                    />
+
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            format="DD MMMM YYYY"            //ex - 25 July 2023
+                            views={['day', "month", "year"]}
+                            label="Publish Date"
+                            name="publish_date"
+                            value={formik.values.publish_date}
+                            onChange={new_publish_date => formik.setFieldValue("publish_date", new_publish_date)}
+                            slotProps={{
+                                textField: {
+                                    error: !!formik.touched.publish_date && !!formik.errors.publish_date,
+                                    helperText: formik.touched.publish_date && formik.errors.publish_date
+                                }
+                            }}
+                        />
+                        <DatePicker
+                            format="DD MMMM YYYY"
+                            views={['day', "month", "year"]}
+                            label="Expiry Date"
+                            name="expiry_date"
+                            value={formik.values.expiry_date}
+                            onChange={new_expiry_date => formik.setFieldValue("expiry_date", new_expiry_date)}
+                            slotProps={{
+                                textField: {
+                                    error: !!formik.touched.expiry_date && !!formik.errors.expiry_date,
+                                    helperText: formik.touched.expiry_date && formik.errors.expiry_date
+                                }
+                            }}
+                        />
+                    </LocalizationProvider>
+
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.status && !!formik.errors.status}
                     >
@@ -165,6 +158,20 @@ const NoticeBoardFormComponent = ({
                         </Select>
                         <FormHelperText>{formik.touched.status && formik.errors.status}</FormHelperText>
                     </FormControl>
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="text"
+                        label="Description"
+                        name="description"
+                        autoComplete="new-description"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.description}
+                        error={!!formik.touched.description && !!formik.errors.description}
+                        helperText={formik.touched.description && formik.errors.description}
+                        sx={{ gridColumn: "span 4", gridRow: "span 2" }}
+                    />
                 </Box>
             </form >
         </Box >
@@ -173,11 +180,11 @@ const NoticeBoardFormComponent = ({
 
 NoticeBoardFormComponent.propTypes = {
     onChange: PropTypes.func.isRequired,
-    refId: PropTypes.any.isRequired, 
+    refId: PropTypes.any.isRequired,
     setDirty: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
     setReset: PropTypes.func.isRequired,
-    updatedValues: PropTypes.object  
+    updatedValues: PropTypes.object
 };
 
 export default NoticeBoardFormComponent;

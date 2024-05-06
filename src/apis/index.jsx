@@ -18,6 +18,7 @@ import { EmployeeAPI } from "./EmployeeAPI";
 import { HolidayAPI } from "./HolidayAPI";
 import { ImageAPI } from "./ImageAPI";
 import { MarksheetAPI } from "./MarksheetAPI";
+import { NoticeBoardAPI } from "./NoticeBoardAPI"
 import { PaymentAPI } from "./PaymentAPI";
 import { PaymentMethodAPI } from "./PaymentMethodAPI";
 import { SchoolAPI } from "./SchoolAPI";
@@ -45,6 +46,7 @@ export default {
     HolidayAPI,
     ImageAPI,
     MarksheetAPI,
+    NoticeBoardAPI,
     PaymentAPI,
     PaymentMethodAPI,
     SchoolAPI,
