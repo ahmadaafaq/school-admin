@@ -31,6 +31,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
 import BackupTableIcon from '@mui/icons-material/BackupTable';
 import HourglassBottomTwoToneIcon from '@mui/icons-material/HourglassBottomTwoTone';
 import EmojiFlagsRoundedIcon from '@mui/icons-material/EmojiFlagsRounded';
@@ -409,6 +410,14 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
+            />
+            <SidebarItem
+              title="Notice Board"
+              to="/noticeboard/listing"
+              icon={<AnnouncementIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
             />
             {rolePriority < 2 && <>
               < Typography
