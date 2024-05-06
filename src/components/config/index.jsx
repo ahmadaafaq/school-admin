@@ -53,22 +53,15 @@ const config = {
         'trained_graduate_teacher': 'Trained Graduate Teacher',
         'post_graduate_teacher': 'Post Graduate Teacher'
     },
-    payment_status: {
-        'pending': 'Pending',
-        'partial': 'Partial',
-        'full': 'Full'
-    },
-    payment_method: {
-        'cash': 'Cash',
-        'credit card': 'Credit Card',
-        'online transfer': 'Online Transfer'
-    },
-    //payment type \/ :-
-    type: {
+    fee: {
         'school': 'School',
-        'event': 'Event',
-        'cycle stand': 'Cycle Stand',
         'bus': 'Bus'
+    },
+    payment_type: {
+        'monthly': 'Monthly',
+        'quarterly': 'Quarterly',
+        'half-yearly': 'Half-Yearly',
+        'annually': 'Annually'
     },
     holiday_type: {
         'school_closure': 'School Closure',

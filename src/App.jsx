@@ -11,8 +11,7 @@ import {
   Routes,
   Route,
   useLocation,
-  useNavigate,
-  useParams,
+  useNavigate
 } from "react-router-dom"
 
 import { CssBaseline, ThemeProvider } from "@mui/material"
@@ -71,9 +70,11 @@ const HolidayFormComponent = lazy(() => import("./components/holiday/FormCompone
 
 const HolidayListingComponent = lazy(() => import("./components/holiday/ListingComponent"))
 
-const PaymentFormComponent = lazy(() => import("./components/payment/FormComponent"))
+const PaymentFormComponent = lazy(() => import("./components/payment/FormInModalComponent"))
 
 const PaymentListingComponent = lazy(() => import("./components/payment/ListingComponent"))
+
+const PaymentMethodListingComponent = lazy(() => import("./components/paymentMethod/ListingComponent"))
 
 const SchoolDurationFormComponent = lazy(() => import("./components/schoolDuration/FormComponent"))
 
@@ -97,16 +98,11 @@ function App() {
   const navigateTo = useNavigate()
   let { pathname } = useLocation()
   const splittedPath = pathname.split("/")
+  const { getLocalStorage, getRoleAndPriorityById, setLocalStorage, verifyToken } = Utility()
+
   if (splittedPath.length > 0) {
-    pathname = splittedPath[1]
+    pathname = splittedPath[1];
   }
-  const { token } = useParams() //this token is from reset-password
-  const {
-    getLocalStorage,
-    getRoleAndPriorityById,
-    setLocalStorage,
-    verifyToken,
-  } = Utility()
 
   const onIdle = () => {
     localStorage.clear()
@@ -124,10 +120,10 @@ function App() {
       if (result) {
         setUserRole({
           name: result.name,
-          priority: result.priority,
-        })
+          priority: result.priority
+        });
       }
-    })
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getLocalStorage("auth")?.role])
 
@@ -136,18 +132,18 @@ function App() {
       if (!result && pathname === "reset-password") {
         const token = splittedPath[2]
         setLocalStorage("auth", {
-          token: token,
+          token: token
         })
-        navigateTo(`/reset-password/${token}`, { replace: true })
+        navigateTo(`/reset-password/${token}`, { replace: true });
       } else if (!result && pathname !== "login") {
-        localStorage.clear()
-        setLocalStorage("navigatedPath", pathname)
-        navigateTo("/login", { replace: true })
+        localStorage.clear();
+        setLocalStorage("navigatedPath", pathname);
+        navigateTo("/login", { replace: true });
       }
-    })
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
+
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -219,6 +215,11 @@ function App() {
                         exact
                         path="/class/listing"
                         element={<ClassListingComponent />}
+                      />
+                      <Route
+                        exact
+                        path="/payment-method/listing"
+                        element={<PaymentMethodListingComponent />}
                       />
                       <Route
                         exact
@@ -401,12 +402,12 @@ function App() {
                       <Route
                         exact
                         path="/payment/create"
-                        element={<PaymentFormComponent />}
+                        element={<PaymentFormComponent rolePriority={userRole.priority} />}
                       />
                       <Route
                         exact
                         path="/payment/update/:id"
-                        element={<PaymentFormComponent />}
+                        element={<PaymentFormComponent rolePriority={userRole.priority} />}
                       />
                       <Route
                         exact

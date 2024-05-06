@@ -11,20 +11,20 @@
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
+import PreviewIcon from '@mui/icons-material/Preview';
 
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
 
-export const datagridColumns = (rolePriority = null) => {
+export const datagridColumns = (rolePriority = null, setOpen = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const { capitalizeEveryWord } = Utility();
 
-
-    const handleActionEdit = (id) => {
-        navigateTo(`/payment/update/${id}`, { state: { id: id } });
+    const handleActionShow = (id, clss, section) => {
+        setOpen(true);
+        navigateTo("#", { state: { id: id, cls: clss, section: section } });
     };
 
     const columns = [
@@ -35,24 +35,11 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 120,
-            valueGetter: (params) => {
-                
-                const firstName = params.row["student.firstname"] || "";
-                const lastName = params.row["student.lastname"] || "";
-
-                const capitalizedFirstName = capitalizeEveryWord(firstName);
-                const capitalizedLastName = capitalizeEveryWord(lastName);
-
-                const fullName = `${capitalizedFirstName} ${capitalizedLastName}`.trim();
-
-                console.log(params.row);
-                return fullName;
-            }
-
-
+            // this function combines the values of firstname and lastname into one string
+            valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''} ${capitalizeEveryWord(params.row.lastname) || ''}`
         },
         {
-            field: "academic_year",
+            field: "session",
             headerName: "Academic Year",
             headerAlign: "center",
             align: "center",
@@ -60,21 +47,13 @@ export const datagridColumns = (rolePriority = null) => {
             minWidth: 120
         },
         {
-            field: "amount",
-            headerName: "Amount",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 100
-        },
-        {
-            field: "type",
-            headerName: "Type",
+            field: "status",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
-            renderCell: ({ row: { type } }) => {
+            renderCell: ({ row: { status } }) => {
                 return (
                     <Box
                         width="60%"
@@ -83,92 +62,21 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center"
                         backgroundColor={
-                            type === "school"
+                            status === "active"
                                 ? colors.greenAccent[600]
-                                : type === "event"
+                                : status === "inactive"
                                     ? colors.redAccent[700]
-                                    : type === "cycle stand"
-                                        ? colors.blueAccent[800]
-                                        : type === "bus"
-                                            ? colors.blueAccent[900]
-                                            : colors.blueAccent[900]
+                                    : colors.redAccent[700]
                         }
                         borderRadius="4px"
                     >
-                        <Typography color={colors.grey[100]} >
-                        {capitalizeEveryWord(type) || ''}
-
+                        <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
             }
         },
-        {
-            field: "payment_status",
-            headerName: "Payment Status",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 120,
-            renderCell: ({ row: { payment_status } }) => {
-                return (
-                    <Box
-                        width="100%"
-                        m="0 auto"
-                        p="5px"
-                        display="flex"
-                        justifyContent="center"
-                        backgroundColor={
-                            payment_status === "pending"
-                                ? colors.greenAccent[600]
-                                : payment_status === "partial"
-                                    ? colors.redAccent[700]
-                                    : payment_status === "full"
-                                        ? colors.blueAccent[800]
-                                        : colors.blueAccent[800]
-                        }
-                        borderRadius="4px"
-                    >
-                        <Typography color={colors.grey[100]} >
-                            {capitalizeEveryWord(payment_status) || ''}
-                        </Typography>
-                    </Box>
-                );
-            }
-        },
-        // {
-        //     field: "payment_method",
-        //     headerName: "Payment Method",
-        //     headerAlign: "center",
-        //     align: "center",
-        //     flex: 1,
-        //     minWidth: 120,
-        //     renderCell: ({ row: { payment_method } }) => {
-        //         return (
-        //             <Box
-        //                 width="100%"
-        //                 m="0 auto"
-        //                 p="5px"
-        //                 display="flex"
-        //                 justifyContent="center"
-        //                 borderRadius="4px"
-        //                 backgroundColor={
-        //                     payment_method === "cash"
-        //                         ? colors.greenAccent[600]
-        //                         : payment_method === "credit card"
-        //                             ? colors.redAccent[700]
-        //                             : payment_method === "online transfer"
-        //                                 ? colors.blueAccent[800]
-        //                                 : colors.blueAccent[800]
-        //                 }
-        //             >
-        //                 <Typography color={colors.grey[100]}>
-        //                     {payment_method.charAt(0).toUpperCase() + payment_method.slice(1) || ''}
-        //                 </Typography>
-        //             </Box>
-        //         );
-        //     }
-        // },
         rolePriority !== 1 && {
             field: "action",
             headerName: "Action",
@@ -176,7 +84,7 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 75,
-            renderCell: ({ row: { id } }) => {
+            renderCell: ({ row }) => {
                 return (
                     <Box width="30%"
                         m="0 auto"
@@ -184,10 +92,10 @@ export const datagridColumns = (rolePriority = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            onClick={() => handleActionEdit(id)}
+                            onClick={() => handleActionShow(row.id, row.class, row.section)}
                             sx={{ minWidth: "50px" }}
                         >
-                            <DriveFileRenameOutlineOutlinedIcon />
+                            <PreviewIcon />
                         </Button>
                     </Box>
                 );

@@ -30,18 +30,9 @@ import ServerPaginationGrid from "../common/Datagrid";
 
 import { datagridColumns } from "./MarksheetConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-import {
-  setMarksheets,
-  setMarksheetClassData,
-} from "../../redux/actions/MarksheetAction";
-import {
-  setAllClasses,
-  setSchoolClasses,
-} from "../../redux/actions/ClassAction";
-import {
-  setAllSections,
-  setSchoolSections,
-} from "../../redux/actions/SectionAction";
+import { setMarksheets, setMarksheetClassData } from "../../redux/actions/MarksheetAction";
+import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAction";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
 import { tokens } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -88,7 +79,7 @@ const ListingComponent = ({ rolePriority = null }) => {
   // here, you are seeing marksheet listing with class & section dropdown, when u select class, all its section objects are filtered
   // from total classes of that school, now when a section is selected, then the subject ids are filtered from all SUbjects to get
   // individual subjects of that section, these are dispatched in marksheetClassData action
-   // to bring marksheet data for selected class & section selected in dropdown
+  // to bring marksheet data for selected class & section selected in dropdown
   let classConditionObj = classSectionObj?.class_id
     ? {
       classId: classSectionObj.class_id,
