@@ -48,17 +48,6 @@ export const Utility = () => {
         }
     };
 
-    /** Capitalizes the first character of each word in a given string.
-     * @param {string} str - The input string to capitalize.
-     * @returns {string} - The string with the first character of each word capitalized.
-     */
-    const capitalizeEveryWord = (str) => {
-        // Use a regular expression to match the first character of each word and capitalize it
-        return str.replace(/\b\w/g, function (char) {
-            return char.toUpperCase();
-        });
-    };
-
     /** Determines the divider based on the duration type.
      * @param {string} duration - The type of duration (monthly, quarterly, half-yearly).
      * @returns {number} The divider value.
@@ -452,6 +441,21 @@ export const Utility = () => {
     };
 
     /**
+ * Capitalizes the first character of each word in a given string.
+ * 
+ * @param {string} str - The input string to capitalize.
+ * @returns {string} - The string with the first character of each word capitalized.
+ */
+    const capitalizeEveryWord = (str) => {
+        if (str.length > 0) {
+            // Use a regular expression to match the first character of each word and capitalize it
+            return str.replace(/\b\w/g, function (char) {
+                return char.toUpperCase();
+            });
+        }
+    };
+
+    /**
  * Formats a date value into a string in the format: "DD-MMM-YYYY".
  * 
  * @param {string | number | Date} value - The date value to format.
@@ -477,7 +481,6 @@ export const Utility = () => {
 
         return formattedDate;
     }
-
 
     /** Verifies a token using an asynchronous API call.
      * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,

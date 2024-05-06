@@ -31,6 +31,10 @@ const pageSizeOptions = [5, 10, 20];
 const ListingComponent = ({ rolePriority = null }) => {
     const selected = useSelector(state => state.menuItems.selected);
     const { listData, loading } = useSelector(state => state.allTeachers);
+    // const [classesData, setClassesData] = useState();
+
+    console.log("listData", listData);
+    console.log("selected", selected)
 
     const theme = useTheme();
     const navigateTo = useNavigate();
@@ -63,27 +67,38 @@ const ListingComponent = ({ rolePriority = null }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-//     useEffect(() => {
-//         let teacherIds = [];
-//         let updatePromises = [];
-//         if (listData?.rows) {
-//             listData.rows.map((item) => {
-//                 if (item.is_class_teacher === false) {
-//                     teacherIds.push(item.id);
-//                 }
-//             });
-//             console.log('teacher ids', teacherIds);
-//             updatePromises = teacherIds.map((id) => {
-//                 API.TeacherAPI.getTeacherDetail(id)
-//                     .then((detail) => {
-//                         if(detail.status === 'Success'){
-//                             console.log(detail, 'class sect')
-// setTeacherDetail({item.id: })
-//                         }
-//                     })
-//             });
-//         }
-//     }, [listData?.rows?.length])
+    //     useEffect(() => {
+    //         let teacherIds = [];
+    //         let updatePromises = [];
+    //         if (listData?.rows) {
+    //             listData.rows.map((item) => {
+    //                 if (item.is_class_teacher === false) {
+    //                     teacherIds.push(item.id);
+    //                 }
+    //             });
+    //             console.log('teacher ids', teacherIds);
+    //             updatePromises = teacherIds.map((id) => {
+    //                 API.TeacherAPI.getTeacherDetail(id)
+    //                     .then((detail) => {
+    //                         if(detail.status === 'Success'){
+    //                             console.log(detail, 'class sect')
+    // setTeacherDetail({item.id: })
+    //                         }
+    //                     })
+    //             });
+    //         }
+    //     }, [listData?.rows?.length])
+    // useEffect(() => {
+    //     API.TeacherAPI.getTeacherDetail()
+    //         .then(classes => {
+    //             if (classes?.status == "Success") {
+    //                 setClassesData(classes?.data);
+    //             }
+    //         })
+    //         .catch(err => {
+    //             throw err;
+    //         });
+    // }, []);
 
     return (
         <Box m="10px" position="relative"
@@ -145,7 +160,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setTeachers}
                 api={API.TeacherAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns(rolePriority)}
+                columns={datagridColumns(rolePriority )}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
