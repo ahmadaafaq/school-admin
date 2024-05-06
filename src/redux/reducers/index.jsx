@@ -41,6 +41,7 @@ import { setAllTeachersReducer } from "./TeacherReducer";
 import { setUsersReducer } from "./UserReducer";
 import { setAllUserRolesReducer } from "./UserRoleReducer";
 import { setListingUserRolesReducer } from "./UserRoleReducer";
+import { setNoticeBoardReducer } from "./NoticeBoardReducer";
 
 const reducers = combineReducers({
   auth: authReducer,
@@ -70,12 +71,13 @@ const reducers = combineReducers({
   listingUserRoles: setListingUserRolesReducer,
   allUserRoles: setAllUserRolesReducer,
   allHolidays: setHolidaysReducer,
+   allNotices: setNoticeBoardReducer,
   allPayments: setPaymentsReducer,
   listingPaymentMethods: setListingPaymentMethodsReducer,
   allPaymentMethods: setAllPaymentMethodsReducer,
   allSchoolDurations: setSchoolDurationsReducer,
   menuItems: menuItemReducer,
-  toastInfo: displayToastReducer,
+  toastInfo: displayToastReducer
 });
 
 export default reducers;
