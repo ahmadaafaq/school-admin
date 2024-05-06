@@ -18,9 +18,9 @@ export const MarksheetAPI = {
     getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
         let queryParam = '';
         if (conditionObj) {
-          Object.keys(conditionObj).map(key => {
-            queryParam += `&${key}=${conditionObj[key]}`
-          })
+            Object.keys(conditionObj).map(key => {
+                queryParam += `&${key}=${conditionObj[key]}`
+            })
         }
         const searchParam = search ? `&search=${search}` : '';
         const { data: response } = await api.request({
@@ -60,6 +60,45 @@ export const MarksheetAPI = {
             data: fields,
             signal: cancel ? cancelApiObject[this.updateMarksheet.name].handleRequestCancellation().signal : undefined,
         });
+    },
+    /** Insert data into marksheet_data mapping table in the database
+   */
+    insertIntoMappingTable: async (data, cancel = false) => {
+        return await api.request({
+            url: `/create-marksheet-data`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "POST",
+            data: data,
+            signal: cancel ? cancelApiObject[this.insertIntoMappingTable.name].handleRequestCancellation().signal : undefined,
+        });
+    },
+    /** delete values from marksheet_data mapping table on every update
+   */
+    deleteFromMappingTable: async (fields, cancel = false) => {
+        return await api.request({
+            url: `/delete-from-marksheet-mapping`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "DELETE",
+            data: fields,
+            signal: cancel ? cancelApiObject[this.deleteFromMappingTable.name].handleRequestCancellation().signal : undefined,
+        });
+    },
+
+    /** get marksheet data from marksheet data table  */
+    getMarksheetData: async (marksheet_id, cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-marksheet-data/${marksheet_id}`,
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "GET",
+            signal: cancel ? cancelApiObject[this.getMarksheetData.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
     }
 };
 

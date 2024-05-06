@@ -52,61 +52,67 @@ const FormComponent = () => {
 
     let student_id = state?.student_id || userParams?.student_id;
     let term = state?.term;
+    let marksheet_id = state?.id;
+
+
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updateMarksheet = useCallback(formData => {
-        let promises = [];
+    // const updateMarksheet = useCallback(formData => {
+    //     let promises = [];
+    //     setLoading(true);
+    //     let payload = {
+    //         session: formData.marksheetData.values.session,
+    //         student_id: formData.marksheetData.values.student,
+    //         class_id: marksheetClassData.classDataObj.class_id,
+    //         section_id: marksheetClassData.classDataObj.section_id,
+    //         term: formData.marksheetData.values.term
+    //     };
+
+    //     promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
+    //         payload = {
+    //             ...payload,
+    //             subject_id: subjectId,
+    //             id: formData.marksheetData.values[`dbId_${index}`],
+    //             marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
+    //             total_marks: formData.marksheetData.values[`total_marks_${index}`],
+    //             grade: formData.marksheetData.values[`grade_${index}`],
+    //             remark: formData.marksheetData.values[`remark_${index}`],
+    //             result: formData.marksheetData.values[`result_${index}`]
+    //         }
+    //         API.MarksheetAPI.updateMarksheet(payload);
+    //     });
+
+    //     return Promise.all(promises)
+    //         .then(() => {
+    //             setLoading(false);
+    //             toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/marksheet/listing');
+    //         })
+    //         .catch(err => {
+    //             setLoading(false);
+    //             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+    //             console.log("error updating marksheet", err);
+    //         });
+    // }, [formData]);
+
+    const populateMarksheetData = useCallback((student_id, term, marksheet_id) => {
         setLoading(true);
-        let payload = {
-            session: formData.marksheetData.values.session,
-            student_id: formData.marksheetData.values.student,
-            class_id: marksheetClassData.classDataObj.class_id,
-            section_id: marksheetClassData.classDataObj.section_id,
-            term: formData.marksheetData.values.term
-        };
-
-        promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
-            payload = {
-                ...payload,
-                subject_id: subjectId,
-                id: formData.marksheetData.values[`dbId_${index}`],
-                marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
-                total_marks: formData.marksheetData.values[`total_marks_${index}`],
-                grade: formData.marksheetData.values[`grade_${index}`],
-                remark: formData.marksheetData.values[`remark_${index}`],
-                result: formData.marksheetData.values[`result_${index}`]
-            }
-            API.MarksheetAPI.updateMarksheet(payload);
-        });
-
-        return Promise.all(promises)
-            .then(() => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/marksheet/listing');
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log("error updating marksheet", err);
-            });
-    }, [formData]);
-
-    const populateMarksheetData = useCallback((student_id, term) => {
-        setLoading(true);
-        const path = [`/get-marksheet/?page=0&size=10&student=${student_id}&term=${term}`];
+        const path = [`/get-marksheet/?page=0&size=10&student=${student_id}&term=${term}`, `/get-marksheet-data/${marksheet_id}`];
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
+                console.log("response>>>", response);
                 if (response[0].data.status === 'Success') {
                     const dataObj = {
-                        marksheetData: response[0].data.data.rows
+                        marksheetData: response[0].data.data.rows,
+                        marksheetMappingData: response[1].data.data
                     };
                     setUpdatedValues(dataObj);
                     setLoading(false);
+                    console.log("dataobj>>", dataObj);
                 }
             })
             .catch((err) => {
@@ -114,36 +120,61 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    }, [student_id, term]);
+    }, [student_id, term, marksheet_id]);
 
-    const createMarksheet = useCallback(formData => {
-        let promises = [];
+    const handleMarksheet = useCallback((formData, studentId) => {
+        let promise;
         setLoading(true);
         let payload = {
             session: formData.marksheetData.values.session,
             student_id: formData.marksheetData.values.student,
             class_id: marksheetClassData.classDataObj.class_id,
             section_id: marksheetClassData.classDataObj.section_id,
-            term: formData.marksheetData.values.term
+            term: formData.marksheetData.values.term,
+            result: formData.marksheetData.values.result
         };
-
-        promises = formData.marksheetData.values.subjects.map((subjectId, index) => {
+        console.log("formdata", formData, payload);
+        if (!studentId) {
+            // Create a new marksheet record if studentId is not provided
+            promise = API.MarksheetAPI.createMarksheet(payload);
+        } else {
             payload = {
                 ...payload,
-                subject_id: subjectId,
-                marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
-                total_marks: formData.marksheetData.values[`total_marks_${index}`],
-                grade: formData.marksheetData.values[`grade_${index}`],
-                remark: formData.marksheetData.values[`remark_${index}`],
-                result: formData.marksheetData.values[`result_${index}`]
+                id: marksheet_id
             }
-            API.MarksheetAPI.createMarksheet(payload);
-        });
+            // Update an existing marksheet record if studentId is provided
+            promise = API.MarksheetAPI.updateMarksheet(payload);
+        }
 
-        return Promise.all(promises)
-            .then(() => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/marksheet/listing');
+        promise
+            .then(async marksheet => {
+                // Deletes all the records on update from mapping table and insert new records
+                if (studentId) {
+                    await API.MarksheetAPI.deleteFromMappingTable({ marksheet_id: marksheet_id });
+                }
+                console.log('marksheet', marksheet);
+                formData.marksheetData.values.subjects.map((subjectId, index) => {
+                    let payload2 = {
+                        marksheet_id: !studentId ? marksheet.data.data.id : marksheet_id,
+                        subject_id: subjectId,
+                        marks_obtained: formData.marksheetData.values[`marks_obtained_${index}`],
+                        total_marks: formData.marksheetData.values[`total_marks_${index}`],
+                        grade: formData.marksheetData.values[`grade_${index}`],
+                        remark: formData.marksheetData.values[`remark_${index}`],
+                        result: formData.marksheetData.values[`result_${index}`]
+                    }
+                    // if update it runs create after delete mapping table and if create it do not run any delete and create into mapping table 
+                    API.MarksheetAPI.insertIntoMappingTable(payload2)
+                        .then(() => {
+                            setLoading(false);
+                            toastAndNavigate(dispatch, true, !studentId ? "success" : "info", !studentId ? "Successfully Created" : "Successfully Updated", navigateTo, '/marksheet/listing');
+                        })
+                        .catch(err => {
+                            setLoading(false);
+                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                            console.log("error handling marksheet", err);
+                        });
+                })
             })
             .catch(err => {
                 setLoading(false);
@@ -156,10 +187,10 @@ const FormComponent = () => {
     useEffect(() => {
         if (student_id && !submitted) {
             setTitle("Update");
-            populateMarksheetData(student_id, term);
+            populateMarksheetData(student_id, term, marksheet_id);
         }
         if (formData.marksheetData.validated) {
-            student_id ? updateMarksheet(formData) : createMarksheet(formData);
+            handleMarksheet(formData, student_id)
         } else {
             setSubmitted(false);
         }
@@ -175,7 +206,7 @@ const FormComponent = () => {
     };
 
     return (
-        <Box  m="10px"
+        <Box m="10px"
             sx={{
                 backgroundImage: theme.palette.mode == "light" ? `linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(${formBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url(${formBg})`,
@@ -203,7 +234,7 @@ const FormComponent = () => {
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
-                updatedValues={updatedValues?.marksheetData}
+                updatedValues={updatedValues}
             />
             <Box display="flex" justifyContent="end" m="20px 20px 70px 0" >
                 {title === "Update" ? null : (

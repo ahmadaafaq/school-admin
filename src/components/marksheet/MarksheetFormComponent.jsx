@@ -129,27 +129,26 @@ const MarksheetFormComponent = ({
 
   useEffect(() => {
     if (updatedValues) {
+      console.log("updatedvalues>>>>", updatedValues);
       let subjectIds = [];
-      updatedValues.map((sub, index) => {
+      updatedValues.marksheetMappingData.map((sub, index) => {
         formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
         formik.setFieldValue(`total_marks_${index}`, sub.total_marks);
         formik.setFieldValue(`grade_${index}`, sub.grade);
         formik.setFieldValue(`remark_${index}`, sub.remark);
         formik.setFieldValue(`result_${index}`, sub.result);
         formik.setFieldValue(`dbId_${index}`, sub.id);
-        subjectIds.push(sub.subject_id);
+        subjectIds.push(sub.subject_id.toString());
       });
       let classSubjects;
       if (subjectIds?.length) {
-        classSubjects = findMultipleById(
-          subjectIds.join(","),
-          allSubjects?.listData
-        );
-        formik.setFieldValue("subjects", subjectIds);
+        classSubjects = findMultipleById(subjectIds.join(","), allSubjects?.listData);
+        console.log("classSubjects>>>>", classSubjects);
       }
-      formik.setFieldValue("session", updatedValues[0]?.session);
-      formik.setFieldValue("student", updatedValues[0]?.student_id);
-      formik.setFieldValue("term", updatedValues[0]?.term);
+      formik.setFieldValue("session", updatedValues.marksheetData[0]?.session);
+      formik.setFieldValue("student", updatedValues.marksheetData[0]?.student_id);
+      formik.setFieldValue("term", updatedValues.marksheetData[0]?.term);
+      formik.setFieldValue("result", updatedValues.marksheetData[0]?.result);
 
       dispatch(
         setMarksheetClassData({
@@ -426,6 +425,29 @@ const MarksheetFormComponent = ({
               </Box>
             ))}
         </div>
+        <FormControl
+          variant="filled"
+          sx={{ minWidth: 120 }}
+          error={!!formik.touched.result && !!formik.errors.result}
+        >
+          <InputLabel>Result</InputLabel>
+          <Select
+            variant="filled"
+            name="result"
+            value={formik.values.result}
+            onChange={formik.handleChange}
+          >
+            <MenuItem key="pass" value="pass">
+              Pass
+            </MenuItem>,
+            <MenuItem key="fail" value="fail">
+              Fail
+            </MenuItem>
+          </Select>
+          <FormHelperText>
+            {formik.touched.result && formik.errors.result}
+          </FormHelperText>
+        </FormControl>
       </form>
     </Box>
   );

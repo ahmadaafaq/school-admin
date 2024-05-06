@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
 import Groups3Icon from "@mui/icons-material/Groups3";
@@ -21,6 +22,7 @@ import "../common/index.css";
 import StatBox from "../common/StatBox";
 import { tokens, themeSettings } from "../../theme";
 import { studentData, schoolData } from "../common/CustomCharts";
+import { Utility } from "../utility";
 import API from "../../apis";
 
 import dashBg from "../assets/formBg.png";
@@ -32,11 +34,16 @@ import schoolCountBg from "../assets/schoolCountBg.jpg";
 
 const Dashboard = ({ rolePriority = null }) => {
   const [dashboardCount, setDashboardCount] = useState({});
+  const [schoolCapacity, setSchoolCapacity] = useState("");
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   const colors = tokens(theme.palette.mode);
   const { typography } = themeSettings(theme.palette.mode);
+  const allSchools = useSelector(state => state.allSchools);
+
+  const { getLocalStorage } = Utility();
+
   const dashboardAttributes =
     rolePriority === 1
       ? ["student", "school", "teacher", "employee"]
@@ -174,6 +181,12 @@ const Dashboard = ({ rolePriority = null }) => {
       });
   }, []);
 
+  useEffect(() => {
+    if (getLocalStorage("auth")) {
+      setSchoolCapacity(getLocalStorage("auth")?.school_capacity);
+    }
+  }, [getLocalStorage("auth")]);
+
   return (
     <Box
       ml="10px"
@@ -259,8 +272,8 @@ const Dashboard = ({ rolePriority = null }) => {
             title={dashboardCount.student}
             subtitle="Students"
             showPercentage={true}
-            progress={`${dashboardCount.student / 5000}`}
-            increase={`${((dashboardCount.student / 5000) * 100).toFixed(2)}%`}
+            progress={`${dashboardCount.student / schoolCapacity}`}
+            increase={`${((dashboardCount.student / schoolCapacity) * 100).toFixed(2)}%`}
             icon={<Groups3Icon sx={{ fontSize: isMobile ? "10px" : "26px" }} />}
             role={rolePriority}
           />
