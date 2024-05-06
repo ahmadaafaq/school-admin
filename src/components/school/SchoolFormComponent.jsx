@@ -30,7 +30,9 @@ const initialValues = {
     area: "",
     registered_by: "",
     registration_year: "",
+    session_start: "",
     amenities: [],
+    payment_methods: [],
     classes: [],
     classes_fee: [],
     classes_capacity: [],
@@ -55,6 +57,7 @@ const SchoolFormComponent = ({
     allClasses,
     allSections,
     amenities,
+    paymentMethods,
     subjectsInRedux,
     updatedValues = null
 }) => {
@@ -63,7 +66,7 @@ const SchoolFormComponent = ({
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { findMultipleById } = Utility();
+    const { createDropdown, createDivider, findMultipleById } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -319,6 +322,97 @@ const SchoolFormComponent = ({
                             />
                         )}
                     />
+                    <Autocomplete
+                        multiple
+                        options={paymentMethods || []}
+                        getOptionLabel={option => option.name}
+                        disableCloseOnSelect
+                        value={formik.values.payment_methods}
+                        onChange={(event, value) => formik.setFieldValue("payment_methods", value)}
+                        sx={{ gridColumn: "span 2" }}
+                        renderInput={params => (
+                            <TextField
+                                {...params}
+                                variant="filled"
+                                type="text"
+                                name="payment_methods"
+                                label="Payment Methods"
+                                error={!!formik.touched.payment_methods && !!formik.errors.payment_methods}
+                                helperText={formik.touched.payment_methods && formik.errors.payment_methods}
+                            />
+                        )}
+                    />
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.session_start && !!formik.errors.session_start}
+                    >
+                        <InputLabel>Session Start</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="session_start"
+                            value={formik.values.session_start}
+                            onChange={event => formik.setFieldValue('session_start', event.target.value)}
+                        >
+                            {createDropdown(createDivider('monthly')).map((period, index) => (
+                                <MenuItem key={index} value={period}>
+                                    {period}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.session_start && formik.errors.session_start}</FormHelperText>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.type && !!formik.errors.type}
+                    >
+                        <InputLabel>Type</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="type"
+                            value={formik.values.type}
+                            onChange={formik.handleChange}
+                        >
+                            {Object.keys(config.schoolType).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.schoolType[item]}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.type && formik.errors.type}</FormHelperText>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.sub_type && !!formik.errors.sub_type}
+                    >
+                        <InputLabel>Sub Type</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="sub_type"
+                            value={formik.values.sub_type}
+                            onChange={event => formik.setFieldValue("sub_type", event.target.value)}
+                        >
+                            {Object.keys(config.subSchoolType).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.subSchoolType[item]}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.sub_type && formik.errors.sub_type}</FormHelperText>
+                    </FormControl>
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.status && !!formik.errors.status}
+                    >
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            variant="filled"
+                            name="status"
+                            value={formik.values.status}
+                            onChange={formik.handleChange}
+                        >
+                            {Object.keys(config.status).map(item => (
+                                <MenuItem key={item} value={item}>
+                                    {config.status[item]}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <TextField
                         fullWidth
                         variant="filled"
@@ -355,63 +449,6 @@ const SchoolFormComponent = ({
                         error={!!formik.touched.founding_year && !!formik.errors.founding_year}
                         helperText={formik.touched.founding_year && formik.errors.founding_year}
                     />
-
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.type && !!formik.errors.type}
-                    >
-                        <InputLabel id="typeField">Type</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="typeField"
-                            name="type"
-                            value={formik.values.type}
-                            onChange={formik.handleChange}
-                        >
-                            {Object.keys(config.schoolType).map(item => (
-                                <MenuItem key={item} value={item}>
-                                    {config.schoolType[item]}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.type && formik.errors.type}</FormHelperText>
-                    </FormControl>
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.sub_type && !!formik.errors.sub_type}
-                    >
-                        <InputLabel>Sub Type</InputLabel>
-                        <Select
-                            variant="filled"
-                            name="sub_type"
-                            value={formik.values.sub_type}
-                            onChange={event => formik.setFieldValue("sub_type", event.target.value)}
-                        >
-                            {Object.keys(config.subSchoolType).map(item => (
-                                <MenuItem key={item} value={item}>
-                                    {config.subSchoolType[item]}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <FormHelperText>{formik.touched.sub_type && formik.errors.sub_type}</FormHelperText>
-                    </FormControl>
-
-                    <FormControl variant="filled" sx={{ minWidth: 120 }}
-                        error={!!formik.touched.status && !!formik.errors.status}
-                    >
-                        <InputLabel id="statusField">Status</InputLabel>
-                        <Select
-                            variant="filled"
-                            labelId="statusField"
-                            name="status"
-                            value={formik.values.status}
-                            onChange={formik.handleChange}
-                        >
-                            {Object.keys(config.status).map(item => (
-                                <MenuItem key={item} value={item}>
-                                    {config.status[item]}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
                     <FormControlLabel label="Is Boarding" sx={{ gridColumn: isMobile ? "span 2" : "" }}
                         control={
                             <Checkbox {...checkboxLabel} color="default"
@@ -667,6 +704,7 @@ SchoolFormComponent.propTypes = {
     allClasses: PropTypes.array,
     allSections: PropTypes.array,
     amenities: PropTypes.array,
+    paymentMethods: PropTypes.array,
     subjectsInRedux: PropTypes.array,
     updatedValues: PropTypes.object
 };

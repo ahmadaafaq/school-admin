@@ -15,6 +15,8 @@ import { setEmployeesReducer } from "./EmployeeReducer";
 import { setHolidaysReducer } from "./HolidayReducer";
 import { setMarksheetsReducer } from "./MarksheetReducer";
 import { setPaymentsReducer } from "./PaymentReducer";
+import { setAllPaymentMethodsReducer } from "./PaymentMethodReducer";
+import { setListingPaymentMethodsReducer } from "./PaymentMethodReducer";
 import { setAmenitiesReducer } from "./AmenityReducer";
 import { setFormAmenitiesReducer } from "./AmenityReducer";
 import { setBusesReducer } from "./BusReducer";
@@ -69,6 +71,8 @@ const reducers = combineReducers({
   allUserRoles: setAllUserRolesReducer,
   allHolidays: setHolidaysReducer,
   allPayments: setPaymentsReducer,
+  listingPaymentMethods: setListingPaymentMethodsReducer,
+  allPaymentMethods: setAllPaymentMethodsReducer,
   allSchoolDurations: setSchoolDurationsReducer,
   menuItems: menuItemReducer,
   toastInfo: displayToastReducer,

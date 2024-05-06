@@ -127,6 +127,16 @@ const Sidebar = ({ rolePriority }) => {
     ));
   };
 
+  const getSchoolImage = () => {
+    API.ImageAPI.getSchoolImage('school')
+      .then(({ data: res }) => {
+        console.log(res, 'response')
+      })
+      .catch(err => {
+        console.log('error fetching image in sidebar', err);
+      });
+  };
+
   return (
     <Box
       sx={{
@@ -223,7 +233,7 @@ const Sidebar = ({ rolePriority }) => {
               >
                 <Typography variant="h3" color={colors.grey[100]}>
                   {rolePriority > 1 ? getLocalStorage("auth")?.designation?.charAt(0)?.toUpperCase() + getLocalStorage("auth")?.designation?.slice(1) :
-                    'Company Name'}
+                    'The Skolar'}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
@@ -411,7 +421,7 @@ const Sidebar = ({ rolePriority }) => {
               <SidebarItem
                 title="Amenity"
                 to="/amenity/listing"
-                icon={< FitbitIcon />}
+                icon={<FitbitIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}
@@ -420,6 +430,14 @@ const Sidebar = ({ rolePriority }) => {
                 title="Class"
                 to="/class/listing"
                 icon={<MeetingRoomIcon />}
+                selected={selected}
+                rolePriority={rolePriority}
+                menuVisibility={1}
+              />
+              <SidebarItem
+                title="Payment Method"
+                to="/payment-method/listing"
+                icon={<AutoStoriesIcon />}
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={1}

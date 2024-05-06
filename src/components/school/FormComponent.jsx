@@ -22,8 +22,9 @@ import SchoolFormComponent from "./SchoolFormComponent";
 
 import { setAllClasses } from "../../redux/actions/ClassAction";
 import { setAllSections } from "../../redux/actions/SectionAction";
-import { setFormAmenities } from "../../redux/actions/AmenityAction";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
+import { setAllPaymentMethods } from "../../redux/actions/PaymentMethodAction";
+import { setFormAmenities } from "../../redux/actions/AmenityAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -58,6 +59,7 @@ const FormComponent = () => {
     const allSections = useSelector(state => state.allSections);
     const allSubjects = useSelector(state => state.allSubjects);
     const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
+    const allPaymentMethods = useSelector(state => state.allPaymentMethods);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -75,7 +77,7 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, getValuesFromArray,
+    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, findMultipleById,
         fetchAndSetAll, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
@@ -95,7 +97,8 @@ const FormComponent = () => {
             paths.push("/update-school");
             dataFields.push({
                 ...formData.schoolData.values,
-                amenities: getIdsFromObject(formData.schoolData.values.amenities)
+                amenities: getIdsFromObject(formData.schoolData.values.amenities),
+                payment_methods: getIdsFromObject(formData.schoolData.values.payment_methods)
             });
         }
 
@@ -152,7 +155,6 @@ const FormComponent = () => {
                     );
                 }));
             });
-
             await Promise.all(updatedClassData);
         }
 
@@ -222,12 +224,12 @@ const FormComponent = () => {
             }
             if (status) {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
+                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing', true);
             }
         } catch (err) {
             setLoading(false);
             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-            throw err;
+            console.log("Error in School Update", err);
         }
     }, [formData]);
 
@@ -238,7 +240,8 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0]?.data?.data) {
-                    responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
+                    responses[0].data.data.amenities = findMultipleById(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
+                    responses[0].data.data.payment_methods = findMultipleById(responses[0].data.data?.payment_methods, allPaymentMethods?.listData);
                 }
                 API.SchoolAPI.getSchoolClasses(id)
                     .then(res => {
@@ -264,7 +267,7 @@ const FormComponent = () => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error in MultipleApiCall", navigateTo, 0);
             });
-    }, [formAmenitiesInRedux?.listData?.rows]);
+    }, [formAmenitiesInRedux?.listData?.rows, allPaymentMethods?.listData?.length]);
 
     const createSchool = useCallback(formData => {
         let promise1;
@@ -276,7 +279,8 @@ const FormComponent = () => {
         formData.schoolData.values = {
             ...formData.schoolData.values,
             school_code: createSchoolCode(formData.schoolData.values?.name),
-            amenities: getIdsFromObject(formData.schoolData.values?.amenities)
+            amenities: getIdsFromObject(formData.schoolData.values?.amenities),
+            payment_methods: getIdsFromObject(formData.schoolData.values?.payment_methods)
         };
 
         API.SchoolAPI.createSchool({ ...formData.schoolData.values })
@@ -356,25 +360,31 @@ const FormComponent = () => {
         if (!formAmenitiesInRedux?.listData?.rows?.length) {
             getPaginatedData(0, 50, setFormAmenities, API.AmenityAPI);
         }
-    }, [formAmenitiesInRedux?.listData?.rows?.length]);
+    }, []);
+
+    useEffect(() => {
+        if (!allPaymentMethods?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllPaymentMethods, API.PaymentMethodAPI);
+        }
+    }, []);
 
     useEffect(() => {
         if (!allSubjects?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [allSubjects?.listData?.length]);
+    }, []);
 
     useEffect(() => {
         if (!allClasses?.listData?.length) {
             fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
         }
-    }, [allClasses?.listData?.length]);
+    }, []);
 
     useEffect(() => {
         if (!allSections?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
         }
-    }, [allSections?.listData?.length]);
+    }, []);
 
     //Create/Update/Populate School
     useEffect(() => {
@@ -442,8 +452,9 @@ const FormComponent = () => {
                 schoolId={id}
                 allClasses={allClasses?.listData}
                 allSections={allSections?.listData}
-                amenities={formAmenitiesInRedux?.listData?.rows}
                 subjectsInRedux={allSubjects?.listData}
+                amenities={formAmenitiesInRedux?.listData?.rows}
+                paymentMethods={allPaymentMethods?.listData}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent
