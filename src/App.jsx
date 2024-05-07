@@ -88,6 +88,10 @@ const TimeTableFormComponent = lazy(() => import("./components/timetable/FormCom
 
 const TimeTableListingComponent = lazy(() => import("./components/timetable/ListingComponent"))
 
+const NoticeBoardFormComponent = lazy(() => import("./components/noticeboard/FormComponent"))
+
+const NoticeBoardListing = lazy(() => import("./components/noticeboard/ListingComponent"))
+
 const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"))
 
 const ResetPasswordComponent = lazy(() => import("./components/resetPassword/ResetPw"))
@@ -474,6 +478,26 @@ function App() {
                         path="/time-table/listing"
                         element={
                           <TimeTableListingComponent
+                            rolePriority={userRole.priority}
+                          />
+                        }
+                      />
+
+                      <Route
+                        exact
+                        path="/noticeboard/create"
+                        element={<NoticeBoardFormComponent />}
+                      />
+                      <Route
+                        exact
+                        path="/noticeboard/update/:class_id/:section_id"
+                        element={<NoticeBoardFormComponent />}
+                      />
+                      <Route
+                        exact
+                        path="/noticeboard/listing"
+                        element={
+                          <NoticeBoardListing
                             rolePriority={userRole.priority}
                           />
                         }
