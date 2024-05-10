@@ -92,8 +92,6 @@ const StudentFormComponent = ({
   const allBuses = useSelector((state) => state.allBuses);
   const [iCardDetails, setICardDetails] = useState({});
 
-  console.log("Bus data", allBuses);
-
   const dispatch = useDispatch();
   const genderRef = useRef();
   const checkboxLabel = { inputProps: { "aria-label": "Checkboxes" } };
@@ -242,8 +240,6 @@ const StudentFormComponent = ({
       getAndSetSections();
     }
   }, [formik.values?.class, classData?.length]);
-
-  console.log("subjects>>>", formik.values.subjects);
 
   return (
     <Box m="20px">

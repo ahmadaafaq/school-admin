@@ -96,7 +96,7 @@ const FormComponent = () => {
             ...formData.studentData.values,
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
         }
-        console.log("FormData:", formData); // Debugging statement
+
         try {
             if (formData.studentData?.dirty) {
                 await API.UserAPI.update({
@@ -149,7 +149,7 @@ const FormComponent = () => {
             let formattedName;
             // delete all images from db on every update and later insert new and old again
             await API.ImageAPI.deleteImage({
-                parent: ["student","parent"],
+                parent: ["student", "parent"],
                 parent_id: id
             });
             // upload new images to backend folder and insert in db
@@ -367,8 +367,6 @@ const FormComponent = () => {
             populateStudentData(id);
         }
         if (formValidated) {
-            console.log('ander aaya');
-            console.log(formData, 'formdata ander wala');
             formData?.studentData?.values?.id ? updateStudentAndAddress(formData) : createStudent(formData);
         } else {
             setSubmitted(false);
@@ -384,8 +382,6 @@ const FormComponent = () => {
     };
 
     const handleFormChange = (data, form) => {
-        console.log('form=>', form);
-        console.log('data=>', data);
         if (form === 'student') {
             setFormData({ ...formData, studentData: data });
         } else if (form === 'address') {
@@ -396,9 +392,6 @@ const FormComponent = () => {
             setFormData({ ...formData, parentImageData: data });
         }
     };
-    console.log(formValidated, 'formValidated');
-    console.log(formData, 'formdata');
-    console.log(formData.imageData, 'photo student form dirty');
 
     return (
         <Box m="10px"

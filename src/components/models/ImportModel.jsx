@@ -16,13 +16,16 @@ import PropTypes from "prop-types";
 import { Box, Divider, IconButton, Typography } from "@mui/material";
 import { Button, Dialog, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 
 import API from "../../apis"
 import Toast from "../common/Toast";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { tokens, themeSettings } from "../../theme";
+import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
+import { StateAPI } from "../../apis/StateAPI";
 
 const ENV = import.meta.env;
 
@@ -41,12 +44,14 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
+    const { getStateCityFromZipCode } = Utility();
     // const { isObjEmpty, getLocalStorage } = Utility();
 
     const handleSubmit = (event) => {
         event.preventDefault();
         handleImport();
     }
+
 
     const handleImport = () => {
         if (importedFile) {
@@ -63,9 +68,30 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         }
     }
 
+    const getIdByName = async (attrName, API) => {
+        return new Promise(resolve => {
+            API.getIdByName(attrName)
+                .then(res => {
+                    if (res.status == "Success") {
+                        resolve(res.data);
+                    }
+                });
+        });
+    }
+
     useEffect(() => {
         if (students?.length) {
-            students.forEach((student) => {
+            students.forEach(async (student) => {
+                const apiResponse = await getStateCityFromZipCode(student.zipcode);
+
+                const cityName = apiResponse.city;
+                const stateName = apiResponse.state;
+
+                //     // function to get city id and state id from zipcode
+                const state_id = await getIdByName(stateName, API.StateAPI);
+                const city_id = await getIdByName(cityName, API.CityAPI);
+                const class_id = await getIdByName(student.class, API.ClassAPI);
+
                 const username = student?.father_name || student?.mother_name ||
                     student?.guardian;
                 const password = `${username}${ENV.VITE_SECRET_CODE}`;
@@ -83,10 +109,21 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         if (user?.status === 'Success') {
                             API.StudentAPI.createStudent({
                                 ...student,
-                                parent_id: user.data.id
+                                parent_id: user.data.id,
+                                class: class_id
                             })
-                                .then(response => {
-                                    console.log("imopirt model response:", response);
+                                .then(({ data: res }) => {
+                                    API.AddressAPI.createAddress({
+                                        parent_id: res.data.id,
+                                        parent: 'student',
+                                        street: student.street,
+                                        landmark: student.landmark,
+                                        zipcode: student.zipcode,
+                                        state: state_id,
+                                        city: city_id,
+                                        country: 2
+                                    });
+                                    // then should be implemet here and also add loading
                                 })
                                 .catch(error => {
                                     console.error("API error:", error);
@@ -96,7 +133,8 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     .catch(err => {
                         console.error("API error:", err);
                     });
-            })
+            });
+
         }
     }, [students?.length]);
 
@@ -159,20 +197,36 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <div style={{ lineHeight: "30px", gridColumn: "span 2", display: "flex", fontWeight: "600", marginLeft: "30%" }}>Your Selected File: <div style={{ fontWeight: "900", marginLeft: "20px", color: "blue" }}>{fileName}</div> </div>
 
                         <Divider />
-                        <Box display="flex" justifyContent="end" p="20px">
-                            <Button color="error" variant="contained" sx={{ mr: 3 }}
-                                onClick={() => setOpenDialog(false)}>
-                                Cancel
-                            </Button>
-                            <Button type="submit"
-                                color="success" variant="contained"
-                            >
-                                Submit
-                            </Button>
-                            <Toast alerting={toastInfo.toastAlert}
-                                severity={toastInfo.toastSeverity}
-                                message={toastInfo.toastMessage}
-                            />
+                        <Box display="flex" justifyContent="space-between" p="20px">
+
+                            <a href="https://fastupload.io/eae890a3c885a13a" download target="_blank">
+                                <Button
+                                    component="label"
+                                    role={undefined}
+                                    variant="contained"
+                                    tabIndex={-1}
+                                    color="info"
+                                    startIcon={<CloudDownloadIcon />}
+                                >
+                                    Sample File Download
+                                </Button>
+                            </a>
+
+                            <Box>
+                                <Button color="error" variant="contained" sx={{ mr: 3 }}
+                                    onClick={() => setOpenDialog(false)}>
+                                    Cancel
+                                </Button>
+                                <Button type="submit"
+                                    color="success" variant="contained"
+                                >
+                                    Submit
+                                </Button>
+                                <Toast alerting={toastInfo.toastAlert}
+                                    severity={toastInfo.toastSeverity}
+                                    message={toastInfo.toastMessage}
+                                />
+                            </Box>
                         </Box>
                     </form>
                 </Box>

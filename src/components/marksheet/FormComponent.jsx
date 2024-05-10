@@ -104,7 +104,6 @@ const FormComponent = () => {
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
-                console.log("response>>>", response);
                 if (response[0].data.status === 'Success') {
                     const dataObj = {
                         marksheetData: response[0].data.data.rows,
@@ -112,7 +111,6 @@ const FormComponent = () => {
                     };
                     setUpdatedValues(dataObj);
                     setLoading(false);
-                    console.log("dataobj>>", dataObj);
                 }
             })
             .catch((err) => {
@@ -133,7 +131,6 @@ const FormComponent = () => {
             term: formData.marksheetData.values.term,
             result: formData.marksheetData.values.result
         };
-        console.log("formdata", formData, payload);
         if (!studentId) {
             // Create a new marksheet record if studentId is not provided
             promise = API.MarksheetAPI.createMarksheet(payload);
@@ -152,7 +149,6 @@ const FormComponent = () => {
                 if (studentId) {
                     await API.MarksheetAPI.deleteFromMappingTable({ marksheet_id: marksheet_id });
                 }
-                console.log('marksheet', marksheet);
                 formData.marksheetData.values.subjects.map((subjectId, index) => {
                     let payload2 = {
                         marksheet_id: !studentId ? marksheet.data.data.id : marksheet_id,
@@ -172,14 +168,12 @@ const FormComponent = () => {
                         .catch(err => {
                             setLoading(false);
                             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                            console.log("error handling marksheet", err);
                         });
                 })
             })
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log("error creating marksheet", err);
             });
     }, [formData]);
 

@@ -93,7 +93,6 @@ const FormComponent = () => {
         const paths = [`/get-by-pk/school_duration/${id}`];
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(response => {
-                console.log("first>>>",response);
                 if (response[0]?.data?.data) {
                     response[0].data.data.opening_time = dayjs(response[0].data.data.opening_time);
                     response[0].data.data.closing_time = dayjs(response[0].data.data.closing_time);
@@ -109,7 +108,6 @@ const FormComponent = () => {
                 setLoading(false);
             })
             .catch(err => {
-                console.log("err>>>",err);
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
             });

@@ -160,7 +160,6 @@ const AddressFormComponent = ({
     // useEffect(() => {
     //     if (formik.values.country) {
     //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
-    //         console.log(selectedObj, 'db country');
     //         if (iCardDetails) {
     //             setICardDetails({
     //                 ...iCardDetails,

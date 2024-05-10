@@ -73,11 +73,9 @@ export const datagridColumns = (rolePriority = null) => {
             renderCell: ({ row }) => {
                 if (row.is_class_teacher.data[0] === 1) {
                     const classnamesArray = row.classnames.split(',');
-                    console.log("array", classnamesArray);
                     return (
                         <div>
                             {classnamesArray.map((classname, index) => {
-                              console.log(classname, 'classname', classname === row.class_section_name)
                               return (
                                     <span key={index} style={{ color: classname === row.class_section_name ? colors.redAccent[700] : colors.whiteAccent[100] }}>
                                         {classname}

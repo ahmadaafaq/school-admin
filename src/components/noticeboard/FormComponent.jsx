@@ -77,7 +77,7 @@ const FormComponent = () => {
                 });
                 if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/noticeboard/listing/${getLocalStorage('class')}`);
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/noticeboard/listing/${getLocalStorage('class') || '' }`);
                 }
                 setLoading(false);
             })
@@ -111,7 +111,7 @@ const FormComponent = () => {
             });
     },[id]);
 
-    const createNoticeBoard = (formData => {
+    const createNoticeBoard = useCallback(formData => {
         setLoading(true);
         API.NoticeBoardAPI.createNoticeBoard({ ...formData.noticeboardData.values })
             .then(({ data: noticeboard }) => {
