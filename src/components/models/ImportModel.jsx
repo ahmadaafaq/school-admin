@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { read, utils } from 'xlsx';
 
 import PropTypes from "prop-types";
@@ -21,11 +22,11 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 
 import API from "../../apis"
 import Toast from "../common/Toast";
+import Loader from "../common/Loader";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
-import { StateAPI } from "../../apis/StateAPI";
 
 const ENV = import.meta.env;
 
@@ -40,12 +41,14 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [importedFile, setImportedFile] = useState(undefined);
     const [students, setStudents] = useState([]);
     const [fileName, setFileName] = useState('');
+    const [loading, setLoading] = useState(false);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode } = Utility();
-    // const { isObjEmpty, getLocalStorage } = Utility();
+    const { getStateCityFromZipCode,toastAndNavigate } = Utility();
+    const dispatch = useDispatch();
+    const navigateTo = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -81,6 +84,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
     useEffect(() => {
         if (students?.length) {
+            setLoading(true);
             students.forEach(async (student) => {
                 const apiResponse = await getStateCityFromZipCode(student.zipcode);
 
@@ -122,8 +126,17 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                         state: state_id,
                                         city: city_id,
                                         country: 2
-                                    });
+                                    })
+                                        .then(() => {
+                                            setLoading(false);
+                                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
+                                        })
+                                        .catch(err => {
+                                            setLoading(false);
+                                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                                        });
                                     // then should be implemet here and also add loading
+
                                 })
                                 .catch(error => {
                                     console.error("API error:", error);
@@ -230,7 +243,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         </Box>
                     </form>
                 </Box>
-                {/* {loading === true ? <Loader /> : null} */}
+                {loading === true ? <Loader /> : null}
             </Dialog>
         </div >
     );
