@@ -122,7 +122,7 @@ const ServerPaginationGrid = ({
             }}
         >
             <DataGrid
-                autoHeight
+                getRowHeight={() => 'auto'}
                 disableRowSelectionOnClick
                 getRowId={row => selected === 'Class' ? row.class_id : (selected === 'Section' ? row.section_id : row.id)}
                 rows={rows || []}

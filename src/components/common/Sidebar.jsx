@@ -128,15 +128,15 @@ const Sidebar = ({ rolePriority }) => {
     ));
   };
 
-  const getSchoolImage = () => {
-    API.ImageAPI.getSchoolImage('school')
-      .then(({ data: res }) => {
-        console.log(res, 'response')
-      })
-      .catch(err => {
-        console.log('error fetching image in sidebar', err);
-      });
-  };
+  // const getSchoolImage = () => {
+  //   API.ImageAPI.getSchoolImage('school')
+  //     .then(({ data: res }) => {
+  //       console.log(res, 'response')
+  //     })
+  //     .catch(err => {
+  //       console.log('error fetching image in sidebar', err);
+  //     });
+  // };  to be done
 
   return (
     <Box

@@ -81,7 +81,6 @@ const FormComponent = () => {
               paths.push("/update-address");
               dataFields.push(formData.addressData.values);
             }
-            console.log("paths", paths);
             const responses = await API.CommonAPI.multipleAPICall(
               "PATCH",
               paths,

@@ -490,7 +490,7 @@ function App() {
                       />
                       <Route
                         exact
-                        path="/noticeboard/update/:class_id/:section_id"
+                        path="/noticeboard/update/:id"
                         element={<NoticeBoardFormComponent />}
                       />
                       <Route

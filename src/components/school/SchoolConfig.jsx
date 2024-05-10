@@ -34,7 +34,6 @@ export const datagridColumns = (setOpen = null) => {
     const handleActionShow = (id) => {
         setOpen(true);
         navigateTo("#", { state: { id: id } });
-        console.log("id>>>", id);
     };
 
     const columns = [

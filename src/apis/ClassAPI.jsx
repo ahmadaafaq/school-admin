@@ -69,7 +69,19 @@ export const ClassAPI = {
             signal: cancel ? cancelApiObject[this.getClassSectionList.name].handleRequestCancellation().signal : undefined,
         });
         return response;
-    }
+    },
+
+    getIdByName: async (name, cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-class-by-name/${name}`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getClassIds.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
+    },
 };
 
 // defining the cancel API object for ClassAPI

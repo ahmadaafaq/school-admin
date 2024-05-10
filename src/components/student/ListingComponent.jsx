@@ -87,7 +87,6 @@ const ListingComponent = ({ rolePriority = null }) => {
     const paths = [`/get-by-pk/student/${id}`, `/get-address/student/${id}`, `/get-image/student/${id}`];
     API.CommonAPI.multipleAPICall("GET", paths)
       .then(responses => {
-        console.log(responses, 'res')
         if (responses[0].data.data) {
           responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
         }
@@ -155,8 +154,6 @@ const ListingComponent = ({ rolePriority = null }) => {
   useEffect(() => {
     classId ? setLocalStorage("class", classId) : null;
   }, [classId]);
-  console.log(studentDetail, 'studentDetail in listing')
-  console.log("class in listing>>", formClassesInRedux?.listData, studentDetail?.studentData?.class, className)
 
   const horizontalData = {
     Session: studentDetail?.studentData?.session,
