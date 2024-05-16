@@ -36,7 +36,7 @@ const ServerPaginationGrid = ({
 }) => {
     const initialState = {
         page: 0,
-        pageSize: 5 || 10 || 20
+        pageSize: 10 || 20 || 30
     };
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -129,6 +129,11 @@ const ServerPaginationGrid = ({
                 columns={columns}
                 loading={classNames.includes(selected) ? loading : loading}
                 rowCount={rowCountState}
+                initialState={{
+                    sorting: {
+                      sortModel: [{ field: 'fullname', sort: 'asc' }],
+                    },
+                  }}
                 components={{
                     Toolbar: () => (
                         <Box display="flex" >
