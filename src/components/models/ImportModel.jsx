@@ -46,7 +46,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode,toastAndNavigate } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
 
@@ -83,72 +83,89 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     }
 
     useEffect(() => {
+
         if (students?.length) {
             setLoading(true);
-            students.forEach(async (student) => {
-                const apiResponse = await getStateCityFromZipCode(student.zipcode);
 
-                const cityName = apiResponse.city;
-                const stateName = apiResponse.state;
+            const promises = students.map(async (student) => {
+                try {
+                    const apiResponse = await getStateCityFromZipCode(student.zipcode);
 
-                //     // function to get city id and state id from zipcode
-                const state_id = await getIdByName(stateName, API.StateAPI);
-                const city_id = await getIdByName(cityName, API.CityAPI);
-                const class_id = await getIdByName(student.class, API.ClassAPI);
+                    const cityName = apiResponse.city;
+                    const stateName = apiResponse.state;
 
-                const username = student?.father_name || student?.mother_name ||
-                    student?.guardian;
-                const password = `${username}${ENV.VITE_SECRET_CODE}`;
+                    const state_id = await getIdByName(stateName, API.StateAPI);
+                    const city_id = await getIdByName(cityName, API.CityAPI);
+                    const class_id = await getIdByName(student.class, API.ClassAPI);
+                    const section_id = await getIdByName(student.section, API.SectionAPI);
 
-                API.UserAPI.register({
-                    username: username,
-                    password: password,
-                    email: student?.email,
-                    contact_no: student?.contact_no,
-                    role: 5,
-                    designation: 'parent',
-                    status: 'active'
-                })
-                    .then(({ data: user }) => {
-                        if (user?.status === 'Success') {
-                            API.StudentAPI.createStudent({
-                                ...student,
-                                parent_id: user.data.id,
-                                class: class_id
-                            })
-                                .then(({ data: res }) => {
-                                    API.AddressAPI.createAddress({
-                                        parent_id: res.data.id,
-                                        parent: 'student',
-                                        street: student.street,
-                                        landmark: student.landmark,
-                                        zipcode: student.zipcode,
-                                        state: state_id,
-                                        city: city_id,
-                                        country: 2
-                                    })
-                                        .then(() => {
-                                            setLoading(false);
-                                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
-                                        })
-                                        .catch(err => {
-                                            setLoading(false);
-                                            toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                                        });
-                                    // then should be implemet here and also add loading
+                    const username = student?.father_name || student?.mother_name || student?.guardian;
+                    const password = `${username}${ENV.VITE_SECRET_CODE}`;
 
-                                })
-                                .catch(error => {
-                                    console.error("API error:", error);
-                                });
-                        }
-                    })
-                    .catch(err => {
-                        console.error("API error:", err);
+                    const { data: user } = await API.UserAPI.register({
+                        username: username,
+                        password: password,
+                        email: student?.email,
+                        contact_no: student?.contact_no,
+                        role: 5,
+                        designation: 'parent',
+                        status: 'active'
                     });
+
+                    if (user.status === 'Success') {
+                        const { data: res } = await API.StudentAPI.createStudent({
+                            ...student,
+                            parent_id: user.data.id,
+                            class: class_id,
+                            section: section_id
+                        });
+
+                        API.AddressAPI.createAddress({
+                            parent_id: res.data.id,
+                            parent: 'student',
+                            street: student.street,
+                            landmark: student.landmark,
+                            zipcode: student.zipcode,
+                            state: state_id,
+                            city: city_id,
+                            country: 2
+                        });
+                    }
+                } catch (error) {
+
+                    if (error.message.includes("getStateCityFromZipCode")) {
+                        console.error("Error in getStateCityFromZipCode API:", error);
+                    } else if (error.message.includes("getIdByName")) {
+                        console.error("Error in getIdByName API:", error);
+                    } else if (error.message.includes("register")) {
+                        console.error("Error in UserAPI.register:", error);
+                    } else if (error.message.includes("createStudent")) {
+                        console.error("Error in StudentAPI.createStudent:", error);
+                    } else if (error.message.includes("createAddress")) {
+                        console.error("Error in AddressAPI.createAddress:", error);
+                    } else {
+                        console.error("Unknown error occurred:", error);
+                    }
+                    throw error;
+                }
             });
 
+            Promise.all(promises)
+                .then(() => {
+                    console.log("All operations completed successfully.");
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
+                })
+                .catch(error => {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                    console.error("At least one operation failed:", error);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
         }
+
     }, [students?.length]);
 
     return (
