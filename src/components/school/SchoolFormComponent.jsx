@@ -7,8 +7,10 @@
  * restrictions set forth in your license agreement with School CRM.
 */
 
-import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+
+import React, { useContext, useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Autocomplete, Box, Checkbox, FormHelperText, FormControl, FormControlLabel } from "@mui/material";
 import { Divider, InputLabel, MenuItem, Select, TextField, useMediaQuery } from "@mui/material";
@@ -16,7 +18,9 @@ import { useFormik } from "formik";
 
 import config from "../config";
 import schoolValidation from "./Validation";
+import Toast from "../common/Toast";
 
+import { ColorModeContext } from "../../theme";
 import { Utility } from "../utility";
 
 const initialValues = {
@@ -31,11 +35,14 @@ const initialValues = {
     registered_by: "",
     registration_year: "",
     session_start: "",
+    payment_date: "",
     amenities: [],
     payment_methods: [],
     classes: [],
     classes_fee: [],
     classes_capacity: [],
+    classes_late_fee: [],
+    classes_late_fee_duration: [],
     sections: [],
     subjects: [[]],
     is_boarding: false,
@@ -45,7 +52,8 @@ const initialValues = {
     affiliation_no: "",
     type: "",
     sub_type: "",
-    status: "inactive"
+    status: "inactive",
+    same_subjects: []
 };
 
 const SchoolFormComponent = ({
@@ -63,10 +71,13 @@ const SchoolFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
+    const toastInfo = useSelector(state => state.toastInfo);
+    const colorMode = useContext(ColorModeContext);
+    const dispatch = useDispatch();
     const checkboxLabel = { inputProps: { 'aria-label': 'Checkboxes' } };
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const isMobile = useMediaQuery("(max-width:480px)");
-    const { createDropdown, createDivider, findMultipleById } = Utility();
+    const { createDropdown, createDivider, findMultipleById, toastAndNavigate } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -163,10 +174,23 @@ const SchoolFormComponent = ({
                 sections: hasData ? assignUpdatedSections(Object.values(splittedArray)) : [],
                 subjects: hasData ? assignUpdatedSubjects(splittedArray) : [[]],
                 classes_fee: getClassAttribute(splittedArray, 'class_fee'),
-                classes_capacity: getClassAttribute(splittedArray, 'class_capacity')
+                classes_capacity: getClassAttribute(splittedArray, 'class_capacity'),
+                classes_late_fee: getClassAttribute(splittedArray, 'late_fee'),
+                classes_late_fee_duration: getClassAttribute(splittedArray, 'late_fee_duration')
             });
         }
     }, [updatedValues]);
+
+    useEffect(() => {
+        if (formik.values.same_subjects === true) {
+            const subArr = [...formik.values.subjects];
+            if (index > 0 && sectionIndex === 0) {
+                subArr[index] = [];
+            }
+            subArr[index][sectionIndex] = value;
+            formik.setFieldValue('subjects', subArr);
+        }
+    }, []);
 
     return (
         <Box m="20px">
@@ -342,17 +366,30 @@ const SchoolFormComponent = ({
                             />
                         )}
                     />
+                    <TextField
+                        fullWidth
+                        variant="filled"
+                        type="number"
+                        name="payment_date"
+                        label="Payment Day Of Month"
+                        placeholder="Please Enter Day Number"
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
+                        value={formik.values.payment_date}
+                        error={!!formik.touched.payment_date && !!formik.errors.payment_date}
+                        helperText={formik.touched.payment_date && formik.errors.payment_date}
+                    />
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.session_start && !!formik.errors.session_start}
                     >
-                        <InputLabel>Session Start</InputLabel>
+                        <InputLabel>Session Start Month</InputLabel>
                         <Select
                             variant="filled"
                             name="session_start"
                             value={formik.values.session_start}
                             onChange={event => formik.setFieldValue('session_start', event.target.value)}
                         >
-                            {createDropdown(createDivider('monthly')).map((period, index) => (
+                            {createDropdown(createDivider('monthly'), 'january').map((period, index) => (
                                 <MenuItem key={index} value={period}>
                                     {period}
                                 </MenuItem>
@@ -449,7 +486,7 @@ const SchoolFormComponent = ({
                         error={!!formik.touched.founding_year && !!formik.errors.founding_year}
                         helperText={formik.touched.founding_year && formik.errors.founding_year}
                     />
-                    <FormControlLabel label="Is Boarding" sx={{ gridColumn: isMobile ? "span 2" : "" }}
+                    <FormControlLabel label="Is Boarding" sx={{ gridColumn: isMobile ? "span 2" : "", color: "rgba(0,0,0,0.87)" }}
                         control={
                             <Checkbox {...checkboxLabel} color="default"
                                 checked={formik.values.is_boarding ? true : false}
@@ -496,7 +533,7 @@ const SchoolFormComponent = ({
                                         value={formik.values.classes[index]}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.classes];
-                                            subArr[index] = value.props.value;
+                                            subArr[index] = parseInt(value.props.value);
                                             formik.setFieldValue("classes", subArr);
                                             if (formik.values.sections) {            //If old values are there, clean them accordingly
                                                 formik.setFieldValue("sections", []);
@@ -531,6 +568,42 @@ const SchoolFormComponent = ({
                                     error={!!formik.touched.classes_fee && !!formik.errors.classes_fee}
                                     helperText={formik.touched.classes_fee && formik.errors.classes_fee}
                                 />
+                                <TextField
+                                    fullWidth
+                                    variant="filled"
+                                    type="text"
+                                    name={`classes_late_fee.${key}`}
+                                    label="Late Fee"
+                                    onBlur={formik.handleBlur}
+                                    value={formik.values.classes_late_fee[index]}
+                                    onChange={event => {
+                                        const feeArr = [...formik.values.classes_late_fee];
+                                        feeArr[index] = parseInt(event.target.value);
+                                        formik.setFieldValue("classes_late_fee", feeArr);
+                                    }}
+                                    error={!!formik.touched.classes_late_fee && !!formik.errors.classes_late_fee}
+                                    helperText={formik.touched.classes_late_fee && formik.errors.classes_late_fee}
+                                />
+                                <FormControl variant="filled" sx={{ minWidth: 120 }}
+                                    error={!!formik.touched.classes_late_fee_duration && !!formik.errors.classes_late_fee_duration}
+                                >
+                                    <InputLabel>Late Fee Duration</InputLabel>
+                                    <Select
+                                        variant="filled"
+                                        name={`classes_late_fee_duration.${key}`}
+                                        value={formik.values.classes_late_fee_duration[index]}
+                                        onChange={(event, value) => {
+                                            const textArr = [...formik.values.classes_late_fee_duration];
+                                            textArr[index] = value.props.value;
+                                            formik.setFieldValue("classes_late_fee_duration", textArr);
+                                        }}
+                                    >
+                                        <MenuItem value='per_day'>Per Day</MenuItem>
+                                        <MenuItem value='per_week'>Per Week</MenuItem>
+                                        <MenuItem value='per_month'>Per Month</MenuItem>
+                                    </Select>
+                                    <FormHelperText>{formik.touched.classes_late_fee_duration && formik.errors.classes_late_fee_duration}</FormHelperText>
+                                </FormControl>
                                 <TextField
                                     fullWidth
                                     variant="filled"
@@ -601,7 +674,42 @@ const SchoolFormComponent = ({
                                         )}
                                     />
                                 ))}
-                                <Divider sx={{ borderBottomWidth: 0, gridColumn: 'span 4' }} />
+                                <FormControlLabel label="Same Subjects For All" sx={{ gridColumn: isMobile ? "span 2" : "", color: "rgba(0,0,0,0.87)" }}
+                                    control={
+                                        <Checkbox {...checkboxLabel} color="default"
+                                            checked={formik.values.same_subjects[index] ? true : false}
+                                            name="Same Subjects For All "
+                                            onChange={(event, value) => {
+                                                const checkBoxArr = [...formik.values.same_subjects];
+                                                checkBoxArr[index] = value;
+                                                console.log(value, 'checkbox balue')
+                                                formik.setFieldValue('same_subjects', checkBoxArr);
+
+                                                formik?.values?.sections[index]?.map((section, sectionIndex) => {
+                                                    const subArr = [...formik.values.subjects];
+                                                    if (index > 0 && sectionIndex === 0) {
+                                                        subArr[index] = [];
+                                                    }
+                                                    subArr[index][sectionIndex] = subArr[index][0];
+                                                    if (value) {
+                                                        console.log(value, 'loop condition')
+                                                        formik.setFieldValue('subjects', subArr);
+                                                    }
+                                                });
+                                                if (!value) {
+                                                    console.log(formik.values.same_subjects[index], 'outside loop condition')
+                                                    const noSubArr = [...formik.values.subjects];
+                                                    noSubArr.map((arr, i) => {
+                                                        if (i > 0)
+                                                            noSubArr[i] = [];
+                                                    })
+                                                    formik.setFieldValue('subjects', noSubArr);
+                                                }
+                                            }}
+                                            value={formik.values.same_subjects[index]}
+                                        />
+                                    } />
+                                <Divider sx={{ borderBottomWidth: 2, borderColor: '#BADFE7', gridColumn: 'span 4', margin: '10px' }} />
                             </React.Fragment>)
                     })}
 
@@ -651,6 +759,42 @@ const SchoolFormComponent = ({
                             fullWidth
                             variant="filled"
                             type="text"
+                            name={`classes_late_fee.${formik.values.classes_late_fee.length + 1}`}
+                            label="Late Fee"
+                            onBlur={formik.handleBlur}
+                            value={[]}
+                            onChange={event => {
+                                const subArr = [...formik.values.classes_late_fee];
+                                subArr[formik.values.classes_late_fee.length] = event.target.value;
+                                formik.setFieldValue("classes_late_fee", subArr);
+                            }}
+                            error={!!formik.touched.classes_late_fee && !!formik.errors.classes_late_fee}
+                            helperText={formik.touched.classes_late_fee && formik.errors.classes_late_fee}
+                        />
+                        <FormControl variant="filled" sx={{ minWidth: 120 }}
+                            error={!!formik.touched.classes_late_fee_duration && !!formik.errors.classes_late_fee_duration}
+                        >
+                            <InputLabel>Late Fee Duration</InputLabel>
+                            <Select
+                                variant="filled"
+                                name={`classes_late_fee_duration${formik.values.classes_late_fee_duration.length + 1}`}
+                                value={[]}
+                                onChange={(event, value) => {
+                                    const subArr = [...formik.values.classes_late_fee_duration];
+                                    subArr[formik.values.classes_late_fee_duration.length] = value.props.value;
+                                    formik.setFieldValue("classes_late_fee_duration", subArr);
+                                }}
+                            >
+                                <MenuItem value='per_day'>Per Day</MenuItem>
+                                <MenuItem value='per_week'>Per Week</MenuItem>
+                                <MenuItem value='per_month'>Per Month</MenuItem>
+                            </Select>
+                            <FormHelperText>{formik.touched.classes_late_fee_duration && formik.errors.classes_late_fee_duration}</FormHelperText>
+                        </FormControl>
+                        <TextField
+                            fullWidth
+                            variant="filled"
+                            type="text"
                             name={`classes_capacity.${formik.values.classes_capacity.length + 1}`}
                             label="Class Capacity"
                             onBlur={formik.handleBlur}
@@ -675,6 +819,11 @@ const SchoolFormComponent = ({
                                 sectArr[formik.values.classes.length] = value;
                                 formik.setFieldValue("sections", sectArr);
                             }}
+                            onFocus={() => {
+                                if (formik.values.classes.length === 0) {
+                                    toastAndNavigate(dispatch, true, "info", "Please Select Class First");
+                                }
+                            }}
                             renderInput={params => (
                                 <TextField
                                     {...params}
@@ -689,6 +838,10 @@ const SchoolFormComponent = ({
 
                 </Box>
             </form>
+            <Toast alerting={toastInfo.toastAlert}
+                severity={toastInfo.toastSeverity}
+                message={toastInfo.toastMessage}
+            />
         </Box>
     );
 };

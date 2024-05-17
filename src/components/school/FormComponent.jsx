@@ -145,13 +145,16 @@ const FormComponent = () => {
                 const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
                 const classFee = formData.schoolData.values.classes_fee[classIndex] || 0;
                 const classCapacity = formData.schoolData.values.classes_capacity[classIndex] || 0;
+                const classLateFee = formData.schoolData.values.classes_late_fee[classIndex] || 0;
+                const classLateFeeDuration = formData.schoolData.values.classes_late_fee_duration[classIndex] || 0;
 
                 // Iterating through each section in the class then associating subject ids for each section of class
                 return Promise.all(innerArray.map(async (sectionData, sectionIndex) => {
                     const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
                     await API.SchoolAPI.insertIntoMappingTable(
                         [formData.schoolData.values.id, schoolClass, sectionData.section_id,
-                        getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity]
+                        getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
+                            classLateFeeDuration]
                     );
                 }));
             });
@@ -224,7 +227,7 @@ const FormComponent = () => {
             }
             if (status) {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing', true);
+                toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/school/listing');
             }
         } catch (err) {
             setLoading(false);
@@ -298,6 +301,8 @@ const FormComponent = () => {
                         const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
                         const classFee = formData.schoolData.values.classes_fee[classIndex] || 0;
                         const classCapacity = formData.schoolData.values.classes_capacity[classIndex] || 0;
+                        const classLateFee = formData.schoolData.values.classes_late_fee[classIndex] || 0;
+                        const classLateFeeDuration = formData.schoolData.values.classes_late_fee_duration[classIndex] || 0;
 
                         // Iterating through each section in the class then associating subject ids for each section of class
                         innerArray.map((sectionData, sectionIndex) => {
@@ -305,7 +310,8 @@ const FormComponent = () => {
                             const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
                             API.SchoolAPI.insertIntoMappingTable(
                                 [school.data.id, schoolClass, sectionData.section_id,
-                                getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity]
+                                getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
+                                    classLateFeeDuration]
                             );
                         });
                     });
@@ -340,7 +346,7 @@ const FormComponent = () => {
                     return Promise.all([promise1, promise2, promise3, promise4])
                         .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing');
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing', true);
                         })
                         .catch(err => {
                             setLoading(false);
