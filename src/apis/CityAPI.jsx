@@ -36,7 +36,19 @@ export const CityAPI = {
             signal: cancel ? cancelApiObject[this.getCities.name].handleRequestCancellation().signal : undefined,
         });
         return response;
-    }
+    },
+
+    getIdByName: async (name, cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-city-by-name/${name}`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getCityIds.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
+    },
 };
 
 // defining the cancel API object for CityAPI

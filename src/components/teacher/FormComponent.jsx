@@ -395,8 +395,6 @@ const FormComponent = () => {
     }
   };
 
-  console.log('img formData', formData)
-
   return (
     <Box
       m="10px"

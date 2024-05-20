@@ -88,7 +88,6 @@ const TimeTableFormComponent = ({
         minute: 'numeric',
         hour12: true,
     });
-    console.log("schoolObj", schoolId);
 
     function convertToAMPM(timeString) {
         const [hours, minutes] = timeString.split(':');
@@ -187,7 +186,6 @@ const TimeTableFormComponent = ({
             formik.setFieldValue(`batch`, updatedValues[0]?.batch);
         }
     }, [updatedValues]);
-    console.log("updated", updatedValues)
 
     useEffect(() => {
         if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
@@ -218,7 +216,6 @@ const TimeTableFormComponent = ({
                                 setSchoolId(juniorRow)
                             }
                         }
-                        console.log("schoolObj", schoolObj)
 
                     } else if (result.status === 'Error') {
                         console.log('Error Decrypting Data');
@@ -239,8 +236,6 @@ const TimeTableFormComponent = ({
             formik.setFieldValue('period', totalPeriodArray);
         }
     }, [schoolId]);
-
-    console.log("formik time table form", formik.values)
 
     return (
         <Box m="20px">

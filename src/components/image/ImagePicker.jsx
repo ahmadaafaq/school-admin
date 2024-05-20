@@ -79,8 +79,6 @@ const ImagePicker = ({
     }, [updatedImage?.length]);
 
     const showPicker = !formik.values[`${image}`]?.length || multiple;
-    // console.log('img deletedImage=>', deletedImage)
-    // console.log('img formik.values[`${image}`]', formik.values[`${image}`])
 
     return (
         <Box m="10px">

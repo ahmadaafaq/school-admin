@@ -129,7 +129,6 @@ const MarksheetFormComponent = ({
 
   useEffect(() => {
     if (updatedValues) {
-      console.log("updatedvalues>>>>", updatedValues);
       let subjectIds = [];
       updatedValues.marksheetMappingData.map((sub, index) => {
         formik.setFieldValue(`marks_obtained_${index}`, sub.marks_obtained);
@@ -143,7 +142,6 @@ const MarksheetFormComponent = ({
       let classSubjects;
       if (subjectIds?.length) {
         classSubjects = findMultipleById(subjectIds.join(","), allSubjects?.listData);
-        console.log("classSubjects>>>>", classSubjects);
       }
       formik.setFieldValue("session", updatedValues.marksheetData[0]?.session);
       formik.setFieldValue("student", updatedValues.marksheetData[0]?.student_id);

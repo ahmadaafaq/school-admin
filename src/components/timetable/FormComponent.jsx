@@ -175,7 +175,6 @@ const FormComponent = () => {
     const handleFormChange = (data, form) => {
         form == 'timeTable' ? setFormData({ ...formData, timeTableData: data }) : null;
     };
-    console.log(formData, 'in timetable form')
 
     return (
         <Box m="10px"

@@ -135,7 +135,6 @@ const ListingComponent = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
-    console.log(schoolDetail, 'schoolDetail in listing')
 
     const horizontalData = {
         Registration_year: schoolDetail?.schoolData?.schoolData?.registration_year,

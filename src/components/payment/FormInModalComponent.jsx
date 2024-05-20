@@ -65,7 +65,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
         setLoading(true);
         // eslint-disable-next-line no-unused-vars
         const { class_fee_by_mapping, ...modifiedObj } = formData.paymentData.values;
-        console.log(modifiedObj, formData.paymentData.values, 'form in omdal payment')
 
         API.PaymentAPI.createPayment(modifiedObj)
             .then(({ data: payment }) => {
@@ -80,7 +79,6 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
             .catch(err => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred");
-                console.log('Error in Creating Payment:', err);
             });
     }, [formData]);
 

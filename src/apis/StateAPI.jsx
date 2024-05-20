@@ -26,6 +26,18 @@ export const StateAPI = {
         });
         return response;
     },
+
+    getIdByName: async (name, cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-state-by-name/${name}`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getStates.name].handleRequestCancellation().signal : undefined,
+        });
+        return response;
+    },
     getAllStates: async (cancel = false) => {
         const { data: response } = await api.request({
             url: `/get-all-states`,
