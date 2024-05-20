@@ -11,7 +11,7 @@
 import { useNavigate } from "react-router-dom";
 
 import { Box, Button, Typography, useTheme } from '@mui/material';
-import PreviewIcon from '@mui/icons-material/Preview';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 
 import { tokens } from "../../theme";
 import { Utility } from "../utility";
@@ -95,7 +95,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                             onClick={() => handleActionShow(row.id, row.class, row.section)}
                             sx={{ minWidth: "50px" }}
                         >
-                            <PreviewIcon />
+                            <EditNoteIcon />
                         </Button>
                     </Box>
                 );

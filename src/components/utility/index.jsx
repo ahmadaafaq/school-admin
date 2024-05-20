@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -17,7 +18,7 @@ export const Utility = () => {
 
     /** Adds the keyword "Class" to a number, creating a formatted class representation.
      * @param {number} num - The number to be formatted.
-     * @returns {string|number} - The formatted class representation with the keyword "Class" or the original number if not a valid number.
+     * @returns {string|number} - The formatted class representation with the keyword "Class" or the original number if not valid number.
      */
     const addClassKeyword = (num) => {
         return isNaN(num) ? num : `Class ${num}`;
@@ -72,21 +73,70 @@ export const Utility = () => {
         return divider;
     };
 
-    /** Creates an array of dropdown options based on the divider value.
-     * @param {number} divider - The divider value to determine the period length.
-     * @returns {string[]} An array of dropdown options.
+    /** Generates an array of dropdown options based on the divider value and session start month.
+     * @param {number} divider - The divider value to determine the number of parts.
+     * @param {string} session_start_month - The starting month of the session.
+     * @returns {string[]} An array of dropdown options representing periods.
      */
-    const createDropdown = divider => {
-        const dropdownArray = [];
-        let index = 0;
-        let periodLength = months.length / divider;
-        if (divider === 0) return [];
-        if (divider === 1) return months;
-        while (divider--) {
-            dropdownArray.push(`${months[periodLength * index]} - ${months[(periodLength * (index + 1)) - 1]}`);
-            index++;
+    const createDropdown = (divider, session_start_month) => {
+        // Find the index of the session start month in the months array
+        const startMonthIndex = months.findIndex(month => month.toLowerCase() === session_start_month.toLowerCase());
+
+        // Helper function to rotate the array starting from the given index
+        const rotateArray = (arr, index) => {
+            return arr.slice(index).concat(arr.slice(0, index));
+        };
+
+        // Helper function to format a period string
+        const formatPeriod = (startMonth, endMonth) => {
+            return `${startMonth} - ${endMonth}`;
+        };
+
+        switch (divider) {
+            case 0:
+                return [];
+            case 1:
+                return rotateArray(months, startMonthIndex);
+            case 2:
+            case 3:
+            case 4:
+                const dropdownArray = [];
+                const dropdownLength = months.length / divider;
+                for (let i = 0; i < divider; i++) {
+                    // The start index of the current dropdownArray
+                    const start = (startMonthIndex + i * dropdownLength) % months.length;
+                    const end = (start + dropdownLength - 1) % months.length;
+                    dropdownArray.push(formatPeriod(months[start], months[end]));
+                }
+                return dropdownArray;
+            default:
+                return [];
         }
-        return dropdownArray;
+
+
+
+        // const dropdownArray = [];
+        // let index = startMonthIndex;        //earlier the index was 0, now it is startMonthIndex as 3 or 4 whatever
+        // let periodLength = months.length / divider;
+
+        // if (divider === 0) return [];
+        // if (divider === 1) {
+        //     const dropdownArray = months.slice(startMonthIndex).concat(months.slice(0, startMonthIndex));
+        //     console.log(session_start_month, startMonthIndex, dropdownArray, 'session_month', 'startMonthIndex dropdownArray', divider)
+        //     return dropdownArray;
+        // }
+        // if (divider > 1) {
+        //     index = Math.floor(startMonthIndex / periodLength) * periodLength;
+        //     console.log('inside if condition', index, divider)
+        // }
+        // while (divider--) {
+        //     dropdownArray.push(`${months[index]} - ${months[(index + periodLength) % months.length]}`);
+        //     console.log(`${months[index]} - ${months[(index + periodLength) % months.length]}`, dropdownArray, 'inside loop');
+
+        //     index = (index + periodLength) % months.length;
+        //     console.log(divider, index, 'divider', 'index', 'inside loop');
+        // }
+        // return dropdownArray;
     };
 
     /** Calculates the school fee based on the divider value. 

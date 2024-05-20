@@ -25,6 +25,7 @@ import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
+import PaymentDataTable from "./PaymentDataTable";
 
 const FormComponent = ({ openDialog, setOpenDialog }) => {
     const theme = useTheme();
@@ -38,7 +39,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     };
 
     //form component starts
-    const [title, setTitle] = useState("View");
+    const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         paymentData: { values: null, validated: false }
@@ -134,7 +135,20 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 fontWeight="600"
                 display="inline-block"
                 textAlign="center"
-                marginTop="10px"
+                margin="10px auto 10px auto"
+            >
+                {`${selected} History`}
+            </Typography>
+            <PaymentDataTable />
+
+            <Typography
+                fontFamily={typography.fontFamily}
+                fontSize={typography.h2.fontSize}
+                color={colors.grey[100]}
+                fontWeight="600"
+                display="inline-block"
+                textAlign="center"
+                margin="20px auto 10px auto"
             >
                 {`${title} ${selected}`}
             </Typography>

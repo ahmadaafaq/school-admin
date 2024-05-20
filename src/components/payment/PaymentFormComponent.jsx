@@ -15,8 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Box, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
 import { Select, TextField, useMediaQuery } from "@mui/material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 
 import API from "../../apis";
@@ -24,11 +22,9 @@ import config from '../config';
 import paymentValidation from "./Validation";
 import Toast from "../common/Toast";
 
-
 import { setPayments } from "../../redux/actions/PaymentAction";
 import { setAllPaymentMethods } from "../../redux/actions/PaymentMethodAction";
 import { Utility } from "../utility";
-import { useCommon } from "../hooks/common";
 
 const initialValues = {
   student_id: "",
@@ -38,9 +34,11 @@ const initialValues = {
   type_duration: "",
   academic_year: "",
   amount: "",
-  due_date: null,
+  discounted_fee: "",
   late_fee: "",
-  class_fee_by_mapping: ""
+  class_fee_by_mapping: "",     //these 3 must be excluded when creating payment
+  current_date: null,
+  extra_fee: ""
 };
 
 const PaymentFormComponent = ({
@@ -52,15 +50,16 @@ const PaymentFormComponent = ({
   updatedValues = null
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
+  const [schoolPaymentMethods, setSchoolPaymentMethods] = useState([]);
   const allPaymentMethods = useSelector(state => state.allPaymentMethods);
+  const allPayments = useSelector(state => state.allPayments);    // For payment late fees and fee duration to make logic
   const toastInfo = useSelector((state) => state.toastInfo);
 
   const dispatch = useDispatch();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   // const isMobile = useMediaQuery("(max-width:480px)");
   const { state } = useLocation();
-  const { getPaginatedData } = useCommon();
-  const { createDivider, createDropdown, createSchoolFee, createSession, fetchAndSetSchoolData, fetchAndSetAll, toastAndNavigate } = Utility();
+  const { createDivider, createDropdown, createSchoolFee, createSession, fetchAndSetAll, findMultipleById, toastAndNavigate } = Utility();
 
   const studentId = state?.id;
   const studentClass = state.cls;
@@ -106,7 +105,7 @@ const PaymentFormComponent = ({
             value={formik.values.type_duration}
             onChange={event => formik.setFieldValue('type_duration', event.target.value)}
           >
-            {createDropdown(createDivider(typeDuration)).map((period, index) => (
+            {createDropdown(createDivider(typeDuration), allPayments?.listData?.rows[0]?.session_start).map((period, index) => (
               <MenuItem key={index} value={period}>
                 {period}
               </MenuItem>
@@ -136,12 +135,6 @@ const PaymentFormComponent = ({
       setInitialState(updatedValues);
     }
   }, [updatedValues]);
-
-
-  useEffect(() => {
-      // getPaginatedData(0, 5, setPayments, API.PaymentAPI, classConditionObj);
-      // console.log('inside if condition', classSectionObj, classConditionObj)
-  }, []);
 
   useEffect(() => {
     if (!allPaymentMethods?.listData?.length) {
@@ -173,6 +166,30 @@ const PaymentFormComponent = ({
   useEffect(() => {
     formik.setFieldValue("student_id", studentId);
   }, [studentId]);
+
+  useEffect(() => {
+    // current date
+    const dateVar = new Date();
+    formik.setFieldValue("current_date", dateVar);
+
+    // Calculate additional fee if the current date is greater than the payment date
+    if (allPayments?.listData?.rows?.length) {
+      let schoolPaymentOptions;
+      if (dateVar.getDate() > allPayments?.listData?.rows[0]?.payment_date) {
+        const daysElapsed = dateVar.getDate() - allPayments.listData.rows[0].payment_date;
+        const weeksElapsed = Math.ceil(daysElapsed / 7);
+        const additionalFee = weeksElapsed * allPayments?.listData?.rows[0].classLateFee;
+        if (formik.values.fee === 'school') {
+          formik.setFieldValue("late_fee", additionalFee);
+        }
+        schoolPaymentOptions = findMultipleById(allPayments.listData.rows[0]?.payment_methods, allPaymentMethods?.listData);
+        setSchoolPaymentMethods(schoolPaymentOptions);
+        console.log(schoolPaymentOptions, 'schoolPaymentOptions');
+      } else {
+        formik.setFieldValue("late_fee", 0);
+      }
+    }
+  }, [allPayments?.listData?.rows?.length, formik.values.fee]);
 
   return (
     <Box m="20px">
@@ -278,8 +295,8 @@ const PaymentFormComponent = ({
               value={formik.values.method}
               onChange={event => formik.setFieldValue("method", event.target.value)}
             >
-              {!allPaymentMethods?.listData?.length ? null :
-                allPaymentMethods.listData.map(value => (
+              {!schoolPaymentMethods?.length ? null :
+                schoolPaymentMethods.map(value => (
                   <MenuItem value={value.id} name={value.name} key={value.id}>
                     {value.name}
                   </MenuItem>
@@ -289,22 +306,6 @@ const PaymentFormComponent = ({
               {formik.touched.method && formik.errors.method}
             </FormHelperText>
           </FormControl>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              format="DD MMMM YYYY" //ex - 25 July 2023
-              views={["day", "month", "year"]}
-              label="Due Date"
-              name="due_date"
-              value={formik.values.due_date}
-              onChange={newDue_Date => formik.setFieldValue("due_date", newDue_Date)}
-              slotProps={{
-                textField: {
-                  error: !!formik.touched.due_date && !!formik.errors.due_date,
-                  helperText: formik.touched.due_date && formik.errors.due_date
-                }
-              }}
-            />
-          </LocalizationProvider>
           <TextField
             fullWidth
             variant="filled"
@@ -317,6 +318,22 @@ const PaymentFormComponent = ({
             error={!!formik.touched.late_fee && !!formik.errors.late_fee}
             helperText={formik.touched.late_fee && formik.errors.late_fee}
           />
+          <TextField
+            fullWidth
+            variant="filled"
+            type="number"
+            label="Discount Percent"
+            name="discounted_fee"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            value={formik.values.discounted_fee}
+            error={!!formik.touched.discounted_fee && !!formik.errors.discounted_fee}
+            helperText={formik.touched.discounted_fee && formik.errors.discounted_fee}
+          />
+          <InputLabel>
+            Final Payment: &#8377; {Math.ceil((formik.values.amount - (formik.values.amount * formik.values.discounted_fee / 100)) +
+              formik.values.late_fee) + " INR."}
+          </InputLabel>
         </Box>
         <Toast
           alerting={toastInfo.toastAlert}
