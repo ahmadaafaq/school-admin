@@ -99,14 +99,11 @@ const FormComponent = () => {
         // S3 Bucket Name
         const S3_BUCKET = "theskolar";
 
-        // S3 Region
-        const REGION = "ap-south-1";
-
         // S3 Credentials (Ensure these are stored securely in environment variables in production)
         AWS.config.update({
-            accessKeyId: "AKIAYS2NU3DQ2WEADGHU",
-            secretAccessKey: "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",
-            region: REGION
+            accessKeyId: ENV.VITE_AWS_ACCESS_KEY_ID,
+            secretAccessKey: ENV.VITE_AWS_SECRET_ACCESS_KEY,
+            region: ENV.VITE_AWS_REGION
         });
 
         const s3 = new AWS.S3();
