@@ -101,8 +101,8 @@ const FormComponent = () => {
 
         // S3 Credentials (Ensure these are stored securely in environment variables in production)
         AWS.config.update({
-            accessKeyId: ENV.VITE_AWS_ACCESS_KEY_ID,
-            secretAccessKey: ENV.VITE_AWS_SECRET_ACCESS_KEY,
+            accessKeyId: ENV.VITE_AWS_KEY_ID,
+            secretAccessKey: ENV.VITE_AWS_SECRET_KEY,
             region: ENV.VITE_AWS_REGION
         });
 
