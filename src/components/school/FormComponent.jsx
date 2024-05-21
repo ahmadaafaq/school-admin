@@ -13,6 +13,9 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
 
+import AWS from "aws-sdk";
+import { Buffer } from 'buffer';
+
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
 import ImagePicker from "../image/ImagePicker";
@@ -88,6 +91,50 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
+    //  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< upload in aws bucket >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    const uploadFile = async (image, formattedName) => {
+        console.log("Starting upload process");
+
+        // S3 Bucket Name
+        const S3_BUCKET = "theskolar";
+
+        // S3 Region
+        const REGION = "ap-south-1";
+
+        // S3 Credentials (Ensure these are stored securely in environment variables in production)
+        AWS.config.update({
+            accessKeyId: "AKIAYS2NU3DQ2WEADGHU",
+            secretAccessKey: "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",
+            region: REGION
+        });
+
+        const s3 = new AWS.S3();
+
+        // Files Parameters
+        const params = {
+            Bucket: S3_BUCKET,
+            Key: formattedName,
+            Body: image
+        };
+
+        // Uploading file to S3
+        try {
+            const upload = s3.upload(params).on("httpUploadProgress", (evt) => {
+                console.log("Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%");
+            }).promise();
+
+            const data = await upload;
+            console.log("File uploaded successfully.");
+            alert("File uploaded successfully.");
+            return data;
+
+        } catch (error) {
+            console.error("Error uploading file: ", error);
+            alert("Error uploading file.");
+        }
+    };
+
     const updateSchoolAndAddress = useCallback(async formData => {
         setLoading(true);
         const paths = [];
@@ -118,6 +165,8 @@ const FormComponent = () => {
             throw err;
         }
     }, [formData]);
+
+    console.log("updatedDisplayImage>>",updatedDisplayImage);
 
     const updateImageAndClassData = useCallback(async formData => {
         // delete the selected (removed) images from Azure which are in deletedImage state
@@ -170,16 +219,23 @@ const FormComponent = () => {
             });
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
-                Array.from(formData.imageData.values?.image).map(image => {
+                Array.from(formData.imageData.values?.image).map(async image => {
                     formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    API.ImageAPI.createImage({
-                        image_src: formattedName,
-                        school_id: formData.schoolData.values.id,
-                        parent_id: formData.schoolData.values.id,
-                        parent: 'school',
-                        type: 'display'
-                    });
+                    try {
+                        const res = await uploadFile(image, formattedName);
+                        console.log("res", res);
+                        if (res.key) {
+                            API.ImageAPI.createImage({
+                                image_src: res.Location,
+                                school_id: school.data.id,
+                                parent_id: school.data.id,
+                                parent: 'school',
+                                type: 'display'
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error uploading file:", error);
+                    }
                 });
                 status = true;
             }
@@ -199,16 +255,23 @@ const FormComponent = () => {
 
             // upload new parent images to azure and insert in db
             if (formData.bannerImageData?.values?.image) {
-                Array.from(formData.bannerImageData.values.image).map(image => {
+                Array.from(formData.bannerImageData.values.image).map(async image => {
                     let formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    API.ImageAPI.createImage({
-                        image_src: formattedName,
-                        school_id: formData.schoolData.values.id,
-                        parent_id: formData.schoolData.values.id,
-                        parent: 'school',
-                        type: 'banner'
-                    });
+                    try {
+                        const res = await uploadFile(image, formattedName);
+                        console.log("res", res);
+                        if (res.key) {
+                            API.ImageAPI.createImage({
+                                image_src: res.Location,
+                                school_id: school.data.id,
+                                parent_id: school.data.id,
+                                parent: 'school',
+                                type: 'display'
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error uploading file:", error);
+                    }
                 });
                 status = true;
             }
@@ -256,6 +319,9 @@ const FormComponent = () => {
                             addressData: responses[1]?.data?.data,
                             imageData: responses[2]?.data?.data
                         };
+
+                        console.log("dataobj",dataObj);
+
                         setUpdatedValues(dataObj);
                         setUpdatedDisplayImage(dataObj?.imageData?.filter(img => img.type === "display"));
                         setUpdatedBannerImage(dataObj?.imageData?.filter(img => img.type === "banner"));
@@ -318,35 +384,50 @@ const FormComponent = () => {
                     if (formData.imageData.values?.image?.length) {
                         promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: school.data.id,
-                                parent_id: school.data.id,
-                                parent: 'school',
-                                type: 'display'
-                            });
+
+                            try {
+                                const res = await uploadFile(image, formattedName);
+                                console.log("res", res);
+                                if (res.key) {
+                                    API.ImageAPI.createImage({
+                                        image_src: res.Location,
+                                        school_id: school.data.id,
+                                        parent_id: school.data.id,
+                                        parent: 'school',
+                                        type: 'display'
+                                    });
+                                }
+                            } catch (error) {
+                                console.error("Error uploading file:", error);
+                            }
                         });
                     }
 
                     if (formData.bannerImageData.values.image?.length) {
                         promise4 = Array.from(formData.bannerImageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: school.data.id,
-                                parent_id: school.data.id,
-                                parent: 'school',
-                                type: 'banner'
-                            });
+                            try {
+                                const res = await uploadFile(image, formattedName);
+                                console.log("res", res);
+                                if (res.key) {
+                                    API.ImageAPI.createImage({
+                                        image_src: res.Location,
+                                        school_id: school.data.id,
+                                        parent_id: school.data.id,
+                                        parent: 'school',
+                                        type: 'banner'
+                                    });
+                                }
+                            } catch (error) {
+                                console.error("Error uploading file:", error);
+                            }
                         });
                     }
 
                     return Promise.all([promise1, promise2, promise3, promise4])
                         .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing', true);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, 0, true);
                         })
                         .catch(err => {
                             setLoading(false);

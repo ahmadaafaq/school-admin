@@ -80,7 +80,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     }
                 });
         });
-    }
+    };
 
     useEffect(() => {
 
@@ -100,36 +100,41 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     const section_id = await getIdByName(student.section, API.SectionAPI);
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    const password = `${username}${ENV.VITE_SECRET_CODE}`;
+                    
+                    if (username) {
+                        const password = `${username}${ENV.VITE_SECRET_CODE}`;
 
-                    const { data: user } = await API.UserAPI.register({
-                        username: username,
-                        password: password,
-                        email: student?.email,
-                        contact_no: student?.contact_no,
-                        role: 5,
-                        designation: 'parent',
-                        status: 'active'
-                    });
-
-                    if (user.status === 'Success') {
-                        const { data: res } = await API.StudentAPI.createStudent({
-                            ...student,
-                            parent_id: user.data.id,
-                            class: class_id,
-                            section: section_id
+                        const { data: user } = await API.UserAPI.register({
+                            username: username,
+                            password: password,
+                            email: student?.email,
+                            contact_no: student?.contact_no,
+                            role: 5,
+                            designation: 'parent',
+                            status: 'active'
                         });
 
-                        API.AddressAPI.createAddress({
-                            parent_id: res.data.id,
-                            parent: 'student',
-                            street: student.street,
-                            landmark: student.landmark,
-                            zipcode: student.zipcode,
-                            state: state_id,
-                            city: city_id,
-                            country: 2
-                        });
+                        if (user.status === 'Success') {
+                            const { data: res } = await API.StudentAPI.createStudent({
+                                ...student,
+                                parent_id: user.data.id,
+                                class: class_id,
+                                section: section_id,
+                                dob: student.dob ? student.dob.replace(/\//g, "-") : null
+
+                            });
+
+                            API.AddressAPI.createAddress({
+                                parent_id: res.data.id,
+                                parent: 'student',
+                                street: student.street,
+                                landmark: student.landmark,
+                                zipcode: student.zipcode,
+                                state: state_id,
+                                city: city_id,
+                                country: 2
+                            });
+                        }
                     }
                 } catch (error) {
 
@@ -156,17 +161,19 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
                 })
-                .catch(error => {
+                .catch(err => {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                    console.error("At least one operation failed:", error);
+                    console.error("At least one operation failed:", err);
                 })
                 .finally(() => {
                     setLoading(false);
                 });
         }
 
+
     }, [students?.length]);
+
 
     return (
         <div >
@@ -229,7 +236,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://fastupload.io/eae890a3c885a13a" download target="_blank">
+                            <a href="#" download target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}
