@@ -41,6 +41,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [importedFile, setImportedFile] = useState(undefined);
     const [students, setStudents] = useState([]);
     const [fileName, setFileName] = useState('');
+    const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -64,7 +65,11 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 const sheets = wb.SheetNames;
                 if (sheets.length) {
                     const rows = utils.sheet_to_json(wb.Sheets[sheets[0]]);
-                    setStudents(rows)
+                    setStudents(rows);
+                    setUploadingRecord({
+                        ...uploadingRecord,
+                        count: sheets.length
+                    })
                 }
             }
             reader.readAsArrayBuffer(importedFile);
@@ -80,7 +85,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     }
                 });
         });
-    };
+    }
 
     useEffect(() => {
 
@@ -100,11 +105,10 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     const section_id = await getIdByName(student.section, API.SectionAPI);
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    
                     if (username) {
                         const password = `${username}${ENV.VITE_SECRET_CODE}`;
 
-                        const { data: user } = await API.UserAPI.register({
+                        const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
                             password: password,
                             email: student?.email,
@@ -112,20 +116,30 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             role: 5,
                             designation: 'parent',
                             status: 'active'
+                        }, 'user', {
+                            designation: 'parent',
+                            username: username,
+                            email: student.email,
+                            contact_no: student.contact_no
                         });
+                        console.log("user, status", user, status);
 
-                        if (user.status === 'Success') {
-                            const { data: res } = await API.StudentAPI.createStudent({
+                        if (status === 'Success') {
+                            let condition = {
+                                parent_id: user.id,
+                                firstname: student.firstname
+                            }
+                            console.log("create/update student", student.firstname);
+                            const { data: stud } = await API.CommonAPI.createOrUpdate({
                                 ...student,
-                                parent_id: user.data.id,
+                                parent_id: user.id,
                                 class: class_id,
                                 section: section_id,
-                                dob: student.dob ? student.dob.replace(/\//g, "-") : null
+                                dob: student.dob ? String(student.dob).replace(/\//g, "-") : null
+                            }, 'student', condition);
 
-                            });
-
-                            API.AddressAPI.createAddress({
-                                parent_id: res.data.id,
+                            API.CommonAPI.createOrUpdate({
+                                parent_id: stud.id,
                                 parent: 'student',
                                 street: student.street,
                                 landmark: student.landmark,
@@ -133,8 +147,24 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 state: state_id,
                                 city: city_id,
                                 country: 2
+                            }, 'address', {
+                                parent: 'student',
+                                parent_id: stud.id
+                            });
+                            setUploadingRecord({
+                                ...uploadingRecord,
+                                count: uploadingRecord.count--,
+                                name: student.firstname,
+                                skip: false
                             });
                         }
+                    } else {
+                        setUploadingRecord({
+                            ...uploadingRecord,
+                            count: uploadingRecord.count--,
+                            name: student.firstname,
+                            skip: true
+                        });
                     }
                 } catch (error) {
 
@@ -161,19 +191,20 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
                 })
-                .catch(err => {
+                .catch(error => {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                    console.error("At least one operation failed:", err);
+                    toastAndNavigate(dispatch, true, "error", error ? error?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                    console.error("At least one operation failed:", error);
                 })
                 .finally(() => {
                     setLoading(false);
+                    window.location.reload();
                 });
         }
 
-
     }, [students?.length]);
 
+    console.log("uploading>>", uploadingRecord.name, uploadingRecord.count);
 
     return (
         <div >
@@ -236,7 +267,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="#" download target="_blank">
+                            <a href="#" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}
@@ -250,15 +281,28 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             </a>
 
                             <Box>
-                                <Button color="error" variant="contained" sx={{ mr: 3 }}
-                                    onClick={() => setOpenDialog(false)}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit"
-                                    color="success" variant="contained"
-                                >
-                                    Submit
-                                </Button>
+                                {!loading &&
+                                    <Box>
+                                        <Button color="error" variant="contained" sx={{ mr: 3 }}
+                                            onClick={() => setOpenDialog(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button type="submit"
+                                            color="success" variant="contained"
+                                        >
+                                            Submit
+                                        </Button>
+                                    </Box>
+                                }
+                                <Typography id="uploading">
+                                    {`Importing: ${uploadingRecord.name}`}
+                                    {`Remaining: ${uploadingRecord.count}`}
+                                </Typography>
+                                {uploadingRecord.skip &&
+                                    <Typography id="uploading">
+                                        {`Skipping: ${uploadingRecord.name}`}
+                                    </Typography>
+                                }
                                 <Toast alerting={toastInfo.toastAlert}
                                     severity={toastInfo.toastSeverity}
                                     message={toastInfo.toastMessage}

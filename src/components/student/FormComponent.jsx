@@ -73,7 +73,7 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getLocalStorage, getIdsFromObject, generatePassword, findMultipleById, formatImageName, fetchAndSetAll,
-        isObjEmpty, toastAndNavigate } = Utility();
+        isObjEmpty, toastAndNavigate, uploadFile } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -154,18 +154,26 @@ const FormComponent = () => {
             });
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
-                Array.from(formData.imageData.values?.image).map(image => {
+                Array.from(formData.imageData.values?.image).map(async image => {
                     formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    API.ImageAPI.createImage({
-                        image_src: formattedName,
-                        school_id: formData.studentData.values.school_id,
-                        parent_id: formData.studentData.values.id,
-                        parent: 'student',
-                        type: 'normal'
-                    });
+                    try {
+                        const res = await uploadFile(image, `student/${formattedName}`);
+                        console.log("res", res);
+                        if (res.key) {
+                            API.ImageAPI.createImage({
+                                image_src: res.Location,
+                                school_id: formData.studentData.values.school_id,
+                                parent_id: formData.studentData.values.id,
+                                parent: 'student',
+                                type: 'normal'
+                            }).then(img => {
+                                status = true;
+                            })
+                        }
+                    } catch (error) {
+                        console.error("Error uploading file:", error);
+                    }
                 });
-                status = true;
             }
             // insert old images only in db & not on azure
             if (formData.imageData?.values?.constructor === Array) {
@@ -182,16 +190,25 @@ const FormComponent = () => {
             }
             // upload new parent images to azure and insert in db
             if (formData.parentImageData?.values?.image) {
-                Array.from(formData.parentImageData.values.image).map(image => {
+                Array.from(formData.parentImageData.values.image).map(async image => {
                     let formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    API.ImageAPI.createImage({
-                        image_src: formattedName,
-                        school_id: formData.studentData.values.school_id,
-                        parent_id: formData.studentData.values.id,
-                        parent: 'parent',
-                        type: 'normal'
-                    });
+                    try {
+                        const res = await uploadFile(image, `student/${formattedName}`);
+                        console.log("res", res);
+                        if (res.key) {
+                            API.ImageAPI.createImage({
+                                    image_src: res.Location,
+                                    school_id: formData.studentData.values.school_id,
+                                    parent_id: formData.studentData.values.id,
+                                    parent: 'parent',
+                                    type: 'normal'
+                            }).then(img => {
+                                status = true;
+                            })
+                        }
+                    } catch (error) {
+                        console.error("Error uploading file:", error);
+                    }
                 });
                 status = true;
             }
@@ -204,9 +221,10 @@ const FormComponent = () => {
                         parent_id: image.parent_id,
                         parent: image.parent,
                         type: image.type
-                    });
+                    }).then(img =>{
+                        status = true;
+                    })
                 });
-                status = true;
             }
             if (status) {
                 setLoading(false);
@@ -294,28 +312,44 @@ const FormComponent = () => {
                             if (formData.imageData.values?.image?.length) {
                                 promise2 = Array.from(formData.imageData.values.image).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
-                                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                                    API.ImageAPI.createImage({
-                                        image_src: formattedName,
-                                        school_id: student.data.school_id,
-                                        parent_id: student.data.id,
-                                        parent: 'student',
-                                        type: 'normal'
-                                    });
+                                    try {
+                                        const res = await uploadFile(image, `student/${formattedName}`);
+                                        console.log("res", res);
+                                        if (res.key) {
+                                            API.ImageAPI.createImage({
+                                                image_src: formattedName,
+                                                school_id: student.data.school_id,
+                                                parent_id: student.data.id,
+                                                parent: 'student',
+                                                type: 'normal'
+                                            }).then(img =>{
+                                                status = true;
+                                            })
+                                        }
+                                    } catch (error) {
+                                        console.error("Error uploading file:", error);
+                                    }
                                 });
                             }
 
                             if (formData.parentImageData.values?.image?.length) {
                                 promise3 = Array.from(formData.parentImageData.values.image).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
-                                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                                    API.ImageAPI.createImage({
-                                        image_src: formattedName,
-                                        school_id: student.data.school_id,
-                                        parent_id: student.data.id,
-                                        parent: 'parent',
-                                        type: 'normal'
-                                    });
+                                    try {
+                                        const res = await uploadFile(image, `student/${formattedName}`);
+                                        console.log("res", res);
+                                        if (res.key) {
+                                            API.ImageAPI.createImage({
+                                                image_src: res.Location,
+                                                school_id: student.data.school_id,
+                                                parent_id: student.data.id,
+                                                parent: 'parent',
+                                                type: 'normal'
+                                            });
+                                        }
+                                    } catch (error) {
+                                        console.error("Error uploading file:", error);
+                                    }
                                 });
                             }
 

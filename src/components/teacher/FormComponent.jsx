@@ -73,6 +73,7 @@ const FormComponent = () => {
     generatePassword,
     isObjEmpty,
     toastAndNavigate,
+    uploadFile
   } = Utility();
 
   //after page refresh the id in router state becomes undefined, so getting teacher id from url params
@@ -159,40 +160,48 @@ const FormComponent = () => {
 
     try {
       let formattedName;
-        // delete all images from db on every update and later insert new and old again
-        await API.ImageAPI.deleteImage({
-          parent: "teacher",
-          parent_id: id,
+      // delete all images from db on every update and later insert new and old again
+      await API.ImageAPI.deleteImage({
+        parent: "teacher",
+        parent_id: id,
+      });
+      // upload new images to backend folder and insert in db
+      if (formData.imageData?.values?.image) {
+        Array.from(formData.imageData.values.image).map(async image => {
+          formattedName = formatImageName(image.name);
+          try {
+            const res = await uploadFile(image, `student/${formattedName}`);
+            console.log("res", res);
+            if (res.key) {
+              API.ImageAPI.createImage({
+                image_src: res.Location,
+                school_id: formData.teacherData.values.id,
+                parent_id: formData.teacherData.values.id,
+                parent: "teacher",
+                type: "normal"
+              }).then(img => {
+                status = true;
+              })
+            }
+          } catch (error) {
+            console.error("Error uploading file:", error);
+          }
         });
-        // upload new images to backend folder and insert in db
-        if (formData.imageData?.values?.image) {
-          Array.from(formData.imageData.values.image).map((image) => {
-            formattedName = formatImageName(image.name);
-            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-            API.ImageAPI.createImage({
-              image_src: formattedName,
-              school_id: formData.teacherData.values.id,
-              parent_id: formData.teacherData.values.id,
-              parent: "teacher",
-              type: "normal"
-            });
+      }
+      // insert old images only in db & not on azure
+      if (formData.imageData.values.constructor === Array) {
+        formData.imageData.values.map(oldIimage => {
+          API.ImageAPI.createImage({
+            image_src: oldIimage.image_src,
+            school_id: oldIimage.school_id,
+            parent_id: oldIimage.parent_id,
+            parent: oldIimage.parent,
+            type: oldIimage.type,
           });
-          status = true;
-        }
-        // insert old images only in db & not on azure
-        if (formData.imageData.values.constructor === Array) {
-          formData.imageData.values.map(oldIimage => {
-            API.ImageAPI.createImage({
-              image_src: oldIimage.image_src,
-              school_id: oldIimage.school_id,
-              parent_id: oldIimage.parent_id,
-              parent: oldIimage.parent,
-              type: oldIimage.type,
-            });
-          });
-          status = true;
-        }
-      
+        });
+        status = true;
+      }
+
       if (status) {
         setLoading(false);
         toastAndNavigate(
@@ -302,14 +311,21 @@ const FormComponent = () => {
               if (formData.imageData.values.image?.length) {
                 promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                   let formattedName = formatImageName(image.name);
-                  API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                  API.ImageAPI.createImage({
-                    image_src: formattedName,
-                    school_id: school.data.school_id,
-                    parent_id: teacher.data.id,
-                    parent: "teacher",
-                    type: "normal"
-                  });
+                  try {
+                    const res = await uploadFile(image, `student/${formattedName}`);
+                    console.log("res", res);
+                    if (res.key) {
+                      API.ImageAPI.createImage({
+                        image_src: res.Location,
+                        school_id: school.data.school_id,
+                        parent_id: teacher.data.id,
+                        parent: "teacher",
+                        type: "normal"
+                      });
+                    }
+                  } catch (error) {
+                    console.error("Error uploading file:", error);
+                  }
                 });
               }
 
