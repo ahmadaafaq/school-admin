@@ -9,7 +9,9 @@
 
 import axios from "axios";
 import API from "../../apis";
-import { displayToast } from "../../redux/actions/ToastAction";
+import { displayToast } from "../../redux/actions/ToastAction"
+const ENV = import.meta.env;
+
 
 const months = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];      // For createDropdown function
@@ -531,7 +533,48 @@ export const Utility = () => {
         const formattedDate = `${day}-${month}-${year}`;
 
         return formattedDate;
-    }
+    };
+
+    //this used to upload images on aws s3 bucket 
+
+    const uploadFile = async (image, folder) => {
+        console.log("Starting upload process");
+
+        // S3 Bucket Name
+        const S3_BUCKET = "theskolar";
+
+        // S3 Credentials (Ensure these are stored securely in environment variables in production)
+        AWS.config.update({
+            accessKeyId: ENV.VITE_AWS_KEY_ID,
+            secretAccessKey: ENV.VITE_AWS_SECRET_KEY,
+            region: ENV.VITE_AWS_REGION
+        });
+
+        const s3 = new AWS.S3();
+
+        // Files Parameters
+        const params = {
+            Bucket: S3_BUCKET,
+            Key: folder,
+            Body: image
+        };
+
+        // Uploading file to S3
+        try {
+            const upload = s3.upload(params).on("httpUploadProgress", (evt) => {
+                console.log("Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%");
+            }).promise();
+
+            const data = await upload;
+            console.log("File uploaded successfully.");
+            alert("File uploaded successfully.");
+            return data;
+
+        } catch (error) {
+            console.error("Error uploading file: ", error);
+            alert("Error uploading file.");
+        }
+    };
 
     /** Verifies a token using an asynchronous API call.
      * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,
@@ -594,6 +637,7 @@ export const Utility = () => {
         remLocalStorage,
         setLocalStorage,
         toastAndNavigate,
+        uploadFile,
         verifyToken,
         getStateCityFromZipCode
     };

@@ -55,7 +55,7 @@ import { Utility } from "../utility";
 
 import "./index.css";
 import companyImg from "../assets/eden.jpg";
-import dpsImg from "../assets/dps.png";
+import dpsImg from "../assets/schoolImg.jpg";
 
 const Sidebar = ({ rolePriority }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -298,15 +298,13 @@ const Sidebar = ({ rolePriority }) => {
           {/* USER */}
           {!isCollapsed && (
             <Box mb="15px">
-              <Box display="flex" justifyContent="center" alignItems="center">
+              <Box display="flex" justifyContent="center" alignItems="center" >
                 <img
                   alt="profile-user"
                   src={rolePriority > 1 ? dpsImg : companyImg}
-                  style={{
-                    cursor: "pointer",
-                    borderRadius: "10%",
-                    width: "60%",
-                  }}
+                  style={{ cursor: "pointer", borderRadius: "50%", width: "60%", boxShadow:` -9px -24px 52px 0px rgba(0,0,0,0.3) inset,
+                  6px 24px 42px -6px rgba(0,0,0,0.22) inset,
+                  0px 9px 12px 0px rgba(0,0,0,0.22);Copied!` }}
                 />
               </Box>
             </Box>

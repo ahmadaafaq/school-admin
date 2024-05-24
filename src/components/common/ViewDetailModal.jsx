@@ -85,7 +85,7 @@ const ViewDetailModal = ({
           <CardMedia
             component="img"
             height="230"
-            image={`${ENV.VITE_BASE_URL}/get-uploaded-image/${detail?.imageData && detail?.imageData[0]?.image_src}`}
+            image={`${detail?.imageData && detail?.imageData[0]?.image_src}`}
             alt={name}
             sx={{ width: "200px", float: "left", margin: "20px", border: "1px dotted black" }}
           />
