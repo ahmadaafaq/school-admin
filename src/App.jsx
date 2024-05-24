@@ -6,138 +6,206 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
-import { lazy, Suspense, useEffect, useState } from "react"
-import {
-  Routes,
-  Route,
-  useLocation,
-  useNavigate
-} from "react-router-dom"
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 
-import { CssBaseline, ThemeProvider } from "@mui/material"
-import { useIdleTimer } from "react-idle-timer"
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { useIdleTimer } from "react-idle-timer";
 
-import Login from "./components/login/Login"
-import Topbar from "./components/common/Topbar"
-import Sidebar from "./components/common/Sidebar"
+import Login from "./components/login/Login";
+import Topbar from "./components/common/Topbar";
+import Sidebar from "./components/common/Sidebar";
 
-import { ColorModeContext, useMode } from "./theme"
-import { Utility } from "./components/utility"
+import { ColorModeContext, useMode } from "./theme";
+import { Utility } from "./components/utility";
 
-import formBg from "./components/assets/formBg.png"
+import formBg from "./components/assets/formBg.png";
 
-const Dashboard = lazy(() => import("./components/dashboard/Dashboard"))
+const Dashboard = lazy(() => import("./components/dashboard/Dashboard"));
 
-const NotFound = lazy(() => import("./components/404 page/Animated404Component"))
+const NotFound = lazy(() =>
+  import("./components/404 page/Animated404Component")
+);
 
-const AmenityListingComponent = lazy(() => import("./components/amenities/ListingComponent"))
+const AmenityListingComponent = lazy(() =>
+  import("./components/amenities/ListingComponent")
+);
 
-const BusListingComponent = lazy(() => import("./components/bus/ListingComponent"))
+const BusListingComponent = lazy(() =>
+  import("./components/bus/ListingComponent")
+);
 
-const BusFormComponent = lazy(() => import("./components/bus/FormComponent"))
+const BusFormComponent = lazy(() => import("./components/bus/FormComponent"));
 
-const ClassListingComponent = lazy(() => import("./components/class/ListingComponent"))
+const ClassListingComponent = lazy(() =>
+  import("./components/class/ListingComponent")
+);
 
-const MarksheetFormComponent = lazy(() => import("./components/marksheet/FormComponent"))
+const MarksheetFormComponent = lazy(() =>
+  import("./components/marksheet/FormComponent")
+);
 
-const MarksheetListingComponent = lazy(() => import("./components/marksheet/ListingComponent"))
+const MarksheetListingComponent = lazy(() =>
+  import("./components/marksheet/ListingComponent")
+);
 
-const SchoolFormComponent = lazy(() => import("./components/school/FormComponent"))
+const SchoolFormComponent = lazy(() =>
+  import("./components/school/FormComponent")
+);
 
-const SchoolListingComponent = lazy(() => import("./components/school/ListingComponent"))
+const SchoolListingComponent = lazy(() =>
+  import("./components/school/ListingComponent")
+);
 
-const SectionListingComponent = lazy(() => import("./components/section/ListingComponent"))
+const SectionListingComponent = lazy(() =>
+  import("./components/section/ListingComponent")
+);
 
-const StudentFormComponent = lazy(() => import("./components/student/FormComponent"))
+const StudentFormComponent = lazy(() =>
+  import("./components/student/FormComponent")
+);
 
-const StudentListingComponent = lazy(() => import("./components/student/ListingComponent"))
+const StudentListingComponent = lazy(() =>
+  import("./components/student/ListingComponent")
+);
 
-const SubjectListingComponent = lazy(() => import("./components/subject/ListingComponent"))
+const SubjectListingComponent = lazy(() =>
+  import("./components/subject/ListingComponent")
+);
 
-const TeacherFormComponent = lazy(() => import("./components/teacher/FormComponent"))
+const TeacherFormComponent = lazy(() =>
+  import("./components/teacher/FormComponent")
+);
 
-const TeacherListingComponent = lazy(() => import("./components/teacher/ListingComponent"))
+const TeacherListingComponent = lazy(() =>
+  import("./components/teacher/ListingComponent")
+);
 
-const UserFormComponent = lazy(() => import("./components/user/FormComponent"))
+const UserFormComponent = lazy(() => import("./components/user/FormComponent"));
 
-const UserListingComponent = lazy(() => import("./components/user/ListingComponent"))
+const UserListingComponent = lazy(() =>
+  import("./components/user/ListingComponent")
+);
 
-const EmployeeFormComponent = lazy(() => import("./components/employee/FormComponent"))
+const EmployeeFormComponent = lazy(() =>
+  import("./components/employee/FormComponent")
+);
 
-const EmployeeListingComponent = lazy(() => import("./components/employee/ListingComponent"))
+const EmployeeListingComponent = lazy(() =>
+  import("./components/employee/ListingComponent")
+);
 
-const HolidayFormComponent = lazy(() => import("./components/holiday/FormComponent"))
+const HolidayFormComponent = lazy(() =>
+  import("./components/holiday/FormComponent")
+);
 
-const HolidayListingComponent = lazy(() => import("./components/holiday/ListingComponent"))
+const HolidayListingComponent = lazy(() =>
+  import("./components/holiday/ListingComponent")
+);
 
-const PaymentFormComponent = lazy(() => import("./components/payment/FormInModalComponent"))
+const PaymentFormComponent = lazy(() =>
+  import("./components/payment/FormInModalComponent")
+);
 
-const PaymentListingComponent = lazy(() => import("./components/payment/ListingComponent"))
+const PaymentListingComponent = lazy(() =>
+  import("./components/payment/ListingComponent")
+);
 
-const PaymentMethodListingComponent = lazy(() => import("./components/paymentMethod/ListingComponent"))
+const PaymentMethodListingComponent = lazy(() =>
+  import("./components/paymentMethod/ListingComponent")
+);
 
-const SchoolDurationFormComponent = lazy(() => import("./components/schoolDuration/FormComponent"))
+const SchoolDurationFormComponent = lazy(() =>
+  import("./components/schoolDuration/FormComponent")
+);
 
-const SchoolDurationListingComponent = lazy(() => import("./components/schoolDuration/ListingComponent"))
+const SchoolDurationListingComponent = lazy(() =>
+  import("./components/schoolDuration/ListingComponent")
+);
 
-const SchoolHouseFormComponent = lazy(() => import("./components/schoolHouse/FormComponent"))
+const SchoolHouseFormComponent = lazy(() =>
+  import("./components/schoolHouse/FormComponent")
+);
 
-const SchoolHouseListingComponent = lazy(() => import("./components/schoolHouse/ListingComponent"))
+const SchoolHouseListingComponent = lazy(() =>
+  import("./components/schoolHouse/ListingComponent")
+);
 
-const TimeTableFormComponent = lazy(() => import("./components/timetable/FormComponent"))
+const TimeTableFormComponent = lazy(() =>
+  import("./components/timetable/FormComponent")
+);
 
-const TimeTableListingComponent = lazy(() => import("./components/timetable/ListingComponent"))
+const TimeTableListingComponent = lazy(() =>
+  import("./components/timetable/ListingComponent")
+);
 
-const NoticeBoardFormComponent = lazy(() => import("./components/noticeboard/FormComponent"))
+const NoticeBoardFormComponent = lazy(() =>
+  import("./components/noticeboard/FormComponent")
+);
 
-const NoticeBoardListing = lazy(() => import("./components/noticeboard/ListingComponent"))
+const NoticeBoardListing = lazy(() =>
+  import("./components/noticeboard/ListingComponent")
+);
 
-const UserRoleListingComponent = lazy(() => import("./components/userRole/ListingComponent"))
+const UserRoleListingComponent = lazy(() =>
+  import("./components/userRole/ListingComponent")
+);
 
-const ResetPasswordComponent = lazy(() => import("./components/resetPassword/ResetPw"))
+const ResetPasswordComponent = lazy(() =>
+  import("./components/resetPassword/ResetPw")
+);
+
+const AttendanceComponent = lazy(() =>
+  import("./components/attendance/ListingComponent")
+);
 
 function App() {
-  const [userRole, setUserRole] = useState({ name: "", priority: null })
-  const [theme, colorMode] = useMode()
-  const navigateTo = useNavigate()
-  let { pathname } = useLocation()
-  const splittedPath = pathname.split("/")
-  const { getLocalStorage, getRoleAndPriorityById, setLocalStorage, verifyToken } = Utility()
+  const [userRole, setUserRole] = useState({ name: "", priority: null });
+  const [theme, colorMode] = useMode();
+  const navigateTo = useNavigate();
+  let { pathname } = useLocation();
+  const splittedPath = pathname.split("/");
+  const {
+    getLocalStorage,
+    getRoleAndPriorityById,
+    setLocalStorage,
+    verifyToken,
+  } = Utility();
 
   if (splittedPath.length > 0) {
     pathname = splittedPath[1];
   }
 
   const onIdle = () => {
-    localStorage.clear()
-    location.reload()
-  }
+    localStorage.clear();
+    location.reload();
+  };
 
   useIdleTimer({
     //Automatically SignOut when a user is inactive for 30 minutes
     onIdle,
     timeout: parseInt(import.meta.env.VITE_LOGOUT_TIMER || 1800000), //30 minute idle timeout stored in environment variable file
-  })
+  });
 
   useEffect(() => {
     getRoleAndPriorityById().then((result) => {
       if (result) {
         setUserRole({
           name: result.name,
-          priority: result.priority
+          priority: result.priority,
         });
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getLocalStorage("auth")?.role])
+  }, [getLocalStorage("auth")?.role]);
 
   useEffect(() => {
     verifyToken().then((result) => {
       if (!result && pathname === "reset-password") {
-        const token = splittedPath[2]
+        const token = splittedPath[2];
         setLocalStorage("auth", {
-          token: token
-        })
+          token: token,
+        });
         navigateTo(`/reset-password/${token}`, { replace: true });
       } else if (!result && pathname !== "login") {
         localStorage.clear();
@@ -146,7 +214,7 @@ function App() {
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -406,12 +474,20 @@ function App() {
                       <Route
                         exact
                         path="/payment/create"
-                        element={<PaymentFormComponent rolePriority={userRole.priority} />}
+                        element={
+                          <PaymentFormComponent
+                            rolePriority={userRole.priority}
+                          />
+                        }
                       />
                       <Route
                         exact
                         path="/payment/update/:id"
-                        element={<PaymentFormComponent rolePriority={userRole.priority} />}
+                        element={
+                          <PaymentFormComponent
+                            rolePriority={userRole.priority}
+                          />
+                        }
                       />
                       <Route
                         exact
@@ -462,7 +538,15 @@ function App() {
                           />
                         }
                       />
-
+                      <Route
+                        exact
+                        path="/attendance/listing"
+                        element={
+                          <AttendanceComponent
+                            rolePriority={userRole.priority}
+                          />
+                        }
+                      />
                       <Route
                         exact
                         path="/time-table/create"
@@ -583,7 +667,7 @@ function App() {
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
-  )
+  );
 }
 
-export default App
+export default App;
