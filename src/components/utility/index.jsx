@@ -10,7 +10,6 @@
 import axios from "axios";
 import API from "../../apis";
 import { displayToast } from "../../redux/actions/ToastAction"
-import AWS from "aws-sdk";
 const ENV = import.meta.env;
 
 

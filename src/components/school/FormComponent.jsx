@@ -13,9 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { Box, Button, Typography, useTheme } from "@mui/material";
 
-import AWS from "aws-sdk";
-import { Buffer } from 'buffer';
-
 import API from "../../apis";
 import AddressFormComponent from "../address/AddressFormComponent";
 import ImagePicker from "../image/ImagePicker";
@@ -213,7 +210,7 @@ const FormComponent = () => {
 
                 // Iterating through each section in the class then associating subject ids for each section of class
                 return Promise.all(innerArray.map(async (sectionData, sectionIndex) => {
-                    const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
+                    const subjectArray = formData.schoolData.values.subjects[classIndex] ? formData.schoolData.values.subjects[classIndex][sectionIndex] : [];
                     await API.SchoolAPI.insertIntoMappingTable(
                         [formData.schoolData.values.id, schoolClass, sectionData.section_id,
                         getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
@@ -235,17 +232,22 @@ const FormComponent = () => {
             if (formData.imageData?.values?.image) {
                 Array.from(formData.imageData.values?.image).map(image => {
                     formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImageToS3({ image: image, imageName: `school/${formattedName}` })
+                    API.ImageAPI.uploadImageToS3({
+                        image: image,
+                        folder: `school/${formattedName}`,
+                    })
                         .then(res => {
-                            console.log("res", res);
+                            console.log("res", res)
+                            if (res.data.status === "Success") {
+                                API.ImageAPI.createImage({
+                                    image_src: res.data.data,
+                                    school_id: formData.schoolData.values.id,
+                                    parent_id: formData.schoolData.values.id,
+                                    parent: 'school',
+                                    type: 'display'
+                                })
+                            }
 
-                            // API.ImageAPI.createImage({
-                            //     image_src: res.Location,
-                            //     school_id: formData.schoolData.values.id,
-                            //     parent_id: formData.schoolData.values.id,
-                            //     parent: 'school',
-                            //     type: 'display'
-                            // })
                         })
                 });
                 status = true;
@@ -268,16 +270,21 @@ const FormComponent = () => {
             if (formData.bannerImageData?.values?.image) {
                 Array.from(formData.bannerImageData.values.image).map(image => {
                     let formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImageToS3({ image: image, imageName: `school/${formattedName}` })
+                    API.ImageAPI.uploadImageToS3({
+                        image: image,
+                        folder: `school/${formattedName}`
+                    })
                         .then(res => {
-                            console.log("res>>",res);
-                            // API.ImageAPI.createImage({
-                            //     image_src: res,
-                            //     school_id: formData.schoolData.values.id,
-                            //     parent_id: formData.schoolData.values.id,
-                            //     parent: 'school',
-                            //     type: 'banner'
-                            // });
+                            console.log("res", res);
+                            if (res.data.status === "Success") {
+                                API.ImageAPI.createImage({
+                                    image_src: res.data.data,
+                                    school_id: formData.schoolData.values.id,
+                                    parent_id: formData.schoolData.values.id,
+                                    parent: 'school',
+                                    type: 'banner'
+                                })
+                            }
                         })
                 });
                 status = true;
@@ -375,10 +382,10 @@ const FormComponent = () => {
                         const classLateFeeDuration = formData.schoolData.values.classes_late_fee_duration[classIndex] || 0;
 
                         // Iterating through each section in the class then associating subject ids for each section of class
-                        innerArray.map((sectionData, sectionIndex) => {
+                        innerArray.map(async (sectionData, sectionIndex) => {
                             // Get subject array for the current section or default to empty array
-                            const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                            API.SchoolAPI.insertIntoMappingTable(
+                            const subjectArray = formData.schoolData.values.subjects[classIndex] ? formData.schoolData.values.subjects[classIndex][sectionIndex] : [];
+                            await API.SchoolAPI.insertIntoMappingTable(
                                 [school.data.id, schoolClass, sectionData.section_id,
                                 getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
                                     classLateFeeDuration]
@@ -388,33 +395,46 @@ const FormComponent = () => {
                     if (formData.imageData.values?.image?.length) {
                         promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImageToS3({ image: image, imageName: `school/${formattedName}` })
-                            .then(res => {
-                                console.log("res>>",res);
-                                // API.ImageAPI.createImage({
-                                //     image_src: res.Location,
-                                //     school_id: formData.schoolData.values.id,
-                                //     parent_id: formData.schoolData.values.id,
-                                //     parent: 'school',
-                                //     type: 'display'
-                                // });
+                            API.ImageAPI.uploadImageToS3({
+                                image: image,
+                                folder: `school/${formattedName}`,
                             })
+                                .then(res => {
+                                    console.log("res", res)
+                                    if (res.data.status === "Success") {
+                                        API.ImageAPI.createImage({
+                                            image_src: res.data.data,
+                                            school_id: formData.schoolData.values.id,
+                                            parent_id: formData.schoolData.values.id,
+                                            parent: 'school',
+                                            type: 'display'
+                                        })
+                                    }
+                                })
                         });
                     }
 
-                    // if (formData.bannerImageData.values.image?.length) {
-                    //     promise4 = Array.from(formData.bannerImageData.values.image).map(async (image) => {
-                    //         let formattedName = formatImageName(image.name);
-                    //         API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    //         API.ImageAPI.createImage({
-                    //             image_src: formattedName,
-                    //             school_id: school.data.id,
-                    //             parent_id: school.data.id,
-                    //             parent: 'school',
-                    //             type: 'banner'
-                    //         });
-                    //     });
-                    // }
+                    if (formData.bannerImageData.values.image?.length) {
+                        promise4 = Array.from(formData.bannerImageData.values.image).map(async (image) => {
+                            let formattedName = formatImageName(image.name);
+                            API.ImageAPI.uploadImageToS3({
+                                image: image,
+                                folder: `school/${formattedName}`,
+                            })
+                                .then(res => {
+                                    console.log("res", res)
+                                    if (res.data.status === "Success") {
+                                        API.ImageAPI.createImage({
+                                            image_src: res.data.data,
+                                            school_id: formData.schoolData.values.id,
+                                            parent_id: formData.schoolData.values.id,
+                                            parent: 'school',
+                                            type: 'banner'
+                                        })
+                                    }
+                                })
+                        });
+                    }
 
                     return Promise.all([promise1, promise2, promise3])// promise 4
                         .then(() => {

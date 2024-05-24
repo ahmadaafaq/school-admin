@@ -87,6 +87,21 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         });
     }
 
+    const excelSerialToDate = async (serial) => {
+        if (!serial.toString().includes("/") && !serial.toString().includes("-")) {
+            const excelEpoch = new Date(1900, 0, 1); // January 1, 1900
+            const daysOffset = serial - 2; // Excel mistakenly considers 1900 a leap year, so subtract 2 days
+            const date = new Date(excelEpoch.getTime() + daysOffset * 24 * 60 * 60 * 1000);
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based in JS
+            const year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        }
+        return serial;
+    }
+
     useEffect(() => {
 
         if (students?.length) {
@@ -95,17 +110,24 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
             const promises = students.map(async (student) => {
                 try {
                     const apiResponse = await getStateCityFromZipCode(student.zipcode);
+                    console.log(apiResponse);
 
-                    const cityName = apiResponse.city;
-                    const stateName = apiResponse.state;
+                    const cityName = await apiResponse.city;
+                    const stateName = await apiResponse.state;
+                    const studentDobSerial = student.dob;
 
                     const state_id = await getIdByName(stateName, API.StateAPI);
                     const city_id = await getIdByName(cityName, API.CityAPI);
                     const class_id = await getIdByName(student.class, API.ClassAPI);
                     const section_id = await getIdByName(student.section, API.SectionAPI);
+                    const studentDob = await excelSerialToDate(studentDobSerial);
+
+                    console.log("student", studentDob);
+
+                    console.log("ids", state_id, section_id, city_id, class_id)
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    if (username) {
+                    if (username && state_id && city_id && class_id && section_id) {
                         const password = `${username}${ENV.VITE_SECRET_CODE}`;
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
@@ -135,7 +157,8 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 parent_id: user.id,
                                 class: class_id,
                                 section: section_id,
-                                dob: student.dob ? String(student.dob).replace(/\//g, "-") : null
+                                status: 'active',
+                                dob: studentDob ? studentDob.replace(/\//g, "-") : null
                             }, 'student', condition);
 
                             API.CommonAPI.createOrUpdate({
@@ -189,7 +212,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 .then(() => {
                     console.log("All operations completed successfully.");
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, 0);
                 })
                 .catch(error => {
                     setLoading(false);
@@ -198,7 +221,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 })
                 .finally(() => {
                     setLoading(false);
-                    window.location.reload();
+                    // window.location.reload();
                 });
         }
 

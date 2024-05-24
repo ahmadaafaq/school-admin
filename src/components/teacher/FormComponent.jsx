@@ -169,23 +169,22 @@ const FormComponent = () => {
       if (formData.imageData?.values?.image) {
         Array.from(formData.imageData.values.image).map(async image => {
           formattedName = formatImageName(image.name);
-          try {
-            const res = await uploadFile(image, `student/${formattedName}`);
-            console.log("res", res);
-            if (res.key) {
-              API.ImageAPI.createImage({
-                image_src: res.Location,
-                school_id: formData.teacherData.values.id,
-                parent_id: formData.teacherData.values.id,
-                parent: "teacher",
-                type: "normal"
-              }).then(img => {
-                status = true;
-              })
-            }
-          } catch (error) {
-            console.error("Error uploading file:", error);
-          }
+          API.ImageAPI.uploadImageToS3({
+            image: image,
+            folder: `school/${formattedName}`,
+          })
+            .then(res => {
+              console.log("res", res)
+              if (res.data.status === "Success") {
+                API.ImageAPI.createImage({
+                  image_src: res.data.data,
+                  school_id: formData.teacherData.values.id,
+                  parent_id: formData.teacherData.values.id,
+                  parent: "teacher",
+                  type: "normal"
+                })
+              }
+            })
         });
       }
       // insert old images only in db & not on azure
@@ -311,21 +310,22 @@ const FormComponent = () => {
               if (formData.imageData.values.image?.length) {
                 promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                   let formattedName = formatImageName(image.name);
-                  try {
-                    const res = await uploadFile(image, `student/${formattedName}`);
-                    console.log("res", res);
-                    if (res.key) {
-                      API.ImageAPI.createImage({
-                        image_src: res.Location,
-                        school_id: school.data.school_id,
-                        parent_id: teacher.data.id,
-                        parent: "teacher",
-                        type: "normal"
-                      });
-                    }
-                  } catch (error) {
-                    console.error("Error uploading file:", error);
-                  }
+                  API.ImageAPI.uploadImageToS3({
+                    image: image,
+                    folder: `school/${formattedName}`,
+                  })
+                    .then(res => {
+                      console.log("res", res)
+                      if (res.data.status === "Success") {
+                        API.ImageAPI.createImage({
+                          image_src: res.data.data,
+                          school_id: formData.teacherData.values.id,
+                          parent_id: formData.teacherData.values.id,
+                          parent: "teacher",
+                          type: "normal"
+                        })
+                      }
+                    })
                 });
               }
 

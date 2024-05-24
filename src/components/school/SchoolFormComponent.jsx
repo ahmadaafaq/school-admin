@@ -690,7 +690,7 @@ const SchoolFormComponent = ({
                                                     if (index > 0 && sectionIndex === 0) {
                                                         subArr[index] = [];
                                                     }
-                                                    subArr[index][sectionIndex] = subArr[index][0];
+                                                    subArr[index][sectionIndex] =  subArr[index] ? subArr[index][0] : [];
                                                     if (value) {
                                                         console.log(value, 'loop condition')
                                                         formik.setFieldValue('subjects', subArr);

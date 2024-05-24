@@ -52,6 +52,7 @@ const UserFormComponent = ({
   setDirty,
   reset,
   setReset,
+  schoolId,
   userId,
   rolePriority,
   updatedValues = null,
@@ -63,7 +64,6 @@ const UserFormComponent = ({
   });
   const [initialState, setInitialState] = useState(initialValues);
   const [_schoolId, setSchoolId] = useState(null);
-  const [allRoles, setAllRoles] = useState([]);
   const allSchools = useSelector((state) => state.allSchools);
   const allUserRoles = useSelector((state) => state.allUserRoles);
 
@@ -173,6 +173,13 @@ const UserFormComponent = ({
       formik.values.password = updatePassword.password;
     }
   };
+  console.log("school",schoolId);
+
+  useEffect(() => {
+    if (schoolId) {
+      formik.setFieldValue("school_id", schoolId);
+    }
+  }, [schoolId]);
 
   return (
     <Box m="20px">
@@ -319,6 +326,7 @@ const UserFormComponent = ({
                 labelId="schoolField"
                 label="School"
                 name="school_id"
+                disabled ={schoolId && userId ? true : false}
                 value={formik.values.school_id}
                 onChange={(event) => {
                   const selectedSchoolId = event.target.value;
@@ -352,16 +360,16 @@ const UserFormComponent = ({
               {rolePriority === 2 && !allUserRoles?.listData?.length
                 ? null
                 : allUserRoles.listData
-                    .filter((role) => role.id > rolePriority && role.id < 4)
-                    .map((role) => (
-                      <MenuItem
-                        value={role.id}
-                        name={role.name}
-                        key={role.name}
-                      >
-                        {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
-                      </MenuItem>
-                    ))}
+                  .filter((role) => role.id > rolePriority && role.id < 4)
+                  .map((role) => (
+                    <MenuItem
+                      value={role.id}
+                      name={role.name}
+                      key={role.name}
+                    >
+                      {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                    </MenuItem>
+                  ))}
             </Select>
           </FormControl>
           <FormControl

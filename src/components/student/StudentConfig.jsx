@@ -80,13 +80,17 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                 let className;
                 let sectionName;
 
-                if (allClasses?.listData?.length || allSections?.listData?.length) {
+                if (allClasses.listData.length && allSections.listData.length) {
                     className = findById(params?.row?.class, allClasses?.listData)?.class_name;
                     sectionName = findById(params?.row?.section, allSections?.listData)?.section_name;
-                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+                } else if (schoolClasses.listData.length && schoolSections.listData.length) {
                     className = findById(params?.row?.class, schoolClasses?.listData)?.class_name;
                     sectionName = findById(params?.row?.section, schoolSections?.listData)?.section_name;
-                }
+                } 
+                console.log("listing data params cls>>",params?.row?.class, "listing data allclasses",allClasses?.listData );
+                console.log("listing data params s>>",params?.row?.section, "listing data allsecc",allSections?.listData );
+                console.log("school cls list d>>", schoolClasses?.listData, schoolSections?.listData );
+
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}
