@@ -160,7 +160,7 @@ const Login = () => {
       <Box sx={boxstyle}>
         <Grid container sx={{ flexDirection: "column" }}>
           {!isMobile && (
-            <Grid item xs={12} sm={12} lg={12}>
+            <Grid item xs={10} sm={10} lg={10}>
               <Box
                 style={{
                   backgroundImage: `url(${bg})`,
@@ -198,6 +198,7 @@ const Login = () => {
               <Typography
                 component="h2"
                 sx={{
+                  marginTop: "20px",
                   fontFamily: typography.fontFamily,
                   fontSize: typography.h2.fontSize,
                 }}
@@ -222,7 +223,9 @@ const Login = () => {
                     <form
                       onSubmit={handleSubmit}
                       style={{
-                        width: isMobile ? "40vw" : isTab ? "28vw" : "21vw",
+                        width: isMobile ? "60vw" : isTab ? "28vw" : "21vw",
+                        display: "flex",
+                        flexDirection: "column"
                       }}
                     >
                       <TextField
@@ -237,7 +240,7 @@ const Login = () => {
                         value={values.school_code}
                         error={!!touched.school_code && !!errors.school_code}
                         helperText={touched.school_code && errors.school_code}
-                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius: "20px", overflow: "hidden" }}
+                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius: isMobile ? "15px" : "20px", overflow: "hidden" }}
                       />
                       <TextField
                         required
@@ -252,7 +255,7 @@ const Login = () => {
                         value={values.email}
                         error={!!touched.email && !!errors.email}
                         helperText={touched.email && errors.email}
-                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius: "20px", overflow: "hidden" }}
+                        sx={{ margin: "5px", backgroundColor: "#E9F1FA", borderRadius: isMobile ? "15px" : "20px", overflow: "hidden" }}
                       />
                       <TextField
                         required
@@ -267,7 +270,7 @@ const Login = () => {
                         value={values.password}
                         error={!!touched.contact_no && !!errors.contact_no}
                         helperText={touched.contact_no && errors.contact_no}
-                        sx={{ margin: "5px", backgroundColor: "white", borderRadius: "20px", overflow: "hidden" }}
+                        sx={{ margin: "5px", backgroundColor: "white", borderRadius: isMobile ? "15px" : "20px", overflow: "hidden" }}
                         InputProps={{
                           // <-- This is where the toggle button is added
                           endAdornment: (
@@ -300,15 +303,24 @@ const Login = () => {
                         sx={{
                           color: "#F6F6F2",
                           display: "block",
-                          margin: "29px 47px ",
+                          margin: "0",
                           mt: "2px",
                           minWidth: isMobile
                             ? "170px"
                             : isTab
                               ? "200px"
                               : "200px",
-                          backgroundColor: "#FF9A01",
+                          backgroundColor: loading ? "#FF9A01" : "#FF9A01",
                           borderRadius: 28,
+                          opacity: loading ? 1 : 1,
+                          '&:hover': {
+                            backgroundColor: "#FF9A01",
+                            opacity: 1,
+                          },
+                          '&:active': {
+                            backgroundColor: "#FF9A01",
+                            opacity: 1,
+                          },
                         }}
                       >
                         {loading === true ? <SignInLoader /> : "Sign In"}

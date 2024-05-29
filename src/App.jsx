@@ -161,6 +161,7 @@ const AttendanceComponent = lazy(() =>
 
 function App() {
   const [userRole, setUserRole] = useState({ name: "", priority: null });
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [theme, colorMode] = useMode();
   const navigateTo = useNavigate();
   let { pathname } = useLocation();
@@ -241,11 +242,15 @@ function App() {
                 className="sidebar"
                 roleName={userRole.name}
                 rolePriority={userRole.priority}
+                isCollapsed={isCollapsed}
+                setIsCollapsed={setIsCollapsed}
               />
               <main className="content">
                 <Topbar
                   roleName={userRole.name}
                   rolePriority={userRole.priority}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
                 <Routes>
                   {userRole.priority === 1 && (

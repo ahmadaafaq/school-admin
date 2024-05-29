@@ -518,6 +518,10 @@ export const Utility = () => {
         // Create a new Date object from the provided value
         const date = new Date(value);
 
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+
         // Array of month names
         const monthNames = [
             "Jan", "Feb", "Mar", "Apr", "May", "Jun",

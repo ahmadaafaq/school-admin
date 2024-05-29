@@ -52,9 +52,10 @@ const Dashboard = ({ rolePriority = null }) => {
 
   const useStyles = makeStyles((theme) => ({
     paper: {
-      padding: theme.spacing(2),
+      padding: "0px",
       margin: 'auto',
-      backgroundColor: "lightblue"
+      backgroundColor: "lightblue",
+      // height:"100px"
     },
   }));
 
@@ -316,7 +317,7 @@ const Dashboard = ({ rolePriority = null }) => {
             showPercentage={true}
             progress={`${dashboardCount.student / schoolCapacity}`}
             increase={`${((dashboardCount.student / schoolCapacity) * 100).toFixed(2)}%`}
-            icon={<Groups3Icon sx={{ fontSize: isMobile ? "10px" : "26px" }} />}
+            icon={<Groups3Icon sx={{ fontSize: isMobile ? "20px" : "26px" }} />}
             role={rolePriority}
           />
         </Box>
@@ -352,7 +353,7 @@ const Dashboard = ({ rolePriority = null }) => {
               increase={`${((dashboardCount.school / 500) * 100).toFixed(2)}%`}
               icon={
                 <DirectionsBusIcon
-                  sx={{ fontSize: isMobile ? "10px" : "26px" }}
+                  sx={{ fontSize: isMobile ? "20px" : "26px" }}
                 />
               }
               role={rolePriority}
@@ -388,7 +389,7 @@ const Dashboard = ({ rolePriority = null }) => {
               increase={`${((dashboardCount.bus / 500) * 100).toFixed(2)}%`}
               icon={
                 <DirectionsBusIcon
-                  sx={{ fontSize: isMobile ? "10px" : "26px" }}
+                  sx={{ fontSize: isMobile ? "20px" : "26px" }}
                 />
               }
               role={rolePriority}
@@ -423,7 +424,7 @@ const Dashboard = ({ rolePriority = null }) => {
             progress={`${dashboardCount.teacher / 500}`}
             increase={`${((dashboardCount.teacher / 500) * 100).toFixed(2)}%`}
             icon={
-              <Diversity3Icon sx={{ fontSize: isMobile ? "10px" : "26px" }} />
+              <Diversity3Icon sx={{ fontSize: isMobile ? "20px" : "26px" }} />
             }
             role={rolePriority}
           />
@@ -459,7 +460,7 @@ const Dashboard = ({ rolePriority = null }) => {
             color="rgb(251 249 233)"
             icon={
               <EngineeringSharpIcon
-                sx={{ fontSize: isMobile ? "10px" : "26px" }}
+                sx={{ fontSize: isMobile ? "20px" : "26px" }}
               />
             }
             role={rolePriority}
@@ -476,19 +477,19 @@ const Dashboard = ({ rolePriority = null }) => {
           }}
         >
           <Paper className={classes.paper}>
-            <ResponsiveContainer width="100%" height={375}>
+            <ResponsiveContainer width="100%" height={isMobile ? 200 : 375 }>
               <BarChart
                 data={graphData}
                 margin={{
                   top: 20,
-                  right: 30,
-                  left: 20,
+                  right:isMobile ? 10 : 30,
+                  left: isMobile ? -25 : 20,
                   bottom: 5,
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey={rolePriority === 1 ? "name" : "class_name"} />
-                <YAxis />
+                <XAxis fontSize={isMobile ? 8 : 15} dataKey={rolePriority === 1 ? "name" : "class_name"} />
+                <YAxis fontSize={isMobile ? 10 : 15}/>
                 <Tooltip />
                 <Legend />
                 <defs>

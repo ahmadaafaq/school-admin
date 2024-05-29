@@ -38,7 +38,7 @@ const FormComponent = () => {
         studentData: { values: null, validated: false },
         addressData: { values: null, validated: false },
         imageData: { values: null, validated: false },
-        parentImageData: { values: null, validated: true }
+        parentImageData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [updatedStudentImage, setUpdatedStudentImage] = useState([]);
@@ -78,7 +78,7 @@ const FormComponent = () => {
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
     const showIdCard = !id || (id && !updatedValues?.studentData?.id_card);
-    const formValidated = formData.studentData.validated && formData.addressData.validated && formData.imageData.validated;
+    const formValidated = formData.studentData.validated && formData.addressData.validated && formData.imageData.validated && formData.parentImageData.validated;
 
     // useEffect(() => {
     //     if (!state.reload) {
@@ -269,6 +269,14 @@ const FormComponent = () => {
         })
             .then(({ data: user }) => {
                 if (user?.status === 'Success') {
+
+                    API.AddressAPI.createAddress({
+                        ...formData.addressData.values,
+                        school_id: user.data.school_id,
+                        parent_id: user.data.id,
+                        parent: 'user'
+                    })
+
                     API.StudentAPI.createStudent({
                         ...formData.studentData.values,
                         parent_id: user.data.id,
@@ -285,7 +293,7 @@ const FormComponent = () => {
                             if (formData.imageData.values?.image?.length) {
                                 promise2 = Array.from(formData.imageData.values.image).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
-                                    API.ImageAPI.uploadImageToS3({
+                                    await API.ImageAPI.uploadImageToS3({
                                         image: image,
                                         folder: `student/${formattedName}`,
                                     })
@@ -293,8 +301,8 @@ const FormComponent = () => {
                                             if (res.data.status === "Success") {
                                                 API.ImageAPI.createImage({
                                                     image_src: res.data.data,
-                                                    school_id: formData.studentData.values.school_id,
-                                                    parent_id: formData.studentData.values.id,
+                                                    school_id: student.data.school_id,
+                                                    parent_id: student.data.id,
                                                     parent: 'student',
                                                     type: 'normal'
                                                 })
@@ -306,7 +314,7 @@ const FormComponent = () => {
                             if (formData.parentImageData.values?.image?.length) {
                                 promise3 = Array.from(formData.parentImageData.values.image).map(async (image) => {
                                     let formattedName = formatImageName(image.name);
-                                    API.ImageAPI.uploadImageToS3({
+                                    await API.ImageAPI.uploadImageToS3({
                                         image: image,
                                         folder: `student/${formattedName}`,
                                     })
@@ -314,8 +322,8 @@ const FormComponent = () => {
                                             if (res.data.status === "Success") {
                                                 API.ImageAPI.createImage({
                                                     image_src: res.data.data,
-                                                    school_id: formData.studentData.values.school_id,
-                                                    parent_id: formData.studentData.values.id,
+                                                    school_id: student.data.school_id,
+                                                    parent_id: student.data.id,
                                                     parent: 'parent',
                                                     type: 'parent'
                                                 })
@@ -475,6 +483,7 @@ const FormComponent = () => {
                 setUpdatedImage={setUpdatedParentImage}
                 imageType="Parent"
                 ENV={ENV}
+                validation={false}
             />
 
             <Box display="flex" justifyContent="end" m="20px" pb="20px">

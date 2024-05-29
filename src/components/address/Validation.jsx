@@ -23,8 +23,6 @@ const checkoutSchema = yup.object({
         .max(20, 'Too Long!')
         .matches(/[0-9]/, 'Invalid Zipcode Detected')
         .required("This Field is Required"),
-    country: yup.number()
-        .required("This Field is Required"),
     state: yup.number()
         .required("This Field is Required"),
     city: yup.number()

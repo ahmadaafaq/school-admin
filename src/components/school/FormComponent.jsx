@@ -40,8 +40,8 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         schoolData: { values: null, validated: false },
         addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true },
-        bannerImageData: { values: null, validated: true }
+        imageData: { values: null, validated: false },
+        bannerImageData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [deletedImage, setDeletedImage] = useState([]);
@@ -88,67 +88,8 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    //  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< upload in aws bucket >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-    // console.log("file>>>>", file);
-
-    // const uploadFile = async ( image, formattedName ) => {
-
-    //     console.log("chala ye bhi")
-    //     // S3 Bucket Name
-    //     const S3_BUCKET = "theskolar";
-
-    //     // S3 Region
-    //     const REGION = " ap-south-1";
-
-    //     // S3 Credentials
-    //     AWS.config.update({
-    //         accessKeyId: "AKIAYS2NU3DQ2WEADGHU",
-    //         secretAccessKey: "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",
-    //     });
-    //     const s3 = new AWS.S3({
-    //         params: { Bucket: S3_BUCKET },
-    //         region: REGION,
-    //     });
-
-    //     // Files Parameters
-
-    //     const params = {
-    //         Bucket: S3_BUCKET,
-    //         Key: formattedName,
-    //         Body: image,
-    //     };
-
-    //     // Uploading file to s3
-
-    //     var upload = s3
-    //         .putObject(params)
-    //         .on("httpUploadProgress", (evt) => {
-    //             // File uploading progress
-    //             console.log(
-    //                 "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
-    //             );
-    //         })
-    //         .promise();
-
-    //     await upload.then((err, data) => {
-    //         console.log("error",err);
-    //         console.log("yahan tak")
-
-    //         // Fille successfully uploaded
-    //         alert("File uploaded successfully.");
-    //     });
-    // };
-    // // Function to handle file and store it to file state
-    // // const handleFileChange = (e) => {
-    // //     // Uploaded file
-    // //     const file = e.target.files[0];
-    // //     // Changing file state
-    // //     setFile(file);
-    // // };
-
     const updateSchoolAndAddress = useCallback(async formData => {
+        console.log("formdata school>>>",formData);
         setLoading(true);
         const paths = [];
         const dataFields = [];
@@ -230,9 +171,9 @@ const FormComponent = () => {
             });
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
-                Array.from(formData.imageData.values?.image).map(image => {
+                Array.from(formData.imageData.values?.image).map(async image => {
                     formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImageToS3({
+                        API.ImageAPI.uploadImageToS3({
                         image: image,
                         folder: `school/${formattedName}`,
                     })
@@ -254,8 +195,8 @@ const FormComponent = () => {
             }
             // insert old images only in db & not on azure
             if (formData.imageData?.values?.constructor === Array) {
-                formData.imageData.values.map(image => {
-                    API.ImageAPI.createImage({
+                formData.imageData.values.map(async image => {
+                    await API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
                         parent_id: image.parent_id,
@@ -268,9 +209,9 @@ const FormComponent = () => {
 
             // upload new parent images to azure and insert in db
             if (formData.bannerImageData?.values?.image) {
-                Array.from(formData.bannerImageData.values.image).map(image => {
+                Array.from(formData.bannerImageData.values.image).map(async image => {
                     let formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImageToS3({
+                    await API.ImageAPI.uploadImageToS3({
                         image: image,
                         folder: `school/${formattedName}`
                     })
@@ -291,8 +232,8 @@ const FormComponent = () => {
             }
             // insert old images parent only in db & not on azure
             if (formData.bannerImageData?.values?.constructor === Array) {
-                formData.bannerImageData.values.map(image => {
-                    API.ImageAPI.createImage({
+                formData.bannerImageData.values.map(async image => {
+                    await API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
                         parent_id: image.parent_id,
@@ -404,8 +345,8 @@ const FormComponent = () => {
                                     if (res.data.status === "Success") {
                                         API.ImageAPI.createImage({
                                             image_src: res.data.data,
-                                            school_id: formData.schoolData.values.id,
-                                            parent_id: formData.schoolData.values.id,
+                                            school_id: school.data.id,
+                                            parent_id: school.data.id,
                                             parent: 'school',
                                             type: 'display'
                                         })
@@ -426,8 +367,8 @@ const FormComponent = () => {
                                     if (res.data.status === "Success") {
                                         API.ImageAPI.createImage({
                                             image_src: res.data.data,
-                                            school_id: formData.schoolData.values.id,
-                                            parent_id: formData.schoolData.values.id,
+                                            school_id: school.data.id,
+                                            parent_id: school.data.id,
                                             parent: 'school',
                                             type: 'banner'
                                         })
@@ -436,10 +377,10 @@ const FormComponent = () => {
                         });
                     }
 
-                    return Promise.all([promise1, promise2, promise3])// promise 4
+                    return Promise.all([promise1, promise2, promise3, promise4])
                         .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, 0, true);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing', true);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -491,7 +432,7 @@ const FormComponent = () => {
             setTitle("Update");
             populateSchoolData(id);
         }
-        if (formData.schoolData.validated && formData.addressData.validated) {
+        if (formData.schoolData.validated && formData.addressData.validated && formData.imageData.validated && formData.bannerImageData.validated) {
             formData.schoolData.values?.id ? updateSchoolAndAddress(formData) : createSchool(formData);
         } else {
             setSubmitted(false);
@@ -500,6 +441,7 @@ const FormComponent = () => {
 
 
     const handleSubmit = async () => {
+        console.log("yahan aya");
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
         await imageFormRef.current?.Submit();
@@ -599,6 +541,7 @@ const FormComponent = () => {
                 imageType="Banner"
                 multiple={true}
                 ENV={ENV}
+                validation={false}
             />
 
             <Box display="flex" justifyContent="end" m="20px">
