@@ -47,7 +47,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode, toastAndNavigate } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate, generatePassword } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
 
@@ -80,14 +80,23 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         return new Promise(resolve => {
             API.getIdByName(attrName)
                 .then(res => {
-                    if (res.status == "Success") {
+                    if (res.status === "Success") {
                         resolve(res.data);
+                    } else {
+                        resolve(new Error(`API call unsuccessful: ${res.status}`));
                     }
+                })
+                .catch(error => {
+                    resolve(new Error(`API call failed: ${error.message}`));
                 });
         });
     }
 
     const excelSerialToDate = async (serial) => {
+        if (serial === undefined || serial === null) {
+            return "00-00-0000";
+        }
+
         if (!serial.toString().includes("/") && !serial.toString().includes("-")) {
             const excelEpoch = new Date(1900, 0, 1); // January 1, 1900
             const daysOffset = serial - 2; // Excel mistakenly considers 1900 a leap year, so subtract 2 days
@@ -103,32 +112,32 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     }
 
     useEffect(() => {
-
         if (students?.length) {
-            setLoading(true);
 
             const promises = students.map(async (student) => {
                 try {
+                    setLoading(true);
                     const apiResponse = await getStateCityFromZipCode(student.zipcode);
-                    console.log(apiResponse);
 
                     const cityName = await apiResponse.city;
                     const stateName = await apiResponse.state;
                     const studentDobSerial = student.dob;
+                    const studentAddmissionSerial = student.admission_date;
 
                     const state_id = await getIdByName(stateName, API.StateAPI);
                     const city_id = await getIdByName(cityName, API.CityAPI);
                     const class_id = await getIdByName(student.class, API.ClassAPI);
                     const section_id = await getIdByName(student.section, API.SectionAPI);
                     const studentDob = await excelSerialToDate(studentDobSerial);
+                    const studentAddmissionDate = await excelSerialToDate(studentAddmissionSerial);
 
                     console.log("student", studentDob);
 
                     console.log("ids", state_id, section_id, city_id, class_id)
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    if (username && state_id && city_id && class_id && section_id) {
-                        const password = `${username}${ENV.VITE_SECRET_CODE}`;
+                    if (username && state_id && city_id && class_id && section_id && student.email) {
+                        const password = generatePassword();
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
@@ -147,6 +156,20 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         console.log("user, status", user, status);
 
                         if (status === 'Success') {
+                            API.CommonAPI.createOrUpdate({
+                                parent_id: user.id,
+                                parent: 'user',
+                                street: student.street,
+                                landmark: student.landmark,
+                                zipcode: student.zipcode,
+                                state: state_id,
+                                city: city_id,
+                                country: 2
+                            }, 'address', {
+                                parent: 'user',
+                                parent_id: user.id
+                            });
+                            
                             let condition = {
                                 parent_id: user.id,
                                 firstname: student.firstname
@@ -158,7 +181,8 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 class: class_id,
                                 section: section_id,
                                 status: 'active',
-                                dob: studentDob ? studentDob.replace(/\//g, "-") : null
+                                dob: studentDob ? studentDob.replace(/\//g, "-") : null,
+                                admission_date: studentAddmissionDate ? studentAddmissionDate.replace(/\//g, "-") : null
                             }, 'student', condition);
 
                             API.CommonAPI.createOrUpdate({
@@ -190,21 +214,9 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         });
                     }
                 } catch (error) {
-
-                    if (error.message.includes("getStateCityFromZipCode")) {
-                        console.error("Error in getStateCityFromZipCode API:", error);
-                    } else if (error.message.includes("getIdByName")) {
-                        console.error("Error in getIdByName API:", error);
-                    } else if (error.message.includes("register")) {
-                        console.error("Error in UserAPI.register:", error);
-                    } else if (error.message.includes("createStudent")) {
-                        console.error("Error in StudentAPI.createStudent:", error);
-                    } else if (error.message.includes("createAddress")) {
-                        console.error("Error in AddressAPI.createAddress:", error);
-                    } else {
-                        console.error("Unknown error occurred:", error);
+                    if (error) {
+                        console.error("Error in API:", error);
                     }
-                    throw error;
                 }
             });
 
@@ -212,17 +224,13 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 .then(() => {
                     console.log("All operations completed successfully.");
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, 0);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#', true);
                 })
                 .catch(error => {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "error", error ? error?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                    console.error("At least one operation failed:", error);
+                    console.log("At least one operation failed:", error);
                 })
-                .finally(() => {
-                    setLoading(false);
-                    // window.location.reload();
-                });
         }
 
     }, [students?.length]);

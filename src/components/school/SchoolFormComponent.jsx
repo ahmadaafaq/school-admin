@@ -88,12 +88,14 @@ const SchoolFormComponent = ({
 
     React.useImperativeHandle(refId, () => ({
         Submit: async () => {
+            console.log("impperative")
             await formik.submitForm();
         }
     }));
 
     const watchForm = () => {
         if (onChange) {
+            console.log("watch form")
             onChange({
                 values: formik.values,
                 validated: formik.isSubmitting
@@ -192,6 +194,8 @@ const SchoolFormComponent = ({
         }
     }, []);
 
+    console.log("schoolform formik.errors", formik.errors);
+
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -220,8 +224,8 @@ const SchoolFormComponent = ({
                     <TextField
                         fullWidth
                         variant="filled"
-                        type="text"
-                        label="Email"
+                        type="email"
+                        label="Email*"
                         name="email"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
@@ -295,7 +299,7 @@ const SchoolFormComponent = ({
                         variant="filled"
                         type="text"
                         name="registration_year"
-                        label="Registration Year*"
+                        label="Registration Year"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.registration_year}
@@ -307,7 +311,7 @@ const SchoolFormComponent = ({
                         variant="filled"
                         type="text"
                         name="affiliation_no"
-                        label="Affiliation No*"
+                        label="Affiliation No"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.affiliation_no}
@@ -360,8 +364,8 @@ const SchoolFormComponent = ({
                                 variant="filled"
                                 type="text"
                                 name="payment_methods"
-                                label="Payment Methods"
-                                error={!!formik.touched.payment_methods && !!formik.errors.payment_methods}
+                                label="Payment Methods*"
+                                error={formik.touched.payment_methods && !!formik.errors.payment_methods}
                                 helperText={formik.touched.payment_methods && formik.errors.payment_methods}
                             />
                         )}
@@ -371,7 +375,7 @@ const SchoolFormComponent = ({
                         variant="filled"
                         type="number"
                         name="payment_date"
-                        label="Payment Day Of Month"
+                        label="Payment Day Of Month*"
                         placeholder="Please Enter Day Number"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
@@ -382,7 +386,7 @@ const SchoolFormComponent = ({
                     <FormControl variant="filled" sx={{ minWidth: 120 }}
                         error={!!formik.touched.session_start && !!formik.errors.session_start}
                     >
-                        <InputLabel>Session Start Month</InputLabel>
+                        <InputLabel>Session Start Month*</InputLabel>
                         <Select
                             variant="filled"
                             name="session_start"
@@ -467,7 +471,7 @@ const SchoolFormComponent = ({
                         variant="filled"
                         type="text"
                         name="capacity"
-                        label="Capacity"
+                        label="School Capacity*"
                         onBlur={formik.handleBlur}
                         onChange={formik.handleChange}
                         value={formik.values.capacity}
@@ -515,9 +519,12 @@ const SchoolFormComponent = ({
                     borderRadius='12px'
                     display='grid'
                     gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                    gridTemplateColumns={"repeat(4, minmax(0, 1fr))"}
                     padding='10px'
                     marginBottom='40px'
+                    sx={{
+                        "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+                    }}
                 >
                     {formik.values.classes.map((field, index) => {
                         let key = index + 1;
@@ -526,7 +533,7 @@ const SchoolFormComponent = ({
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
                                     error={!!formik.touched.classes && !!formik.errors.classes}
                                 >
-                                    <InputLabel>Class</InputLabel>
+                                    <InputLabel>Class*</InputLabel>
                                     <Select
                                         variant="filled"
                                         name={`classes.${key}`}
@@ -557,12 +564,13 @@ const SchoolFormComponent = ({
                                     variant="filled"
                                     type="text"
                                     name={`classes_fee.${key}`}
-                                    label="Class Fee"
+                                    label="Class Fee*"
                                     onBlur={formik.handleBlur}
                                     value={formik.values.classes_fee[index]}
                                     onChange={event => {
                                         const feeArr = [...formik.values.classes_fee];
-                                        feeArr[index] = parseInt(event.target.value);
+                                        const parsedValue = parseInt(event.target.value, 10);
+                                        feeArr[index] = isNaN(parsedValue) ? '' : parsedValue;
                                         formik.setFieldValue("classes_fee", feeArr);
                                     }}
                                     error={!!formik.touched.classes_fee && !!formik.errors.classes_fee}
@@ -573,12 +581,13 @@ const SchoolFormComponent = ({
                                     variant="filled"
                                     type="text"
                                     name={`classes_late_fee.${key}`}
-                                    label="Late Fee"
+                                    label="Late Fee*"
                                     onBlur={formik.handleBlur}
                                     value={formik.values.classes_late_fee[index]}
                                     onChange={event => {
                                         const feeArr = [...formik.values.classes_late_fee];
-                                        feeArr[index] = parseInt(event.target.value);
+                                        const parsedValue = parseInt(event.target.value, 10);
+                                        feeArr[index] = isNaN(parsedValue) ? '' : parsedValue;
                                         formik.setFieldValue("classes_late_fee", feeArr);
                                     }}
                                     error={!!formik.touched.classes_late_fee && !!formik.errors.classes_late_fee}
@@ -587,7 +596,7 @@ const SchoolFormComponent = ({
                                 <FormControl variant="filled" sx={{ minWidth: 120 }}
                                     error={!!formik.touched.classes_late_fee_duration && !!formik.errors.classes_late_fee_duration}
                                 >
-                                    <InputLabel>Late Fee Duration</InputLabel>
+                                    <InputLabel>Late Fee Duration*</InputLabel>
                                     <Select
                                         variant="filled"
                                         name={`classes_late_fee_duration.${key}`}
@@ -637,8 +646,8 @@ const SchoolFormComponent = ({
                                             variant="filled"
                                             type="text"
                                             name={`sections.${key}`}
-                                            label="Section"
-                                            error={!!formik.touched.sections && !!formik.errors.sections}
+                                            label="Section*"
+                                            error={formik.touched.sections && !!formik.errors.sections}
                                             helperText={formik.touched.sections && formik.errors.sections}
                                         />
                                     )}
@@ -668,8 +677,8 @@ const SchoolFormComponent = ({
                                                 type="text"
                                                 name={`subjects.${index}.${sectionIndex}`}
                                                 label={`Subjects For Section ${section.section_name}`}
-                                                error={!!formik.touched.subjects && !!formik.errors.subjects}
-                                                helperText={formik.touched.subjects && formik.errors.subjects}
+                                                error={formik.touched.subjects?.[index] && !!formik.errors.subjects?.[index]}
+                                                helperText={formik.touched.subjects?.[index] && formik.errors.subjects?.[index]}
                                             />
                                         )}
                                     />
@@ -690,7 +699,7 @@ const SchoolFormComponent = ({
                                                     if (index > 0 && sectionIndex === 0) {
                                                         subArr[index] = [];
                                                     }
-                                                    subArr[index][sectionIndex] =  subArr[index] ? subArr[index][0] : [];
+                                                    subArr[index][sectionIndex] = subArr[index] ? subArr[index][0] : [];
                                                     if (value) {
                                                         console.log(value, 'loop condition')
                                                         formik.setFieldValue('subjects', subArr);
@@ -717,7 +726,7 @@ const SchoolFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 120 }}
                             error={!!formik.touched.classes && !!formik.errors.classes}
                         >
-                            <InputLabel>Class</InputLabel>
+                            <InputLabel>Class*</InputLabel>
                             <Select
                                 variant="filled"
                                 name={`classes${formik.values.classes.length + 1}`}
@@ -737,14 +746,16 @@ const SchoolFormComponent = ({
                                             </MenuItem>
                                         ))}
                             </Select>
-                            <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
+                            {!formik.values.classes.length &&
+                                <FormHelperText>{formik.touched.classes && formik.errors.classes}</FormHelperText>
+                            }
                         </FormControl>
                         <TextField
                             fullWidth
                             variant="filled"
                             type="text"
                             name={`classes_fee.${formik.values.classes_fee.length + 1}`}
-                            label="Class Fee"
+                            label="Class Fee*"
                             onBlur={formik.handleBlur}
                             value={[]}
                             onChange={event => {
@@ -760,7 +771,7 @@ const SchoolFormComponent = ({
                             variant="filled"
                             type="text"
                             name={`classes_late_fee.${formik.values.classes_late_fee.length + 1}`}
-                            label="Late Fee"
+                            label="Late Fee*"
                             onBlur={formik.handleBlur}
                             value={[]}
                             onChange={event => {
@@ -774,7 +785,7 @@ const SchoolFormComponent = ({
                         <FormControl variant="filled" sx={{ minWidth: 120 }}
                             error={!!formik.touched.classes_late_fee_duration && !!formik.errors.classes_late_fee_duration}
                         >
-                            <InputLabel>Late Fee Duration</InputLabel>
+                            <InputLabel>Late Fee Duration*</InputLabel>
                             <Select
                                 variant="filled"
                                 name={`classes_late_fee_duration${formik.values.classes_late_fee_duration.length + 1}`}
@@ -830,7 +841,7 @@ const SchoolFormComponent = ({
                                     variant="filled"
                                     type="text"
                                     name={`sections${formik.values.classes.length + 1}`}
-                                    label="Section"
+                                    label="Section*"
                                 />
                             )}
                         />

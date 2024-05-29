@@ -57,8 +57,8 @@ import "./index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/schoolImg.jpg";
 
-const Sidebar = ({ rolePriority }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
+
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
   const selected = useSelector((state) => state.menuItems.selected);
   const schoolClasses = useSelector((state) => state.schoolClasses);
@@ -133,6 +133,8 @@ const Sidebar = ({ rolePriority }) => {
           rolePriority={rolePriority}
           menuVisibility={5}
           isSubMenu={true}
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
         />
       ))
     );
@@ -175,6 +177,25 @@ const Sidebar = ({ rolePriority }) => {
   return (
     <Box
       sx={{
+        "& .pro-sidebar.collapsed": {
+          display: isMobile ? "none" : "block",
+        },
+        "& .pro-sidebar": {
+          position: isMobile ? "fixed" : "static",
+          animation: "fade-in-left 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both",
+        },
+        "@keyframes fade-in-left": {
+          "0%": {
+            WebkitTransform: "translateX(-50px)",
+            transform: "translateX(-50px)",
+            opacity: 0,
+          },
+          "100%": {
+            WebkitTransform: "translateX(0)",
+            transform: "translateX(0)",
+            opacity: 1,
+          },
+        },
         "& .pro-sidebar-inner": {
           background:
             theme.palette.mode === "light" ? `#6ac6ff !important` : "black",
@@ -283,9 +304,9 @@ const Sidebar = ({ rolePriority }) => {
                 <Typography variant="h3" color={colors.grey[100]}>
                   {rolePriority > 1
                     ? getLocalStorage("auth")
-                        ?.designation?.charAt(0)
-                        ?.toUpperCase() +
-                      getLocalStorage("auth")?.designation?.slice(1)
+                      ?.designation?.charAt(0)
+                      ?.toUpperCase() +
+                    getLocalStorage("auth")?.designation?.slice(1)
                     : "The Skolar"}
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -302,9 +323,7 @@ const Sidebar = ({ rolePriority }) => {
                 <img
                   alt="profile-user"
                   src={rolePriority > 1 ? dpsImg : companyImg}
-                  style={{ cursor: "pointer", borderRadius: "50%", width: "60%", boxShadow:` -9px -24px 52px 0px rgba(0,0,0,0.3) inset,
-                  6px 24px 42px -6px rgba(0,0,0,0.22) inset,
-                  0px 9px 12px 0px rgba(0,0,0,0.22);Copied!` }}
+                  style={{ cursor: "pointer", borderRadius: "50%", width: "60%", filter: 'drop-shadow(1px 1px 5px black)' }}
                 />
               </Box>
             </Box>
@@ -319,6 +338,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={2}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="School"
@@ -327,6 +348,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={1}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             {rolePriority < 5 ? (
               <Box>
@@ -345,6 +368,8 @@ const Sidebar = ({ rolePriority }) => {
                       menuVisibility={5}
                       isSubMenu={true}
                       mt="5px"
+                      isCollapsed={isCollapsed}
+                      setIsCollapsed={setIsCollapsed}
                     />
                     {renderCollapsedStudents()}
                   </SubMenu>
@@ -368,6 +393,8 @@ const Sidebar = ({ rolePriority }) => {
                       rolePriority={rolePriority}
                       menuVisibility={5}
                       isSubMenu={true}
+                      isCollapsed={isCollapsed}
+                      setIsCollapsed={setIsCollapsed}
                     />
                     {renderNotCollapsedStudents()}
                   </SubMenu>
@@ -381,6 +408,8 @@ const Sidebar = ({ rolePriority }) => {
                 selected={selected}
                 rolePriority={rolePriority}
                 menuVisibility={5}
+                isCollapsed={isCollapsed}
+                setIsCollapsed={setIsCollapsed}
               />
             )}
             <Divider />
@@ -391,6 +420,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="User"
@@ -399,6 +430,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Employee"
@@ -407,6 +440,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Payment"
@@ -415,6 +450,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Bus"
@@ -423,6 +460,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Holiday"
@@ -431,6 +470,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={5}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Marksheet"
@@ -439,6 +480,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="School House"
@@ -447,6 +490,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Attendance"
@@ -455,6 +500,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="School Duration"
@@ -463,6 +510,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Time Table"
@@ -471,6 +520,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={4}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
               title="Notice Board"
@@ -479,6 +530,8 @@ const Sidebar = ({ rolePriority }) => {
               selected={selected}
               rolePriority={rolePriority}
               menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
             />
             {rolePriority < 2 && (
               <>
@@ -496,6 +549,8 @@ const Sidebar = ({ rolePriority }) => {
                   selected={selected}
                   rolePriority={rolePriority}
                   menuVisibility={1}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
                 <SidebarItem
                   title="Class"
@@ -504,6 +559,8 @@ const Sidebar = ({ rolePriority }) => {
                   selected={selected}
                   rolePriority={rolePriority}
                   menuVisibility={1}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
                 <SidebarItem
                   title="Payment Method"
@@ -512,6 +569,8 @@ const Sidebar = ({ rolePriority }) => {
                   selected={selected}
                   rolePriority={rolePriority}
                   menuVisibility={1}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
                 <SidebarItem
                   title="Section"
@@ -520,6 +579,8 @@ const Sidebar = ({ rolePriority }) => {
                   selected={selected}
                   rolePriority={rolePriority}
                   menuVisibility={1}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
                 <SidebarItem
                   title="Subject"
@@ -528,6 +589,8 @@ const Sidebar = ({ rolePriority }) => {
                   selected={selected}
                   rolePriority={rolePriority}
                   menuVisibility={1}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
                 <SidebarItem
                   title="Role"
@@ -536,6 +599,8 @@ const Sidebar = ({ rolePriority }) => {
                   selected={selected}
                   rolePriority={rolePriority}
                   menuVisibility={1}
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
                 />
               </>
             )}

@@ -107,7 +107,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    {rolePriority > 1 && (
+                    {/* {rolePriority > 1 && (
                         <Button
                             type="submit"
                             color="success"
@@ -116,7 +116,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                             sx={{ height: isTab ? "4vh" : "auto" }}
                         >
                             Create New {selected}
-                        </Button>)}
+                        </Button>)} */}
                 </Box>
             </Box>
             <ServerPaginationGrid

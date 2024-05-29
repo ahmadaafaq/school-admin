@@ -61,6 +61,7 @@ const AddressFormComponent = ({
     }));
 
     const watchForm = () => {
+        console.log("formik. errors address>>>", formik.errors);
         if (onChange) {
             onChange({
                 values: formik.values,
@@ -71,6 +72,8 @@ const AddressFormComponent = ({
             });
         }
     };
+
+    console.log("addressform formik.errors", formik.errors);
 
     useEffect(() => {
         if (reset) {

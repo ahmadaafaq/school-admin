@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 import { MenuItem } from "react-pro-sidebar/dist";
-import { Typography, useTheme, Divider } from "@mui/material";
+import { Typography, useTheme, Divider, useMediaQuery } from "@mui/material";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens } from "../../theme";
@@ -26,12 +26,15 @@ export const SidebarItem = ({
     menuVisibility,
     className,
     handleClassClick = null,
-    isSubMenu = false
+    isSubMenu = false,
+    setIsCollapsed,
+    isCollapsed
 }) => {
     const theme = useTheme();
     const dispatch = useDispatch();
 
     const colors = tokens(theme.palette.mode);
+    const isMobile = useMediaQuery("(max-width:480px)");
     const { setLocalStorage } = Utility();
 
     if (rolePriority > menuVisibility) { // 2 > 2
@@ -54,6 +57,9 @@ export const SidebarItem = ({
                     handleClassClick ? handleClassClick() : null;
                     dispatch(setMenuItem(title));
                     setLocalStorage("menu", { selected: title });
+                    if (isMobile) {
+                        setIsCollapsed(!isCollapsed)
+                    }
                 }
                 }
                 icon={icon}

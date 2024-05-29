@@ -128,6 +128,7 @@ const FormComponent = () => {
     //         console.log("Deleted normal image from azure");
     //     });
     // }
+    console.log("formdata teacher",formData )
     let updatePromises = [];
     let status = null;
 
@@ -280,6 +281,13 @@ const FormComponent = () => {
     })
       .then(({ data: user }) => {
         if (user?.status === "Success") {
+          API.AddressAPI.createAddress({
+            ...formData.addressData.values,
+            school_id: user.data.school_id,
+            parent_id: user.data.id,
+            parent: 'user'
+          })
+
           API.TeacherAPI.createTeacher({
             ...formData.teacherData.values,
             parent_id: user.data.id,
@@ -385,7 +393,7 @@ const FormComponent = () => {
       setTitle("Update");
       populateTeacherData(id);
     }
-    if (formData.teacherData.validated && formData.addressData.validated) {
+    if (formData.teacherData.validated && formData.addressData.validated && formData.imageData.validated) {
       formData.teacherData.values?.id
         ? updateTeacherAndAddress(formData)
         : createTeacher(formData);

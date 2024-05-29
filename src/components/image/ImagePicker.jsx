@@ -32,7 +32,8 @@ const ImagePicker = ({
     setDeletedImage,
     imageType,
     ENV,
-    multiple = false
+    multiple = false,
+    validation = true
 }) => {
     const image = 'image';
     initialValues[`${image}`] = null;
@@ -40,7 +41,7 @@ const ImagePicker = ({
 
     const formik = useFormik({
         initialValues: initialState,
-        validationSchema: imageValidation,
+        validationSchema: validation === true ? imageValidation : null,
         enableReinitialize: true,
         onSubmit: () => watchForm()
     });
@@ -52,6 +53,7 @@ const ImagePicker = ({
     }));
 
     const watchForm = () => {
+        console.log("formik.error img>>", formik.errors);
         if (onChange) {
             onChange({
                 values: formik.values,
@@ -79,6 +81,8 @@ const ImagePicker = ({
     }, [updatedImage?.length]);
 
     const showPicker = !formik.values[`${image}`]?.length || multiple;
+
+    console.log("imageform formik.errors", formik.errors);
 
     return (
         <Box m="10px">
