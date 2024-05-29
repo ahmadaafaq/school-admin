@@ -22,7 +22,6 @@ import config from '../config';
 import paymentValidation from "./Validation";
 import Toast from "../common/Toast";
 
-import { setPayments } from "../../redux/actions/PaymentAction";
 import { setAllPaymentMethods } from "../../redux/actions/PaymentMethodAction";
 import { Utility } from "../utility";
 
@@ -34,11 +33,11 @@ const initialValues = {
   type_duration: "",
   academic_year: "",
   amount: "",
-  discounted_fee: "",
+  final_amount: "",
+  discount_percent: "",
   late_fee: "",
-  class_fee_by_mapping: "",     //these 3 must be excluded when creating payment
-  current_date: null,
-  extra_fee: ""
+  class_fee_by_mapping: "",     // These 2 must be excluded when creating payment
+  current_date: null
 };
 
 const PaymentFormComponent = ({
@@ -51,19 +50,19 @@ const PaymentFormComponent = ({
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const [schoolPaymentMethods, setSchoolPaymentMethods] = useState([]);
+  const [schoolPaymentData, setSchoolPaymentData] = useState([]);
   const allPaymentMethods = useSelector(state => state.allPaymentMethods);
-  const allPayments = useSelector(state => state.allPayments);    // For payment late fees and fee duration to make logic
-  const toastInfo = useSelector((state) => state.toastInfo);
+  const toastInfo = useSelector(state => state.toastInfo);
 
   const dispatch = useDispatch();
   const isNonMobile = useMediaQuery("(min-width:600px)");
   // const isMobile = useMediaQuery("(max-width:480px)");
   const { state } = useLocation();
-  const { createDivider, createDropdown, createSchoolFee, createSession, fetchAndSetAll, findMultipleById, toastAndNavigate } = Utility();
+  const { createDivider, createDropdown, createSchoolFee, createSession, fetchAndSetAll, findMultipleById } = Utility();
 
   const studentId = state?.id;
-  const studentClass = state.cls;
-  const studentSection = state.section;
+  const studentClass = state?.cls;
+  const studentSection = state?.section;
 
   const formik = useFormik({
     initialValues: initialState,
@@ -89,6 +88,8 @@ const PaymentFormComponent = ({
     }
   };
 
+  let final_amount = Math.ceil((formik.values.amount - (formik.values.amount * formik.values.discount_percent / 100)) +
+    formik.values.late_fee);
   const typeDuration = formik.values.type;    // Variable created after initializing formik
   const renderMonthsDropdown = () => {
     if (typeDuration !== 'annually') {
@@ -105,7 +106,7 @@ const PaymentFormComponent = ({
             value={formik.values.type_duration}
             onChange={event => formik.setFieldValue('type_duration', event.target.value)}
           >
-            {createDropdown(createDivider(typeDuration), allPayments?.listData?.rows[0]?.session_start).map((period, index) => (
+            {createDropdown(createDivider(typeDuration), schoolPaymentData?.session_start).map((period, index) => (
               <MenuItem key={index} value={period}>
                 {period}
               </MenuItem>
@@ -143,6 +144,19 @@ const PaymentFormComponent = ({
   }, []);
 
   useEffect(() => {
+    API.PaymentAPI.getPaymentData(studentClass, studentSection)
+      .then(({ data: res }) => {
+        if (res.status === "Success") {
+          console.log(res.data, 'response');
+          setSchoolPaymentData(...res.data);
+        }
+      })
+      .catch(err => {
+        console.log('error occured in getPaymentData api', err)
+      })
+  }, []);
+
+  useEffect(() => {
     API.SchoolAPI.getSchoolClasses()
       .then(res => {
         const selectedClassData = res.data.filter(item => item.class_id === studentClass &&
@@ -168,31 +182,81 @@ const PaymentFormComponent = ({
     formik.setFieldValue("student_id", studentId);
   }, [studentId]);
 
+  useEffect(() => {
+    const calculateLateFee = (chosenPeriod) => {
+      let lateFeeAmount = 0;
+
+      if (schoolPaymentData) {
+        const currentDate = new Date();
+        formik.setFieldValue("current_date", currentDate);
+
+        // Calculate the payment date based on the current year, month and payment date from school
+        let paymentMonth;
+        const currentYear = currentDate.getFullYear();
+
+        if (chosenPeriod) {
+          paymentMonth = config.months.indexOf(chosenPeriod);
+          if (chosenPeriod.includes('-')) {
+            paymentMonth = config.months.indexOf(chosenPeriod.split('-')[0].trim());
+          }
+        } else {
+          paymentMonth = currentDate.getMonth();
+        }
+        const paymentDate = new Date(currentYear, paymentMonth, schoolPaymentData?.payment_date);
+
+        const paymentDateTime = paymentDate.getTime();
+        const currentDateTime = currentDate.getTime();
+        const timeDiff = currentDateTime - paymentDateTime;
+
+        const feeSession = formik.values.academic_year?.split('-')[1] || currentYear;
+        const schoolPaymentOptions = findMultipleById(schoolPaymentData?.payment_methods, allPaymentMethods?.listData);
+        setSchoolPaymentMethods(schoolPaymentOptions);
+
+        if (timeDiff > 0 && feeSession == currentYear) {
+          switch (schoolPaymentData?.late_fee_duration) {
+            case 'per_day': {
+              const daysLate = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+              lateFeeAmount = daysLate * schoolPaymentData?.classLateFee;
+              break;
+            }
+            case 'per_week': {
+              const weeksLate = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 7));
+              lateFeeAmount = weeksLate * schoolPaymentData?.classLateFee;
+              break;
+            }
+            case 'per_month': {
+              const monthsLate = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 30));
+              lateFeeAmount = monthsLate * schoolPaymentData?.classLateFee;
+              break;
+            }
+            default:
+              break;
+          }
+        } else if (feeSession > currentYear) {
+          lateFeeAmount = 0;
+        }
+
+        if (formik.values.fee === 'school') {
+          formik.setFieldValue("late_fee", lateFeeAmount);
+        } else {
+          formik.setFieldValue("late_fee", 0);
+          formik.setFieldValue('type_duration', "");
+          formik.setFieldValue('type', "");
+          formik.setFieldValue('amount', "");
+        }
+      } else {
+        formik.setFieldValue("late_fee", lateFeeAmount);
+      }
+    };
+
+    calculateLateFee(formik.values.type_duration);
+  }, [schoolPaymentData, formik.values.fee, formik.values.type_duration, formik.values.academic_year]);
 
   useEffect(() => {
-    // current date
-    const dateVar = new Date();
-    formik.setFieldValue("current_date", dateVar);
-
-    // Calculate additional fee if the current date is greater than the payment date
-    if (allPayments?.listData?.rows?.length) {
-      let schoolPaymentOptions;
-      if (dateVar.getDate() > allPayments?.listData?.rows[0]?.payment_date) {
-        const daysElapsed = dateVar.getDate() - allPayments.listData.rows[0].payment_date;
-        const weeksElapsed = Math.ceil(daysElapsed / 7);
-        const additionalFee = weeksElapsed * allPayments?.listData?.rows[0].classLateFee;
-        if (formik.values.fee === 'school') {
-          formik.setFieldValue("late_fee", additionalFee);
-        }
-        schoolPaymentOptions = findMultipleById(allPayments.listData.rows[0]?.payment_methods, allPaymentMethods?.listData);
-        setSchoolPaymentMethods(schoolPaymentOptions);
-        console.log(schoolPaymentOptions, 'schoolPaymentOptions');
-      } else {
-        formik.setFieldValue("late_fee", 0);
-      }
+    if (final_amount) {
+      formik.setFieldValue("final_amount", final_amount);
     }
-  }, [allPayments?.listData?.rows?.length, formik.values.fee]);
-
+  }, [final_amount]);
 
   return (
     <Box m="20px">
@@ -210,7 +274,7 @@ const PaymentFormComponent = ({
             sx={{ minWidth: 120 }}
             error={!!formik.touched.academic_year && !!formik.errors.academic_year}
           >
-            <InputLabel>Academic Year</InputLabel>
+            <InputLabel>Session*</InputLabel>
             <Select
               variant="filled"
               name="academic_year"
@@ -232,7 +296,7 @@ const PaymentFormComponent = ({
             sx={{ minWidth: 120 }}
             error={!!formik.touched.fee && !!formik.errors.fee}
           >
-            <InputLabel>Fee</InputLabel>
+            <InputLabel>Fee*</InputLabel>
             <Select
               name="fee"
               variant="filled"
@@ -252,7 +316,7 @@ const PaymentFormComponent = ({
             sx={{ minWidth: 120 }}
             error={!!formik.touched.type && !!formik.errors.type}
           >
-            <InputLabel>Type</InputLabel>
+            <InputLabel>Type*</InputLabel>
             <Select
               name="type"
               variant="filled"
@@ -279,7 +343,7 @@ const PaymentFormComponent = ({
             variant="filled"
             type="number"
             name="amount"
-            label="Amount"
+            label="Amount*"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             value={formik.values.amount}
@@ -291,7 +355,7 @@ const PaymentFormComponent = ({
             sx={{ minWidth: 120 }}
             error={!!formik.touched.method && !!formik.errors.method}
           >
-            <InputLabel>Payment Method</InputLabel>
+            <InputLabel>Payment Method*</InputLabel>
             <Select
               variant="filled"
               name="method"
@@ -326,16 +390,19 @@ const PaymentFormComponent = ({
             variant="filled"
             type="number"
             label="Discount Percent"
-            name="discounted_fee"
+            name="discount_percent"
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
-            value={formik.values.discounted_fee}
-            error={!!formik.touched.discounted_fee && !!formik.errors.discounted_fee}
-            helperText={formik.touched.discounted_fee && formik.errors.discounted_fee}
+            value={formik.values.discount_percent}
+            error={!!formik.touched.discount_percent && !!formik.errors.discount_percent}
+            helperText={formik.touched.discount_percent && formik.errors.discount_percent}
           />
-          <InputLabel>
-            Final Payment: &#8377; {Math.ceil((formik.values.amount - (formik.values.amount * formik.values.discounted_fee / 100)) +
-              formik.values.late_fee) + " INR."}
+          <InputLabel
+            sx={{
+              fontWeight: '600', fontSize: '16px', justifySelf: 'center'
+            }}
+          >
+            Final Payment: &#8377; {final_amount + " INR."}
           </InputLabel>
         </Box>
         <Toast
@@ -351,7 +418,7 @@ const PaymentFormComponent = ({
 PaymentFormComponent.propTypes = {
   onChange: PropTypes.func,
   refId: PropTypes.shape({
-    current: PropTypes.any,
+    current: PropTypes.any
   }),
   setDirty: PropTypes.func,
   reset: PropTypes.bool,

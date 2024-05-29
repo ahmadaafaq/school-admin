@@ -8,10 +8,10 @@
  */
 
 import API from "../../apis";
+import config from "../config";
 import { displayToast } from "../../redux/actions/ToastAction";
 
-const months = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];      // For createDropdown function
+const { months } = config;
 
 export const Utility = () => {
 

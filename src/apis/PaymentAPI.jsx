@@ -60,6 +60,19 @@ export const PaymentAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updatePayment.name].handleRequestCancellation().signal : undefined,
     });
+  },
+
+  /** Get Payment data required when creating new payment
+   */
+  getPaymentData: async (classId, sectionId, cancel = false) => {
+    return await api.request({
+      url: `/get-payment-data/${classId}/${sectionId}`,
+      method: "GET",
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      signal: cancel ? cancelApiObject[this.getPaymentData.name].handleRequestCancellation().signal : undefined
+    });
   }
 };
 

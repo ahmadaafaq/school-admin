@@ -164,7 +164,7 @@ const ListingComponent = ({ rolePriority = null }) => {
     }
     if (
       getLocalStorage("schoolInfo") &&
-      (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)
+      (!schoolClasses?.listData?.length || !schoolSections?.listData?.length || !classData?.length)
     ) {
       fetchAndSetSchoolData(
         dispatch,

@@ -20,7 +20,6 @@ import ServerPaginationGrid from '../common/Datagrid';
 
 import { datagridColumns } from "./PaymentConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
-// import { setPayments } from "../../redux/actions/PaymentAction";
 import { setAllClasses, setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setAllSections, setSchoolSections } from "../../redux/actions/SectionAction";
 import { setStudents } from "../../redux/actions/StudentAction";
@@ -85,7 +84,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
             }
         }
-        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
+        if (getLocalStorage("schoolInfo") && (!schoolClasses?.listData?.length || !schoolSections?.listData?.length || !classData?.length)) {
             fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
         }
     }, []);
@@ -103,6 +102,7 @@ const ListingComponent = ({ rolePriority = null }) => {
             const selectedSections = classSections.map(
                 ({ section_id, section_name }) => ({ section_id, section_name })
             );
+            console.log(classSectionObj, classConditionObj, classSections, selectedSections, classData, '5 value')
             dispatch(setSchoolSections(selectedSections));
         };
         getAndSetSections();
@@ -238,16 +238,6 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    {/* {rolePriority > 1 && (
-                        <Button
-                            type="submit"
-                            color="success"
-                            variant="contained"
-                            onClick={() => { navigateTo(`/payment/create`) }}
-                            sx={{ height: isTab ? "4vh" : "auto" }}
-                        >
-                            Create New {selected}
-                        </Button>)} */}
                 </Box>
             </Box>
             <ServerPaginationGrid

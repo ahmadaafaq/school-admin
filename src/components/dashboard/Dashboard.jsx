@@ -10,13 +10,15 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import { Box, Typography, useTheme, useMediaQuery } from "@mui/material";
+import { Box, Typography, useTheme, useMediaQuery, Paper } from "@mui/material";
 import Groups3Icon from "@mui/icons-material/Groups3";
 import Diversity3Icon from "@mui/icons-material/Diversity3";
 import EngineeringSharpIcon from "@mui/icons-material/EngineeringSharp";
 import DirectionsBusIcon from "@mui/icons-material/DirectionsBus";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { makeStyles } from '@material-ui/core/styles';
 
 import "../common/index.css";
 import StatBox from "../common/StatBox";
