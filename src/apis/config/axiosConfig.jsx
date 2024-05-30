@@ -37,10 +37,12 @@ api.interceptors.response.use(undefined, (error) => {
   return errorHandler(error);
 });
 
+const schoolInfo = getLocalStorage("schoolInfo");
 //ask for token on every request made
 api.interceptors.request.use(req => {
+  console.log(schoolInfo, 'schoolInfo header')
   req.headers['Type'] = "school-admin";
-  getLocalStorage("schoolInfo") ? req.headers['School_info'] = JSON.stringify(getLocalStorage("schoolInfo")) : null;
+  schoolInfo ? req.headers['School_info'] = JSON.stringify(schoolInfo) : null;
 
   return req;
 });
