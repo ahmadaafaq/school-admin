@@ -25,7 +25,7 @@ const initialValues = {
     description: "",
     publish_date: "",
     expiry_date: "",
-    status: "inactive"
+    status: "active"
 };
 
 const NoticeBoardFormComponent = ({

@@ -36,7 +36,7 @@ const initialValues = {
     viceCaptainSectionId: "",
     teacher_incharge: "",
     strength: "",
-    status: "inactive"
+    status: "active"
 };
 let sectionObj = {};
 

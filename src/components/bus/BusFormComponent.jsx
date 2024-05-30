@@ -26,7 +26,7 @@ const initialValues = {
     conductor_contact: "",
     conductor_aadhaar: "",
     route: "",
-    status: "inactive"
+    status: "active"
 };
 
 const BusFormComponent = ({

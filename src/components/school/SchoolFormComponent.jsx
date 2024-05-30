@@ -52,7 +52,7 @@ const initialValues = {
     affiliation_no: "",
     type: "",
     sub_type: "",
-    status: "inactive",
+    status: "active",
     same_subjects: []
 };
 
