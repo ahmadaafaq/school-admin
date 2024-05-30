@@ -66,13 +66,16 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     }, []);
 
     const createPayment = useCallback(formData => {
+        console.log('inside create payment function')
         setLoading(true);
         // eslint-disable-next-line no-unused-vars
         const { current_date, class_fee_by_mapping, ...modifiedObj } = formData.paymentData.values;
 
         API.PaymentAPI.createPayment(modifiedObj)
             .then(({ data: payment }) => {
+                console.log('inside create payment response', payment)
                 if (payment.status === 'Success') {
+                    console.log('response is success')
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#', true);
                 }
@@ -87,10 +90,12 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     // Create Payment
     useEffect(() => {
         if (formData.paymentData.validated) {
+            console.log('inside payment data validated')
             createPayment(formData);
         } else {
             // setSubmitted(false);
         }
+        console.log('outside payment data validated')
     }, [submitted]);
 
     const handleSubmit = async () => {
