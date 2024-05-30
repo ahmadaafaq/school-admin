@@ -172,7 +172,7 @@ const FormComponent = () => {
           formattedName = formatImageName(image.name);
           API.ImageAPI.uploadImageToS3({
             image: image,
-            folder: `school/${formattedName}`,
+            folder: `teacher/${formattedName}`,
           })
             .then(res => {
               console.log("res", res)
@@ -318,20 +318,21 @@ const FormComponent = () => {
               if (formData.imageData.values.image?.length) {
                 promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                   let formattedName = formatImageName(image.name);
-                  API.ImageAPI.uploadImageToS3({
+                  await API.ImageAPI.uploadImageToS3({
                     image: image,
-                    folder: `school/${formattedName}`,
+                    folder: `teacher/${formattedName}`,
                   })
                     .then(res => {
                       console.log("res", res)
                       if (res.data.status === "Success") {
-                        API.ImageAPI.createImage({
-                          image_src: res.data.data,
-                          school_id: formData.teacherData.values.id,
-                          parent_id: formData.teacherData.values.id,
-                          parent: "teacher",
-                          type: "normal"
-                        })
+                        console.log("res data ",res);
+                        // API.ImageAPI.createImage({
+                        //   image_src: res.data.data,
+                        //   school_id: formData.teacherData.values.id,
+                        //   parent_id: formData.teacherData.values.id,
+                        //   parent: "teacher",
+                        //   type: "normal"
+                        // })
                       }
                     })
                 });

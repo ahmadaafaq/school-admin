@@ -73,7 +73,7 @@ const initialValues = {
   caste_group: "",
   gender: "",
   head: 0,
-  status: "inactive",
+  status: "active",
   is_fee_waiver: false,
   fee_waiver_type: "",
   waived_fees: "",

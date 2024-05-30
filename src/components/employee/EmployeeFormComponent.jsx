@@ -28,7 +28,7 @@ const initialValues = {
     role: "",
     dob: null,
     gender: "",
-    status: "inactive"
+    status: "active"
 };
 
 const EmployeeFormComponent = ({

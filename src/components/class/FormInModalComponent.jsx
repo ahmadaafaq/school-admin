@@ -44,7 +44,7 @@ import formBg from "../assets/formBg.png";
 
 const initialValues = {
   name: "",
-  status: "inactive",
+  status: "active",
   subjects: [],
 };
 

@@ -58,7 +58,7 @@ const initialValues = {
   section: "",
   caste_group: "",
   gender: "",
-  status: "inactive",
+  status: "active",
 };
 
 const TeacherFormComponent = ({
@@ -514,14 +514,14 @@ const TeacherFormComponent = ({
                   {!schoolClasses?.listData?.length
                     ? null
                     : schoolClasses.listData.map((cls) => (
-                        <MenuItem
-                          value={cls.class_id}
-                          name={cls.class_name}
-                          key={cls.class_name}
-                        >
-                          {cls.class_name}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        value={cls.class_id}
+                        name={cls.class_name}
+                        key={cls.class_name}
+                      >
+                        {cls.class_name}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <FormHelperText>
                   {formik.touched.class && formik.errors.class}
@@ -545,14 +545,14 @@ const TeacherFormComponent = ({
                   {!schoolSections?.listData?.length
                     ? null
                     : schoolSections.listData.map((section) => (
-                        <MenuItem
-                          value={section.section_id}
-                          name={section.section_name}
-                          key={section.section_id}
-                        >
-                          {section.section_name}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        value={section.section_id}
+                        name={section.section_name}
+                        key={section.section_id}
+                      >
+                        {section.section_name}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <FormHelperText>
                   {formik.touched.section && formik.errors.section}
@@ -561,7 +561,7 @@ const TeacherFormComponent = ({
             </>
           )}
 
-<FormControl
+          <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
             error={!!formik.touched.nationality && !!formik.errors.nationality}
@@ -668,14 +668,14 @@ const TeacherFormComponent = ({
                     {!schoolClasses?.listData?.length
                       ? null
                       : schoolClasses.listData.map((cls) => (
-                          <MenuItem
-                            value={cls.class_id}
-                            name={cls.class_name}
-                            key={cls.class_id}
-                          >
-                            {cls.class_name}
-                          </MenuItem>
-                        ))}
+                        <MenuItem
+                          value={cls.class_id}
+                          name={cls.class_name}
+                          key={cls.class_id}
+                        >
+                          {cls.class_name}
+                        </MenuItem>
+                      ))}
                   </Select>
                   <FormHelperText>
                     {formik.touched.classes && formik.errors.classes}
@@ -717,7 +717,7 @@ const TeacherFormComponent = ({
                       key={key + sectionIndex}
                       options={
                         schoolSubjects?.listData?.[
-                          formik.values.classes[index]
+                        formik.values.classes[index]
                         ]?.[section.section_id] || []
                       }
                       getOptionLabel={(option) => option.name}
@@ -785,18 +785,18 @@ const TeacherFormComponent = ({
                 {!schoolClasses?.listData?.length
                   ? null
                   : schoolClasses?.listData
-                      .filter(
-                        (cls) => !formik.values.classes.includes(cls.class_id)
-                      ) // Exclude the selected class
-                      .map((cls) => (
-                        <MenuItem
-                          value={cls.class_id}
-                          name={cls.class_name}
-                          key={cls.class_id}
-                        >
-                          {cls.class_name}
-                        </MenuItem>
-                      ))}
+                    .filter(
+                      (cls) => !formik.values.classes.includes(cls.class_id)
+                    ) // Exclude the selected class
+                    .map((cls) => (
+                      <MenuItem
+                        value={cls.class_id}
+                        name={cls.class_name}
+                        key={cls.class_id}
+                      >
+                        {cls.class_name}
+                      </MenuItem>
+                    ))}
               </Select>
               <FormHelperText>
                 {formik.touched.classes && formik.errors.classes}

@@ -43,7 +43,7 @@ const initialValues = {
   designation: "",
   role: "",
   gender: "",
-  status: "inactive",
+  status: "active",
 };
 
 const UserFormComponent = ({
