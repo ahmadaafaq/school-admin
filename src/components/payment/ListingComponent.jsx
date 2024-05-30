@@ -92,7 +92,6 @@ const ListingComponent = ({ rolePriority = null }) => {
     useEffect(() => {
         if (classSectionObj?.class && classSectionObj?.section) {
             getPaginatedData(0, 5, setStudents, API.StudentAPI, classConditionObj);
-            console.log('inside if condition', classSectionObj, classConditionObj)
         }
     }, [classSectionObj?.class, classSectionObj?.section]);
 

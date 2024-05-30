@@ -162,7 +162,6 @@ const PaymentFormComponent = ({
         const selectedClassData = res.data.filter(item => item.class_id === studentClass &&
           item.section_id === studentSection);
         formik.setFieldValue("class_fee_by_mapping", ...selectedClassData);   // If we directly update the amount field here then,
-        console.log(selectedClassData, 'filteredobj')                         // without selecting fee it will show amount
       })
       .catch(err => {
         console.log('error occured in school mapping api', err)

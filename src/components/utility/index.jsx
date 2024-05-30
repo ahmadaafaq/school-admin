@@ -7,6 +7,7 @@
  * restrictions set forth in your license agreement with School CRM.
  */
 
+import axios from "axios";
 import API from "../../apis";
 import config from "../config";
 import { displayToast } from "../../redux/actions/ToastAction";
@@ -548,6 +549,22 @@ export const Utility = () => {
             });
     };
 
+    const getStateCityFromZipCode = async (zipcode) => {
+        return new Promise(resolve => {
+            axios(`https://api.postalpincode.in/pincode/${zipcode}`)
+                .then(({ data: res }) => {
+                    const dataObj = {
+                        city: res[0].PostOffice[0].Block,
+                        state: res[0].PostOffice[0].State
+                    };
+                    resolve(dataObj);
+                })
+                .catch(err => {
+                    resolve(err);
+                });
+        });
+    };
+
     return {
         addClassKeyword,
         appendSuffix,
@@ -577,6 +594,7 @@ export const Utility = () => {
         remLocalStorage,
         setLocalStorage,
         toastAndNavigate,
-        verifyToken
+        verifyToken,
+        getStateCityFromZipCode
     };
 };

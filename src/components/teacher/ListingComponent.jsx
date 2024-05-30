@@ -31,10 +31,6 @@ const pageSizeOptions = [5, 10, 20];
 const ListingComponent = ({ rolePriority = null }) => {
     const selected = useSelector(state => state.menuItems.selected);
     const { listData, loading } = useSelector(state => state.allTeachers);
-    // const [classesData, setClassesData] = useState();
-
-    console.log("listData", listData);
-    console.log("selected", selected)
 
     const theme = useTheme();
     const navigateTo = useNavigate();

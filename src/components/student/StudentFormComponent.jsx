@@ -21,6 +21,7 @@ import {
   FormControlLabel,
   Autocomplete,
   Typography,
+  useTheme
 } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -44,8 +45,14 @@ const initialValues = {
   firstname: "",
   lastname: "",
   mother_name: "",
+  mother_contact_no: "",
+  mother_aadhar: "",
   father_name: "",
-  guardian: "",
+  father_contact_no: "",
+  father_aadhar: "",
+  guardian_name: "",
+  guardian_contact_no:"",
+  guardian_aadhar:"",
   contact_no: "",
   email: "",
   class: "",
@@ -92,10 +99,9 @@ const StudentFormComponent = ({
   const allBuses = useSelector((state) => state.allBuses);
   const [iCardDetails, setICardDetails] = useState({});
 
-  console.log("Bus data", allBuses);
-
   const dispatch = useDispatch();
   const genderRef = useRef();
+  const theme = useTheme()
   const checkboxLabel = { inputProps: { "aria-label": "Checkboxes" } };
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const isMobile = useMediaQuery("(max-width:480px)");
@@ -243,8 +249,6 @@ const StudentFormComponent = ({
     }
   }, [formik.values?.class, classData?.length]);
 
-  console.log("subjects>>>", formik.values.subjects);
-
   return (
     <Box m="20px">
       <form ref={refId}>
@@ -304,7 +308,7 @@ const StudentFormComponent = ({
             error={!!formik.touched.lastname && !!formik.errors.lastname}
             helperText={formik.touched.lastname && formik.errors.lastname}
           />
-          <TextField
+          {/* <TextField
             fullWidth
             variant="filled"
             type="text"
@@ -339,7 +343,7 @@ const StudentFormComponent = ({
             value={formik.values.guardian}
             error={!!formik.touched.guardian && !!formik.errors.guardian}
             helperText={formik.touched.guardian && formik.errors.guardian}
-          />
+          /> */}
           <TextField
             fullWidth
             variant="filled"
@@ -879,6 +883,188 @@ const StudentFormComponent = ({
                 />
               )}
           </Box>
+
+          <fieldset style={{
+            border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+            borderRadius: "10px",
+            padding: "10px",
+            margin: "5px 0px 5px 0px",
+            gridColumnStart: 1,
+            gridColumn: "span 4"
+          }}>
+            <legend style={{
+              color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+              fontWeight: "bold",
+              padding: "5px",
+              fontSize: "larger"
+            }}>
+              Mother's Details
+            </legend>
+            <Box
+              display='grid'
+              gap="30px"
+              gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                name="mother_name"
+                label="Mother's Name*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.mother_name}
+                error={!!formik.touched.mother_name && !!formik.errors.mother_name}
+                helperText={formik.touched.mother_name && formik.errors.mother_name}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="mother_contact_no"
+                label="Mother Contact Number*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.mother_contact_no}
+                error={!!formik.touched.mother_contact_no && !!formik.errors.mother_contact_no}
+                helperText={formik.touched.mother_contact_no && formik.errors.mother_contact_no}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="mother_aadhar"
+                label="Mother Aadhar*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.mother_aadhar}
+                error={!!formik.touched.mother_aadhar && !!formik.errors.mother_aadhar}
+                helperText={formik.touched.mother_aadhar && formik.errors.mother_aadhar}
+              />
+            </Box>
+          </fieldset>
+
+          <fieldset style={{
+            border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+            borderRadius: "10px",
+            padding: "10px",
+            margin: "5px 0px 5px 0px",
+            gridColumnStart: 1,
+            gridColumn: "span 4"
+          }}>
+            <legend style={{
+              color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+              fontWeight: "bold",
+              padding: "5px",
+              fontSize: "larger"
+            }}>
+              Father's Details
+            </legend>
+            <Box
+              display='grid'
+              gap="30px"
+              gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                name="father_name"
+                label="Father's Name*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.father_name}
+                error={!!formik.touched.father_name && !!formik.errors.father_name}
+                helperText={formik.touched.father_name && formik.errors.father_name}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="father_contact_no"
+                label="Father's Contact Number*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.father_contact_no}
+                error={!!formik.touched.father_contact_no && !!formik.errors.father_contact_no}
+                helperText={formik.touched.father_contact_no && formik.errors.father_contact_no}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="father_aadhar"
+                label="Father's Aadhar*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.father_aadhar}
+                error={!!formik.touched.father_aadhar && !!formik.errors.father_aadhar}
+                helperText={formik.touched.father_aadhar && formik.errors.father_aadhar}
+              />
+            </Box>
+          </fieldset>
+
+          <fieldset style={{
+            border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+            borderRadius: "10px",
+            padding: "10px",
+            margin: "5px 0px 10px 0px",
+            gridColumnStart: 1,
+            gridColumn: "span 4"
+          }}>
+            <legend style={{
+              color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+              fontWeight: "bold",
+              padding: "5px",
+              fontSize: "larger"
+            }}>
+              Gurdian's Details ( if any )
+            </legend>
+            <Box
+              display='grid'
+              gap="30px"
+              gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                name="guardian_name"
+                label="Guardian's Name*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.guardian_name}
+                error={!!formik.touched.guardian_name && !!formik.errors.guardian_name}
+                helperText={formik.touched.guardian_name && formik.errors.guardian_name}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="guardian_contact_no"
+                label="Guardian's Contact Number*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.guardian_contact_no}
+                error={!!formik.touched.guardian_contact_no && !!formik.errors.guardian_contact_no}
+                helperText={formik.touched.guardian_contact_no && formik.errors.guardian_contact_no}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="guardian_aadhar"
+                label="Guardian's Aadhar*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.guardian_aadhar}
+                error={!!formik.touched.guardian_aadhar && !!formik.errors.guardian_aadhar}
+                helperText={formik.touched.guardian_aadhar && formik.errors.guardian_aadhar}
+              />
+            </Box>
+          </fieldset>
+
+
         </Box>
       </form>
       <Toast

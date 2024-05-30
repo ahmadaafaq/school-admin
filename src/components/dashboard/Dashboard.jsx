@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Box, Typography, useTheme, useMediaQuery, Paper } from "@mui/material";
 import Groups3Icon from "@mui/icons-material/Groups3";
@@ -37,6 +37,7 @@ import schoolCountBg from "../assets/schoolCountBg.jpg";
 const Dashboard = ({ rolePriority = null }) => {
   const [dashboardCount, setDashboardCount] = useState({});
   const [schoolCapacity, setSchoolCapacity] = useState("");
+  const [graphData, setGraphData] = useState();
   const theme = useTheme();
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
@@ -46,12 +47,25 @@ const Dashboard = ({ rolePriority = null }) => {
 
   const { getLocalStorage } = Utility();
 
+  console.log("datain admin", graphData);
+
+  const useStyles = makeStyles((theme) => ({
+    paper: {
+      padding: theme.spacing(2),
+      margin: 'auto',
+      backgroundColor: "lightblue"
+    },
+  }));
+
+
+  const classes = useStyles();
+
   const dashboardAttributes =
     rolePriority === 1
       ? ["student", "school", "teacher", "employee"]
       : rolePriority !== 1
-      ? ["student", "bus", "teacher", "employee"]
-      : null;
+        ? ["student", "bus", "teacher", "employee"]
+        : null;
 
   const options1 = {
     chart: {
@@ -157,19 +171,19 @@ const Dashboard = ({ rolePriority = null }) => {
     const promises =
       dashboardAttributes !== null
         ? dashboardAttributes.map((attribute) =>
-            API.DashboardAPI.getDashboardCount(attribute)
-              .then((data) => {
-                if (data.status === "Success") {
-                  return { [attribute]: data.data };
-                } else if (data.status === "Error") {
-                  return { [attribute]: 0 };
-                }
-                // Run this if the status is neither 'Success' nor 'Error'
-                return { [attribute]: 0, error: "Unexpected status" };
-              })
-              //Creating an object where attribute is the key and retrieved data is the value.
-              .catch((error) => ({ [attribute]: 0, error }))
-          )
+          API.DashboardAPI.getDashboardCount(attribute)
+            .then((data) => {
+              if (data.status === "Success") {
+                return { [attribute]: data.data };
+              } else if (data.status === "Error") {
+                return { [attribute]: 0 };
+              }
+              // Run this if the status is neither 'Success' nor 'Error'
+              return { [attribute]: 0, error: "Unexpected status" };
+            })
+            //Creating an object where attribute is the key and retrieved data is the value.
+            .catch((error) => ({ [attribute]: 0, error }))
+        )
         : null;
 
     Promise.all(promises)
@@ -188,6 +202,37 @@ const Dashboard = ({ rolePriority = null }) => {
       setSchoolCapacity(getLocalStorage("auth")?.school_capacity);
     }
   }, [getLocalStorage("auth")]);
+
+  useEffect(() => {
+    if (rolePriority !== 1) {
+      API.DashboardAPI.getStudentGraphData()
+        .then((data) => {
+          if (data.status === "Success") {
+            console.log("daatagraph>>", data.data);
+            setGraphData(data.data)
+          }
+        })
+        .catch(error => {
+          console.error("API error:", error);
+        });
+    } else if (rolePriority === 1) {
+      const data = [
+        { name: 'Class A', passingPercentage: 80 },
+        { name: 'Class B', passingPercentage: 75 },
+        { name: 'Class C', passingPercentage: 90 },
+        { name: 'Class D', passingPercentage: 85 },
+        { name: 'Class A', passingPercentage: 80 },
+        { name: 'Class B', passingPercentage: 75 },
+        { name: 'Class C', passingPercentage: 90 },
+        { name: 'Class D', passingPercentage: 85 },
+        { name: 'Class A', passingPercentage: 80 },
+        { name: 'Class B', passingPercentage: 75 },
+        { name: 'Class C', passingPercentage: 90 },
+        { name: 'Class D', passingPercentage: 85 },
+      ];
+      setGraphData(data);
+    }
+  }, [])
 
   return (
     <Box
@@ -227,21 +272,15 @@ const Dashboard = ({ rolePriority = null }) => {
       <Box
         display="grid"
         gridTemplateColumns={
-          isMobile
-            ? "repeat(2, minmax(0, 1fr))"
-            : isTab
-            ? "repeat(2, minmax(0, 1fr))"
-            : "repeat(4, minmax(0, 1fr))"
+          isMobile ? "repeat(2, minmax(0, 1fr))" : isTab ? "repeat(2, minmax(0, 1fr))" : "repeat(4, minmax(0, 1fr))"
         }
         gridTemplateRows={
           isMobile ? "0.1fr 0.1fr 2fr 2fr" : isTab ? "1fr 1fr 2fr 2fr" : ""
         }
         gridTemplateAreas={
-          isMobile
-            ? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"`
-            : isTab
-            ? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"`
-            : `"box1 box2 box3 box4" "chart1 chart1 chart2 chart2"`
+          isMobile ? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"`
+            : isTab ? `"box1 box2" "box3 box4" "chart1 chart1" "chart2 chart2"` :
+              `"box1 box2 box3 box4" "chart1 chart1 chart2 chart2"`
         }
         gap={isMobile ? "15px" : "30px"}
         margin={isMobile ? "10px" : "20px"}
@@ -428,21 +467,54 @@ const Dashboard = ({ rolePriority = null }) => {
 
         <Box
           sx={{
-            width: isMobile ? "100%" : isTab ? "100%" : rolePriority ===1 ? "200%" : "135%" ,
+            width: isMobile ? "100%" : isTab ? "100%" : rolePriority === 1 ? "200%" : "135%",
             gridArea: "chart1",
             boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;",
             borderRadius: "20px",
             overflow: "hidden",
           }}
         >
-          <HighchartsReact highcharts={Highcharts} options={options1} />
+          <Paper className={classes.paper}>
+            <ResponsiveContainer width="100%" height={375}>
+              <BarChart
+                data={graphData}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey={rolePriority === 1 ? "name" : "class_name"} />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <defs>
+                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8884d8" stopOpacity={1} />
+                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Bar
+                  dataKey={rolePriority === 1 ? "passingPercentage" : "passing_percentage"}
+                  fill="url(#colorGradient)"
+                  radius={[10, 10, 0, 0]}
+                  strokeWidth={2}
+                  stroke="darkblue"
+                  animationDuration={1000}
+                  animationBegin={0}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
         </Box>
 
-        {rolePriority !==1 && <Box
+        {rolePriority !== 1 && <Box
           sx={{
             height: isMobile ? "100%" : isTab ? "100%" : "100%",
             width: isMobile ? "100%" : isTab ? "100%" : "70%",
-            marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "30%",
+            marginLeft: isMobile ? "0vh" : isTab ? "0vh" : "35%",
             gridArea: "chart2",
             boxShadow: "rgb(38, 57, 77) 0px 20px 30px -10px;",
             borderRadius: "20px",
