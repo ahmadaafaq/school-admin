@@ -1,0 +1,1 @@
+import{X as s}from"./index-zLCHO5gj.js";const e=t=>({type:s.SET_LISTING_SUBJECTS,payload:t}),o=t=>({type:s.SET_SCHOOL_SUBJECTS,payload:t}),a=t=>({type:s.SET_ALL_SUBJECTS,payload:t});export{o as a,e as b,a as s};
