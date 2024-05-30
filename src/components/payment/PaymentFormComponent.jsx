@@ -90,32 +90,37 @@ const PaymentFormComponent = ({
 
   let final_amount = Math.ceil((formik.values.amount - (formik.values.amount * formik.values.discount_percent / 100)) +
     formik.values.late_fee);
+
   const typeDuration = formik.values.type;    // Variable created after initializing formik
   const renderMonthsDropdown = () => {
-    if (typeDuration !== 'annually') {
-      return (
-        <FormControl
-          variant="filled"
-          sx={{ minWidth: 120 }}
-          error={!!formik.touched.type_duration && !!formik.errors.type_duration}
-        >
-          <InputLabel>Period</InputLabel>
-          <Select
-            name="type_duration"
-            variant="filled"
-            value={formik.values.type_duration}
-            onChange={event => formik.setFieldValue('type_duration', event.target.value)}
-          >
-            {createDropdown(createDivider(typeDuration), schoolPaymentData?.session_start).map((period, index) => (
-              <MenuItem key={index} value={period}>
-                {period}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText> {formik.touched.type_duration && formik.errors.type_duration} </FormHelperText>
-        </FormControl>
-      );
+    if (!schoolPaymentData) {
+      return <div>Loading...</div>;
     }
+    if (typeDuration === 'annually') {
+      return null;
+    }
+    return (
+      <FormControl
+        variant="filled"
+        sx={{ minWidth: 120 }}
+        error={!!formik.touched.type_duration && !!formik.errors.type_duration}
+      >
+        <InputLabel>Period</InputLabel>
+        <Select
+          name="type_duration"
+          variant="filled"
+          value={formik.values.type_duration}
+          onChange={event => formik.setFieldValue('type_duration', event.target.value)}
+        >
+          {createDropdown(createDivider(typeDuration), schoolPaymentData?.session_start).map((period, index) => (
+            <MenuItem key={index} value={period}>
+              {period}
+            </MenuItem>
+          ))}
+        </Select>
+        <FormHelperText> {formik.touched.type_duration && formik.errors.type_duration} </FormHelperText>
+      </FormControl>
+    );
   };
 
   useEffect(() => {
