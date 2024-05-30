@@ -26,8 +26,11 @@ const checkoutSchema = yup.object().shape({
     contact_no: yup.string()
         .matches(phoneRegExp, "Phone Number Is Not Valid")
         .required("This Field is Required"),
-    gender: yup.string(),
-    status: yup.string()
+    classes: yup.array().min(1, "At least 1 Class is Required")
+        .required("required"),
+    sections: yup.array().min(1, "At least 1 section is Required")
+        .required("required")
+
 });
 
 export default checkoutSchema;
