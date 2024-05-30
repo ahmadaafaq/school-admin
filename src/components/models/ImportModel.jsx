@@ -41,12 +41,13 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [importedFile, setImportedFile] = useState(undefined);
     const [students, setStudents] = useState([]);
     const [fileName, setFileName] = useState('');
+    const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode, toastAndNavigate } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate, generatePassword } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
 
@@ -64,7 +65,11 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 const sheets = wb.SheetNames;
                 if (sheets.length) {
                     const rows = utils.sheet_to_json(wb.Sheets[sheets[0]]);
-                    setStudents(rows)
+                    setStudents(rows);
+                    setUploadingRecord({
+                        ...uploadingRecord,
+                        count: sheets.length
+                    })
                 }
             }
             reader.readAsArrayBuffer(importedFile);
@@ -75,78 +80,143 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         return new Promise(resolve => {
             API.getIdByName(attrName)
                 .then(res => {
-                    if (res.status == "Success") {
+                    if (res.status === "Success") {
                         resolve(res.data);
+                    } else {
+                        resolve(new Error(`API call unsuccessful: ${res.status}`));
                     }
+                })
+                .catch(error => {
+                    resolve(new Error(`API call failed: ${error.message}`));
                 });
         });
     }
 
-    useEffect(() => {
+    const excelSerialToDate = async (serial) => {
+        if (serial === undefined || serial === null) {
+            return "00-00-0000";
+        }
 
+        if (!serial.toString().includes("/") && !serial.toString().includes("-")) {
+            const excelEpoch = new Date(1900, 0, 1); // January 1, 1900
+            const daysOffset = serial - 2; // Excel mistakenly considers 1900 a leap year, so subtract 2 days
+            const date = new Date(excelEpoch.getTime() + daysOffset * 24 * 60 * 60 * 1000);
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based in JS
+            const year = date.getFullYear();
+
+            return `${day}-${month}-${year}`;
+        }
+        return serial;
+    }
+
+    useEffect(() => {
         if (students?.length) {
-            setLoading(true);
 
             const promises = students.map(async (student) => {
                 try {
+                    setLoading(true);
                     const apiResponse = await getStateCityFromZipCode(student.zipcode);
 
-                    const cityName = apiResponse.city;
-                    const stateName = apiResponse.state;
+                    const cityName = await apiResponse.city;
+                    const stateName = await apiResponse.state;
+                    const studentDobSerial = student.dob;
+                    const studentAddmissionSerial = student.admission_date;
 
                     const state_id = await getIdByName(stateName, API.StateAPI);
                     const city_id = await getIdByName(cityName, API.CityAPI);
                     const class_id = await getIdByName(student.class, API.ClassAPI);
                     const section_id = await getIdByName(student.section, API.SectionAPI);
+                    const studentDob = await excelSerialToDate(studentDobSerial);
+                    const studentAddmissionDate = await excelSerialToDate(studentAddmissionSerial);
+
+                    console.log("student", studentDob);
+
+                    console.log("ids", state_id, section_id, city_id, class_id)
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    const password = `${username}${ENV.VITE_SECRET_CODE}`;
+                    if (username && state_id && city_id && class_id && section_id && student.email) {
+                        const password = generatePassword();
 
-                    const { data: user } = await API.UserAPI.register({
-                        username: username,
-                        password: password,
-                        email: student?.email,
-                        contact_no: student?.contact_no,
-                        role: 5,
-                        designation: 'parent',
-                        status: 'active'
-                    });
-
-                    if (user.status === 'Success') {
-                        const { data: res } = await API.StudentAPI.createStudent({
-                            ...student,
-                            parent_id: user.data.id,
-                            class: class_id,
-                            section: section_id
+                        const { data: user, status } = await API.CommonAPI.createOrUpdate({
+                            username: username,
+                            password: password,
+                            email: student?.email,
+                            contact_no: student?.contact_no,
+                            role: 5,
+                            designation: 'parent',
+                            status: 'active'
+                        }, 'user', {
+                            designation: 'parent',
+                            username: username,
+                            email: student.email,
+                            contact_no: student.contact_no
                         });
+                        console.log("user, status", user, status);
 
-                        API.AddressAPI.createAddress({
-                            parent_id: res.data.id,
-                            parent: 'student',
-                            street: student.street,
-                            landmark: student.landmark,
-                            zipcode: student.zipcode,
-                            state: state_id,
-                            city: city_id,
-                            country: 2
+                        if (status === 'Success') {
+                            API.CommonAPI.createOrUpdate({
+                                parent_id: user.id,
+                                parent: 'user',
+                                street: student.street,
+                                landmark: student.landmark,
+                                zipcode: student.zipcode,
+                                state: state_id,
+                                city: city_id,
+                                country: 2
+                            }, 'address', {
+                                parent: 'user',
+                                parent_id: user.id
+                            });
+                            
+                            let condition = {
+                                parent_id: user.id,
+                                firstname: student.firstname
+                            }
+                            console.log("create/update student", student.firstname);
+                            const { data: stud } = await API.CommonAPI.createOrUpdate({
+                                ...student,
+                                parent_id: user.id,
+                                class: class_id,
+                                section: section_id,
+                                status: 'active',
+                                dob: studentDob ? studentDob.replace(/\//g, "-") : null,
+                                admission_date: studentAddmissionDate ? studentAddmissionDate.replace(/\//g, "-") : null
+                            }, 'student', condition);
+
+                            API.CommonAPI.createOrUpdate({
+                                parent_id: stud.id,
+                                parent: 'student',
+                                street: student.street,
+                                landmark: student.landmark,
+                                zipcode: student.zipcode,
+                                state: state_id,
+                                city: city_id,
+                                country: 2
+                            }, 'address', {
+                                parent: 'student',
+                                parent_id: stud.id
+                            });
+                            setUploadingRecord({
+                                ...uploadingRecord,
+                                count: uploadingRecord.count--,
+                                name: student.firstname,
+                                skip: false
+                            });
+                        }
+                    } else {
+                        setUploadingRecord({
+                            ...uploadingRecord,
+                            count: uploadingRecord.count--,
+                            name: student.firstname,
+                            skip: true
                         });
                     }
                 } catch (error) {
-
-                    if (error.message.includes("getStateCityFromZipCode")) {
-                        console.error("Error in getStateCityFromZipCode API:", error);
-                    } else if (error.message.includes("getIdByName")) {
-                        console.error("Error in getIdByName API:", error);
-                    } else if (error.message.includes("register")) {
-                        console.error("Error in UserAPI.register:", error);
-                    } else if (error.message.includes("createStudent")) {
-                        console.error("Error in StudentAPI.createStudent:", error);
-                    } else if (error.message.includes("createAddress")) {
-                        console.error("Error in AddressAPI.createAddress:", error);
-                    } else {
-                        console.error("Unknown error occurred:", error);
+                    if (error) {
+                        console.error("Error in API:", error);
                     }
-                    throw error;
                 }
             });
 
@@ -154,19 +224,18 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 .then(() => {
                     console.log("All operations completed successfully.");
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/student/listing');
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#', true);
                 })
                 .catch(error => {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                    console.error("At least one operation failed:", error);
+                    toastAndNavigate(dispatch, true, "error", error ? error?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
+                    console.log("At least one operation failed:", error);
                 })
-                .finally(() => {
-                    setLoading(false);
-                });
         }
 
     }, [students?.length]);
+
+    console.log("uploading>>", uploadingRecord.name, uploadingRecord.count);
 
     return (
         <div >
@@ -229,7 +298,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://fastupload.io/eae890a3c885a13a" download target="_blank">
+                            <a href="#" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}
@@ -243,15 +312,28 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             </a>
 
                             <Box>
-                                <Button color="error" variant="contained" sx={{ mr: 3 }}
-                                    onClick={() => setOpenDialog(false)}>
-                                    Cancel
-                                </Button>
-                                <Button type="submit"
-                                    color="success" variant="contained"
-                                >
-                                    Submit
-                                </Button>
+                                {!loading &&
+                                    <Box>
+                                        <Button color="error" variant="contained" sx={{ mr: 3 }}
+                                            onClick={() => setOpenDialog(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button type="submit"
+                                            color="success" variant="contained"
+                                        >
+                                            Submit
+                                        </Button>
+                                    </Box>
+                                }
+                                <Typography id="uploading">
+                                    {`Importing: ${uploadingRecord.name}`}
+                                    {`Remaining: ${uploadingRecord.count}`}
+                                </Typography>
+                                {uploadingRecord.skip &&
+                                    <Typography id="uploading">
+                                        {`Skipping: ${uploadingRecord.name}`}
+                                    </Typography>
+                                }
                                 <Toast alerting={toastInfo.toastAlert}
                                     severity={toastInfo.toastSeverity}
                                     message={toastInfo.toastMessage}

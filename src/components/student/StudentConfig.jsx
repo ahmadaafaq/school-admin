@@ -65,7 +65,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 150,
             // this function combines the values of firstname and lastname into one string
             valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''} ${capitalizeEveryWord(params.row.lastname)|| ''}`
         },
@@ -75,18 +75,18 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
+            minWidth: 150,
             renderCell: (params) => {
                 let className;
                 let sectionName;
 
-                if (allClasses?.listData?.length || allSections?.listData?.length) {
+                if (allClasses.listData.length && allSections.listData.length) {
                     className = findById(params?.row?.class, allClasses?.listData)?.class_name;
                     sectionName = findById(params?.row?.section, allSections?.listData)?.section_name;
-                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+                } else if (schoolClasses.listData.length && schoolSections.listData.length) {
                     className = findById(params?.row?.class, schoolClasses?.listData)?.class_name;
                     sectionName = findById(params?.row?.section, schoolSections?.listData)?.section_name;
-                }
+                } 
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}
@@ -100,7 +100,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 150
         },
         {
             field: "dob",
@@ -108,8 +108,8 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
-            valueFormatter: (params) => `${ formatDate(params.value)}`
+            minWidth: 150,
+            valueFormatter: (params) => `${formatDate(params.value)}`
         },
         {
             field: "status",
@@ -117,7 +117,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 150,
             renderCell: ({ row: { status } }) => {
                 return (
                     <Box
@@ -149,7 +149,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 75,
+            minWidth: 100,
             renderCell: ({ row: { id } }) => {
                 return (
                     <Box width="85%"

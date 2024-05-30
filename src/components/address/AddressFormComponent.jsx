@@ -61,6 +61,7 @@ const AddressFormComponent = ({
     }));
 
     const watchForm = () => {
+        console.log("formik. errors address>>>", formik.errors);
         if (onChange) {
             onChange({
                 values: formik.values,
@@ -71,6 +72,8 @@ const AddressFormComponent = ({
             });
         }
     };
+
+    console.log("addressform formik.errors", formik.errors);
 
     useEffect(() => {
         if (reset) {
@@ -123,7 +126,6 @@ const AddressFormComponent = ({
                             setStates([]);
                             setCities([]);
                             formik.setFieldValue("state", 0);
-                            formik.setFieldValue("city", 0);
                         }
                     })
                     .catch(err => {
@@ -135,25 +137,17 @@ const AddressFormComponent = ({
     }, [formik.values.country, countryId]);
 
     useEffect(() => {
-        if (stateId) {
-            getCities();
-        }
-    }, [stateId]);
-
-    const getCities = useCallback(() => {
+        console.log('get city');
         API.CityAPI.getCities(formik.values.state || stateId)
             .then(cities => {
                 if (cities?.status === 'Success') {
                     setCities(cities.data.list);
                 } else {
                     setCities([]);
-                    formik.setFieldValue("city", 0);
                 }
             })
             .catch(err => {
                 setCities([]);
-                formik.setFieldValue("city", 0);
-                console.log('Error getting cities', err);
             });
     }, [formik.values.state, stateId]);
 
@@ -192,6 +186,15 @@ const AddressFormComponent = ({
             }
         }
     }, [formik.values?.city]);
+
+    useEffect(() => {
+        if (cities.length) {
+            formik.setFieldValue("city", updatedValues?.city);
+            setCityId(updatedValues?.city);
+        }
+    }, [cities.length]);
+
+    console.log('formik.values.state', formik.values.state);
 
     return (
         <Box m="20px" marginBottom="60px">
@@ -279,14 +282,14 @@ const AddressFormComponent = ({
                             id="city"
                             name="city"
                             variant="filled"
-                            value={formik.values.city}
+                            value={formik.values.city || updatedValues?.city}
                             onChange={event => {
                                 setCityId(event.target.value);
                                 formik.setFieldValue("city", event.target.value);
                             }}
                         >
                             {cities.map(item => (
-                                <MenuItem value={item.id} key={item.name} name={item.name}>
+                                <MenuItem value={item.id} key={item.id} name={item.name}>
                                     {item.name}
                                 </MenuItem>
                             ))}

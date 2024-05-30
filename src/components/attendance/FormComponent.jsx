@@ -73,7 +73,6 @@ const FormComponent = () => {
     generatePassword,
     isObjEmpty,
     toastAndNavigate,
-    uploadFile
   } = Utility();
 
   //after page refresh the id in router state becomes undefined, so getting teacher id from url params
@@ -128,7 +127,6 @@ const FormComponent = () => {
     //         console.log("Deleted normal image from azure");
     //     });
     // }
-    console.log("formdata teacher",formData )
     let updatePromises = [];
     let status = null;
 
@@ -161,47 +159,40 @@ const FormComponent = () => {
 
     try {
       let formattedName;
-      // delete all images from db on every update and later insert new and old again
-      await API.ImageAPI.deleteImage({
-        parent: "teacher",
-        parent_id: id,
-      });
-      // upload new images to backend folder and insert in db
-      if (formData.imageData?.values?.image) {
-        Array.from(formData.imageData.values.image).map(async image => {
-          formattedName = formatImageName(image.name);
-          API.ImageAPI.uploadImageToS3({
-            image: image,
-            folder: `school/${formattedName}`,
-          })
-            .then(res => {
-              console.log("res", res)
-              if (res.data.status === "Success") {
-                API.ImageAPI.createImage({
-                  image_src: res.data.data,
-                  school_id: formData.teacherData.values.id,
-                  parent_id: formData.teacherData.values.id,
-                  parent: "teacher",
-                  type: "normal"
-                })
-              }
-            })
+        // delete all images from db on every update and later insert new and old again
+        await API.ImageAPI.deleteImage({
+          parent: "teacher",
+          parent_id: id,
         });
-      }
-      // insert old images only in db & not on azure
-      if (formData.imageData.values.constructor === Array) {
-        formData.imageData.values.map(oldIimage => {
-          API.ImageAPI.createImage({
-            image_src: oldIimage.image_src,
-            school_id: oldIimage.school_id,
-            parent_id: oldIimage.parent_id,
-            parent: oldIimage.parent,
-            type: oldIimage.type,
+        // upload new images to backend folder and insert in db
+        if (formData.imageData?.values?.image) {
+          Array.from(formData.imageData.values.image).map((image) => {
+            formattedName = formatImageName(image.name);
+            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+            API.ImageAPI.createImage({
+              image_src: formattedName,
+              school_id: formData.teacherData.values.id,
+              parent_id: formData.teacherData.values.id,
+              parent: "teacher",
+              type: "normal"
+            });
           });
-        });
-        status = true;
-      }
-
+          status = true;
+        }
+        // insert old images only in db & not on azure
+        if (formData.imageData.values.constructor === Array) {
+          formData.imageData.values.map(oldIimage => {
+            API.ImageAPI.createImage({
+              image_src: oldIimage.image_src,
+              school_id: oldIimage.school_id,
+              parent_id: oldIimage.parent_id,
+              parent: oldIimage.parent,
+              type: oldIimage.type,
+            });
+          });
+          status = true;
+        }
+      
       if (status) {
         setLoading(false);
         toastAndNavigate(
@@ -281,13 +272,6 @@ const FormComponent = () => {
     })
       .then(({ data: user }) => {
         if (user?.status === "Success") {
-          API.AddressAPI.createAddress({
-            ...formData.addressData.values,
-            school_id: user.data.school_id,
-            parent_id: user.data.id,
-            parent: 'user'
-          })
-
           API.TeacherAPI.createTeacher({
             ...formData.teacherData.values,
             parent_id: user.data.id,
@@ -318,22 +302,14 @@ const FormComponent = () => {
               if (formData.imageData.values.image?.length) {
                 promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                   let formattedName = formatImageName(image.name);
-                  API.ImageAPI.uploadImageToS3({
-                    image: image,
-                    folder: `school/${formattedName}`,
-                  })
-                    .then(res => {
-                      console.log("res", res)
-                      if (res.data.status === "Success") {
-                        API.ImageAPI.createImage({
-                          image_src: res.data.data,
-                          school_id: formData.teacherData.values.id,
-                          parent_id: formData.teacherData.values.id,
-                          parent: "teacher",
-                          type: "normal"
-                        })
-                      }
-                    })
+                  API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
+                  API.ImageAPI.createImage({
+                    image_src: formattedName,
+                    school_id: school.data.school_id,
+                    parent_id: teacher.data.id,
+                    parent: "teacher",
+                    type: "normal"
+                  });
                 });
               }
 
@@ -393,7 +369,7 @@ const FormComponent = () => {
       setTitle("Update");
       populateTeacherData(id);
     }
-    if (formData.teacherData.validated && formData.addressData.validated && formData.imageData.validated) {
+    if (formData.teacherData.validated && formData.addressData.validated) {
       formData.teacherData.values?.id
         ? updateTeacherAndAddress(formData)
         : createTeacher(formData);

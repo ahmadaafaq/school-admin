@@ -61,7 +61,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                 studentImageRef.current.push(result);
             });
         } else if (iCardDetails?.imageData) {    //this condition will run when populating data
-            const imageUrl = `${ENV.VITE_BASE_URL}/get-uploaded-image/${iCardDetails?.imageData[0]?.image_src}`;
+            const imageUrl = `${iCardDetails?.imageData[0]?.image_src}`;
             if (!studentImageRef.current.includes(imageUrl)) {      //it was concatenating the same url multiple times
                 studentImageRef.current.push(imageUrl);
             }

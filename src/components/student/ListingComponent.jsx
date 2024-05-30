@@ -69,6 +69,7 @@ const ListingComponent = ({ rolePriority = null }) => {
   const classId = URLParams ? URLParams.classId : null; // grab class id from url
   const sectionName = findById(studentDetail?.studentData?.section, formSectionsInRedux?.listData)?.section_name;
   const className = findById(studentDetail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
+  const importBtn = true;
 
   let classConditionObj = classId
     ? { classId: classId }
@@ -246,7 +247,9 @@ const ListingComponent = ({ rolePriority = null }) => {
         api={API.StudentAPI}
         getQuery={getPaginatedData}
         columns={datagridColumns(rolePriority, setOpenModal)}
+        rolePriority={rolePriority}
         condition={classConditionObj}
+        importBtn={importBtn}
         rows={listData.rows}
         count={listData.count}
         loading={loading}

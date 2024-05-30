@@ -40,8 +40,8 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         schoolData: { values: null, validated: false },
         addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true },
-        bannerImageData: { values: null, validated: true }
+        imageData: { values: null, validated: false },
+        bannerImageData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [deletedImage, setDeletedImage] = useState([]);
@@ -89,6 +89,7 @@ const FormComponent = () => {
     }, []);
 
     const updateSchoolAndAddress = useCallback(async formData => {
+        console.log("formdata school>>>",formData);
         setLoading(true);
         const paths = [];
         const dataFields = [];
@@ -150,7 +151,7 @@ const FormComponent = () => {
 
                 // Iterating through each section in the class then associating subject ids for each section of class
                 return Promise.all(innerArray.map(async (sectionData, sectionIndex) => {
-                    const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
+                    const subjectArray = formData.schoolData.values.subjects[classIndex] ? formData.schoolData.values.subjects[classIndex][sectionIndex] : [];
                     await API.SchoolAPI.insertIntoMappingTable(
                         [formData.schoolData.values.id, schoolClass, sectionData.section_id,
                         getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
@@ -170,23 +171,32 @@ const FormComponent = () => {
             });
             // upload new images to backend folder and insert in db
             if (formData.imageData?.values?.image) {
-                Array.from(formData.imageData.values?.image).map(image => {
+                Array.from(formData.imageData.values?.image).map(async image => {
                     formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    API.ImageAPI.createImage({
-                        image_src: formattedName,
-                        school_id: formData.schoolData.values.id,
-                        parent_id: formData.schoolData.values.id,
-                        parent: 'school',
-                        type: 'display'
-                    });
+                        API.ImageAPI.uploadImageToS3({
+                        image: image,
+                        folder: `school/${formattedName}`,
+                    })
+                        .then(res => {
+                            console.log("res", res)
+                            if (res.data.status === "Success") {
+                                API.ImageAPI.createImage({
+                                    image_src: res.data.data,
+                                    school_id: formData.schoolData.values.id,
+                                    parent_id: formData.schoolData.values.id,
+                                    parent: 'school',
+                                    type: 'display'
+                                })
+                            }
+
+                        })
                 });
                 status = true;
             }
             // insert old images only in db & not on azure
             if (formData.imageData?.values?.constructor === Array) {
-                formData.imageData.values.map(image => {
-                    API.ImageAPI.createImage({
+                formData.imageData.values.map(async image => {
+                    await API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
                         parent_id: image.parent_id,
@@ -199,23 +209,31 @@ const FormComponent = () => {
 
             // upload new parent images to azure and insert in db
             if (formData.bannerImageData?.values?.image) {
-                Array.from(formData.bannerImageData.values.image).map(image => {
+                Array.from(formData.bannerImageData.values.image).map(async image => {
                     let formattedName = formatImageName(image.name);
-                    API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                    API.ImageAPI.createImage({
-                        image_src: formattedName,
-                        school_id: formData.schoolData.values.id,
-                        parent_id: formData.schoolData.values.id,
-                        parent: 'school',
-                        type: 'banner'
-                    });
+                    await API.ImageAPI.uploadImageToS3({
+                        image: image,
+                        folder: `school/${formattedName}`
+                    })
+                        .then(res => {
+                            console.log("res", res);
+                            if (res.data.status === "Success") {
+                                API.ImageAPI.createImage({
+                                    image_src: res.data.data,
+                                    school_id: formData.schoolData.values.id,
+                                    parent_id: formData.schoolData.values.id,
+                                    parent: 'school',
+                                    type: 'banner'
+                                })
+                            }
+                        })
                 });
                 status = true;
             }
             // insert old images parent only in db & not on azure
             if (formData.bannerImageData?.values?.constructor === Array) {
-                formData.bannerImageData.values.map(image => {
-                    API.ImageAPI.createImage({
+                formData.bannerImageData.values.map(async image => {
+                    await API.ImageAPI.createImage({
                         image_src: image.image_src,
                         school_id: image.school_id,
                         parent_id: image.parent_id,
@@ -305,10 +323,10 @@ const FormComponent = () => {
                         const classLateFeeDuration = formData.schoolData.values.classes_late_fee_duration[classIndex] || 0;
 
                         // Iterating through each section in the class then associating subject ids for each section of class
-                        innerArray.map((sectionData, sectionIndex) => {
+                        innerArray.map(async (sectionData, sectionIndex) => {
                             // Get subject array for the current section or default to empty array
-                            const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                            API.SchoolAPI.insertIntoMappingTable(
+                            const subjectArray = formData.schoolData.values.subjects[classIndex] ? formData.schoolData.values.subjects[classIndex][sectionIndex] : [];
+                            await API.SchoolAPI.insertIntoMappingTable(
                                 [school.data.id, schoolClass, sectionData.section_id,
                                 getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
                                     classLateFeeDuration]
@@ -318,28 +336,44 @@ const FormComponent = () => {
                     if (formData.imageData.values?.image?.length) {
                         promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: school.data.id,
-                                parent_id: school.data.id,
-                                parent: 'school',
-                                type: 'display'
-                            });
+                            API.ImageAPI.uploadImageToS3({
+                                image: image,
+                                folder: `school/${formattedName}`,
+                            })
+                                .then(res => {
+                                    console.log("res", res)
+                                    if (res.data.status === "Success") {
+                                        API.ImageAPI.createImage({
+                                            image_src: res.data.data,
+                                            school_id: school.data.id,
+                                            parent_id: school.data.id,
+                                            parent: 'school',
+                                            type: 'display'
+                                        })
+                                    }
+                                })
                         });
                     }
 
                     if (formData.bannerImageData.values.image?.length) {
                         promise4 = Array.from(formData.bannerImageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: school.data.id,
-                                parent_id: school.data.id,
-                                parent: 'school',
-                                type: 'banner'
-                            });
+                            API.ImageAPI.uploadImageToS3({
+                                image: image,
+                                folder: `school/${formattedName}`,
+                            })
+                                .then(res => {
+                                    console.log("res", res)
+                                    if (res.data.status === "Success") {
+                                        API.ImageAPI.createImage({
+                                            image_src: res.data.data,
+                                            school_id: school.data.id,
+                                            parent_id: school.data.id,
+                                            parent: 'school',
+                                            type: 'banner'
+                                        })
+                                    }
+                                })
                         });
                     }
 
@@ -398,7 +432,7 @@ const FormComponent = () => {
             setTitle("Update");
             populateSchoolData(id);
         }
-        if (formData.schoolData.validated && formData.addressData.validated) {
+        if (formData.schoolData.validated && formData.addressData.validated && formData.imageData.validated && formData.bannerImageData.validated) {
             formData.schoolData.values?.id ? updateSchoolAndAddress(formData) : createSchool(formData);
         } else {
             setSubmitted(false);
@@ -407,6 +441,7 @@ const FormComponent = () => {
 
 
     const handleSubmit = async () => {
+        console.log("yahan aya");
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
         await imageFormRef.current?.Submit();
@@ -506,6 +541,7 @@ const FormComponent = () => {
                 imageType="Banner"
                 multiple={true}
                 ENV={ENV}
+                validation={false}
             />
 
             <Box display="flex" justifyContent="end" m="20px">

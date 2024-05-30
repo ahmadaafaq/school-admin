@@ -51,8 +51,8 @@ const initialValues = {
   father_contact_no: "",
   father_aadhar: "",
   guardian_name: "",
-  guardian_contact_no:"",
-  guardian_aadhar:"",
+  guardian_contact_no: "",
+  guardian_aadhar: "",
   contact_no: "",
   email: "",
   class: "",
@@ -249,6 +249,10 @@ const StudentFormComponent = ({
     }
   }, [formik.values?.class, classData?.length]);
 
+  console.log("formik", formik.errors);
+  console.log("formik", formik.values);
+
+
   return (
     <Box m="20px">
       <form ref={refId}>
@@ -308,42 +312,6 @@ const StudentFormComponent = ({
             error={!!formik.touched.lastname && !!formik.errors.lastname}
             helperText={formik.touched.lastname && formik.errors.lastname}
           />
-          {/* <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="mother_name"
-            label="Mother's Name*"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.mother_name}
-            error={!!formik.touched.mother_name && !!formik.errors.mother_name}
-            helperText={formik.touched.mother_name && formik.errors.mother_name}
-          />
-          <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="father_name"
-            label="Father's Name*"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.father_name}
-            error={!!formik.touched.father_name && !!formik.errors.father_name}
-            helperText={formik.touched.father_name && formik.errors.father_name}
-          />
-          <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="guardian"
-            label="Guardian If Any"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.guardian}
-            error={!!formik.touched.guardian && !!formik.errors.guardian}
-            helperText={formik.touched.guardian && formik.errors.guardian}
-          /> */}
           <TextField
             fullWidth
             variant="filled"
@@ -471,13 +439,24 @@ const StudentFormComponent = ({
               name="dob"
               value={formik.values.dob}
               onChange={(newDob) => formik.setFieldValue("dob", newDob)}
-              slotProps={{
-                textField: {
-                  error: !!formik.touched.dob && !!formik.errors.dob,
-                  helperText: formik.touched.dob && formik.errors.dob,
-                },
-              }}
+              onBlur={() => formik.setFieldTouched('dob', true)}
+              renderInput={(params) => (
+                <>
+                  <TextField
+                    {...params}
+                    error={formik.touched.dob && Boolean(formik.errors.dob)}
+                    helperText={formik.touched.dob && formik.errors.dob}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <FormHelperText>
+                    {formik.touched.dob && formik.errors.dob}
+                  </FormHelperText>
+                </>
+
+              )}
             />
+
             <DatePicker
               format="DD MMMM YYYY"
               views={["day", "month", "year"]}
@@ -487,16 +466,24 @@ const StudentFormComponent = ({
               onChange={(new_admission_date) =>
                 formik.setFieldValue("admission_date", new_admission_date)
               }
-              slotProps={{
-                textField: {
-                  error:
-                    !!formik.touched.admission_date &&
-                    !!formik.errors.admission_date,
-                  helperText:
-                    formik.touched.admission_date &&
-                    formik.errors.admission_date,
-                },
-              }}
+              onBlur={() => formik.setFieldTouched('admission_date', true)}
+              renderInput={(params) => (
+                <>
+                <TextField
+                  {...params}
+                  error={
+                    formik.touched.admission_date && Boolean(formik.errors.admission_date)
+                  }
+                  helperText={formik.touched.admission_date && formik.errors.admission_date}
+                  fullWidth
+                  margin="normal"
+                />
+                 <FormHelperText>
+                    {formik.touched.admission_date && formik.errors.admission_date}
+                  </FormHelperText>
+                </>
+              )}
+
             />
           </LocalizationProvider>
           <FormControl

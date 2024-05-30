@@ -26,6 +26,8 @@ const ServerPaginationGrid = ({
     getQuery,
     condition = false,
     columns,
+    rolePriority,
+    importBtn,
     rows,
     count,
     loading,
@@ -73,8 +75,10 @@ const ServerPaginationGrid = ({
         );
     }, [count, setRowCountState]);
 
+    console.log("importBtn>>", importBtn);
+
     return (
-        <Box 
+        <Box
             m="30px 0 0 0"
             sx={{
                 "& .MuiDataGrid-root": {
@@ -131,17 +135,19 @@ const ServerPaginationGrid = ({
                 rowCount={rowCountState}
                 initialState={{
                     sorting: {
-                      sortModel: [{ field: 'fullname', sort: 'asc' }],
+                        sortModel: [{ field: 'fullname', sort: 'asc' }],
                     },
-                  }}
+                }}
                 components={{
                     Toolbar: () => (
                         <Box display="flex" >
                             <GridToolbar />
                             <GridToolbarContainer>
-                                <Button sx={{ padding: "0px" }} onClick={() => setOpenImport(true)}>
-                                    <PostAddIcon sx={{ marginRight: "5px" }} />Import
-                                </Button>
+                                {rolePriority > 1 && importBtn == true && (
+                                    <Button sx={{ padding: "0px" }} onClick={() => setOpenImport(true)}>
+                                        <PostAddIcon sx={{ marginRight: "5px" }} />Import
+                                    </Button>
+                                )}
                             </GridToolbarContainer>
                         </Box>
                     ),

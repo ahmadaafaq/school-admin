@@ -32,6 +32,7 @@ import {
 
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import Logout from "@mui/icons-material/Logout";
 import LockResetIcon from "@mui/icons-material/LockReset";
@@ -47,7 +48,7 @@ import { Utility } from "../utility";
 import { useNavigate } from "react-router-dom";
 import { red } from "@mui/material/colors";
 
-const Topbar = ({ roleName = null, rolePriority = null }) => {
+const Topbar = ({ roleName = null, rolePriority = null, isCollapsed, setIsCollapsed }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [isOpen, setIsOpen] = useState(true);
@@ -141,6 +142,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
     <>
       <Box
         display="flex"
+        alignItems="center"
         textAlign="center"
         justifyContent="space-between"
         backgroundColor={
@@ -150,26 +152,37 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
         position="sticky"
         top="0px"
         zIndex="1000"
+
       >
         {/* ICONS */}
-        <Box>
-          <Typography
-            sx={{
-              m: "20px",
-              fontSize: isMobile ? "15px" : isTab ? "30" : "40px",
-              fontWeight: "bolder",
-              textAlign: "center",
-              textShadow: " 2px 8px 10px #aba8a8;",
-              color:
-                theme.palette.mode === "light"
-                  ? `rgb(51 153 254) !important`
-                  : "white",
-              wordSpacing: "5px",
-            }}
-          >
-            {schoolName && rolePriority !== 1 ? schoolName : ""}
-          </Typography>
-        </Box>
+        {isMobile &&
+          <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+            <MenuOutlinedIcon sx={{ marginLeft: "15px" }} />
+          </IconButton>
+        }
+        {rolePriority == 1 && !isMobile &&
+          <Box></Box>
+        }
+        {schoolName && rolePriority !== 1 &&
+          <Box>
+            <Typography
+              sx={{
+                m: "20px",
+                fontSize: isMobile ? "15px" : isTab ? "30" : "40px",
+                fontWeight: "bolder",
+                textAlign: "center",
+                textShadow: " 2px 8px 10px #aba8a8;",
+                color:
+                  theme.palette.mode === "light"
+                    ? `rgb(51 153 254) !important`
+                    : "white",
+                wordSpacing: "5px",
+              }}
+            >
+              {schoolName}
+            </Typography>
+          </Box>
+        }
         <Box
           display="flex"
           textAlign="center"
@@ -232,7 +245,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
                     }
                   );
                 }}
-                sx={{ width: "280px", marginRight: "10px" }}
+                sx={{ width: isMobile ? "150px" : "280px", marginRight: "0px" }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
@@ -252,7 +265,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
                         theme.palette.mode === "light"
                           ? `#6ac6ff !important`
                           : "black",
-                      borderRadius: "20px",
+                      borderRadius: "10px",
                       boxShadow:
                         "rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;",
                       color: colors.redAccent[400],
@@ -262,6 +275,7 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
                         color: "gray",
                         backgroundColor: "white !important",
                       },
+                      width: isMobile ? "150px" : "280px"
                     }}
                     {...props}
                   />
@@ -281,11 +295,11 @@ const Topbar = ({ roleName = null, rolePriority = null }) => {
               </Tooltip>
             )}
           </IconButton>
-          <Tooltip title="Notifications">
+          {/* <Tooltip title="Notifications">
             <IconButton>
               <NotificationsOutlinedIcon />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
           {/* <Tooltip title="Settings">
           <IconButton>
             <SettingsOutlinedIcon />
