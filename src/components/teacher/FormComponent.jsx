@@ -305,7 +305,7 @@ const FormComponent = () => {
                 const teacherClass = formData.teacherData.values.classes[classIndex] || 0;
                 // Iterating through each section in the class then associating subject ids for each section of class
                 innerArray.map((sectionData, sectionIndex) => {
-                  const subjectArray = formData.teacherData.values.subjects[classIndex][sectionIndex] || [];
+                  const subjectArray = formData.teacherData.values.subjects[classIndex] ? formData.teacherData.values.subjects[classIndex][sectionIndex] : [];
                   API.TeacherAPI.insertIntoMappingTable([
                     teacher.data.id,
                     teacherClass,
@@ -323,16 +323,14 @@ const FormComponent = () => {
                     folder: `teacher/${formattedName}`,
                   })
                     .then(res => {
-                      console.log("res", res)
                       if (res.data.status === "Success") {
-                        console.log("res data ",res);
-                        // API.ImageAPI.createImage({
-                        //   image_src: res.data.data,
-                        //   school_id: formData.teacherData.values.id,
-                        //   parent_id: formData.teacherData.values.id,
-                        //   parent: "teacher",
-                        //   type: "normal"
-                        // })
+                        API.ImageAPI.createImage({
+                          image_src: res.data.data,
+                          school_id: teacher.data.school_id,
+                          parent_id: teacher.data.id,
+                          parent: "teacher",
+                          type: "normal"
+                        })
                       }
                     })
                 });
