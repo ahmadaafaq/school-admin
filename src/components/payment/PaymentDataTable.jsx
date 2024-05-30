@@ -1,3 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/**
+ * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
+ *
+ * This software is the confidential information of School CRM Inc., and is licensed as
+ * restricted rights software. The use, reproduction, or disclosure of this software is subject to
+ * restrictions set forth in your license agreement with School CRM.
+*/
 
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -57,10 +65,10 @@ const PaymentDataTable = () => {
     };
 
     useEffect(() => {
-        getPaginatedData(0, 5, setPayments, API.PaymentAPI, studentConditionObj);
+        getPaginatedData(0, 50, setPayments, API.PaymentAPI, studentConditionObj);
     }, []);
 
-    console.log('outside payment data table', allPayments?.listData, studentConditionObj)
+    console.log('outside payment data table', studentConditionObj)
 
     return (
         <TableContainer component={Paper}
@@ -68,35 +76,36 @@ const PaymentDataTable = () => {
             <Table sx={{ minWidth: 700, letterSpacing: "1px" }}
                 aria-label="customized table">
                 <TableHead>
-                    <TableRow sx={{ backgroundColor: colors.redAccent[200] }}>
-                        <TableCell sx={tableHeaderCell}>Academic Year</TableCell>
-                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[300] }]}>Student Name</TableCell>
-                        <TableCell sx={tableHeaderCell}>Fee</TableCell>
-                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[300] }]}>Type</TableCell>
+                    <TableRow sx={{ backgroundColor: colors.redAccent[300] }}>
+                        <TableCell sx={tableHeaderCell}>Session</TableCell>
+                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[200] }]}>Fee</TableCell>
                         <TableCell sx={tableHeaderCell}>Method</TableCell>
-                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[300] }]}>Period</TableCell>
+                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[200] }]}>Type</TableCell>
+                        <TableCell sx={tableHeaderCell}>Period</TableCell>
+                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[200] }]}>Discount</TableCell>
                         <TableCell sx={tableHeaderCell}>Amount</TableCell>
-                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[300] }]}>Date</TableCell>
+                        <TableCell sx={[tableHeaderCell, { backgroundColor: colors.redAccent[200] }]}>Date</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {!allPayments?.listData?.rows?.length ?
+                    {!allPayments?.listData?.length ?
                         <StyledTableRow>
                             <TableCell component="th" scope="row" colSpan={8} sx={tableBodyCell}> No Record Found </TableCell>
                         </StyledTableRow>
                         :
-                        allPayments.listData.rows.map(item => (
+                        allPayments.listData.map(item => (
                             <StyledTableRow key={item.id}>
                                 <TableCell component="th" scope="row" sx={tableBodyCell}> {item.academic_year} </TableCell>
-                                <TableCell component="th" scope="row" sx={tableBodyCell}> {capitalizeEveryWord(item.studentName)} </TableCell>
                                 <TableCell sx={tableBodyCell}>{capitalizeEveryWord(item.fee)}</TableCell>
                                 <TableCell sx={tableBodyCell}>{capitalizeEveryWord(item.methodName)}</TableCell>
                                 <TableCell sx={tableBodyCell}>{capitalizeEveryWord(item.type)}</TableCell>
                                 <TableCell sx={tableBodyCell}>{item.type_duration}</TableCell>
-                                <TableCell sx={tableBodyCell}>&#8377; {item.amount}</TableCell>
+                                <TableCell sx={tableBodyCell}> {item.discount_percent}% </TableCell>
+                                <TableCell sx={tableBodyCell}>&#8377; {item.final_amount}</TableCell>
                                 <TableCell sx={tableBodyCell}>{formatDate(item.created_at)}</TableCell>
                             </StyledTableRow>
-                        ))}
+                        )
+                        )}
                 </TableBody>
             </Table>
         </TableContainer>

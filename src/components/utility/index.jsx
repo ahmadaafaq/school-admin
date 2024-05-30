@@ -9,12 +9,11 @@
 
 import axios from "axios";
 import API from "../../apis";
-import { displayToast } from "../../redux/actions/ToastAction"
-const ENV = import.meta.env;
+import config from "../config";
 
+import { displayToast } from "../../redux/actions/ToastAction";
 
-const months = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];      // For createDropdown function
+const { months } = config;
 
 export const Utility = () => {
 
@@ -49,6 +48,19 @@ export const Utility = () => {
                 return `${num}rd`;
             default:
                 return `${num}th`;
+        }
+    };
+
+    /** Capitalizes the first character of each word in a given string.
+     * @param {string} str - The input string to capitalize.
+     * @returns {string} - The string with the first character of each word capitalized.
+     */
+    const capitalizeEveryWord = (str) => {
+        if (str.length > 0) {
+            // Use a regular expression to match the first character of each word and capitalize it
+            return str.replace(/\b\w/g, function (char) {
+                return char.toUpperCase();
+            });
         }
     };
 
@@ -115,8 +127,7 @@ export const Utility = () => {
                 return [];
         }
 
-
-
+        //------------------------------earlier way of doing
         // const dropdownArray = [];
         // let index = startMonthIndex;        //earlier the index was 0, now it is startMonthIndex as 3 or 4 whatever
         // let periodLength = months.length / divider;
@@ -302,6 +313,26 @@ export const Utility = () => {
             return [];
         }
         return model.filter(obj => ids.split(',').indexOf(obj.id.toString()) > -1);
+    };
+
+    /** Formats date value into a string in the format: "DD-MMM-YYYY".
+     * @param {string | number | Date} value - The date value to format.
+     * @returns {string} - The formatted date string.
+     */
+    const formatDate = (value) => {
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const date = new Date(value);
+        if (isNaN(date.getTime())) {
+            return value;
+        }
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+
+        // Construct the formatted date string in the format: "DD-MMM-YYYY"
+        const formattedDate = `${day}-${month}-${year}`;
+        return formattedDate;
     };
 
     /** Formats an image name by appending a random number and removing special characters.
@@ -493,92 +524,45 @@ export const Utility = () => {
         }, 2000);
     };
 
-    /**
- * Capitalizes the first character of each word in a given string.
- * 
- * @param {string} str - The input string to capitalize.
- * @returns {string} - The string with the first character of each word capitalized.
- */
-    const capitalizeEveryWord = (str) => {
-        if (str.length > 0) {
-            // Use a regular expression to match the first character of each word and capitalize it
-            return str.replace(/\b\w/g, function (char) {
-                return char.toUpperCase();
-            });
-        }
-    };
-
-    /**
- * Formats a date value into a string in the format: "DD-MMM-YYYY".
- * 
- * @param {string | number | Date} value - The date value to format.
- * @returns {string} - The formatted date string.
- */
-    const formatDate = (value) => {
-        // Create a new Date object from the provided value
-        const date = new Date(value);
-
-        if (isNaN(date.getTime())) {
-            return value;
-        }
-
-        // Array of month names
-        const monthNames = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-        ];
-
-        // Extract day, month, and year from the date object
-        const day = date.getDate();
-        const month = monthNames[date.getMonth()];
-        const year = date.getFullYear();
-
-        // Construct the formatted date string in the format: "DD-MMM-YYYY"
-        const formattedDate = `${day}-${month}-${year}`;
-
-        return formattedDate;
-    };
-
     //this used to upload images on aws s3 bucket 
+    // const uploadFile = async (image, folder) => {
+    //     console.log("Starting upload process");
 
-    const uploadFile = async (image, folder) => {
-        console.log("Starting upload process");
+    //     // S3 Bucket Name
+    //     const S3_BUCKET = "theskolar";
 
-        // S3 Bucket Name
-        const S3_BUCKET = "theskolar";
+    //     // S3 Credentials (Ensure these are stored securely in environment variables in production)
+    //     AWS.config.update({
+    //         accessKeyId: ENV.VITE_AWS_KEY_ID,
+    //         secretAccessKey: ENV.VITE_AWS_SECRET_KEY,
+    //         region: ENV.VITE_AWS_REGION
+    //     });
 
-        // S3 Credentials (Ensure these are stored securely in environment variables in production)
-        AWS.config.update({
-            accessKeyId: ENV.VITE_AWS_KEY_ID,
-            secretAccessKey: ENV.VITE_AWS_SECRET_KEY,
-            region: ENV.VITE_AWS_REGION
-        });
+    //     const s3 = new AWS.S3();
 
-        const s3 = new AWS.S3();
+    //     // Files Parameters
+    //     const params = {
+    //         Bucket: S3_BUCKET,
+    //         Key: folder,
+    //         Body: image
+    //     };
 
-        // Files Parameters
-        const params = {
-            Bucket: S3_BUCKET,
-            Key: folder,
-            Body: image
-        };
+    //     // Uploading file to S3
+    //     try {
+    //         const upload = s3.upload(params).on("httpUploadProgress", (evt) => {
+    //             console.log("Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%");
+    //         }).promise();
 
-        // Uploading file to S3
-        try {
-            const upload = s3.upload(params).on("httpUploadProgress", (evt) => {
-                console.log("Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%");
-            }).promise();
+    //         const data = await upload;
+    //         console.log("File uploaded successfully.");
+    //         alert("File uploaded successfully.");
+    //         return data;
 
-            const data = await upload;
-            console.log("File uploaded successfully.");
-            alert("File uploaded successfully.");
-            return data;
-
-        } catch (error) {
-            console.error("Error uploading file: ", error);
-            alert("Error uploading file.");
-        }
-    };
+    //     } catch (error) {
+    //         console.error("Error uploading file: ", error);
+    //         alert("Error uploading file.");
+    //     }
+    // };
 
     /** Verifies a token using an asynchronous API call.
      * @returns {Promise<boolean|string>} - A promise that resolves to a boolean indicating whether the token is verified,
@@ -641,7 +625,6 @@ export const Utility = () => {
         remLocalStorage,
         setLocalStorage,
         toastAndNavigate,
-        uploadFile,
         verifyToken,
         getStateCityFromZipCode
     };

@@ -22,9 +22,9 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
     const colors = tokens(theme.palette.mode);
     const { capitalizeEveryWord } = Utility();
 
-    const handleActionShow = (id, clss, section) => {
+    const handleActionShow = (id, clss, section, firstname, lastname) => {
         setOpen(true);
-        navigateTo("#", { state: { id: id, cls: clss, section: section } });
+        navigateTo("#", { state: { id, cls: clss, section, firstname, lastname } });
     };
 
     const columns = [
@@ -92,7 +92,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                         display="flex"
                         justifyContent="center">
                         <Button color="info" variant="contained"
-                            onClick={() => handleActionShow(row.id, row.class, row.section)}
+                            onClick={() => handleActionShow(row.id, row.class, row.section, row.firstname, row.lastname)}
                             sx={{ minWidth: "50px" }}
                         >
                             <EditNoteIcon />

@@ -11,6 +11,7 @@ import PropTypes from "prop-types";
 
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import { Box, Button, Dialog, Divider, Typography, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
@@ -30,7 +31,7 @@ import PaymentDataTable from "./PaymentDataTable";
 const FormComponent = ({ openDialog, setOpenDialog }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const fullScreen = useMediaQuery(theme.breakpoints.down("lg"));
+    // const fullScreen = useMediaQuery(theme.breakpoints.down("lg"));
     const isMobile = useMediaQuery("(max-width:480px)");
     const isTab = useMediaQuery("(max-width:920px)");
 
@@ -50,11 +51,14 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
 
     const selected = useSelector((state) => state.menuItems.selected);
     const toastInfo = useSelector((state) => state.toastInfo);
+    const navigateTo = useNavigate();
     const paymentFormRef = useRef();
 
     const dispatch = useDispatch();
+    const { state } = useLocation();
     const { typography } = themeSettings(theme.palette.mode);
-    const { toastAndNavigate, getLocalStorage } = Utility();
+    const { capitalizeEveryWord, toastAndNavigate, getLocalStorage } = Utility();
+    const studentName = state?.lastname ? `${state?.firstname} ${state?.lastname}` : state?.firstname;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -64,21 +68,19 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
     const createPayment = useCallback(formData => {
         setLoading(true);
         // eslint-disable-next-line no-unused-vars
-        const { class_fee_by_mapping, ...modifiedObj } = formData.paymentData.values;
+        const { current_date, class_fee_by_mapping, ...modifiedObj } = formData.paymentData.values;
 
         API.PaymentAPI.createPayment(modifiedObj)
             .then(({ data: payment }) => {
                 if (payment.status === 'Success') {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created");
-                    setTimeout(() => {
-                        handleDialogClose();
-                    }, 2000);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#', true);
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred");
+                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, '#', true);
+                console.log('Error in Creating Payment:', err);
             });
     }, [formData]);
 
@@ -137,7 +139,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 textAlign="center"
                 margin="10px auto 10px auto"
             >
-                {`${selected} History`}
+                {`${selected} History for ${studentName ? capitalizeEveryWord(studentName) : ''}`}
             </Typography>
             <PaymentDataTable />
 
@@ -150,7 +152,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                 textAlign="center"
                 margin="20px auto 10px auto"
             >
-                {`${title} ${selected}`}
+                {`${title} ${selected} for ${studentName ? capitalizeEveryWord(studentName) : ''}`}
             </Typography>
             <PaymentFormComponent
                 onChange={(data) => {

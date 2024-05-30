@@ -479,11 +479,7 @@ function App() {
                       <Route
                         exact
                         path="/payment/create"
-                        element={
-                          <PaymentFormComponent
-                            rolePriority={userRole.priority}
-                          />
-                        }
+                        element={<PaymentFormComponent rolePriority={userRole.priority} openDialog={true} />}
                       />
                       <Route
                         exact
