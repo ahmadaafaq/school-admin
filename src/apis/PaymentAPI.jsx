@@ -26,8 +26,7 @@ export const PaymentAPI = {
     const { data: response } = await api.request({
       url: `/get-payments?page=${page}&size=${size}${queryParam}${searchParam}`,
       headers: {
-        "x-access-token": getLocalStorage("auth")?.token,
-        "School_info": JSON.stringify(getLocalStorage("schoolInfo"))
+        "x-access-token": getLocalStorage("auth")?.token
       },
       method: "GET",
       signal: cancel ? cancelApiObject[this.getAll.name].handleRequestCancellation().signal : undefined,
@@ -70,8 +69,7 @@ export const PaymentAPI = {
       url: `/get-payment-data/${classId}/${sectionId}`,
       method: "GET",
       headers: {
-        "x-access-token": getLocalStorage("auth").token,
-        "School_info": JSON.stringify(getLocalStorage("schoolInfo"))
+        "x-access-token": getLocalStorage("auth").token
       },
       signal: cancel ? cancelApiObject[this.getPaymentData.name].handleRequestCancellation().signal : undefined
     });

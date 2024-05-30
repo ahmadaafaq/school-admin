@@ -42,7 +42,7 @@ const schoolInfo = getLocalStorage("schoolInfo");
 api.interceptors.request.use(req => {
   console.log(schoolInfo, 'schoolInfo header')
   req.headers['Type'] = "school-admin";
-  schoolInfo ? req.headers['School_info'] = JSON.stringify(schoolInfo) : null;
+  schoolInfo ? req.headers['School'] = JSON.stringify(schoolInfo) : null;
 
   return req;
 });
