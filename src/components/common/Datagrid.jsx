@@ -75,8 +75,6 @@ const ServerPaginationGrid = ({
         );
     }, [count, setRowCountState]);
 
-    console.log("importBtn>>", importBtn);
-
     return (
         <Box
             m="30px 0 0 0"

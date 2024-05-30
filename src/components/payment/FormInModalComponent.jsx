@@ -172,6 +172,7 @@ const FormComponent = ({ openDialog, setOpenDialog }) => {
                             onClick={() => {
                                 if (window.confirm("Do You Really Want To Reset?")) {
                                     setReset(true);
+                                    setOpenDialog(false);
                                 }
                             }}
                         >

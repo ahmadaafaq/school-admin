@@ -94,7 +94,7 @@ export const Utility = () => {
      */
     const createDropdown = (divider, session_start_month) => {
         // Find the index of the session start month in the months array
-        const startMonthIndex = months.findIndex(month => month.toLowerCase() === session_start_month.toLowerCase());
+        const startMonthIndex = months.findIndex(month => month.toLowerCase() === session_start_month?.toLowerCase());
 
         // Helper function to rotate the array starting from the given index
         const rotateArray = (arr, index) => {
