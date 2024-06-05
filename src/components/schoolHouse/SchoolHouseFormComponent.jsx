@@ -152,6 +152,8 @@ const SchoolHouseFormComponent = ({
         getAndSetSections(formik.values.viceCaptainClassId);
     }, [formik.values.viceCaptainClassId, classData?.length]);
 
+    console.log("allTeachers.listData.rows>>", allTeachers.listData.rows);
+
     return (
         <Box m="20px">
             <form ref={refId}>
@@ -229,8 +231,8 @@ const SchoolHouseFormComponent = ({
                         >
                             {!allTeachers?.listData?.rows?.length ? null :
                                 allTeachers.listData.rows.map(item => (
-                                    <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                        {`${item.firstname} ${item.lastname}`}
+                                    <MenuItem value={item.id} name={`${item.teacherName}`} key={item.id}>
+                                        {`${item.teacherName}`}
                                     </MenuItem>
                                 ))}
                         </Select>

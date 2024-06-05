@@ -88,14 +88,31 @@ const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
     }
   };
 
+  // useEffect(() => {
+  //   if (!getLocalStorage("schoolInfo") && !allClasses?.listData?.length) {
+  //     console.log("classes>>");
+  //     fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
+  //   }
+  //   if (getLocalStorage("schoolInfo") && !schoolClasses?.listData?.length) {
+  //     console.log("schoolclasses>>>");
+  //     fetchAndSetSchoolData(dispatch, setSchoolClasses);
+  //   }
+  // }, [schoolClasses?.listData, allClasses?.listData]);
+
   useEffect(() => {
-    if (!getLocalStorage("schoolInfo") && !allClasses?.listData?.length) {
+    const schoolInfo = getLocalStorage("schoolInfo");
+  
+    if (!schoolInfo && (!allClasses || !allClasses.listData || allClasses.listData.length === 0)) {
+      console.log("Fetching all classes...");
       fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
-    }
-    if (getLocalStorage("schoolInfo") && !schoolClasses?.listData?.length) {
+    } else if (schoolInfo && (!schoolClasses || !schoolClasses.listData || schoolClasses.listData.length === 0)) {
+      console.log("Fetching school classes...");
       fetchAndSetSchoolData(dispatch, setSchoolClasses);
     }
-  }, [schoolClasses?.listData, allClasses?.listData]);
+  }, [(!allClasses || !allClasses.listData || allClasses.listData.length === 0), (!schoolClasses || !schoolClasses.listData || schoolClasses.listData.length === 0)]);
+  
+  // Ensure fetchAndSetAll and fetchAndSetSchoolData do not cause unnecessary re-renders.
+  
 
   useEffect(() => {
     // const regex = /^\d+/;

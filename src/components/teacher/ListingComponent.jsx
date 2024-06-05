@@ -46,6 +46,8 @@ const ListingComponent = ({ rolePriority = null }) => {
     const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
+    const importBtn = true;
+    const teacherImport = "teacher";
 
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
@@ -104,7 +106,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 overflow: "hidden",
                 boxShadow: "1px 1px 10px black",
                 backgroundImage: theme.palette.mode === "light"
-                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
@@ -156,8 +158,10 @@ const ListingComponent = ({ rolePriority = null }) => {
                 action={setTeachers}
                 api={API.TeacherAPI}
                 getQuery={getPaginatedData}
-                columns={datagridColumns(rolePriority )}
+                columns={datagridColumns(rolePriority)}
+                rolePriority={rolePriority}
                 rows={listData.rows}
+                importBtn={importBtn}
                 count={listData.count}
                 loading={loading}
                 selected={selected}
@@ -165,6 +169,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
+                imports={teacherImport}
             />
         </Box >
     );

@@ -72,8 +72,7 @@ const FormComponent = () => {
     getIdsFromObject,
     generatePassword,
     isObjEmpty,
-    toastAndNavigate,
-    uploadFile
+    toastAndNavigate
   } = Utility();
 
   //after page refresh the id in router state becomes undefined, so getting teacher id from url params
@@ -143,9 +142,7 @@ const FormComponent = () => {
               formData.teacherData.values.classes[classIndex] || 0;
             // Iterating through each section in the class then associating subject ids for each section of class
             innerArray.map((sectionData, sectionIndex) => {
-              const subjectArray =
-                formData.teacherData.values.subjects[classIndex][sectionIndex] ||
-                [];
+              const subjectArray = formData.teacherData.values.subjects[classIndex] ? formData.teacherData.values.subjects[classIndex][sectionIndex] : [];
               API.TeacherAPI.insertIntoMappingTable([
                 formData.teacherData.values.id,
                 teacherClass,
@@ -185,8 +182,9 @@ const FormComponent = () => {
                   type: "normal"
                 })
               }
-            })
-        });
+            });
+          });
+          status = true;
       }
       // insert old images only in db & not on azure
       if (formData.imageData.values.constructor === Array) {
@@ -280,6 +278,7 @@ const FormComponent = () => {
       status: formData.teacherData.values.status
     })
       .then(({ data: user }) => {
+        console.log("useer ", user);
         if (user?.status === "Success") {
           API.AddressAPI.createAddress({
             ...formData.addressData.values,
@@ -418,6 +417,8 @@ const FormComponent = () => {
     }
   };
 
+  console.log("formData",formData.teacherData.values)
+
   return (
     <Box
       m="10px"
@@ -484,6 +485,7 @@ const FormComponent = () => {
         setUpdatedImage={setUpdatedImage}
         imageType="Teacher"
         ENV={ENV}
+        validation={true}
       />
 
       <Box display="flex" justifyContent="end" m="20px">
