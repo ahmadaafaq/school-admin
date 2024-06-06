@@ -39,7 +39,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
     //form component starts
     const [importedFile, setImportedFile] = useState(undefined);
-    const [students, setStudents] = useState([]);
+    const [teachers, setTeacher] = useState([]);
     const [fileName, setFileName] = useState('');
     const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
@@ -56,7 +56,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         handleImport();
     }
 
-
     const handleImport = () => {
         if (importedFile) {
             const reader = new FileReader();
@@ -65,7 +64,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 const sheets = wb.SheetNames;
                 if (sheets.length) {
                     const rows = utils.sheet_to_json(wb.Sheets[sheets[0]]);
-                    setStudents(rows);
+                    setTeacher(rows);
                     setUploadingRecord({
                         ...uploadingRecord,
                         count: sheets.length
@@ -112,56 +111,57 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     }
 
     useEffect(() => {
-        if (students?.length) {
+        if (teachers?.length) {
 
-            const promises = students.map(async (student) => {
+            const promises = teachers.map(async (teacher) => {
                 try {
                     setLoading(true);
-                    const apiResponse = await getStateCityFromZipCode(student.zipcode);
+                    const apiResponse = await getStateCityFromZipCode(teacher.zipcode);
 
                     const cityName = await apiResponse.city;
                     const stateName = await apiResponse.state;
-                    const studentDobSerial = student.dob;
-                    const studentAddmissionSerial = student.admission_date;
+                    const teacherDobSerial = teacher.dob;
+                    // const teacherAddmissionSerial = teacher.admission_date;
 
                     const state_id = await getIdByName(stateName, API.StateAPI);
                     const city_id = await getIdByName(cityName, API.CityAPI);
-                    const class_id = await getIdByName(student.class, API.ClassAPI);
-                    const section_id = await getIdByName(student.section, API.SectionAPI);
-                    const studentDob = await excelSerialToDate(studentDobSerial);
-                    const studentAddmissionDate = await excelSerialToDate(studentAddmissionSerial);
 
-                    console.log("student", studentDob);
+                    const class_id = teacher.class ? await getIdByName(teacher.class, API.ClassAPI) : null;
+                    const section_id = teacher.section ? await getIdByName(teacher.section, API.SectionAPI) : null;
+
+                    const teacherDob = await excelSerialToDate(teacherDobSerial);
+
+                    const isClassTeacher = teacher.is_class_teacher == "yes" ? 1 : 0;
 
                     console.log("ids", state_id, section_id, city_id, class_id)
 
-                    const username = student?.father_name || student?.mother_name || student?.guardian;
-                    if (username && state_id && city_id && class_id && section_id && student.email) {
+                    const username = teacher?.firstname || teacher?.lastname;
+                    console.log("teacher >>", teacherDob);
+                    if (username && teacher.email) {
                         const password = generatePassword();
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
                             password: password,
-                            email: student?.email,
-                            contact_no: student?.contact_no,
+                            email: teacher?.email,
+                            contact_no: teacher?.contact_no,
                             role: 5,
                             designation: 'parent',
                             status: 'active'
                         }, 'user', {
                             designation: 'parent',
                             username: username,
-                            email: student.email,
-                            contact_no: student.contact_no
+                            email: teacher.email,
+                            contact_no: teacher.contact_no
                         });
-                        console.log("user, status", user, status);
 
                         if (status === 'Success') {
                             API.CommonAPI.createOrUpdate({
                                 parent_id: user.id,
                                 parent: 'user',
-                                street: student.street,
-                                landmark: student.landmark,
-                                zipcode: student.zipcode,
+                                street: teacher.street,
+                                landmark: teacher.landmark,
+                                zipcode: teacher.zipcode,
                                 state: state_id,
                                 city: city_id,
                                 country: 2
@@ -169,39 +169,40 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 parent: 'user',
                                 parent_id: user.id
                             });
-                            
+
                             let condition = {
                                 parent_id: user.id,
-                                firstname: student.firstname
+                                firstname: teacher.firstname
                             }
-                            console.log("create/update student", student.firstname);
-                            const { data: stud } = await API.CommonAPI.createOrUpdate({
-                                ...student,
+                            console.log("create/update teacher", teacher.firstname);
+                            const { data: tea } = await API.CommonAPI.createOrUpdate({
+                                ...teacher,
                                 parent_id: user.id,
+                                is_class_teacher : isClassTeacher,
                                 class: class_id,
                                 section: section_id,
                                 status: 'active',
-                                dob: studentDob ? studentDob.replace(/\//g, "-") : null,
-                                admission_date: studentAddmissionDate ? studentAddmissionDate.replace(/\//g, "-") : null
-                            }, 'student', condition);
+                                dob: teacherDob ? teacherDob.replace(/\//g, "-") : null,
+
+                            }, 'teacher', condition);
 
                             API.CommonAPI.createOrUpdate({
-                                parent_id: stud.id,
-                                parent: 'student',
-                                street: student.street,
-                                landmark: student.landmark,
-                                zipcode: student.zipcode,
+                                parent_id: tea.id,
+                                parent: 'teacher',
+                                street: teacher.street,
+                                landmark: teacher.landmark,
+                                zipcode: teacher.zipcode,
                                 state: state_id,
                                 city: city_id,
                                 country: 2
                             }, 'address', {
-                                parent: 'student',
-                                parent_id: stud.id
+                                parent: 'teacher',
+                                parent_id: tea.id
                             });
                             setUploadingRecord({
                                 ...uploadingRecord,
                                 count: uploadingRecord.count--,
-                                name: student.firstname,
+                                name: teacher.firstname,
                                 skip: false
                             });
                         }
@@ -209,7 +210,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         setUploadingRecord({
                             ...uploadingRecord,
                             count: uploadingRecord.count--,
-                            name: student.firstname,
+                            name: teacher.firstname,
                             skip: true
                         });
                     }
@@ -233,9 +234,11 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 })
         }
 
-    }, [students?.length]);
+    }, [teachers?.length]);
 
     console.log("uploading>>", uploadingRecord.name, uploadingRecord.count);
+
+    console.log("teacher>>", teachers);
 
     return (
         <div >
@@ -265,7 +268,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     textAlign="center"
                     marginTop="10px"
                 >
-                    {`Import ${selected}s`}
+                    {`Import ${selected}sss`}
                 </Typography>
                 <Box>
                     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
@@ -298,7 +301,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://uploadnow.io/f/bFjqPKs" target="_blank">
+                            <a href="https://uploadnow.io/files/167CGyr" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}

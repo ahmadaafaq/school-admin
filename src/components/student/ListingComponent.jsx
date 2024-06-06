@@ -55,14 +55,14 @@ const ListingComponent = ({ rolePriority = null }) => {
   const isMobile = useMediaQuery("(max-width:480px)");
   const isTab = useMediaQuery("(max-width:920px)");
   let id = state?.id;
-
+  
   //revisit for pagination
   const [searchFlag, setSearchFlag] = useState({
     search: false,
     searching: false
   });
   const [oldPagination, setOldPagination] = useState();
-
+  
   const { getPaginatedData } = useCommon();
   const { findMultipleById, findById, fetchAndSetAll, getLocalStorage, setLocalStorage, toastAndNavigate } = Utility();
   const reloadBtn = document.getElementById("reload-btn");
@@ -70,6 +70,7 @@ const ListingComponent = ({ rolePriority = null }) => {
   const sectionName = findById(studentDetail?.studentData?.section, formSectionsInRedux?.listData)?.section_name;
   const className = findById(studentDetail?.studentData?.class, formClassesInRedux?.listData)?.class_name;
   const importBtn = true;
+  const studentImport = "student";
 
   let classConditionObj = classId
     ? { classId: classId }
@@ -188,7 +189,7 @@ const ListingComponent = ({ rolePriority = null }) => {
         boxShadow: "1px 1px 10px black",
         backgroundImage:
           theme.palette.mode === "light"
-            ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+            ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
             : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
@@ -258,6 +259,7 @@ const ListingComponent = ({ rolePriority = null }) => {
         setOldPagination={setOldPagination}
         searchFlag={searchFlag}
         setSearchFlag={setSearchFlag}
+        imports={studentImport}
       />
       <ViewDetailModal
         open={openModal}

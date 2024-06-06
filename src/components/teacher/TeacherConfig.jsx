@@ -71,12 +71,12 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 100,
             renderCell: ({ row }) => {
-                if (row.is_class_teacher.data[0] === 1) {
+                if (row.is_class_teacher.data[0] === 1 && row.classnames && row.class_section_name) {
                     const classnamesArray = row.classnames.split(',');
                     return (
                         <div>
                             {classnamesArray.map((classname, index) => {
-                              return (
+                                return (
                                     <span key={index} style={{ color: classname === row.class_section_name ? colors.redAccent[700] : colors.whiteAccent[100] }}>
                                         {classname}
                                         {index !== classnamesArray.length - 1 && ','}
@@ -85,6 +85,13 @@ export const datagridColumns = (rolePriority = null) => {
                             })}
                         </div>
                     );
+                } else {
+                    console.log("row>>.",row.classnames);
+                    return (
+                        <div>
+                            {row.classnames ? row.classnames : "Add classes fisrt" }
+                        </div>
+                    )
                 }
             }
         },
@@ -95,9 +102,14 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             minWidth: 100,
-            renderCell: (params) => (
-                params.value ? params.value : "No subjects found"
-              )
+            renderCell: (params) => {
+                const subjectsArray = params?.value?.split(',');
+                return (
+                    <div>
+                         {params.value ? subjectsArray.join(", ") : "No subjects found"}
+                    </div>
+                )
+            }
         },
         {
             field: "contact_no",

@@ -182,6 +182,7 @@ const TeacherFormComponent = ({
         !schoolClasses?.listData?.length ||
         !schoolSections?.listData?.length)
     ) {
+      console.log("teacher fetch & setschool data");
       fetchAndSetSchoolData(
         dispatch,
         setSchoolClasses,

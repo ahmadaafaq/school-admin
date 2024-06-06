@@ -35,6 +35,8 @@ import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { setBuses } from "../../redux/actions/BusAction";
+import { setListingSchoolHouses } from "../../redux/actions/SchoolHouseAction";
+
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
@@ -53,6 +55,7 @@ const initialValues = {
   guardian_name: "",
   guardian_contact_no: "",
   guardian_aadhar: "",
+  house:"",
   contact_no: "",
   email: "",
   class: "",
@@ -97,6 +100,7 @@ const StudentFormComponent = ({
   const schoolSubjects = useSelector((state) => state.schoolSubjects);
   const toastInfo = useSelector((state) => state.toastInfo);
   const allBuses = useSelector((state) => state.allBuses);
+  const listingSchoolHouses = useSelector((state) => state.listingSchoolHouses);
   const [iCardDetails, setICardDetails] = useState({});
 
   const dispatch = useDispatch();
@@ -204,6 +208,13 @@ const StudentFormComponent = ({
       getPaginatedData(0, 40, setBuses, API.BusAPI);
     }
   }, []);
+
+  useEffect(() => {
+    if (!listingSchoolHouses?.listData?.rows?.length) {
+      getPaginatedData(0, 40, setListingSchoolHouses, API.SchoolHouseAPI);
+    }
+  }, []);
+  console.log("listingSchoolHouses", listingSchoolHouses);
 
   useEffect(() => {
     if (
@@ -469,16 +480,16 @@ const StudentFormComponent = ({
               onBlur={() => formik.setFieldTouched('admission_date', true)}
               renderInput={(params) => (
                 <>
-                <TextField
-                  {...params}
-                  error={
-                    formik.touched.admission_date && Boolean(formik.errors.admission_date)
-                  }
-                  helperText={formik.touched.admission_date && formik.errors.admission_date}
-                  fullWidth
-                  margin="normal"
-                />
-                 <FormHelperText>
+                  <TextField
+                    {...params}
+                    error={
+                      formik.touched.admission_date && Boolean(formik.errors.admission_date)
+                    }
+                    helperText={formik.touched.admission_date && formik.errors.admission_date}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <FormHelperText>
                     {formik.touched.admission_date && formik.errors.admission_date}
                   </FormHelperText>
                 </>
@@ -691,6 +702,31 @@ const StudentFormComponent = ({
               {formik.touched.caste_group && formik.errors.caste_group}
             </FormHelperText>
           </FormControl>
+
+          <FormControl variant="filled" sx={{ minWidth: 120 }}
+            error={!!formik.touched.house && !!formik.errors.house}
+          >
+            <InputLabel id="houseField">Student house</InputLabel>
+            <Select
+              labelId="houseField"
+              name="house"
+              value={formik.values.house || ''}
+              onChange={event => formik.setFieldValue("house", event.target.value)}
+            >
+              {!listingSchoolHouses?.listData?.rows?.length ?  (
+                  <MenuItem>
+                    {'No House Created'}
+                  </MenuItem>
+                ) :
+                listingSchoolHouses.listData.rows.map(item => (
+                  <MenuItem value={item.id} name={item.name} key={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+            </Select>
+            <FormHelperText>{formik.touched.house && formik.errors.house}</FormHelperText>
+          </FormControl>
+
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}

@@ -12,7 +12,8 @@ import PropTypes from "prop-types";
 import { Box, useTheme, Button } from "@mui/material";
 import { DataGrid, GridToolbar, GridToolbarContainer } from "@mui/x-data-grid";
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import ImportComponent from "../models/ImportModel";
+import ImportComponent from "../models/ImportModel"
+import ImportTeacher from "../models/ImportTeacher";
 
 import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
@@ -34,7 +35,8 @@ const ServerPaginationGrid = ({
     selected,
     pageSizeOptions,
     searchFlag,
-    setOldPagination
+    setOldPagination,
+    imports
 }) => {
     const initialState = {
         page: 0,
@@ -44,6 +46,8 @@ const ServerPaginationGrid = ({
     const colors = tokens(theme.palette.mode);
     const [paginationModel, setPaginationModel] = useState(initialState);
     const [openImport, setOpenImport] = useState(false);
+
+    console.log("imports>>>",imports);
 
     useEffect(() => {
         //TO BE REFACTORED
@@ -163,7 +167,7 @@ const ServerPaginationGrid = ({
                 keepNonExistentRowsSelected
             />
 
-            {openImport && <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} />}
+            {openImport && imports == "student" ? <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} /> : openImport && imports == "teacher" ? <ImportTeacher openDialog={openImport} setOpenDialog={setOpenImport} /> : "" }
         </Box>
     );
 };
