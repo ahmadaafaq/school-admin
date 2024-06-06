@@ -74,12 +74,10 @@ const ListingComponent = ({ rolePriority = null }) => {
     //                     teacherIds.push(item.id);
     //                 }
     //             });
-    //             console.log('teacher ids', teacherIds);
     //             updatePromises = teacherIds.map((id) => {
     //                 API.TeacherAPI.getTeacherDetail(id)
     //                     .then((detail) => {
     //                         if(detail.status === 'Success'){
-    //                             console.log(detail, 'class sect')
     // setTeacherDetail({item.id: })
     //                         }
     //                     })

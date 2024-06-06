@@ -61,7 +61,6 @@ const AddressFormComponent = ({
     }));
 
     const watchForm = () => {
-        console.log("formik. errors address>>>", formik.errors);
         if (onChange) {
             onChange({
                 values: formik.values,
@@ -72,8 +71,6 @@ const AddressFormComponent = ({
             });
         }
     };
-
-    console.log("addressform formik.errors", formik.errors);
 
     useEffect(() => {
         if (reset) {
@@ -137,7 +134,6 @@ const AddressFormComponent = ({
     }, [formik.values.country, countryId]);
 
     useEffect(() => {
-        console.log('get city');
         API.CityAPI.getCities(formik.values.state || stateId)
             .then(cities => {
                 if (cities?.status === 'Success') {
@@ -193,8 +189,6 @@ const AddressFormComponent = ({
             setCityId(updatedValues?.city);
         }
     }, [cities.length]);
-
-    console.log('formik.values.state', formik.values.state);
 
     return (
         <Box m="20px" marginBottom="60px">

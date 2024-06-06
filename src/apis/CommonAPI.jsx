@@ -117,7 +117,6 @@ export const CommonAPI = {
         return response;
     },
     createOrUpdate: async (fields, table, condition, cancel = false) => {
-        console.log("create or update API",fields, table, condition);
         const commonConfig = CommonAPI.commonConfig("POST", true, cancel);
         const { data: response } = await api.request({
             url: '/create-or-update',

@@ -214,7 +214,6 @@ const StudentFormComponent = ({
       getPaginatedData(0, 40, setListingSchoolHouses, API.SchoolHouseAPI);
     }
   }, []);
-  console.log("listingSchoolHouses", listingSchoolHouses);
 
   useEffect(() => {
     if (
@@ -259,10 +258,6 @@ const StudentFormComponent = ({
       getAndSetSections();
     }
   }, [formik.values?.class, classData?.length]);
-
-  console.log("formik", formik.errors);
-  console.log("formik", formik.values);
-
 
   return (
     <Box m="20px">

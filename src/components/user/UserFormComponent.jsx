@@ -173,7 +173,6 @@ const UserFormComponent = ({
       formik.values.password = updatePassword.password;
     }
   };
-  console.log("school",schoolId);
 
   useEffect(() => {
     if (schoolId) {

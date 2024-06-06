@@ -46,6 +46,8 @@ const ListingComponent = ({ rolePriority = null }) => {
     const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
+    const importBtn = true;
+    const employeeImport = "employee";
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -113,6 +115,8 @@ const ListingComponent = ({ rolePriority = null }) => {
                 api={API.EmployeeAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns(rolePriority)}
+                rolePriority={rolePriority}
+                importBtn={importBtn}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -121,6 +125,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
+                imports={employeeImport}
             />
         </Box>
     );

@@ -47,8 +47,6 @@ const Dashboard = ({ rolePriority = null }) => {
 
   const { getLocalStorage } = Utility();
 
-  console.log("datain admin", graphData);
-
   const useStyles = makeStyles((theme) => ({
     paper: {
       padding: "0px",
@@ -209,7 +207,6 @@ const Dashboard = ({ rolePriority = null }) => {
       API.DashboardAPI.getStudentGraphData()
         .then((data) => {
           if (data.status === "Success") {
-            console.log("daatagraph>>", data.data);
             setGraphData(data.data)
           }
         })

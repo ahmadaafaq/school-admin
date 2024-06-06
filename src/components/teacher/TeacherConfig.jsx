@@ -86,7 +86,6 @@ export const datagridColumns = (rolePriority = null) => {
                         </div>
                     );
                 } else {
-                    console.log("row>>.",row.classnames);
                     return (
                         <div>
                             {row.classnames ? row.classnames : "Add classes fisrt" }
