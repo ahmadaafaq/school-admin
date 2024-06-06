@@ -124,7 +124,6 @@ const FormComponent = () => {
                 dataFields.push({ ...formData.addressData.values });
             }
             const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
-            console.log('multiple api call response', responses)
             if (responses) {        //due to this if schoolform or address form is dirty, then other forms are also manipulated
                 updateImageAndClassData(formData);
             }

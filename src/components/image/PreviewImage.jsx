@@ -133,7 +133,6 @@ const PreviewImage = ({
             ]);
         }
     };
-    console.log("preview>>",preview);
 
     return (
         <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit" }}

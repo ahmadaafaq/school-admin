@@ -133,10 +133,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
                     const isClassTeacher = teacher.is_class_teacher == "yes" ? 1 : 0;
 
-                    console.log("ids", state_id, section_id, city_id, class_id)
-
                     const username = teacher?.firstname || teacher?.lastname;
-                    console.log("teacher >>", teacherDob);
                     if (username && teacher.email) {
                         const password = generatePassword();
 
@@ -174,7 +171,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 parent_id: user.id,
                                 firstname: teacher.firstname
                             }
-                            console.log("create/update teacher", teacher.firstname);
                             const { data: tea } = await API.CommonAPI.createOrUpdate({
                                 ...teacher,
                                 parent_id: user.id,
@@ -235,10 +231,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         }
 
     }, [teachers?.length]);
-
-    console.log("uploading>>", uploadingRecord.name, uploadingRecord.count);
-
-    console.log("teacher>>", teachers);
 
     return (
         <div >
@@ -301,7 +293,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://uploadnow.io/files/167CGyr" target="_blank">
+                            <a href="https://uploadnow.io/files/%2F" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}

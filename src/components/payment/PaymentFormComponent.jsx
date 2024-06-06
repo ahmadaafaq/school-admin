@@ -152,7 +152,6 @@ const PaymentFormComponent = ({
     API.PaymentAPI.getPaymentData(studentClass, studentSection)
       .then(({ data: res }) => {
         if (res.status === "Success") {
-          console.log(res.data, 'response');
           setSchoolPaymentData(...res.data);
         }
       })

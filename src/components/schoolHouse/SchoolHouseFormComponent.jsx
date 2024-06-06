@@ -152,8 +152,6 @@ const SchoolHouseFormComponent = ({
         getAndSetSections(formik.values.viceCaptainClassId);
     }, [formik.values.viceCaptainClassId, classData?.length]);
 
-    console.log("allTeachers.listData.rows>>", allTeachers.listData.rows);
-
     return (
         <Box m="20px">
             <form ref={refId}>

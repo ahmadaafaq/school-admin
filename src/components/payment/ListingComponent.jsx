@@ -101,7 +101,6 @@ const ListingComponent = ({ rolePriority = null }) => {
             const selectedSections = classSections.map(
                 ({ section_id, section_name }) => ({ section_id, section_name })
             );
-            console.log(classSectionObj, classConditionObj, classSections, selectedSections, classData, '5 value')
             dispatch(setSchoolSections(selectedSections));
         };
         getAndSetSections();

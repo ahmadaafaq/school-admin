@@ -88,14 +88,12 @@ const SchoolFormComponent = ({
 
     React.useImperativeHandle(refId, () => ({
         Submit: async () => {
-            console.log("impperative")
             await formik.submitForm();
         }
     }));
 
     const watchForm = () => {
         if (onChange) {
-            console.log("watch form")
             onChange({
                 values: formik.values,
                 validated: formik.isSubmitting
@@ -122,7 +120,7 @@ const SchoolFormComponent = ({
     useEffect(() => {
         if (updatedValues) {
             const splittedArray = updatedValues.selectedClass.reduce((acc, obj) => {
-                const key = obj.class_id;
+                const key = parseInt(obj.class_id, 10);
                 if (!acc[key]) {
                     acc[key] = [];
                 }
@@ -169,10 +167,13 @@ const SchoolFormComponent = ({
                 return hasData ? Object.values(splittedArray).map(classArray => classArray[0][attributeName]) : [];
             };
 
+            // the classes array value is come in string so the code below is convert the string into numbers
+            const classesAsIntegers = hasData ? Object.keys(splittedArray).map(key => parseInt(key, 10)) : [];
+
             setInitialState({
                 ...initialState,
                 ...updatedValues.schoolData,
-                classes: hasData ? Object.keys(splittedArray) : [],
+                classes: classesAsIntegers,
                 sections: hasData ? assignUpdatedSections(Object.values(splittedArray)) : [],
                 subjects: hasData ? assignUpdatedSubjects(splittedArray) : [[]],
                 classes_fee: getClassAttribute(splittedArray, 'class_fee'),
@@ -193,8 +194,6 @@ const SchoolFormComponent = ({
             formik.setFieldValue('subjects', subArr);
         }
     }, []);
-
-    console.log("schoolform formik.errors", formik.errors);
 
     return (
         <Box m="20px">
@@ -691,7 +690,6 @@ const SchoolFormComponent = ({
                                             onChange={(event, value) => {
                                                 const checkBoxArr = [...formik.values.same_subjects];
                                                 checkBoxArr[index] = value;
-                                                console.log(value, 'checkbox balue')
                                                 formik.setFieldValue('same_subjects', checkBoxArr);
 
                                                 formik?.values?.sections[index]?.map((section, sectionIndex) => {
@@ -701,12 +699,10 @@ const SchoolFormComponent = ({
                                                     }
                                                     subArr[index][sectionIndex] = subArr[index] ? subArr[index][0] : [];
                                                     if (value) {
-                                                        console.log(value, 'loop condition')
                                                         formik.setFieldValue('subjects', subArr);
                                                     }
                                                 });
                                                 if (!value) {
-                                                    console.log(formik.values.same_subjects[index], 'outside loop condition')
                                                     const noSubArr = [...formik.values.subjects];
                                                     noSubArr.map((arr, i) => {
                                                         if (i > 0)

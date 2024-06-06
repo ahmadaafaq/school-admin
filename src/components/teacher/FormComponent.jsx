@@ -127,7 +127,6 @@ const FormComponent = () => {
     //         console.log("Deleted normal image from azure");
     //     });
     // }
-    console.log("formdata teacher",formData )
     let updatePromises = [];
     let status = null;
 
@@ -172,7 +171,6 @@ const FormComponent = () => {
             folder: `teacher/${formattedName}`,
           })
             .then(res => {
-              console.log("res", res)
               if (res.data.status === "Success") {
                 API.ImageAPI.createImage({
                   image_src: res.data.data,
@@ -278,7 +276,6 @@ const FormComponent = () => {
       status: formData.teacherData.values.status
     })
       .then(({ data: user }) => {
-        console.log("useer ", user);
         if (user?.status === "Success") {
           API.AddressAPI.createAddress({
             ...formData.addressData.values,
@@ -416,8 +413,6 @@ const FormComponent = () => {
       setFormData({ ...formData, imageData: data });
     }
   };
-
-  console.log("formData",formData.teacherData.values)
 
   return (
     <Box

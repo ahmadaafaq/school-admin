@@ -68,8 +68,6 @@ const PaymentDataTable = () => {
         getPaginatedData(0, 50, setPayments, API.PaymentAPI, studentConditionObj);
     }, []);
 
-    console.log('outside payment data table', studentConditionObj)
-
     return (
         <TableContainer component={Paper}
             sx={{ width: "98%", margin: '10px auto' }}>

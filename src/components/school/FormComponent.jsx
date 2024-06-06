@@ -89,7 +89,6 @@ const FormComponent = () => {
     }, []);
 
     const updateSchoolAndAddress = useCallback(async formData => {
-        console.log("formdata school>>>",formData);
         setLoading(true);
         const paths = [];
         const dataFields = [];
@@ -178,7 +177,6 @@ const FormComponent = () => {
                         folder: `school/${formattedName}`,
                     })
                         .then(res => {
-                            console.log("res", res)
                             if (res.data.status === "Success") {
                                 API.ImageAPI.createImage({
                                     image_src: res.data.data,
@@ -216,7 +214,6 @@ const FormComponent = () => {
                         folder: `school/${formattedName}`
                     })
                         .then(res => {
-                            console.log("res", res);
                             if (res.data.status === "Success") {
                                 API.ImageAPI.createImage({
                                     image_src: res.data.data,
@@ -341,7 +338,6 @@ const FormComponent = () => {
                                 folder: `school/${formattedName}`,
                             })
                                 .then(res => {
-                                    console.log("res", res)
                                     if (res.data.status === "Success") {
                                         API.ImageAPI.createImage({
                                             image_src: res.data.data,
@@ -363,7 +359,6 @@ const FormComponent = () => {
                                 folder: `school/${formattedName}`,
                             })
                                 .then(res => {
-                                    console.log("res", res)
                                     if (res.data.status === "Success") {
                                         API.ImageAPI.createImage({
                                             image_src: res.data.data,
@@ -441,7 +436,6 @@ const FormComponent = () => {
 
 
     const handleSubmit = async () => {
-        console.log("yahan aya");
         await schoolFormRef.current.Submit();
         await addressFormRef.current.Submit();
         await imageFormRef.current?.Submit();

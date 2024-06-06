@@ -120,7 +120,6 @@ const Login = () => {
               school_capacity: response.data.school_capacity
             }
             setLocalStorage("auth", authInfo);
-            console.log('response', response)
             response.data?.school_info
               ? setLocalStorage("schoolInfo", response.data.school_info)
               : null
