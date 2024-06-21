@@ -13,6 +13,7 @@
 
 * {
   font-family: Georgia !important;
+  -webkit-font-smoothing: antialiased;
 }
 
 html,

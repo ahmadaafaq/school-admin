@@ -70,7 +70,7 @@ const FormComponent = () => {
     fetchAndSetAll,
     getLocalStorage,
     getIdsFromObject,
-    generatePassword,
+    generateNormalPassword,
     isObjEmpty,
     toastAndNavigate
   } = Utility();
@@ -78,10 +78,13 @@ const FormComponent = () => {
   //after page refresh the id in router state becomes undefined, so getting teacher id from url params
   let id = state?.id || userParams?.id;
 
+  const schoolInformation = getLocalStorage("auth");
+
   useEffect(() => {
     const selectedMenu = getLocalStorage("menu");
     dispatch(setMenuItem(selectedMenu.selected));
   }, []);
+
 
   const updateTeacherAndAddress = useCallback(async formData => {
     setLoading(true);
@@ -256,7 +259,7 @@ const FormComponent = () => {
       });
   }, []);
 
-  const createTeacher = useCallback(formData => {
+  const createTeacher = useCallback(async formData => {
     let promise1;
     let promise2;
     let promise3;
@@ -264,7 +267,7 @@ const FormComponent = () => {
     const username =
       formData.teacherData.values?.firstname.toLowerCase() + (formData.teacherData.values?.lastname
         ? `${formData.teacherData.values?.lastname.toLowerCase()}` : "");
-    const password = generatePassword();
+    const password = await generateNormalPassword(username, schoolInformation.school_code);
 
     API.UserAPI.register({
       username: username,

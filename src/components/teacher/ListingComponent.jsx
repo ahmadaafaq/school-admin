@@ -96,6 +96,8 @@ const ListingComponent = ({ rolePriority = null }) => {
     //         });
     // }, []);
 
+    console.log("listdata>>>",listData);
+
     return (
         <Box m="10px" position="relative"
             sx={{
@@ -105,7 +107,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 boxShadow: "1px 1px 10px black",
                 backgroundImage: theme.palette.mode === "light"
                     ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
-                    : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
+                    : `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${listBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
                 backgroundSize: "cover"

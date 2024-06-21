@@ -159,6 +159,10 @@ const AttendanceComponent = lazy(() =>
   import("./components/attendance/ListingComponent")
 );
 
+const GenerateIdCardComponent = lazy(() =>
+  import("./components/generateIdCard/ListingComponent")
+);
+
 function App() {
   const [userRole, setUserRole] = useState({ name: "", priority: null });
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -451,6 +455,15 @@ function App() {
                         path="/employee/listing"
                         element={
                           <EmployeeListingComponent
+                            rolePriority={userRole.priority}
+                          />
+                        }
+                      />
+                       <Route
+                        exact
+                        path="/generate-id-card/listing"
+                        element={
+                          <GenerateIdCardComponent
                             rolePriority={userRole.priority}
                           />
                         }

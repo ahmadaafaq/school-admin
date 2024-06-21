@@ -77,7 +77,7 @@ const Topbar = ({ roleName = null, rolePriority = null, isCollapsed, setIsCollap
   const schoolInfo = getLocalStorage("schoolInfo");
 
   const CustomOption = {
-    id: "all-schools",
+    id: null,
     name: "All Schools",
   };
 
@@ -226,7 +226,7 @@ const Topbar = ({ roleName = null, rolePriority = null, isCollapsed, setIsCollap
                 disableCloseOnSelect
                 value={schoolObj}
                 onChange={(event, value) => {
-                  if (value && value.id === "all-schools") {
+                  if (value && value.id === null) {
                     remLocalStorage("schoolInfo");
                     location.reload();
                   }

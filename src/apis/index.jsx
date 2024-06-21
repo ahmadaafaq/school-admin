@@ -15,6 +15,7 @@ import { CommonAPI } from "./CommonAPI";
 import { CountryAPI } from "./CountryAPI";
 import { DashboardAPI } from "./DashboardAPI";
 import { EmployeeAPI } from "./EmployeeAPI";
+import { GenerateIdCardAPI  } from "./GenerateIdCard";
 import { HolidayAPI } from "./HolidayAPI";
 import { ImageAPI } from "./ImageAPI";
 import { MarksheetAPI } from "./MarksheetAPI";
@@ -43,6 +44,7 @@ export default {
     CountryAPI,
     DashboardAPI,
     EmployeeAPI,
+    GenerateIdCardAPI,
     HolidayAPI,
     ImageAPI,
     MarksheetAPI,

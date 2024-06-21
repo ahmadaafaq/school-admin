@@ -438,6 +438,16 @@ const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
               setIsCollapsed={setIsCollapsed}
             />
             <SidebarItem
+              title="Generate ID Card"
+              to="/generate-id-card/listing"
+              icon={<AnnouncementIcon />}
+              selected={selected}
+              rolePriority={rolePriority}
+              menuVisibility={3}
+              isCollapsed={isCollapsed}
+              setIsCollapsed={setIsCollapsed}
+            />
+            <SidebarItem
               title="Employee"
               to="/employee/listing"
               icon={<AssignmentIndIcon />}

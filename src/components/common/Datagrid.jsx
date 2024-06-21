@@ -37,7 +37,8 @@ const ServerPaginationGrid = ({
     pageSizeOptions,
     searchFlag,
     setOldPagination,
-    imports
+    imports,
+    checkboxSelection = false
 }) => {
     const initialState = {
         page: 0,
@@ -163,6 +164,7 @@ const ServerPaginationGrid = ({
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 pageSizeOptions={pageSizeOptions}
+                checkboxSelection={checkboxSelection}
                 keepNonExistentRowsSelected
             />
 

@@ -14,6 +14,8 @@ const checkoutSchema = yup.object().shape({
   recess_time: yup.number().required("This Field is Required"),
   first_half_period_duration: yup.number().required("This Field is Required"),
   second_half_period_duration: yup.number().required("This Field is Required"),
+  opening_time: yup.date().required("This Field is Required"),
+  closing_time: yup.date().required("This Field is Required"),
 });
 
 export default checkoutSchema;

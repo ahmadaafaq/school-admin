@@ -46,6 +46,18 @@ export const setSchoolSubjectsReducer = (state = initialSchoolState, action) => 
     }
 };
 
+export const setTeacherSubjectsReducer = (state = initialSchoolState, action) => {
+    switch (action.type) {
+        case ActionTypes.SET_TEACHER_SUBJECTS:
+            return {
+                ...state,
+                listData: action.payload
+            };
+        default:
+            return state;
+    }
+};
+
 export const setAllSubjectsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_ALL_SUBJECTS:

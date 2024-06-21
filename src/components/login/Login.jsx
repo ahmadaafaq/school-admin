@@ -95,6 +95,7 @@ const Login = () => {
       setLoading(true)
       API.UserAPI.login(formData)
         .then(({ data: response }) => {
+          console.log("response>>>",response);
           setLoading(false)
           if (
             response.status === "Success" &&
@@ -112,6 +113,7 @@ const Login = () => {
           } else {
             const authInfo = {
               id: response.data.id,
+              school_code: formData.school_code, 
               token: response.data.token,
               role: response.data.role,
               designation: response.data.designation,
@@ -128,7 +130,7 @@ const Login = () => {
               remLocalStorage("navigatedPath") //removing path after navigating user
             } else {
               navigateTo("/")
-              location.reload();
+              // location.reload();
             }
           }
         })

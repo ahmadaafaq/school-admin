@@ -55,6 +55,7 @@ const FormComponent = () => {
     const [classData, setClassData] = useState([]);
     const [iCardDetails, setICardDetails] = useState({});
 
+
     const formSubjectsInRedux = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -73,12 +74,14 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getLocalStorage, getIdsFromObject, generatePassword, findMultipleById, formatImageName, fetchAndSetAll,
-        toastAndNavigate } = Utility();
+        toastAndNavigate, generateNormalPassword } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
     const showIdCard = !id || (id && !updatedValues?.studentData?.id_card);
     const formValidated = formData.studentData.validated && formData.addressData.validated && formData.imageData.validated && formData.parentImageData.validated;
+
+    const schoolInformation = getLocalStorage("auth");
 
     // useEffect(() => {
     //     if (!state.reload) {
@@ -92,6 +95,8 @@ const FormComponent = () => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
+           
+            
 
     const updateStudentAndAddress = useCallback(async formData => {
         setLoading(true);
@@ -229,12 +234,12 @@ const FormComponent = () => {
                 setUpdatedValues(dataObj);
                 setUpdatedStudentImage(dataObj?.studentImage);
                 setUpdatedParentImage(dataObj?.parentImage);
-                setICardDetails({
-                    ...iCardDetails,
-                    ...dataObj.studentData,
-                    ...dataObj.addressData,
-                    imageData: dataObj.studentImage
-                });
+                // setICardDetails({
+                //     // ...iCardDetails,
+                //     ...dataObj.studentData,
+                //     ...dataObj.addressData,
+                //     imageData: dataObj.studentImage 
+                // });
                 setLoading(false);
             })
             .catch(err => {
@@ -244,14 +249,17 @@ const FormComponent = () => {
             });
     }, [formSubjectsInRedux?.listData]);
 
-    const createStudent = useCallback(formData => {
+    console.log("schol>>",schoolInformation.school_code);
+
+    const createStudent = useCallback(async formData => {
         let promise1;
         let promise2;
         let promise3;
         setLoading(true);
         const username = formData.studentData.values?.father_name || formData.studentData.values?.mother_name ||
             formData.studentData.values?.guardian;
-        const password = generatePassword();
+        const password = await generateNormalPassword(username , schoolInformation.school_code);
+        
         formData.studentData.values = {
             ...formData.studentData.values,
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
@@ -334,7 +342,7 @@ const FormComponent = () => {
                             try {
                                 await Promise.all([promise1, promise2, promise3]);
                                 setLoading(false);
-                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class') || ''}`);
+                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo,  `/student/listing/${getLocalStorage('class') || ''}`);
                             } catch (err) {
                                 setLoading(false);
                                 toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
@@ -362,15 +370,15 @@ const FormComponent = () => {
     }, [formSubjectsInRedux?.listData?.length]);
 
     useEffect(() => {
-        if (formValidated) {
+        if (id) {
             setICardDetails({
-                ...iCardDetails,
-                studenData: formData.studentData.values,
-                addressData: formData.addressData.values,
-                Student: formData.imageData.values
+                // ...iCardDetails,
+                ...updatedValues?.studentData,
+                ...updatedValues?.addressData,
+                ...updatedValues?.studentImage[0]
             });
         }
-    }, [formData.studentData, formData.addressData]);
+    }, [updatedValues?.studentData, updatedValues?.addressData, updatedValues?.imageData]);
 
     //Create/Update/Populate student
     useEffect(() => {
@@ -404,6 +412,36 @@ const FormComponent = () => {
             setFormData({ ...formData, parentImageData: data });
         }
     };
+
+    console.log("i card cond>>", !(
+        previewStudent?.length > 0
+        && iCardDetails.firstname?.length > 0
+        && iCardDetails.father_name?.length > 0
+        && iCardDetails.lastname?.length > 0
+        && iCardDetails.class > 0
+        && iCardDetails.section > 0
+        && iCardDetails.contact_no?.length > 0
+        && iCardDetails.street?.length > 0
+        && iCardDetails.landmark?.length > 0
+        && iCardDetails.zipcode?.length > 0
+        // && iCardDetails.studentCity?.length > 0
+        // && iCardDetails.studentState?.length > 0
+    ), previewStudent?.length 
+        , iCardDetails.firstname?.length 
+        , iCardDetails.father_name?.length 
+        , iCardDetails.lastname?.length 
+        , iCardDetails.class 
+        , iCardDetails.section 
+        , iCardDetails.contact_no?.length 
+        , iCardDetails.street?.length 
+        , iCardDetails.landmark?.length 
+        , iCardDetails.zipcode?.length 
+        , iCardDetails.studentCity?.length 
+        , iCardDetails.studentState?.length  
+    );
+
+    console.log(updatedValues,"updatedvalues");
+   
     return (
         <Box m="10px"
             sx={{
@@ -437,6 +475,8 @@ const FormComponent = () => {
                 setClassData={setClassData}
                 allSubjects={formSubjectsInRedux?.listData}
                 updatedValues={updatedValues?.studentData}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
             />
             <AddressFormComponent
                 onChange={(data) => {
@@ -466,6 +506,8 @@ const FormComponent = () => {
                 setUpdatedImage={setUpdatedStudentImage}
                 imageType="Student"
                 ENV={ENV}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
             />
             <ImagePicker
                 key="parent"
@@ -489,11 +531,26 @@ const FormComponent = () => {
                 {showIdCard && <>
                     <Button color="info" variant="contained" sx={{ mr: 30 }}
                         onClick={() => setOpenDialog(!openDialog)}
-                        disabled={!formValidated || !previewStudent?.length}
+                        disabled={!id &&
+                            !(
+                                previewStudent?.length > 0
+                                && iCardDetails.firstname?.length > 0
+                                && iCardDetails.father_name?.length > 0
+                                && iCardDetails.lastname?.length > 0
+                                && iCardDetails.class > 0
+                                && iCardDetails.section > 0
+                                && iCardDetails.contact_no?.length > 0
+                                && iCardDetails.street?.length > 0
+                                && iCardDetails.landmark?.length > 0
+                                && iCardDetails.zipcode?.length > 0
+                                // && iCardDetails.studentCity?.length > 0
+                                // && iCardDetails.studentState?.length > 0
+                            )
+                        }
                     >
                         Generate ICard
                     </Button>
-                    <ICardModal iCardDetails={iCardDetails} setICardDetails={setICardDetails}
+                    <ICardModal iCardDetails={iCardDetails} setICardDetails={setICardDetails} previewStudent={previewStudent}
                         openDialog={openDialog} setOpenDialog={setOpenDialog} />
                 </>}
                 {   //hide reset button on student update

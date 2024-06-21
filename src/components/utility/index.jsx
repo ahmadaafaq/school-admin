@@ -291,6 +291,37 @@ export const Utility = () => {
             });
     };
 
+    /**Fetches school data (classes and optionally sections) from API and dispatches actions to update the Redux store.
+     * @param {function} dispatch - The Redux dispatch function.
+     * @param {function} setClassesAction - The Redux action to set classes in the store.
+     * @param {function} [setSectionsAction] - The optional Redux action to set sections in the store.
+     * @param {function} [setClassData] - The optional local state to set the data fetched from API call.
+     */
+    const fetchAndSetTeacherData = (dispatch, setClassesAction = false, setSectionsAction = false, setClassData = false) => {
+        API.SchoolAPI.getTeacherClasses()
+            .then(classData => {
+                if (classData.status === 'Success') {
+                    if (setClassesAction) {
+                        const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
+                        dispatch(setClassesAction(uniqueClassDataArray));
+                    }
+                    if (setSectionsAction) {        //why is this required, needs to be tested
+                        const uniqueSectionsDataArray = createUniqueDataArray(classData.data, 'section_id', 'section_name');
+                        dispatch(setSectionsAction(uniqueSectionsDataArray));
+                    }
+                    if (setClassData) {    //setting all classData in local state
+                        setClassData(classData.data);
+                    }
+                } else {
+                    console.log("Error Fetching School Data, Please Try Again");
+                }
+            })
+            .catch(err => {
+                console.log("Error Fetching School Class Section Info:", err);
+            });
+    };
+
+
     /** Finds an object in a collection by its ID.
      * @param {number} id - The ID to search for.
      * @param {Array} model - The collection (array of objects) to search within.
@@ -463,6 +494,8 @@ export const Utility = () => {
         return pw;
     };
 
+    const generateNormalPassword = async (name, code) => `${name.toLowerCase()}@${code.toLowerCase()}`;
+
     /** Checks if an object is empty (has no own enumerable properties).
     * @param {Object} obj - The object to be checked for emptiness.
     * @returns {boolean} - True if the object is empty, false otherwise.
@@ -621,6 +654,7 @@ export const Utility = () => {
         getIdsFromObject,
         getValuesFromArray,
         generatePassword,
+        generateNormalPassword,
         isObjEmpty,
         remLocalStorage,
         setLocalStorage,

@@ -89,6 +89,8 @@ const StudentFormComponent = ({
   reset,
   setReset,
   classData,
+  iCardDetails,
+  setICardDetails,
   setClassData,
   allSubjects,
   userId,
@@ -101,7 +103,6 @@ const StudentFormComponent = ({
   const toastInfo = useSelector((state) => state.toastInfo);
   const allBuses = useSelector((state) => state.allBuses);
   const listingSchoolHouses = useSelector((state) => state.listingSchoolHouses);
-  const [iCardDetails, setICardDetails] = useState({});
 
   const dispatch = useDispatch();
   const genderRef = useRef();
@@ -1104,6 +1105,7 @@ StudentFormComponent.propTypes = {
   setReset: PropTypes.func,
   classData: PropTypes.array,
   setClassData: PropTypes.func,
+  setFormikData: PropTypes.func,
   allSubjects: PropTypes.array,
   userId: PropTypes.number,
   updatedValues: PropTypes.object,
