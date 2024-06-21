@@ -77,9 +77,17 @@ export const datagridColumns = (rolePriority = null) => {
                         <div>
                             {classnamesArray.map((classname, index) => {
                                 return (
-                                    <span key={index} style={{ color: classname === row.class_section_name ? colors.redAccent[700] : colors.whiteAccent[100] }}>
+                                    <span key={index}
+                                        style={{
+                                            color: classname === row.class_section_name
+                                                ?
+                                                 colors.greenAccent[300]
+                                                :
+                                                colors.whiteAccent[100],
+                                        }}
+                                    >
                                         {classname}
-                                        {index !== classnamesArray.length - 1 && ','}
+                                        {index !== classnamesArray.length - 1 && ', '}
                                     </span>
                                 )
                             })}
@@ -88,7 +96,12 @@ export const datagridColumns = (rolePriority = null) => {
                 } else {
                     return (
                         <div>
-                            {row.classnames ? row.classnames : "Add classes fisrt" }
+                            {row.classnames
+                                ?
+                                <div>{row.classnames}</div>
+                                :
+                                <p style={{ color: colors.redAccent[700] }}>Add classes fisrt</p>
+                            }
                         </div>
                     )
                 }
@@ -105,7 +118,7 @@ export const datagridColumns = (rolePriority = null) => {
                 const subjectsArray = params?.value?.split(',');
                 return (
                     <div>
-                         {params.value ? subjectsArray.join(", ") : "No subjects found"}
+                        {params.value ? subjectsArray.join(", ") : "No subjects found"}
                     </div>
                 )
             }

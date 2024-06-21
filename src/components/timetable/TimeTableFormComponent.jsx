@@ -21,6 +21,8 @@ import TimeTableValidation from "./Validation";
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
+import { setTeacherSubjects } from "../../redux/actions/SubjectAction";
+
 import { setSchoolDurations } from "../../redux/actions/SchoolDurationAction";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
@@ -42,13 +44,14 @@ const TimeTableFormComponent = ({
     setDirty,
     reset,
     setReset,
-    classData,
-    setClassData,
+    classData = null,
+    setClassData = null,
     allSubjects,
     updatedValues = null
 }) => {
 
     const [schoolId, setSchoolId] = useState([]);
+    const [scale, setScale] = useState(1);
     const schoolClasses = useSelector(state => state.schoolClasses);
     const schoolSections = useSelector(state => state.schoolSections);
     const schoolSubjects = useSelector(state => state.schoolSubjects);
@@ -205,7 +208,7 @@ const TimeTableFormComponent = ({
                         const schoolObj = schoolDuration?.listData?.rows?.filter(obj => `${obj.school_id}` === result.data);
                         if (formik.values.batch == "both") {
                             setSchoolId(schoolObj[0]);
-                        } else if (schoolObj.length > 0) {
+                        } else if (schoolObj?.length > 0) {
 
                             const seniorRow = schoolObj.find(obj => obj.batch === "senior");
                             const juniorRow = schoolObj.find(obj => obj.batch === "junior");
@@ -236,6 +239,26 @@ const TimeTableFormComponent = ({
             formik.setFieldValue('period', totalPeriodArray);
         }
     }, [schoolId]);
+
+    useEffect(() => {
+        let count = 0;
+        const maxCount = 10;
+        const interval = 400; // Interval between scale changes
+    
+        const intervalId = setInterval(() => {
+          setScale((prevScale) => (prevScale === 1 ? 1.2 : 1));
+          count += 1;
+          if (count >= maxCount) {
+            clearInterval(intervalId);
+            setScale(1); // Reset scale to 1 at the end
+          }
+        }, interval);
+    
+        // Cleanup function to clear the interval if the component unmounts
+        return () => clearInterval(intervalId);
+      }, []);
+
+    console.log("schoolId", schoolId);
 
     return (
         <Box m="20px">
@@ -380,11 +403,25 @@ const TimeTableFormComponent = ({
 
                     </>
                 )}
-                <Divider sx={{ width: '99%', marginBottom: "20px" }}>
-                    <Chip color='info' label={`Recess Time ${schoolId?.recess_time} min`}
-                        sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
-                    />
-                </Divider>
+                
+                    {schoolId && <Divider sx={{ width: '99%', marginBottom: "20px" }}>
+                        <Chip color='info' label={`Recess Time ${schoolId?.recess_time} min`}
+                            sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
+                        />
+                    </Divider>}
+                    {schoolId?.length > 0 &&
+                    <Divider sx={{ width: '99%', marginBottom: "20px" }}>
+                        <Chip
+                            color='error' label={`CREATE A SCHOOL DURATION FIRST`}
+                            maxWidth={false}
+                            sx={{
+                                fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px', width: "800px",
+                                transform: `scale(${scale})`,
+                                transition: 'transform 0.6s ease-in-out'
+                            }}
+                        />
+                    </Divider>
+                }
                 {(schoolId?.period) / 2 > 0 && (
                     <>
                         {[...Array((schoolId?.period) / 2)].map((_, index) => {

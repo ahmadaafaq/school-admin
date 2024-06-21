@@ -11,7 +11,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { ErrorMessage, useFormik } from "formik";
-import { Box, IconButton, TextField,Typography } from "@mui/material";
+import { Box, IconButton, TextField, Typography } from "@mui/material";
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 import imageValidation from "./Validation";
@@ -33,7 +33,9 @@ const ImagePicker = ({
     imageType,
     ENV,
     multiple = false,
-    validation = true
+    validation = true,
+    iCardDetails = null,
+    setICardDetails = null
 }) => {
     const image = 'image';
     initialValues[`${image}`] = null;
@@ -142,6 +144,8 @@ const ImagePicker = ({
                 setPreview={setPreview}
                 imageType={image}
                 ENV={ENV}
+                iCardDetails={iCardDetails}
+                setICardDetails={setICardDetails}
             />
             {formik.touched[`${image}`] && formik.errors[`${image}`] && (
                 <Typography variant="body2" color="error" mb="10%">

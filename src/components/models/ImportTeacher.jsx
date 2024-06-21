@@ -10,11 +10,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { read, utils } from 'xlsx';
+import { saveAs } from 'file-saver';
+import { read, utils, write } from 'xlsx';
 
 import PropTypes from "prop-types";
 
-import { Box, Divider, IconButton, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Typography, List, ListItem } from "@mui/material";
 import { Button, Dialog, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -43,13 +44,16 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [fileName, setFileName] = useState('');
     const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
+    const [skippedTeachers, setSkippedTeachers] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode, toastAndNavigate, generatePassword } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate, generateNormalPassword, getLocalStorage } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
+
+    const schoolInformation = getLocalStorage("auth");
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -93,7 +97,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
     const excelSerialToDate = async (serial) => {
         if (serial === undefined || serial === null) {
-            return "0000-00-00";
+            return null;
         }
 
         if (!serial.toString().includes("/") && !serial.toString().includes("-")) {
@@ -134,19 +138,19 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     const isClassTeacher = teacher.is_class_teacher == "yes" ? 1 : 0;
 
                     const username = teacher?.firstname || teacher?.lastname;
-                    if (username && teacher.email) {
-                        const password = generatePassword();
+                    if (username && teacher.email && teacher.zipcode) {
+                        const password = await generateNormalPassword(username, schoolInformation.school_code);
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
                             password: password,
                             email: teacher?.email,
                             contact_no: teacher?.contact_no,
-                            role: 5,
-                            designation: 'parent',
+                            role: 4,
+                            designation: 'teacher',
                             status: 'active'
                         }, 'user', {
-                            designation: 'parent',
+                            designation: 'teacher',
                             username: username,
                             email: teacher.email,
                             contact_no: teacher.contact_no
@@ -203,12 +207,31 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             });
                         }
                     } else {
+                        let fieldsObj = {
+                            username,
+                            email: teacher.email,
+                            zipcode: teacher.zipcode
+                        }
+                        let emptyField;
+                        Object.keys(fieldsObj).map(field => {
+                            if (!fieldsObj[field]) {
+                                emptyField = field;
+                            }
+                        });
                         setUploadingRecord({
                             ...uploadingRecord,
                             count: uploadingRecord.count--,
                             name: teacher.firstname,
                             skip: true
                         });
+                        setSkippedTeachers(prevSkipped => [...prevSkipped, {
+                            firstname: teacher?.firstname,
+                            contact_no: teacher?.contact_no,
+                            email: teacher?.email,
+                            street: teacher?.street,
+                            zipcode: teacher?.zipcode,
+                            error: emptyField
+                        }]);
                     }
                 } catch (error) {
                     if (error) {
@@ -221,7 +244,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 .then(() => {
                     console.log("All operations completed successfully.");
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#', true);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#');
                 })
                 .catch(error => {
                     setLoading(false);
@@ -231,6 +254,23 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         }
 
     }, [teachers?.length]);
+
+    const downloadSkippedTeachers = () => {
+        const skipped = [];
+        skippedTeachers.map(skp => {
+            if (skp.error) {
+                delete skp.error;
+            }
+            skipped.push(skp);
+        })
+
+        const worksheet = utils.json_to_sheet(skippedTeachers);
+        const workbook = utils.book_new();
+        utils.book_append_sheet(workbook, worksheet, 'Skipped Teachers');
+        const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(data, 'skipped_Teachers.xlsx');
+    };
 
     return (
         <div >
@@ -260,8 +300,53 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     textAlign="center"
                     marginTop="10px"
                 >
-                    {`Import ${selected}sss`}
+                    {`Import ${selected}s`}
                 </Typography>
+
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        padding: 2,
+                        fontFamily: 'Arial, sans-serif',
+                    }}
+                >
+                    {loading && (
+                        <Typography sx={{ fontSize: '1.5em', color: '#555' }}>Loading...</Typography>
+                    )}
+                    {!loading && skippedTeachers.length > 0 && (
+                        <Box
+                            sx={{
+                                textAlign: 'center',
+                                border: '1px solid #ddd',
+                                padding: 2,
+                                borderRadius: 1,
+                                backgroundColor: "transparent",
+                                width: '100%',
+                                maxWidth: 600,
+                            }}
+                        >
+                            <Typography variant="h2" sx={{ marginBottom: 2, color: '#333' }}>
+                                Skipped Teachers
+                            </Typography>
+                            <List sx={{ padding: 0 }}>
+                                {skippedTeachers.map((teacher, index) => (
+                                    <ListItem
+                                        key={index}
+                                        sx={{ marginBottom: 1, fontSize: '1.2em', color: '#666' }}
+                                    >
+                                        {teacher.firstname} - Missing {teacher.error}
+                                    </ListItem>
+                                ))}
+                            </List>
+                            <Button onClick={downloadSkippedTeachers} variant="contained" color="error" sx={{ marginTop: 2, boxShadow: "3px 3px 1px black, -3px -3px 1px black,3px -3px 1px black, -3px 3px 1px black" }}>
+                                Download Skipped Teachers Excel
+                            </Button>
+                        </Box>
+                    )}
+                </Box>
+
                 <Box>
                     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
                         <TextField
@@ -293,7 +378,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://uploadnow.io/files/%2F" target="_blank">
+                            <a href="https://ufile.io/dkv9szf1" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}

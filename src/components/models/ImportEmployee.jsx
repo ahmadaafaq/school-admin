@@ -253,7 +253,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://uploadnow.io/files/BDBnh1c" target="_blank">
+                            <a href="https://ufile.io/68xl79m8" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}

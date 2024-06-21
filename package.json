@@ -26,6 +26,7 @@
     "axios": "^1.6.2",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
+    "file-saver": "^2.0.5",
     "formik": "^2.4.5",
     "highcharts": "^11.2.0",
     "highcharts-more": "^0.1.7",

@@ -12,6 +12,7 @@ import { authReducer } from "./AuthReducer";
 import { displayToastReducer } from "./ToastReducer";
 import { menuItemReducer } from "./MenuItemReducer";
 import { setEmployeesReducer } from "./EmployeeReducer";
+import { setGenerateIdCardReducer } from "./GenerateIdCardReducer";
 import { setHolidaysReducer } from "./HolidayReducer";
 import { setMarksheetsReducer } from "./MarksheetReducer";
 import { setPaymentsReducer } from "./PaymentReducer";
@@ -35,6 +36,7 @@ import { setAllStudentsReducer } from "./StudentReducer";
 import { setAllSubjectsReducer } from "./SubjectReducer";
 import { setListingSubjectsReducer } from "./SubjectReducer";
 import { setSchoolSubjectsReducer } from "./SubjectReducer";
+import { setTeacherSubjectsReducer } from "./SubjectReducer";
 import { setTimeTablesReducer } from "./TimeTableReducer";
 import { setTeachersReducer } from "./TeacherReducer";
 import { setAllTeachersReducer } from "./TeacherReducer";
@@ -63,15 +65,17 @@ const reducers = combineReducers({
   allSubjects: setAllSubjectsReducer,
   listingSubjects: setListingSubjectsReducer,
   schoolSubjects: setSchoolSubjectsReducer,
+  teacherSubjects: setTeacherSubjectsReducer,
   allTimeTables: setTimeTablesReducer,
   allTeachers: setTeachersReducer,
   allFormTeachers: setAllTeachersReducer,
   allUsers: setUsersReducer,
   allEmployees: setEmployeesReducer,
+  allGenerateIdCards: setGenerateIdCardReducer,
   listingUserRoles: setListingUserRolesReducer,
   allUserRoles: setAllUserRolesReducer,
   allHolidays: setHolidaysReducer,
-   allNotices: setNoticeBoardReducer,
+  allNotices: setNoticeBoardReducer,
   allPayments: setPaymentsReducer,
   listingPaymentMethods: setListingPaymentMethodsReducer,
   allPaymentMethods: setAllPaymentMethodsReducer,

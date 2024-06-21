@@ -10,11 +10,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { read, utils } from 'xlsx';
+import { saveAs } from 'file-saver';
+import { read, utils, write } from 'xlsx';
 
 import PropTypes from "prop-types";
 
-import { Box, Divider, IconButton, Typography } from "@mui/material";
+import { Box, Divider, IconButton, Typography, List, ListItem } from "@mui/material";
 import { Button, Dialog, TextField, useMediaQuery } from "@mui/material";
 import { useTheme } from '@mui/material/styles';
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -43,13 +44,16 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [fileName, setFileName] = useState('');
     const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
+    const [skippedStudents, setSkippedStudents] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode, toastAndNavigate, generatePassword } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate, generateNormalPassword, getLocalStorage } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
+
+    const schoolInformation = getLocalStorage("auth");
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -132,8 +136,8 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     const studentAddmissionDate = await excelSerialToDate(studentAddmissionSerial);
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    if (username && state_id && city_id && class_id && section_id && student.email) {
-                        const password = generatePassword();
+                    if (username && state_id && city_id && class_id && section_id && student.email && student.zipcode) {
+                        const password = await generateNormalPassword(username, schoolInformation.school_code);
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
@@ -146,7 +150,6 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         }, 'user', {
                             designation: 'parent',
                             username: username,
-                            email: student.email,
                             contact_no: student.contact_no
                         });
 
@@ -164,7 +167,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 parent: 'user',
                                 parent_id: user.id
                             });
-                            
+
                             let condition = {
                                 parent_id: user.id,
                                 firstname: student.firstname
@@ -200,12 +203,36 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             });
                         }
                     } else {
+                        let fieldsObj = {
+                            username,
+                            class_id,
+                            section_id,
+                            email: student.email,
+                            zipcode: student.zipcode
+                        }
+                        let emptyField;
+                        Object.keys(fieldsObj).map(field => {
+                            if (!fieldsObj[field]) {
+                                emptyField = field;
+                            }
+                        });
                         setUploadingRecord({
                             ...uploadingRecord,
                             count: uploadingRecord.count--,
                             name: student.firstname,
                             skip: true
                         });
+                        setSkippedStudents(prevSkipped => [...prevSkipped, {
+                            firstname: student?.firstname,
+                            class: student?.class,
+                            section: student?.section,
+                            father_name: student?.father_name,
+                            contact_no: student?.contact_no,
+                            email: student?.email,
+                            street: student?.street,
+                            zipcode: student?.zipcode,
+                            error: emptyField
+                        }]);
                     }
                 } catch (error) {
                     if (error) {
@@ -218,7 +245,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 .then(() => {
                     console.log("All operations completed successfully.");
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#', true);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#');
                 })
                 .catch(error => {
                     setLoading(false);
@@ -228,6 +255,23 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         }
 
     }, [students?.length]);
+
+    const downloadSkippedStudents = () => {
+        const skipped = [];
+        skippedStudents.map(skp => {
+            if (skp.error) {
+                delete skp.error;
+            }
+            skipped.push(skp);
+        })
+
+        const worksheet = utils.json_to_sheet(skippedStudents);
+        const workbook = utils.book_new();
+        utils.book_append_sheet(workbook, worksheet, 'Skipped Students');
+        const excelBuffer = write(workbook, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(data, 'skipped_students.xlsx');
+    };
 
     return (
         <div >
@@ -259,6 +303,49 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 >
                     {`Import ${selected}s`}
                 </Typography>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        padding: 2,
+                        fontFamily: 'Arial, sans-serif',
+                    }}
+                >
+                    {loading && (
+                        <Typography sx={{ fontSize: '1.5em', color: '#555' }}>Loading...</Typography>
+                    )}
+                    {!loading && skippedStudents.length > 0 && (
+                        <Box
+                            sx={{
+                                textAlign: 'center',
+                                border: '1px solid #ddd',
+                                padding: 2,
+                                borderRadius: 1,
+                                backgroundColor: "transparent",
+                                width: '100%',
+                                maxWidth: 600,
+                            }}
+                        >
+                            <Typography variant="h2" sx={{ marginBottom: 2, color: '#333' }}>
+                                Skipped Students
+                            </Typography>
+                            <List sx={{ padding: 0 }}>
+                                {skippedStudents.map((student, index) => (
+                                    <ListItem
+                                        key={index}
+                                        sx={{ marginBottom: 1, fontSize: '1.2em', color: '#666' }}
+                                    >
+                                        {student.firstname} ({student.class} {student.section}) - Missing {student.error}
+                                    </ListItem>
+                                ))}
+                            </List>
+                            <Button onClick={downloadSkippedStudents} variant="contained" color="error" sx={{ marginTop: 2, boxShadow: "3px 3px 1px black, -3px -3px 1px black,3px -3px 1px black, -3px 3px 1px black" }}>
+                                Download Skipped Students Excel
+                            </Button>
+                        </Box>
+                    )}
+                </Box>
                 <Box>
                     <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
                         <TextField
@@ -290,7 +377,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://uploadnow.io/f/bFjqPKs" target="_blank">
+                            <a href="https://ufile.io/n06m1vlw" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}
