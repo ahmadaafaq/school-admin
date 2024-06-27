@@ -44,6 +44,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [fileName, setFileName] = useState('');
     const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
+    const [skipped, setSkipped] = useState(true);
     const [skippedTeachers, setSkippedTeachers] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -138,12 +139,12 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     const isClassTeacher = teacher.is_class_teacher == "yes" ? 1 : 0;
 
                     const username = teacher?.firstname || teacher?.lastname;
-                    if (username && teacher.email && teacher.zipcode) {
+                    if (username && teacher.zipcode && teacher.contact_no) {
                         const password = await generateNormalPassword(username, schoolInformation.school_code);
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
-                            password: password,
+                            password: password.replace(/ /g, ""),
                             email: teacher?.email,
                             contact_no: teacher?.contact_no,
                             role: 4,
@@ -205,6 +206,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 name: teacher.firstname,
                                 skip: false
                             });
+                            setSkipped(false);
                         }
                     } else {
                         let fieldsObj = {
@@ -230,6 +232,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             email: teacher?.email,
                             street: teacher?.street,
                             zipcode: teacher?.zipcode,
+                            dob: teacher?.dob,
                             error: emptyField
                         }]);
                     }
@@ -244,7 +247,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 .then(() => {
                     console.log("All operations completed successfully.");
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '#');
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, 0);
                 })
                 .catch(error => {
                     setLoading(false);
@@ -254,6 +257,12 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         }
 
     }, [teachers?.length]);
+
+    useEffect(() => {
+        if(!skippedTeachers.length && !loading && !skipped) {
+             location.reload();
+        }
+    }, [skippedTeachers.length, loading, skipped]); // 0
 
     const downloadSkippedTeachers = () => {
         const skipped = [];

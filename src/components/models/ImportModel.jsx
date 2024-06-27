@@ -44,6 +44,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const [fileName, setFileName] = useState('');
     const [uploadingRecord, setUploadingRecord] = useState({});
     const [loading, setLoading] = useState(false);
+    const [skipped, setSkipped] = useState(true);
     const [skippedStudents, setSkippedStudents] = useState([]);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
@@ -98,7 +99,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
     const excelSerialToDate = async (serial) => {
         if (serial === undefined || serial === null) {
-            return "0000-00-00";
+            return null;
         }
 
         if (!serial.toString().includes("/") && !serial.toString().includes("-")) {
@@ -136,7 +137,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                     const studentAddmissionDate = await excelSerialToDate(studentAddmissionSerial);
 
                     const username = student?.father_name || student?.mother_name || student?.guardian;
-                    if (username && state_id && city_id && class_id && section_id && student.email && student.zipcode) {
+                    if (username && state_id && city_id && class_id && section_id && student.contact_no && student.zipcode) {
                         const password = await generateNormalPassword(username, schoolInformation.school_code);
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
@@ -201,6 +202,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                                 name: student.firstname,
                                 skip: false
                             });
+                            setSkipped(false);
                         }
                     } else {
                         let fieldsObj = {
@@ -231,6 +233,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             email: student?.email,
                             street: student?.street,
                             zipcode: student?.zipcode,
+                            dob: student?.dob,
                             error: emptyField
                         }]);
                     }
@@ -255,6 +258,12 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
         }
 
     }, [students?.length]);
+
+    useEffect(() => {
+        if(!skippedStudents.length && !loading && !skipped) {
+             location.reload();
+        }
+    }, [skippedStudents.length, loading, skipped]); // 0
 
     const downloadSkippedStudents = () => {
         const skipped = [];

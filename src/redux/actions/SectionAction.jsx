@@ -22,6 +22,13 @@ export const setSchoolSections = (sections) => {
     };
 };
 
+export const setTeacherSections = (sections) => {
+    return {
+        type: ActionTypes.SET_TEACHER_SECTIONS,
+        payload: sections
+    };
+};
+
 export const setAllSections = (sections) => {
     return {
         type: ActionTypes.SET_All_SECTIONS,
