@@ -112,9 +112,10 @@ const FormComponent = () => {
         dataFields.push(formData.addressData.values);
       }
       const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
-      if (responses) {
-        updateImageAndClassData(formData);
-      }
+      // if (responses) {
+      //   updateImageAndClassData(formData);
+      // }
+      updateImageAndClassData(formData);
     } catch (err) {
       setLoading(false);
       toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
@@ -184,8 +185,8 @@ const FormComponent = () => {
                 })
               }
             });
-          });
-          status = true;
+        });
+        status = true;
       }
       // insert old images only in db & not on azure
       if (formData.imageData.values.constructor === Array) {

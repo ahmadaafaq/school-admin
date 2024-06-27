@@ -194,6 +194,7 @@ const SchoolFormComponent = ({
             formik.setFieldValue('subjects', subArr);
         }
     }, []);
+    console.log('test rerender, formik, allclasses', formik.values.classes, allClasses, updatedValues);
 
     return (
         <Box m="20px">
@@ -539,13 +540,17 @@ const SchoolFormComponent = ({
                                         value={formik.values.classes[index]}
                                         onChange={(event, value) => {
                                             const subArr = [...formik.values.classes];
+                                            console.log('test 3', subArr);
                                             subArr[index] = parseInt(value.props.value);
+                                            console.log('test 4', subArr);
                                             formik.setFieldValue("classes", subArr);
-                                            if (formik.values.sections) {            //If old values are there, clean them accordingly
-                                                formik.setFieldValue("sections", []);
-                                            }
-                                            if (formik.values.subjects) {
-                                                formik.setFieldValue("subjects", [[]]);
+                                            if (!updatedValues) {
+                                                if (formik.values.sections) {            //If old values are there, clean them accordingly
+                                                    formik.setFieldValue("sections", []);
+                                                }
+                                                if (formik.values.subjects) {
+                                                    formik.setFieldValue("subjects", [[]]);
+                                                }
                                             }
                                         }}
                                     >
@@ -728,14 +733,16 @@ const SchoolFormComponent = ({
                                 name={`classes${formik.values.classes.length + 1}`}
                                 value={[]}
                                 onChange={(event, value) => {
+                                    console.log('test class');
                                     const subArr = [...formik.values.classes];
+                                    console.log('test 1 ', subArr);
                                     subArr[formik.values.classes.length] = value.props.value;
+                                    console.log('test 2 ', subArr);
                                     formik.setFieldValue("classes", subArr);
                                 }}
                             >
                                 {!allClasses?.length ? null :
-                                    allClasses
-                                        .filter(cls => !formik.values.classes.includes(cls.class_id)) // Exclude the selected class
+                                    allClasses?.filter(cls => !formik.values.classes.includes(cls.class_id)) // Exclude the selected class
                                         .map(cls => (
                                             <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
                                                 {cls.class_name}

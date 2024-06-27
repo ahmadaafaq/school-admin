@@ -82,6 +82,8 @@ const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
       ? schoolClasses.listData
       : allClasses?.listData) || [];
 
+      console.log(schoolClasses,"schoolClasses>>>")
+
   const closeSubMenu = () => {
     if (isSubMenuOpen) {
       setIsubMenuOpen(false);
@@ -117,6 +119,7 @@ const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
   }, [isTab]);
 
   const renderNotCollapsedStudents = () => {
+    console.log(" classData?.length>>", classData);
     return (
       classData?.length &&
       classData.map((classs) => (

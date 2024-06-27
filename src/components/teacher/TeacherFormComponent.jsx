@@ -114,9 +114,7 @@ const TeacherFormComponent = ({
     const sectionSubjects = {};
     classData.forEach((obj) => {
       if (
-        formik.values.classes.includes(
-          initialState?.sections?.length ? `${obj.class_id}` : obj.class_id
-        ) &&
+        (formik.values.classes.includes(`${obj.class_id}`) || formik.values.classes.includes(obj.class_id)) &&
         formik.values.sections.some((sectionArray) =>
           sectionArray.some(
             (sectionObj) => sectionObj.section_id === obj.section_id
@@ -127,8 +125,10 @@ const TeacherFormComponent = ({
           sectionSubjects[obj.class_id] = {};
         }
         const selectedSubjects = findMultipleById(obj.subject_ids, allSubjects);
+
         // subjects for the current class section
         sectionSubjects[obj.class_id][obj.section_id] = selectedSubjects;
+
       }
     });
     // Dispatch the sectionSubjects to redux
@@ -656,12 +656,14 @@ const TeacherFormComponent = ({
                       const subArr = [...formik.values.classes];
                       subArr[index] = value.props.value;
                       formik.setFieldValue("classes", subArr);
-                      if (formik.values.sections) {
-                        //if old values are there, clean them according to change
-                        formik.setFieldValue("sections", []);
-                      }
-                      if (formik.values.subjects) {
-                        formik.setFieldValue("subjects", [[]]);
+                      if (!updatedValues) {
+                        if (formik.values.sections) {
+                          //if old values are there, clean them according to change
+                          formik.setFieldValue("sections", []);
+                        }
+                        if (formik.values.subjects) {
+                          formik.setFieldValue("subjects", [[]]);
+                        }
                       }
                     }}
                   >

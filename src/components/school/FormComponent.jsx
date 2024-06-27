@@ -109,9 +109,10 @@ const FormComponent = () => {
 
         try {
             const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
-            if (responses) {        //due to this if schoolform or address form is dirty, then other forms are also manipulated
-                updateImageAndClassData(formData);
-            }
+            // if (responses) {        //due to this if schoolform or address form is dirty, then other forms are also manipulated
+            //     updateImageAndClassData(formData);
+            // }
+            updateImageAndClassData(formData);
         } catch (err) {
             setLoading(false);
             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);

@@ -19,7 +19,11 @@ import config from "../config";
 import TimeTableValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setTeacherClasses } from "../../redux/actions/ClassAction";
+
 import { setSchoolSections } from "../../redux/actions/SectionAction";
+import { setTeacherSections } from "../../redux/actions/SectionAction";
+
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { setTeacherSubjects } from "../../redux/actions/SubjectAction";
 
@@ -53,14 +57,19 @@ const TimeTableFormComponent = ({
     const [schoolId, setSchoolId] = useState([]);
     const [scale, setScale] = useState(1);
     const schoolClasses = useSelector(state => state.schoolClasses);
+    const teacherClasses = useSelector(state => state.teacherClasses);
+
     const schoolSections = useSelector(state => state.schoolSections);
-    const schoolSubjects = useSelector(state => state.schoolSubjects);
+    const teacherSections = useSelector(state => state.teacherSections);
+
+
+    const teacherSubjects = useSelector(state => state.teacherSubjects);
     const schoolDuration = useSelector(state => state.allSchoolDurations);
 
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const { getPaginatedData } = useCommon();
-    const { fetchAndSetSchoolData, getLocalStorage, findMultipleById } = Utility();
+    const { fetchAndSetSchoolData, getLocalStorage, findMultipleById, fetchAndSetTeacherData } = Utility();
 
     const formik = useFormik({
         initialValues: initialValues,
@@ -149,18 +158,49 @@ const TimeTableFormComponent = ({
     useEffect(() => {
         if (formik.values.class && classData?.length) {
             const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
-            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-            dispatch(setSchoolSections(selectedSections));
+            const seenSections = new Set();
+            const uniqueSections = classSections.filter(({ section_id }) => {
+                if (seenSections.has(section_id)) {
+                    return false;
+                }
+                seenSections.add(section_id);
+                return true;
+            });
+            const selectedSections = uniqueSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+            dispatch(setTeacherSections(selectedSections));
         }
     }, [formik.values?.class, classData?.length]);
 
+
     useEffect(() => {
         if (formik.values.section && classData?.length) {
-            const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values.section);
-            const selectedSubjects = sectionSubjects ? findMultipleById(sectionSubjects[0]?.subject_ids, allSubjects) : [];
-            dispatch(setSchoolSubjects(selectedSubjects));
+            // Filter classData to get objects matching the selected class and section
+            const sectionSubjects = classData.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values.section);
+            
+            // Collect all subject_ids and split them into individual IDs
+            let allSubjectIds = [];
+            sectionSubjects.forEach(subject => {
+                if (subject.subject_ids) {
+                    allSubjectIds = allSubjectIds.concat(subject.subject_ids.split(','));
+                }
+            });
+    
+            // Remove duplicate subject IDs
+            const uniqueSubjectIds = [...new Set(allSubjectIds)];
+    
+            // Convert the array of unique subject IDs back to a comma-separated string
+            const uniqueSubjectIdsString = uniqueSubjectIds.join(',');
+    
+            // Pass the unique subject IDs string to findMultipleById
+            const selectedSubjects = uniqueSubjectIds.length ? findMultipleById(uniqueSubjectIdsString, allSubjects) : [];
+    
+            // Dispatch the selected subjects
+            dispatch(setTeacherSubjects(selectedSubjects));
         }
     }, [formik.values?.class, formik.values?.section, classData.length, allSubjects]);
+        
+    console.log("classDaata>>", classData);
+
 
     useEffect(() => {
         if (reset) {
@@ -191,8 +231,8 @@ const TimeTableFormComponent = ({
     }, [updatedValues]);
 
     useEffect(() => {
-        if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
-            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
+        if (getLocalStorage("schoolInfo") && (!teacherSubjects?.listData?.length || !teacherClasses?.listData?.length || !teacherSections?.listData?.length)) {
+            fetchAndSetTeacherData(dispatch, setTeacherClasses, setTeacherSections, setClassData);
         }
     }, []);
 
@@ -244,19 +284,19 @@ const TimeTableFormComponent = ({
         let count = 0;
         const maxCount = 10;
         const interval = 400; // Interval between scale changes
-    
+
         const intervalId = setInterval(() => {
-          setScale((prevScale) => (prevScale === 1 ? 1.2 : 1));
-          count += 1;
-          if (count >= maxCount) {
-            clearInterval(intervalId);
-            setScale(1); // Reset scale to 1 at the end
-          }
+            setScale((prevScale) => (prevScale === 1 ? 1.2 : 1));
+            count += 1;
+            if (count >= maxCount) {
+                clearInterval(intervalId);
+                setScale(1); // Reset scale to 1 at the end
+            }
         }, interval);
-    
+
         // Cleanup function to clear the interval if the component unmounts
         return () => clearInterval(intervalId);
-      }, []);
+    }, []);
 
     console.log("schoolId", schoolId);
 
@@ -290,8 +330,8 @@ const TimeTableFormComponent = ({
                                 }
                             }}
                         >
-                            {!schoolClasses?.listData?.length ? null :
-                                schoolClasses.listData.map(cls => (
+                            {!teacherClasses?.listData?.length ? null :
+                                teacherClasses.listData.map(cls => (
                                     <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
                                         {cls.class_name}
                                     </MenuItem>
@@ -316,8 +356,8 @@ const TimeTableFormComponent = ({
                                 }
                             }}
                         >
-                            {!schoolSections?.listData?.length ? null :
-                                schoolSections.listData.map(section => (
+                            {!teacherSections?.listData?.length ? null :
+                                teacherSections.listData.map(section => (
                                     <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                         {section.section_name}
                                     </MenuItem>
@@ -387,8 +427,8 @@ const TimeTableFormComponent = ({
                                             value={formik.values[`subject${index + 1}`] || null}
                                             onChange={event => formik.setFieldValue(`subject${index + 1}`, event.target.value)}
                                         >
-                                            {!schoolSubjects?.listData?.length ? null :
-                                                schoolSubjects.listData.map(subject => (
+                                            {!teacherSubjects?.listData?.length ? null :
+                                                teacherSubjects.listData.map(subject => (
                                                     <MenuItem value={subject.id} name={subject.name} key={subject.id}>
                                                         {subject.name}
                                                     </MenuItem>
@@ -403,13 +443,13 @@ const TimeTableFormComponent = ({
 
                     </>
                 )}
-                
-                    {schoolId && <Divider sx={{ width: '99%', marginBottom: "20px" }}>
-                        <Chip color='info' label={`Recess Time ${schoolId?.recess_time} min`}
-                            sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
-                        />
-                    </Divider>}
-                    {schoolId?.length > 0 &&
+
+                {schoolId && <Divider sx={{ width: '99%', marginBottom: "20px" }}>
+                    <Chip color='info' label={`Recess Time ${schoolId?.recess_time} min`}
+                        sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
+                    />
+                </Divider>}
+                {schoolId?.length === 0 &&
                     <Divider sx={{ width: '99%', marginBottom: "20px" }}>
                         <Chip
                             color='error' label={`CREATE A SCHOOL DURATION FIRST`}
@@ -444,8 +484,8 @@ const TimeTableFormComponent = ({
                                             value={formik.values[`subject${index + condition}`] || null}
                                             onChange={event => formik.setFieldValue(`subject${index + condition}`, event.target.value)}
                                         >
-                                            {!schoolSubjects?.listData?.length ? null :
-                                                schoolSubjects.listData.map(subject => (
+                                            {!teacherSubjects?.listData?.length ? null :
+                                                teacherSubjects.listData.map(subject => (
                                                     <MenuItem value={subject.id} name={subject.name} key={subject.id}>
                                                         {subject.name}
                                                     </MenuItem>

@@ -22,7 +22,9 @@ export const Utility = () => {
      * @returns {string|number} - The formatted class representation with the keyword "Class" or the original number if not valid number.
      */
     const addClassKeyword = (num) => {
+        console.log("nummmmm>>>",num);
         return isNaN(num) ? num : `Class ${num}`;
+        
     };
 
     /** Appends a suffix to a number or converts specific string values to abbreviations.
@@ -228,12 +230,12 @@ export const Utility = () => {
         const uniqueDataArray = new Set();
 
         dataArray.forEach(obj => {
-            let combinedKeys = `${obj[key1]}-${obj[key2]}`;
-            uniqueDataArray.add(key3 ? `${combinedKeys}-${obj[key3]}` : combinedKeys);
+            let combinedKeys = `${obj[key1]}+${obj[key2]}`;
+            uniqueDataArray.add(key3 ? `${combinedKeys}+${obj[key3]}` : combinedKeys);
         });
         // Convert the Set back to an array of unique objects
         return Array.from(uniqueDataArray).map(compoundKey => {
-            const [id, name, sub] = compoundKey.split('-');
+            const [id, name, sub] = compoundKey.split('+');
             let obj = {
                 [key1]: parseInt(id),
                 [key2]: name
@@ -270,6 +272,7 @@ export const Utility = () => {
     const fetchAndSetSchoolData = (dispatch, setClassesAction = false, setSectionsAction = false, setClassData = false) => {
         API.SchoolAPI.getSchoolClasses()
             .then(classData => {
+                console.log(classData, "classdata>>")
                 if (classData.status === 'Success') {
                     if (setClassesAction) {
                         const uniqueClassDataArray = createUniqueDataArray(classData.data, 'class_id', 'class_name');
@@ -642,6 +645,7 @@ export const Utility = () => {
         createUniqueDataArray,
         fetchAndSetAll,
         fetchAndSetSchoolData,
+        fetchAndSetTeacherData,
         findById,
         findMultipleById,
         formatDate,

@@ -24,9 +24,11 @@ import { setBusesReducer } from "./BusReducer";
 import { setAllClassesReducer } from "./ClassReducer";
 import { setListingClassesReducer } from "./ClassReducer";
 import { setSchoolClassesReducer } from "./ClassReducer";
+import { setTeacherClassesReducer } from "./ClassReducer";
 import { setAllSectionsReducer } from "./SectionReducer";
 import { setListingSectionsReducer } from "./SectionReducer";
 import { setSchoolSectionsReducer } from "./SectionReducer";
+import { setTeacherSectionsReducer } from "./SectionReducer";
 import { setAllSchoolsReducer } from "./SchoolReducer";
 import { setListingSchoolsReducer } from "./SchoolReducer";
 import { setListingSchoolHousesReducer } from "./SchoolHouseReducer";
@@ -53,10 +55,12 @@ const reducers = combineReducers({
   allClasses: setAllClassesReducer,
   listingClasses: setListingClassesReducer,
   schoolClasses: setSchoolClassesReducer,
+  teacherClasses: setTeacherClassesReducer,
   allMarksheets: setMarksheetsReducer,
   allSections: setAllSectionsReducer,
   listingSections: setListingSectionsReducer,
   schoolSections: setSchoolSectionsReducer,
+  teacherSections: setTeacherSectionsReducer,
   listingSchools: setListingSchoolsReducer,
   allSchools: setAllSchoolsReducer,
   listingSchoolHouses: setListingSchoolHousesReducer,

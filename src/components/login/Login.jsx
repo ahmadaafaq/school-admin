@@ -130,7 +130,7 @@ const Login = () => {
               remLocalStorage("navigatedPath") //removing path after navigating user
             } else {
               navigateTo("/")
-              // location.reload();
+              location.reload();
             }
           }
         })
