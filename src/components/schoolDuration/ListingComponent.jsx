@@ -12,7 +12,6 @@ import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import Search from "../common/Search";
@@ -48,16 +47,6 @@ const ListingComponent = ({ rolePriority = null }) => {
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
 
-    const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-        reloadBtn.style.display = "none";
-        setSearchFlag({
-            search: false,
-            searching: false,
-            oldPagination
-        });
-    };
-
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
@@ -72,7 +61,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 overflow: "hidden",
                 boxShadow: "1px 1px 10px black",
                 backgroundImage: theme.palette.mode === "light"
-                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
@@ -107,7 +96,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                         reloadBtn={reloadBtn}
                         setSearchFlag={setSearchFlag}
                     />
-                    {(rolePriority > 1 && !listData.rows) && (
+                    {rolePriority > 1 && (
                         <Button
                             type="submit"
                             color="success"
@@ -119,24 +108,6 @@ const ListingComponent = ({ rolePriority = null }) => {
                         </Button>)}
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
-                color: colors.grey[100]
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setSchoolDurations}
                 api={API.SchoolDurationAPI}

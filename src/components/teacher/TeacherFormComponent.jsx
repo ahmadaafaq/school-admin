@@ -58,7 +58,7 @@ const initialValues = {
   section: "",
   caste_group: "",
   gender: "",
-  status: "inactive",
+  status: "active",
 };
 
 const TeacherFormComponent = ({
@@ -105,23 +105,16 @@ const TeacherFormComponent = ({
         validated: formik.isSubmitting
           ? Object.keys(formik.errors).length === 0
           : false,
+        dirty: formik.dirty
       });
     }
   };
 
   const getAndSetSubjects = () => {
-    console.log(
-      formik.values.sections,
-      " innnnformik.values.sections",
-      formik.values.classes,
-      classData
-    );
     const sectionSubjects = {};
     classData.forEach((obj) => {
       if (
-        formik.values.classes.includes(
-          initialState?.sections?.length ? `${obj.class_id}` : obj.class_id
-        ) &&
+        (formik.values.classes.includes(`${obj.class_id}`) || formik.values.classes.includes(obj.class_id)) &&
         formik.values.sections.some((sectionArray) =>
           sectionArray.some(
             (sectionObj) => sectionObj.section_id === obj.section_id
@@ -132,15 +125,16 @@ const TeacherFormComponent = ({
           sectionSubjects[obj.class_id] = {};
         }
         const selectedSubjects = findMultipleById(obj.subject_ids, allSubjects);
+
         // subjects for the current class section
         sectionSubjects[obj.class_id][obj.section_id] = selectedSubjects;
+
       }
     });
     // Dispatch the sectionSubjects to redux
     dispatch(setSchoolSubjects(sectionSubjects));
   };
-  console.log(schoolSections?.listData, "innnschool sections");
-  console.log(schoolSubjects?.listData, "innnschool subjects");
+
   const getAndSetSections = () => {
     const selectedSectionsSet = new Set();
     for (const obj of classData) {
@@ -151,7 +145,6 @@ const TeacherFormComponent = ({
           )) ||
         (!formik.values.classes.length && obj.class_id === formik.values.class)
       ) {
-        console.log("innnside section set of classdata", classData);
         selectedSectionsSet.add({
           section_id: obj.section_id,
           section_name: obj.section_name,
@@ -164,11 +157,6 @@ const TeacherFormComponent = ({
         (selectedSection) => selectedSection.section_id === section.section_id
       )
     );
-    console.log(
-      filteredSections,
-      "innnfilteredsections",
-      selectedSectionsArray
-    );
     dispatch(setSchoolSections(filteredSections));
   };
 
@@ -177,14 +165,12 @@ const TeacherFormComponent = ({
       formik.values.sections.some((innerArray) => innerArray.length > 0) &&
       classData.length
     ) {
-      console.log("innnnside get subjects");
       getAndSetSubjects();
     }
   }, [formik.values?.sections, classData.length]);
 
   useEffect(() => {
     if ((formik.values?.classes || formik.values?.class) && classData.length) {
-      console.log("innnnside get sections");
       getAndSetSections();
     }
   }, [formik.values?.classes, formik.values?.class, classData.length]);
@@ -231,22 +217,18 @@ const TeacherFormComponent = ({
 
       // Check if splittedArray is not empty and has keys
       const hasData = splittedArray && Object.keys(splittedArray).length > 0;
-      console.log(splittedArray, "splittedarray");
 
       const assignUpdatedSections = (sectionData) => {
         let filteredSectionArray = [];
         sectionData.map((sections) => {
-          console.log(sections, "section");
 
           // Filter out sections from allSections that have matching ids in the current section
           let filteredSection = allSections?.filter((obj) =>
             sections.some((sect) => sect.section_id === obj.section_id)
           );
-          console.log(filteredSection, "filteredSection");
           filteredSectionArray.push(filteredSection);
         });
 
-        console.log(filteredSectionArray, "filteredSectioArrayn");
         return filteredSectionArray;
       };
 
@@ -275,10 +257,7 @@ const TeacherFormComponent = ({
       });
     }
   }, [updatedValues]);
-  console.log("innn formik sections=>", formik.values.sections);
-  console.log(initialState?.sections?.length, "innn updarws values");
-  console.log("innn formik subjects=>", formik.values.subjects);
-  console.log("innn classdata=>", classData);
+
   return (
     <Box m="20px">
       <form ref={refId}>
@@ -535,14 +514,14 @@ const TeacherFormComponent = ({
                   {!schoolClasses?.listData?.length
                     ? null
                     : schoolClasses.listData.map((cls) => (
-                        <MenuItem
-                          value={cls.class_id}
-                          name={cls.class_name}
-                          key={cls.class_name}
-                        >
-                          {cls.class_name}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        value={cls.class_id}
+                        name={cls.class_name}
+                        key={cls.class_name}
+                      >
+                        {cls.class_name}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <FormHelperText>
                   {formik.touched.class && formik.errors.class}
@@ -566,14 +545,14 @@ const TeacherFormComponent = ({
                   {!schoolSections?.listData?.length
                     ? null
                     : schoolSections.listData.map((section) => (
-                        <MenuItem
-                          value={section.section_id}
-                          name={section.section_name}
-                          key={section.section_id}
-                        >
-                          {section.section_name}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        value={section.section_id}
+                        name={section.section_name}
+                        key={section.section_id}
+                      >
+                        {section.section_name}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <FormHelperText>
                   {formik.touched.section && formik.errors.section}
@@ -581,6 +560,28 @@ const TeacherFormComponent = ({
               </FormControl>
             </>
           )}
+
+          <FormControl
+            variant="filled"
+            sx={{ minWidth: 120 }}
+            error={!!formik.touched.nationality && !!formik.errors.nationality}
+          >
+            <InputLabel>Caste Group</InputLabel>
+            <Select
+              variant="filled"
+              name="caste_group"
+              value={formik.values.caste_group}
+              onChange={formik.handleChange}
+            >
+              <MenuItem value="general">General</MenuItem>
+              <MenuItem value="obc">OBC</MenuItem>
+              <MenuItem value="sc">SC</MenuItem>
+              <MenuItem value="st">ST</MenuItem>
+            </Select>
+            <FormHelperText>
+              {formik.touched.caste_group && formik.errors.caste_group}
+            </FormHelperText>
+          </FormControl>
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
@@ -655,26 +656,28 @@ const TeacherFormComponent = ({
                       const subArr = [...formik.values.classes];
                       subArr[index] = value.props.value;
                       formik.setFieldValue("classes", subArr);
-                      if (formik.values.sections) {
-                        //if old values are there, clean them according to change
-                        formik.setFieldValue("sections", []);
-                      }
-                      if (formik.values.subjects) {
-                        formik.setFieldValue("subjects", [[]]);
+                      if (!updatedValues) {
+                        if (formik.values.sections) {
+                          //if old values are there, clean them according to change
+                          formik.setFieldValue("sections", []);
+                        }
+                        if (formik.values.subjects) {
+                          formik.setFieldValue("subjects", [[]]);
+                        }
                       }
                     }}
                   >
                     {!schoolClasses?.listData?.length
                       ? null
                       : schoolClasses.listData.map((cls) => (
-                          <MenuItem
-                            value={cls.class_id}
-                            name={cls.class_name}
-                            key={cls.class_id}
-                          >
-                            {cls.class_name}
-                          </MenuItem>
-                        ))}
+                        <MenuItem
+                          value={cls.class_id}
+                          name={cls.class_name}
+                          key={cls.class_id}
+                        >
+                          {cls.class_name}
+                        </MenuItem>
+                      ))}
                   </Select>
                   <FormHelperText>
                     {formik.touched.classes && formik.errors.classes}
@@ -690,7 +693,6 @@ const TeacherFormComponent = ({
                   onChange={(event, value) => {
                     const sectArr = [...formik.values.sections];
                     sectArr[index] = value;
-                    console.log("sections", sectArr);
                     formik.setFieldValue("sections", sectArr);
                   }}
                   sx={{ gridColumn: "span 2" }}
@@ -717,7 +719,7 @@ const TeacherFormComponent = ({
                       key={key + sectionIndex}
                       options={
                         schoolSubjects?.listData?.[
-                          formik.values.classes[index]
+                        formik.values.classes[index]
                         ]?.[section.section_id] || []
                       }
                       getOptionLabel={(option) => option.name}
@@ -785,18 +787,18 @@ const TeacherFormComponent = ({
                 {!schoolClasses?.listData?.length
                   ? null
                   : schoolClasses?.listData
-                      .filter(
-                        (cls) => !formik.values.classes.includes(cls.class_id)
-                      ) // Exclude the selected class
-                      .map((cls) => (
-                        <MenuItem
-                          value={cls.class_id}
-                          name={cls.class_name}
-                          key={cls.class_id}
-                        >
-                          {cls.class_name}
-                        </MenuItem>
-                      ))}
+                    .filter(
+                      (cls) => !formik.values.classes.includes(cls.class_id)
+                    ) // Exclude the selected class
+                    .map((cls) => (
+                      <MenuItem
+                        value={cls.class_id}
+                        name={cls.class_name}
+                        key={cls.class_id}
+                      >
+                        {cls.class_name}
+                      </MenuItem>
+                    ))}
               </Select>
               <FormHelperText>
                 {formik.touched.classes && formik.errors.classes}

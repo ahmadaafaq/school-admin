@@ -13,9 +13,10 @@ import { usePDF } from 'react-to-pdf';
 
 import { Avatar, Box, Button, Card, CardContent, CardMedia, Dialog, DialogActions, Grid, IconButton } from '@mui/material';
 import { List, ListItem, ListItemText, TextField, Tooltip, useMediaQuery } from '@mui/material';
-import { green } from '@mui/material/colors';
+import { green, blue, red, grey } from '@mui/material/colors';
 import { useTheme } from '@mui/material/styles';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 
 import './styles.css';
@@ -24,9 +25,11 @@ import API from '../../apis';
 import { tokens } from "../../theme";
 import { Utility } from '../utility';
 
+import idCard from "../assets/idCard.png"
+
 const ENV = import.meta.env;
 
-const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }) => {
+const ICardModal = ({ iCardDetails, setICardDetails, previewStudent, openDialog, setOpenDialog }) => {
     const [signatureImage, setSignatureImage] = useState([]);
     const [signatureImageChange, setSignatureImageChange] = useState([]);
     const formClassesInRedux = useSelector(state => state.schoolClasses);
@@ -40,8 +43,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
     const stateName = document.getElementById("state");
     const cityName = document.getElementById("city");
-    // const isMobile = useMediaQuery("(max-width:480px)");
-    // const isTab = useMediaQuery("(max-width:920px)");
     const { appendSuffix, findById } = Utility();
 
     const className = findById(iCardDetails?.class, formClassesInRedux?.listData)?.class_name;
@@ -54,22 +55,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
         }
         reader.readAsDataURL(file);
     };
-
-    useEffect(() => {
-        if (iCardDetails?.Student) {        //this condition will run when creating image
-            readImageFiles(iCardDetails.Student[0], result => {
-                studentImageRef.current.push(result);
-            });
-        } else if (iCardDetails?.imageData) {    //this condition will run when populating data
-            const imageUrl = `${ENV.VITE_BASE_URL}/get-uploaded-image/${iCardDetails?.imageData[0]?.image_src}`;
-            if (!studentImageRef.current.includes(imageUrl)) {      //it was concatenating the same url multiple times
-                studentImageRef.current.push(imageUrl);
-            }
-        }
-        if (signatureImage?.length) {
-            readImageFiles(signatureImage[0], setSignatureImageChange);
-        }
-    }, [iCardDetails.Student, iCardDetails.imageData, signatureImage, signatureImageChange]);
 
     useEffect(() => {
         if (openDialog) {
@@ -90,7 +75,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openDialog]);
-
+    
     return (
         <Dialog
             fullScreen={fullScreen}
@@ -98,33 +83,35 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
             aria-labelledby="responsive-dialog-title"
             id="dialog"
             sx={{
-                "&. MuiDialog-container": {
+                "&.MuiDialog-container": {
                     height: "102% !important"
-                }
+                },
+                // backgroundColor: grey[100],
+                backdropFilter: "blur(3px)"
             }}
         >
-            <Card ref={targetRef} sx={{ width: '350px' }}>
+            <Card ref={targetRef} sx={{ width: '350px', margin: 'auto', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', borderRadius: '0px', backgroundImage:`url(${idCard})` }}>
                 <Box
                     sx={{
                         display: "grid", gridTemplateColumns: '0.3fr 1fr',
-                        backgroundColor: colors.blueAccent[500], color: '#f6f6f2', borderRadius: '4px', margin: '5px'
+                        backgroundColor: "#2591ea", color: '#f6f6f2', borderRadius: '0 0 20px 20px', padding: '10px'
                     }}
                 >
                     <Avatar sx={{
-                        bgcolor: green[500], height: '50px', width: '50px', justifySelf: 'center', alignSelf: 'center'
+                        bgcolor: green[500], height: '60px', width: '60px', justifySelf: 'center', alignSelf: 'center'
                     }}
                         aria-label="student-id-card">
-                        Logo
+                        <img src="/path/to/logo.png" alt="School Logo" style={{ width: '100%' }} />
                     </Avatar>
-                    <div style={{ display: 'flex', flexWrap: "wrap" }}>
-                        <p className='heading-text' style={{ textAlign: "left", fontSize: '16px', marginBottom: '2px', marginTop: "5px" }}>
+                    <div style={{ display: 'flex', flexWrap: "wrap", alignItems: 'center',flexDirection:"column" }}>
+                        <p className='heading-text' style={{ textAlign: "left", fontSize: '18px', margin: '0' }}>
                             {iCardDetails?.schoolData?.name}
                         </p>
-                        <p className='normal-text' style={{ margin: '0' }}>
+                        <p className='normal-text' style={{ margin: '0', fontSize: '14px' }}>
                             {iCardDetails?.schoolData?.registered_by}
                         </p>
                     </div>
-                    <p className='normal-text' style={{ gridColumn: 'span 2', textAlign: 'center' }}>
+                    <p className='normal-text' style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '10px', fontSize: '12px' }}>
                         {iCardDetails?.schoolData ? `${iCardDetails.schoolData.street}
                      ${iCardDetails.schoolData.landmark} ${iCardDetails.schoolData.city} ${iCardDetails.schoolData.state}
                       ${iCardDetails.schoolData.country}-${iCardDetails.schoolData.zipcode}` : ''}
@@ -133,22 +120,23 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                 <CardMedia
                     component="img"
                     className='student-image'
-                    image={studentImageRef?.current[0]}
+                    image={previewStudent[0]?.value}
                     alt="student-image"
+                    sx={{ borderRadius: '10px 10px 0 0' }}
                 />
-                <CardContent sx={{ padding: '0 2px' }}>
-                    <List sx={{ width: '100%', padding: '0', bgcolor: 'background.paper' }}>
-                        <ListItem sx={{ padding: '0 2px' }}>
+                <CardContent sx={{ padding: '10px' }}>
+                    <List sx={{ width: '100%', padding: '0', bgcolor: 'transparent' }}>
+                        <ListItem sx={{ padding: '0' }}>
                             <ListItemText
                                 className='primary-text'
                                 primary={iCardDetails?.firstname && iCardDetails?.lastname &&
                                     `${iCardDetails.firstname} ${iCardDetails.lastname}`}
                                 primaryTypographyProps={{
-                                    fontSize: '16px', fontWeight: '700', color: colors.blueAccent[500]
+                                    fontSize: '18px', fontWeight: '700', color: colors.blueAccent[500]
                                 }}
                             />
                         </ListItem>
-                        <ListItem sx={{ padding: "0 2px" }}>
+                        <ListItem sx={{ padding: "0" }}>
                             <ListItemText
                                 className='primary-text'
                                 primary={iCardDetails?.session}
@@ -179,7 +167,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                 </CardContent>
 
                 <Grid container>
-                    {/* Column 1 - Image Picker */}
                     {signatureImageChange.length ? null :
                         <Grid item xs={12}>
                             <TextField
@@ -203,7 +190,6 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                                 }}
                             />
                         </Grid>}
-                    {/* Column 2 - Image */}
                     {!signatureImageChange.length ? null :
                         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', position: 'relative' }}>
                             <IconButton
@@ -228,7 +214,7 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                                         fontSize: "16px",
                                         color: "#002147",
                                         "&:hover": {
-                                            color: "red", fontSize: "20px", transition: "all 0.3s ease-in-out"
+                                            color: red[500], fontSize: "20px", transition: "all 0.3s ease-in-out"
                                         }
                                     }}
                                     />
@@ -243,14 +229,13 @@ const ICardModal = ({ iCardDetails, setICardDetails, openDialog, setOpenDialog }
                                 }}
                             />
                         </Grid>}
-                    {/* Row 2 - Text */}
                     <Grid item xs={12}>
                         <p className='heading-text' style={{ margin: '0 50px 20px 0', fontSize: '15px' }}> Principal </p>
                     </Grid>
                 </Grid>
             </Card>
-            <DialogActions sx={{ padding: '8px 12px' }}>
-                <Button color='info' variant='outlined'
+            <DialogActions sx={{ padding: '8px 12px', justifyContent: 'space-between' }}>
+                <Button color='info' variant='contained'
                     onClick={() => toPDF()}
                 >
                     Download

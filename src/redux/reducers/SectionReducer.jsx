@@ -46,6 +46,18 @@ export const setSchoolSectionsReducer = (state = initialSchoolState, action) => 
     }
 };
 
+export const setTeacherSectionsReducer = (state = initialSchoolState, action) => {
+    switch (action.type) {
+        case ActionTypes.SET_TEACHER_SECTIONS:
+            return {
+                ...state,
+                listData: action.payload || []
+            };
+        default:
+            return state;
+    }
+};
+
 export const setAllSectionsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ActionTypes.SET_All_SECTIONS:

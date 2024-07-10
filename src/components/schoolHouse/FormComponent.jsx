@@ -82,7 +82,6 @@ const FormComponent = () => {
 
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(response => {
-                console.log(response, response[0].data.data, 'res')
                 if (response[0].data.status === 'Success') {
                     const captainId = response[0].data.data.captain;
                     const viceCaptainId = response[0].data.data.vice_captain;

@@ -40,6 +40,7 @@ const FormComponent = () => {
     const allSubjects = useSelector(state => state.allSubjects);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
+    
     const timeTableFormRef = useRef();
 
     const navigateTo = useNavigate();
@@ -55,6 +56,7 @@ const FormComponent = () => {
     let class_id = state?.class_id || userParams?.class_id;
     let section_id = state?.section_id || userParams?.section_id;
     let day = state?.day;
+    let batch = state?.batch;
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -67,7 +69,8 @@ const FormComponent = () => {
         let payloadBase = {
             day: formData.timeTableData.values.day,
             class_id: formData.timeTableData.values.class,
-            section_id: formData.timeTableData.values.section
+            section_id: formData.timeTableData.values.section,
+            batch: formData.timeTableData.values.batch
         };
 
         promises = formData.timeTableData.values.period.map((item, index) => {
@@ -94,9 +97,9 @@ const FormComponent = () => {
     }, [formData]);
 
 
-    const populateTimeTableData = useCallback((class_id, section_id, day) => {
+    const populateTimeTableData = useCallback((class_id, section_id, day, batch) => {
         setLoading(true);
-        const path = [`/get-time-tables/?page=0&size=12&classId=${class_id}&section=${section_id}&day=${day}`];
+        const path = [`/get-time-tables/?page=0&size=12&classId=${class_id}&section=${section_id}&day=${day}&batch=${batch}`];
 
         API.CommonAPI.multipleAPICall("GET", path)
             .then(response => {
@@ -112,7 +115,7 @@ const FormComponent = () => {
                 setLoading(false);
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
             });
-    }, [class_id, section_id, day]);
+    }, [class_id, section_id, day, batch]);
 
     const createTimeTable = useCallback(formData => {
         let promises = [];
@@ -120,7 +123,8 @@ const FormComponent = () => {
         let payloadBase = {
             day: formData.timeTableData.values.day,
             class_id: formData.timeTableData.values.class,
-            section_id: formData.timeTableData.values.section
+            section_id: formData.timeTableData.values.section,
+            batch: formData.timeTableData.values.batch
         };
 
         promises = formData.timeTableData.values.period.map((item, index) => {
@@ -155,14 +159,14 @@ const FormComponent = () => {
     useEffect(() => {
         if (class_id && section_id && !submitted) {
             setTitle("Update");
-            populateTimeTableData(class_id, section_id, day);
+            populateTimeTableData(class_id, section_id, day, batch);
         }
         if (formData.timeTableData.validated) {
             (class_id && section_id) ? updateTimeTable(formData) : createTimeTable(formData);
         } else {
             setSubmitted(false);
         }
-    }, [submitted, class_id, section_id, day]);
+    }, [submitted, class_id, section_id, day, batch]);
 
     const handleSubmit = async () => {
         await timeTableFormRef.current.Submit();

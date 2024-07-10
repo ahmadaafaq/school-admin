@@ -12,7 +12,9 @@ import PropTypes from "prop-types";
 import { Box, useTheme, Button } from "@mui/material";
 import { DataGrid, GridToolbar, GridToolbarContainer } from "@mui/x-data-grid";
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import ImportComponent from "../models/ImportModel";
+import ImportComponent from "../models/ImportModel"
+import ImportTeacher from "../models/ImportTeacher";
+import ImportEmployee from "../models/ImportEmployee";
 
 import classNames from '../modules';
 import EmptyOverlayGrid from "./EmptyOverlayGrid";
@@ -26,17 +28,21 @@ const ServerPaginationGrid = ({
     getQuery,
     condition = false,
     columns,
+    rolePriority,
+    importBtn,
     rows,
     count,
     loading,
     selected,
     pageSizeOptions,
     searchFlag,
-    setOldPagination
+    setOldPagination,
+    imports,
+    checkboxSelection = false
 }) => {
     const initialState = {
         page: 0,
-        pageSize: 5 || 10 || 20
+        pageSize: 10 || 20 || 30
     };
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
@@ -74,7 +80,7 @@ const ServerPaginationGrid = ({
     }, [count, setRowCountState]);
 
     return (
-        <Box 
+        <Box
             m="30px 0 0 0"
             sx={{
                 "& .MuiDataGrid-root": {
@@ -83,6 +89,8 @@ const ServerPaginationGrid = ({
                 },
                 "& .MuiDataGrid-cell": {
                     borderBottom: "none",
+                    whiteSpace: "normal !important",
+                    wordWrap: "break-word !important",
                 },
                 "& .MuiDataGrid-cellCheckbox": {
                     borderBottom: "none"
@@ -95,6 +103,7 @@ const ServerPaginationGrid = ({
                 },
                 "& .name-column--cell": {
                     color: colors.greenAccent[300],
+
                 },
                 "& .MuiDataGrid-columnHeaders": {
                     backgroundColor: colors.blueAccent[700],
@@ -119,21 +128,28 @@ const ServerPaginationGrid = ({
             }}
         >
             <DataGrid
-                autoHeight
+                getRowHeight={() => 'auto'}
                 disableRowSelectionOnClick
                 getRowId={row => selected === 'Class' ? row.class_id : (selected === 'Section' ? row.section_id : row.id)}
                 rows={rows || []}
                 columns={columns}
                 loading={classNames.includes(selected) ? loading : loading}
                 rowCount={rowCountState}
+                initialState={{
+                    sorting: {
+                        sortModel: [{ field: 'fullname', sort: 'asc' }],
+                    },
+                }}
                 components={{
                     Toolbar: () => (
                         <Box display="flex" >
                             <GridToolbar />
                             <GridToolbarContainer>
-                                <Button sx={{ padding: "0px" }} onClick={() => setOpenImport(true)}>
-                                    <PostAddIcon sx={{ marginRight: "5px" }} />Import
-                                </Button>
+                                {rolePriority > 1 && importBtn == true && (
+                                    <Button sx={{ padding: "0px" }} onClick={() => setOpenImport(true)}>
+                                        <PostAddIcon sx={{ marginRight: "5px" }} />Import
+                                    </Button>
+                                )}
                             </GridToolbarContainer>
                         </Box>
                     ),
@@ -148,10 +164,11 @@ const ServerPaginationGrid = ({
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 pageSizeOptions={pageSizeOptions}
+                checkboxSelection={checkboxSelection}
                 keepNonExistentRowsSelected
             />
 
-            {openImport && <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} />}
+            {openImport && imports == "student" ? <ImportComponent openDialog={openImport} setOpenDialog={setOpenImport} /> : openImport && imports == "teacher" ? <ImportTeacher openDialog={openImport} setOpenDialog={setOpenImport} /> :  openImport && imports == "employee" ? <ImportEmployee openDialog={openImport} setOpenDialog={setOpenImport} /> : "" }
         </Box>
     );
 };

@@ -74,7 +74,7 @@ export const StudentAPI = {
         "x-access-token": getLocalStorage("auth").token
       },
       method: "GET",
-      signal: cancel ? cancelApiObject[this.getSchoolClasses.name].handleRequestCancellation().signal : undefined
+      signal: cancel ? cancelApiObject[this.getClassOfStudent.name].handleRequestCancellation().signal : undefined
     });
     return response;
   }

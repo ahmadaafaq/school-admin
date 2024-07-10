@@ -36,7 +36,7 @@ const initialValues = {
     viceCaptainSectionId: "",
     teacher_incharge: "",
     strength: "",
-    status: "inactive"
+    status: "active"
 };
 let sectionObj = {};
 
@@ -229,8 +229,8 @@ const SchoolHouseFormComponent = ({
                         >
                             {!allTeachers?.listData?.rows?.length ? null :
                                 allTeachers.listData.rows.map(item => (
-                                    <MenuItem value={item.id} name={`${item.firstname} ${item.lastname}`} key={item.id}>
-                                        {`${item.firstname} ${item.lastname}`}
+                                    <MenuItem value={item.id} name={`${item.teacherName}`} key={item.id}>
+                                        {`${item.teacherName}`}
                                     </MenuItem>
                                 ))}
                         </Select>

@@ -11,7 +11,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import FormComponent from "./FormInModalComponent";
@@ -52,18 +51,8 @@ const ListingComponent = () => {
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-        reloadBtn.style.display = "none";
-        setSearchFlag({
-            search: false,
-            searching: false,
-            oldPagination
-        });
-    };
 
     //For form modal to open
     const handleDialogOpen = () => {
@@ -78,7 +67,7 @@ const ListingComponent = () => {
                 overflow: "hidden",
                 boxShadow: "1px 1px 10px black",
                 backgroundImage: theme.palette.mode === "light"
-                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
@@ -128,24 +117,6 @@ const ListingComponent = () => {
                     </Button>
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
-                color: colors.grey[100]
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setListingSections}
                 api={API.SectionAPI}

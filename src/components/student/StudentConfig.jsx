@@ -33,7 +33,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage } = Utility();
+    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, capitalizeEveryWord, formatDate } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/student/update/${id}`, { state: { id: id } });
@@ -65,9 +65,9 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 150,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
+            valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''} ${capitalizeEveryWord(params.row.lastname)|| ''}`
         },
         {
             field: "class",
@@ -75,18 +75,18 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100,
+            minWidth: 150,
             renderCell: (params) => {
                 let className;
                 let sectionName;
 
-                if (allClasses?.listData?.length || allSections?.listData?.length) {
+                if (allClasses.listData.length && allSections.listData.length) {
                     className = findById(params?.row?.class, allClasses?.listData)?.class_name;
                     sectionName = findById(params?.row?.section, allSections?.listData)?.section_name;
-                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
+                } else if (schoolClasses.listData.length && schoolSections.listData.length) {
                     className = findById(params?.row?.class, schoolClasses?.listData)?.class_name;
                     sectionName = findById(params?.row?.section, schoolSections?.listData)?.section_name;
-                }
+                } 
                 return (
                     <div>
                         {className ? appendSuffix(className) : '/'} {sectionName}
@@ -100,7 +100,7 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 150
         },
         {
             field: "dob",
@@ -108,15 +108,16 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 100
+            minWidth: 150,
+            valueFormatter: (params) => `${formatDate(params.value)}`
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 120,
+            minWidth: 150,
             renderCell: ({ row: { status } }) => {
                 return (
                     <Box
@@ -135,7 +136,8 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status.charAt(0).toUpperCase() + status.slice(1) || ''}
+                            
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
@@ -143,11 +145,11 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
         },
         {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,
-            minWidth: 75,
+            minWidth: 100,
             renderCell: ({ row: { id } }) => {
                 return (
                     <Box width="85%"

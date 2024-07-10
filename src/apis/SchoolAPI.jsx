@@ -86,6 +86,21 @@ export const SchoolAPI = {
     return response;
   },
 
+   /** Get school class and section detail from database
+   */
+   getTeacherClasses: async (school_id, cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-teacher-classes`,
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      method: "GET",
+      params: getLocalStorage("auth")?.role === 1 ? { school_id: school_id } : null,    //this is included in backend req.query
+      signal: cancel ? cancelApiObject[this.getSchoolClasses.name].handleRequestCancellation().signal : undefined
+    });
+    return response;
+  },
+
   /** delete values from school_class_section_subject mapping table on every update
    */
   deleteFromMappingTable: async (fields, cancel = false) => {

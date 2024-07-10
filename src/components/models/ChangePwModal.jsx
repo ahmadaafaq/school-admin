@@ -107,7 +107,6 @@ const ChangePwModal = ({ openDialog, setOpenDialog }) => {
                 .catch(err => {
                     setLoading(false);
                     toastAndNavigate(dispatch, true, "error", err ? err.response?.data?.msg : "An Error Occurred");
-                    console.log('Error Updating Password', err);
                 });
         }
     };

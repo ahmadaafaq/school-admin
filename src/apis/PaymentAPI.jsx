@@ -16,7 +16,12 @@ export const PaymentAPI = {
   /** Get Payments from the database that meets the specified query parameters
    */
   getAll: async (conditionObj = false, page = 0, size = 5, search = false, authInfo, cancel = false) => {
-    const queryParam = conditionObj ? `&${conditionObj.key}=${conditionObj.value}` : '';
+    let queryParam = '';
+    if (conditionObj) {
+      Object.keys(conditionObj).map(key => {
+        queryParam += `&${key}=${conditionObj[key]}`
+      })
+    }
     const searchParam = search ? `&search=${search}` : '';
     const { data: response } = await api.request({
       url: `/get-payments?page=${page}&size=${size}${queryParam}${searchParam}`,
@@ -54,6 +59,19 @@ export const PaymentAPI = {
       method: "PATCH",
       data: fields,
       signal: cancel ? cancelApiObject[this.updatePayment.name].handleRequestCancellation().signal : undefined,
+    });
+  },
+
+  /** Get Payment data required when creating new payment
+   */
+  getPaymentData: async (classId, sectionId, cancel = false) => {
+    return await api.request({
+      url: `/get-payment-data/${classId}/${sectionId}`,
+      method: "GET",
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      signal: cancel ? cancelApiObject[this.getPaymentData.name].handleRequestCancellation().signal : undefined
     });
   }
 };

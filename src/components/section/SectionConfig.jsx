@@ -13,10 +13,14 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
+
 
 export const datagridColumns = (handleDialogOpen) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { capitalizeEveryWord, formatDate } = Utility();
+
     const navigateTo = useNavigate();
 
     const handleActionEdit = (id) => {
@@ -27,7 +31,7 @@ export const datagridColumns = (handleDialogOpen) => {
     const columns = [
         {
             field: "section_name",
-            headerName: "NAME",
+            headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -35,7 +39,7 @@ export const datagridColumns = (handleDialogOpen) => {
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -58,7 +62,7 @@ export const datagridColumns = (handleDialogOpen) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                            {status}
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
@@ -66,16 +70,16 @@ export const datagridColumns = (handleDialogOpen) => {
         },
         {
             field: "updated_at",
-            headerName: "UPDATED AT",
+            headerName: "Updated",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100,
-            valueFormatter: params => params?.value.substring(0, 10)
+            valueFormatter: (params) => `${formatDate(params.value)}`
         },
         {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

@@ -43,7 +43,7 @@ const PreviewImage = ({
                     dbImgFiles.push({
                         key: 'old',
                         index: countOld,
-                        value: `${ENV.VITE_BASE_URL}/get-uploaded-image/${img.image_src}`
+                        value: `${img.image_src}`
                     });
                 }
                 countOld++;
@@ -91,7 +91,7 @@ const PreviewImage = ({
                         dbImgFiles.push({
                             key: 'old',
                             index: countOld,
-                            value: `${ENV.VITE_BASE_URL}/get-uploaded-image/${img.image_src}`
+                            value: `${img.image_src}`
                         });
                         countOld++;
                     }
@@ -135,7 +135,7 @@ const PreviewImage = ({
     };
 
     return (
-        <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit", marginBottom: "8%" }}
+        <ImageList sx={{ width: "80%", height: "60%", overflow: "inherit" }}
             cols={3} rowHeight={isMobile ? 80 : isTab ? 160 : 220} gap={8}>
             {preview ? preview.map((item, index) => (
                 <ImageListItem key={index}>

@@ -22,8 +22,9 @@ import SchoolFormComponent from "./SchoolFormComponent";
 
 import { setAllClasses } from "../../redux/actions/ClassAction";
 import { setAllSections } from "../../redux/actions/SectionAction";
-import { setFormAmenities } from "../../redux/actions/AmenityAction";
 import { setAllSubjects } from "../../redux/actions/SubjectAction";
+import { setAllPaymentMethods } from "../../redux/actions/PaymentMethodAction";
+import { setFormAmenities } from "../../redux/actions/AmenityAction";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { useCommon } from "../hooks/common";
@@ -39,8 +40,8 @@ const FormComponent = () => {
     const [formData, setFormData] = useState({
         schoolData: { values: null, validated: false },
         addressData: { values: null, validated: false },
-        imageData: { values: null, validated: true },
-        bannerImageData: { values: null, validated: true }
+        imageData: { values: null, validated: false },
+        bannerImageData: { values: null, validated: false }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [deletedImage, setDeletedImage] = useState([]);
@@ -58,6 +59,7 @@ const FormComponent = () => {
     const allSections = useSelector(state => state.allSections);
     const allSubjects = useSelector(state => state.allSubjects);
     const formAmenitiesInRedux = useSelector(state => state.allFormAmenities);
+    const allPaymentMethods = useSelector(state => state.allPaymentMethods);
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
 
@@ -75,8 +77,8 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getPaginatedData } = useCommon();
-    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, getValuesFromArray,
-        isObjEmpty, fetchAndSetAll, toastAndNavigate } = Utility();
+    const { createSchoolCode, formatImageName, getLocalStorage, getIdsFromObject, findMultipleById,
+        fetchAndSetAll, toastAndNavigate } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting school id from url params
     let id = state?.id || userParams?.id;
@@ -88,21 +90,29 @@ const FormComponent = () => {
 
     const updateSchoolAndAddress = useCallback(async formData => {
         setLoading(true);
-        const paths = ["/update-school", "/update-address"];
+        const paths = [];
+        const dataFields = [];
 
-        const dataFields = [
-            {
+        if (formData.schoolData.dirty) {
+            paths.push("/update-school");
+            dataFields.push({
                 ...formData.schoolData.values,
-                amenities: getIdsFromObject(formData.schoolData.values.amenities)
-            },
-            { ...formData.addressData.values }
-        ];
+                amenities: getIdsFromObject(formData.schoolData.values.amenities),
+                payment_methods: getIdsFromObject(formData.schoolData.values.payment_methods)
+            });
+        }
+
+        if (formData.addressData.dirty) {
+            paths.push("/update-address");
+            dataFields.push({ ...formData.addressData.values });
+        }
 
         try {
             const responses = await API.CommonAPI.multipleAPICall("PATCH", paths, dataFields);
-            if (responses) {
-                updateImageAndClassData(formData);
-            }
+            // if (responses) {        //due to this if schoolform or address form is dirty, then other forms are also manipulated
+            //     updateImageAndClassData(formData);
+            // }
+            updateImageAndClassData(formData);
         } catch (err) {
             setLoading(false);
             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
@@ -111,7 +121,6 @@ const FormComponent = () => {
     }, [formData]);
 
     const updateImageAndClassData = useCallback(async formData => {
-
         // delete the selected (removed) images from Azure which are in deletedImage state
         // if (deletedImage.length) {
         //     deletedImage.forEach(image => {
@@ -126,92 +135,111 @@ const FormComponent = () => {
         //         console.log("Deleted  banner image from azure");
         //     });
         // }
+        let status = null;
 
-        // delete all images from db on every update and later insert new and old again
-        API.ImageAPI.deleteImage({
-            parent: "school",
-            parent_id: id
-        });
+        if (formData.schoolData.dirty) {
+            // Delete all class sections from the mapping table
+            await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
 
-        // delete all class sections from mapping table
-        await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
+            const updatedClassData = formData.schoolData.values.sections.map(async (innerArray, classIndex) => {
+                // Get class-related data or default to 0 if not available
+                const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                const classFee = formData.schoolData.values.classes_fee[classIndex] || 0;
+                const classCapacity = formData.schoolData.values.classes_capacity[classIndex] || 0;
+                const classLateFee = formData.schoolData.values.classes_late_fee[classIndex] || 0;
+                const classLateFeeDuration = formData.schoolData.values.classes_late_fee_duration[classIndex] || 0;
 
-        const updatePromises = formData.schoolData.values.sections.map((innerArray, classIndex) => {
-            const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
-            // Iterating through each section in the class then associating subject ids for each section of class
-            innerArray.map((sectionData, sectionIndex) => {
-                const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                API.SchoolAPI.insertIntoMappingTable(
-                    [formData.schoolData.values.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
-                );
+                // Iterating through each section in the class then associating subject ids for each section of class
+                return Promise.all(innerArray.map(async (sectionData, sectionIndex) => {
+                    const subjectArray = formData.schoolData.values.subjects[classIndex] ? formData.schoolData.values.subjects[classIndex][sectionIndex] : [];
+                    await API.SchoolAPI.insertIntoMappingTable(
+                        [formData.schoolData.values.id, schoolClass, sectionData.section_id,
+                        getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
+                            classLateFeeDuration]
+                    );
+                }));
             });
-        });
+            await Promise.all(updatedClassData);
+        }
 
         try {
-            let status = null;
             let formattedName;
-            await Promise.all(updatePromises);
-            if (!isObjEmpty(formData.imageData.values)) {
-                // upload new images display to backend folder and insert in db
-                if (formData.imageData.values?.Display) {
-                    Array.from(formData.imageData.values.Display).map(image => {
-                        formattedName = formatImageName(image.name);
-                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                        API.ImageAPI.createImage({
-                            image_src: formattedName,
-                            school_id: formData.schoolData.values.id,
-                            parent_id: formData.schoolData.values.id,
-                            parent: 'school',
-                            type: 'display'
+            // delete all images from db on every update and later insert new and old again
+            await API.ImageAPI.deleteImage({
+                parent: "school",
+                parent_id: id
+            });
+            // upload new images to backend folder and insert in db
+            if (formData.imageData?.values?.image) {
+                Array.from(formData.imageData.values?.image).map(async image => {
+                    formattedName = formatImageName(image.name);
+                        API.ImageAPI.uploadImageToS3({
+                        image: image,
+                        folder: `school/${formattedName}`,
+                    })
+                        .then(res => {
+                            if (res.data.status === "Success") {
+                                API.ImageAPI.createImage({
+                                    image_src: res.data.data,
+                                    school_id: formData.schoolData.values.id,
+                                    parent_id: formData.schoolData.values.id,
+                                    parent: 'school',
+                                    type: 'display'
+                                })
+                            }
+
                         })
-                    });
-                    status = true;
-                }
-                // insert old images display only in db & not on azure
-                if (formData.imageData?.values) {
-                    formData.imageData.values.map(image => {
-                        API.ImageAPI.createImage({
-                            image_src: image.image_src,
-                            school_id: image.school_id,
-                            parent_id: image.parent_id,
-                            parent: image.parent,
-                            type: image.type
-                        })
-                    });
-                    status = true;
-                }
+                });
+                status = true;
             }
-            if (!isObjEmpty(formData.bannerImageData.values)) {
-                // upload new banner images to azure and insert in db
-                if (formData.bannerImageData.values?.Banner) {
-                    Array.from(formData.bannerImageData.values?.Banner).map(image => {
-                        let formattedName = formatImageName(image.name);
-                        API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                        API.ImageAPI.createImage({
-                            image_src: formattedName,
-                            school_id: formData.schoolData.values.id,
-                            parent_id: formData.schoolData.values.id,
-                            parent: 'school',
-                            type: 'banner'
-                        })
+            // insert old images only in db & not on azure
+            if (formData.imageData?.values?.constructor === Array) {
+                formData.imageData.values.map(async image => {
+                    await API.ImageAPI.createImage({
+                        image_src: image.image_src,
+                        school_id: image.school_id,
+                        parent_id: image.parent_id,
+                        parent: image.parent,
+                        type: image.type
                     });
-                    status = true;
-                }
-                // insert old images banner only in db & not on azure
-                if (formData.bannerImageData?.values) {
-                    formData.bannerImageData.values.map(image => {
-                        API.ImageAPI.createImage({
-                            image_src: image.image_src,
-                            school_id: image.school_id,
-                            parent_id: image.parent_id,
-                            parent: image.parent,
-                            type: image.type
+                });
+                status = true;
+            }
+
+            // upload new parent images to azure and insert in db
+            if (formData.bannerImageData?.values?.image) {
+                Array.from(formData.bannerImageData.values.image).map(async image => {
+                    let formattedName = formatImageName(image.name);
+                    await API.ImageAPI.uploadImageToS3({
+                        image: image,
+                        folder: `school/${formattedName}`
+                    })
+                        .then(res => {
+                            if (res.data.status === "Success") {
+                                API.ImageAPI.createImage({
+                                    image_src: res.data.data,
+                                    school_id: formData.schoolData.values.id,
+                                    parent_id: formData.schoolData.values.id,
+                                    parent: 'school',
+                                    type: 'banner'
+                                })
+                            }
                         })
+                });
+                status = true;
+            }
+            // insert old images parent only in db & not on azure
+            if (formData.bannerImageData?.values?.constructor === Array) {
+                formData.bannerImageData.values.map(async image => {
+                    await API.ImageAPI.createImage({
+                        image_src: image.image_src,
+                        school_id: image.school_id,
+                        parent_id: image.parent_id,
+                        parent: image.parent,
+                        type: image.type
                     });
-                    status = true;
-                }
-            } else {
-                status = true;      //ye hai isempty datafields[3]
+                });
+                status = true;
             }
             if (status) {
                 setLoading(false);
@@ -220,9 +248,9 @@ const FormComponent = () => {
         } catch (err) {
             setLoading(false);
             toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-            throw err;
+            console.log("Error in School Update", err);
         }
-    }, []);
+    }, [formData]);
 
     const populateSchoolData = useCallback(id => {
         setLoading(true);
@@ -231,7 +259,8 @@ const FormComponent = () => {
         API.CommonAPI.multipleAPICall("GET", paths)
             .then(responses => {
                 if (responses[0]?.data?.data) {
-                    responses[0].data.data.amenities = getValuesFromArray(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
+                    responses[0].data.data.amenities = findMultipleById(responses[0].data.data?.amenities, formAmenitiesInRedux?.listData?.rows);
+                    responses[0].data.data.payment_methods = findMultipleById(responses[0].data.data?.payment_methods, allPaymentMethods?.listData);
                 }
                 API.SchoolAPI.getSchoolClasses(id)
                     .then(res => {
@@ -255,9 +284,9 @@ const FormComponent = () => {
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error fetching school classes", navigateTo, 0);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg || "Error in MultipleApiCall", navigateTo, 0);
             });
-    }, [formAmenitiesInRedux?.listData?.rows]);
+    }, [formAmenitiesInRedux?.listData?.rows, allPaymentMethods?.listData?.length]);
 
     const createSchool = useCallback(formData => {
         let promise1;
@@ -269,7 +298,8 @@ const FormComponent = () => {
         formData.schoolData.values = {
             ...formData.schoolData.values,
             school_code: createSchoolCode(formData.schoolData.values?.name),
-            amenities: getIdsFromObject(formData.schoolData.values?.amenities)
+            amenities: getIdsFromObject(formData.schoolData.values?.amenities),
+            payment_methods: getIdsFromObject(formData.schoolData.values?.payment_methods)
         };
 
         API.SchoolAPI.createSchool({ ...formData.schoolData.values })
@@ -283,48 +313,70 @@ const FormComponent = () => {
                     });
 
                     promise2 = formData.schoolData.values.sections.map((innerArray, classIndex) => {
+                        // Get class-related data or default to 0 if not available
                         const schoolClass = formData.schoolData.values.classes[classIndex] || 0;
+                        const classFee = formData.schoolData.values.classes_fee[classIndex] || 0;
+                        const classCapacity = formData.schoolData.values.classes_capacity[classIndex] || 0;
+                        const classLateFee = formData.schoolData.values.classes_late_fee[classIndex] || 0;
+                        const classLateFeeDuration = formData.schoolData.values.classes_late_fee_duration[classIndex] || 0;
+
                         // Iterating through each section in the class then associating subject ids for each section of class
-                        innerArray.map((sectionData, sectionIndex) => {
-                            const subjectArray = formData.schoolData.values.subjects[classIndex][sectionIndex] || [];
-                            API.SchoolAPI.insertIntoMappingTable(
-                                [school.data.id, schoolClass, sectionData.section_id, getIdsFromObject(subjectArray, allSubjects?.listData)]
+                        innerArray.map(async (sectionData, sectionIndex) => {
+                            // Get subject array for the current section or default to empty array
+                            const subjectArray = formData.schoolData.values.subjects[classIndex] ? formData.schoolData.values.subjects[classIndex][sectionIndex] : [];
+                            await API.SchoolAPI.insertIntoMappingTable(
+                                [school.data.id, schoolClass, sectionData.section_id,
+                                getIdsFromObject(subjectArray, allSubjects?.listData), classFee, classCapacity, classLateFee,
+                                    classLateFeeDuration]
                             );
                         });
                     });
-
-                    if (formData.imageData.values.Display?.length) {
-                        promise3 = Array.from(formData.imageData.values.Display).map(async (image) => {
+                    if (formData.imageData.values?.image?.length) {
+                        promise3 = Array.from(formData.imageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: school.data.id,
-                                parent_id: school.data.id,
-                                parent: 'school',
-                                type: 'display'
-                            });
+                            API.ImageAPI.uploadImageToS3({
+                                image: image,
+                                folder: `school/${formattedName}`,
+                            })
+                                .then(res => {
+                                    if (res.data.status === "Success") {
+                                        API.ImageAPI.createImage({
+                                            image_src: res.data.data,
+                                            school_id: school.data.id,
+                                            parent_id: school.data.id,
+                                            parent: 'school',
+                                            type: 'display'
+                                        })
+                                    }
+                                })
                         });
                     }
 
-                    if (formData.bannerImageData.values.Banner?.length) {
-                        promise4 = Array.from(formData.bannerImageData.values.Banner).map(async (image) => {
+                    if (formData.bannerImageData.values.image?.length) {
+                        promise4 = Array.from(formData.bannerImageData.values.image).map(async (image) => {
                             let formattedName = formatImageName(image.name);
-                            API.ImageAPI.uploadImage({ image: image, imageName: formattedName });
-                            API.ImageAPI.createImage({
-                                image_src: formattedName,
-                                school_id: school.data.id,
-                                parent_id: school.data.id,
-                                parent: 'school',
-                                type: 'banner'
-                            });
+                            API.ImageAPI.uploadImageToS3({
+                                image: image,
+                                folder: `school/${formattedName}`,
+                            })
+                                .then(res => {
+                                    if (res.data.status === "Success") {
+                                        API.ImageAPI.createImage({
+                                            image_src: res.data.data,
+                                            school_id: school.data.id,
+                                            parent_id: school.data.id,
+                                            parent: 'school',
+                                            type: 'banner'
+                                        })
+                                    }
+                                })
                         });
                     }
 
                     return Promise.all([promise1, promise2, promise3, promise4])
                         .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing');
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/school/listing', true);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -338,31 +390,37 @@ const FormComponent = () => {
                 toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
                 throw err;
             });
-    }, []);
+    }, [formData]);
 
     useEffect(() => {
         if (!formAmenitiesInRedux?.listData?.rows?.length) {
             getPaginatedData(0, 50, setFormAmenities, API.AmenityAPI);
         }
-    }, [formAmenitiesInRedux?.listData?.rows?.length]);
+    }, []);
+
+    useEffect(() => {
+        if (!allPaymentMethods?.listData?.length) {
+            fetchAndSetAll(dispatch, setAllPaymentMethods, API.PaymentMethodAPI);
+        }
+    }, []);
 
     useEffect(() => {
         if (!allSubjects?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSubjects, API.SubjectAPI);
         }
-    }, [allSubjects?.listData?.length]);
+    }, []);
 
     useEffect(() => {
         if (!allClasses?.listData?.length) {
             fetchAndSetAll(dispatch, setAllClasses, API.ClassAPI);
         }
-    }, [allClasses?.listData?.length]);
+    }, []);
 
     useEffect(() => {
         if (!allSections?.listData?.length) {
             fetchAndSetAll(dispatch, setAllSections, API.SectionAPI);
         }
-    }, [allSections?.listData?.length]);
+    }, []);
 
     //Create/Update/Populate School
     useEffect(() => {
@@ -370,7 +428,7 @@ const FormComponent = () => {
             setTitle("Update");
             populateSchoolData(id);
         }
-        if (formData.schoolData.validated && formData.addressData.validated) {
+        if (formData.schoolData.validated && formData.addressData.validated && formData.imageData.validated && formData.bannerImageData.validated) {
             formData.schoolData.values?.id ? updateSchoolAndAddress(formData) : createSchool(formData);
         } else {
             setSubmitted(false);
@@ -430,8 +488,9 @@ const FormComponent = () => {
                 schoolId={id}
                 allClasses={allClasses?.listData}
                 allSections={allSections?.listData}
-                amenities={formAmenitiesInRedux?.listData?.rows}
                 subjectsInRedux={allSubjects?.listData}
+                amenities={formAmenitiesInRedux?.listData?.rows}
+                paymentMethods={allPaymentMethods?.listData}
                 updatedValues={updatedValues?.schoolData}
             />
             <AddressFormComponent
@@ -459,7 +518,6 @@ const FormComponent = () => {
                 deletedImage={deletedImage}
                 setDeletedImage={setDeletedImage}
                 imageType="Display"
-                multiple={true}
                 ENV={ENV}
             />
             <ImagePicker
@@ -478,6 +536,7 @@ const FormComponent = () => {
                 imageType="Banner"
                 multiple={true}
                 ENV={ENV}
+                validation={false}
             />
 
             <Box display="flex" justifyContent="end" m="20px">

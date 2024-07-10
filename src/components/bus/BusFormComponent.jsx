@@ -26,7 +26,7 @@ const initialValues = {
     conductor_contact: "",
     conductor_aadhaar: "",
     route: "",
-    status: "inactive"
+    status: "active"
 };
 
 const BusFormComponent = ({
@@ -60,7 +60,8 @@ const BusFormComponent = ({
                 values: formik.values,
                 validated: formik.isSubmitting
                     ? Object.keys(formik.errors).length === 0
-                    : false
+                    : false,
+                    dirty: formik.dirty
             });
         }
     }

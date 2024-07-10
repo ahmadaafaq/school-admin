@@ -17,7 +17,8 @@ const checkoutSchema = yup.object().shape({
         .max(50, 'Firstname is Too Long!')
         .required("This Field is Required"),
     email: yup.string()
-        .matches(emailRegExp, "Email Address is Not Valid"),
+        .matches(emailRegExp, "Email Address is Not Valid")
+        .required("This Field is Required"),
     contact_no_1: yup.string()
         .matches(phoneRegExp, "Phone Number Is Not Valid")
         .required("This Field is Required"),
@@ -27,7 +28,27 @@ const checkoutSchema = yup.object().shape({
         .required("This Field is Required"),
     board: yup.string()
         .required("This Field is Required"),
-    status: yup.string()
+    registered_by: yup.string()
+        .required("This Field is Required"),
+    payment_date: yup.number()
+        .required("This Field is Required"),
+    session_start: yup.string()
+        .required("This Field is Required"),
+    capacity: yup.number()
+        .required("This Field is Required"),
+    payment_methods: yup.array().min(1, "At least 1 Payment method is required is Required")
+        .required("required"),
+    classes: yup.array().min(1, "At least 1 Class is Required")
+        .required("required"),
+    classes_fee: yup.array().min(1, "At least 1 Class fee is Required")
+        .required("required"),
+    classes_late_fee: yup.array().min(1, "At least 1 Class late fee is Required")
+        .required("required"),
+    classes_late_fee_duration: yup.array().min(1, "At least 1 Class late fee duration is Required")
+        .required("required"),
+    sections: yup.array().min(1, "At least 1 section fee duration is Required")
+        .required("required")
+
 });
 
 export default checkoutSchema;

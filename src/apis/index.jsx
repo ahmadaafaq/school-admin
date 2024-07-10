@@ -15,10 +15,13 @@ import { CommonAPI } from "./CommonAPI";
 import { CountryAPI } from "./CountryAPI";
 import { DashboardAPI } from "./DashboardAPI";
 import { EmployeeAPI } from "./EmployeeAPI";
+import { GenerateIdCardAPI  } from "./GenerateIdCard";
 import { HolidayAPI } from "./HolidayAPI";
 import { ImageAPI } from "./ImageAPI";
 import { MarksheetAPI } from "./MarksheetAPI";
+import { NoticeBoardAPI } from "./NoticeBoardAPI"
 import { PaymentAPI } from "./PaymentAPI";
+import { PaymentMethodAPI } from "./PaymentMethodAPI";
 import { SchoolAPI } from "./SchoolAPI";
 import { SchoolDurationAPI } from "./SchoolDurationAPI";
 import { SchoolHouseAPI } from "./SchoolHouseAPI";
@@ -41,10 +44,13 @@ export default {
     CountryAPI,
     DashboardAPI,
     EmployeeAPI,
+    GenerateIdCardAPI,
     HolidayAPI,
     ImageAPI,
     MarksheetAPI,
+    NoticeBoardAPI,
     PaymentAPI,
+    PaymentMethodAPI,
     SchoolAPI,
     SchoolDurationAPI,
     SchoolHouseAPI,
