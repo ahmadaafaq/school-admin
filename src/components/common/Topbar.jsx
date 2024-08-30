@@ -48,7 +48,7 @@ import { Utility } from "../utility";
 import { useNavigate } from "react-router-dom";
 import { red } from "@mui/material/colors";
 
-const Topbar = ({ roleName = null, rolePriority = null, isCollapsed, setIsCollapsed }) => {
+const Topbar = ({ roleName = null, rolePriority = null, isCollapsed, setIsCollapsed, schoolInfo }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [isOpen, setIsOpen] = useState(true);
@@ -74,7 +74,7 @@ const Topbar = ({ roleName = null, rolePriority = null, isCollapsed, setIsCollap
     setLocalStorage,
   } = Utility();
   const { username, role } = getNameAndType(roleName);
-  const schoolInfo = getLocalStorage("schoolInfo");
+  
 
   const CustomOption = {
     id: null,

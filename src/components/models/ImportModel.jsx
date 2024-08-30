@@ -50,7 +50,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode, toastAndNavigate, generateNormalPassword, getLocalStorage } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate, generateNormalPassword, getLocalStorage, formateName } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
 
@@ -123,26 +123,24 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                 try {
                     setLoading(true);
                     const apiResponse = await getStateCityFromZipCode(student.zipcode);
-
                     const cityName = await apiResponse.city;
                     const stateName = await apiResponse.state;
                     const studentDobSerial = student.dob;
                     const studentAddmissionSerial = student.admission_date;
-
                     const state_id = await getIdByName(stateName, API.StateAPI);
                     const city_id = await getIdByName(cityName, API.CityAPI);
-                    const class_id = await getIdByName(student.class, API.ClassAPI);
-                    const section_id = await getIdByName(student.section, API.SectionAPI);
+                    const class_id = await getIdByName(student.class , API.ClassAPI);
+                    const section_id = await getIdByName(student.section.replace(" ","") , API.SectionAPI);
                     const studentDob = await excelSerialToDate(studentDobSerial);
                     const studentAddmissionDate = await excelSerialToDate(studentAddmissionSerial);
 
-                    const username = student?.father_name || student?.mother_name || student?.guardian;
+                    const username = await formateName(student?.father_name || student?.mother_name || student?.guardian);
                     if (username && state_id && city_id && class_id && section_id && student.contact_no && student.zipcode) {
                         const password = await generateNormalPassword(username, schoolInformation.school_code);
 
                         const { data: user, status } = await API.CommonAPI.createOrUpdate({
                             username: username,
-                            password: password,
+                            password: password.replace(/ /g, ""),
                             email: student?.email,
                             contact_no: student?.contact_no,
                             role: 5,
@@ -150,9 +148,9 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             status: 'active'
                         }, 'user', {
                             designation: 'parent',
-                            username: username,
                             contact_no: student.contact_no
                         });
+                        console.log(status);
 
                         if (status === 'Success') {
                             API.CommonAPI.createOrUpdate({
@@ -209,7 +207,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             username,
                             class_id,
                             section_id,
-                            email: student.email,
+                            contact_no: student.contact_no,
                             zipcode: student.zipcode
                         }
                         let emptyField;
@@ -226,6 +224,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         });
                         setSkippedStudents(prevSkipped => [...prevSkipped, {
                             firstname: student?.firstname,
+                            lastname: student?.lastname,
                             class: student?.class,
                             section: student?.section,
                             father_name: student?.father_name,
@@ -260,8 +259,8 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     }, [students?.length]);
 
     useEffect(() => {
-        if(!skippedStudents.length && !loading && !skipped) {
-             location.reload();
+        if (!skippedStudents.length && !loading && !skipped) {
+            location.reload();
         }
     }, [skippedStudents.length, loading, skipped]); // 0
 
@@ -386,7 +385,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                         <Divider />
                         <Box display="flex" justifyContent="space-between" p="20px">
 
-                            <a href="https://ufile.io/n06m1vlw" target="_blank">
+                            <a href="https://ufile.io/se7xnfkd" target="_blank">
                                 <Button
                                     component="label"
                                     role={undefined}

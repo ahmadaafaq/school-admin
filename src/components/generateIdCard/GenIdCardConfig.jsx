@@ -95,15 +95,24 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
 
     const columns = [
         {
+            field: "school_name",
+            headerName: "School Name",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 150
+        },
+        {
             field: 'student_image',
             headerName: 'Student Img',
             headerAlign: 'center',
             align: 'center',
             flex: 1,
             minWidth: 150,
+            valueGetter: (params) => params.value?.split("/").pop(), // for export
             renderCell: (params) => (
                 <img
-                    src={params.value}
+                    src={params.row.student_image} // use params.row.student_image for the image URL
                     alt="No Image Found"
                     style={{ width: '100px', height: '100px' }}
                 />
@@ -128,6 +137,14 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             minWidth: 150
         },
         {
+            field: "mother_name",
+            headerName: "Mother Name",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 150
+        },
+        {
             field: "class_section",
             headerName: "Class",
             headerAlign: "center",
@@ -135,14 +152,6 @@ export const datagridColumns = (rolePriority = null, setOpen = null) => {
             flex: 1,
             minWidth: 200,
             valueFormatter: (params) => transformClassSection(params.value),
-        },
-        {
-            field: "blood_group",
-            headerName: "Blood Group",
-            headerAlign: "center",
-            align: "center",
-            flex: 1,
-            minWidth: 80
         },
         {
             field: "contact_no",

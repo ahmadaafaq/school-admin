@@ -50,7 +50,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     const toastInfo = useSelector(state => state.toastInfo);
 
     const { typography } = themeSettings(theme.palette.mode);
-    const { getStateCityFromZipCode, toastAndNavigate, generateNormalPassword, getLocalStorage } = Utility();
+    const { getStateCityFromZipCode, toastAndNavigate, generateNormalPassword, getLocalStorage, formateName } = Utility();
     const dispatch = useDispatch();
     const navigateTo = useNavigate();
 
@@ -138,7 +138,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
                     const isClassTeacher = teacher.is_class_teacher == "yes" ? 1 : 0;
 
-                    const username = teacher?.firstname || teacher?.lastname;
+                    const username = await formateName(teacher?.firstname || teacher?.lastname);
                     if (username && teacher.zipcode && teacher.contact_no) {
                         const password = await generateNormalPassword(username, schoolInformation.school_code);
 
@@ -179,7 +179,7 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
                             const { data: tea } = await API.CommonAPI.createOrUpdate({
                                 ...teacher,
                                 parent_id: user.id,
-                                is_class_teacher : isClassTeacher,
+                                is_class_teacher: isClassTeacher,
                                 class: class_id,
                                 section: section_id,
                                 status: 'active',
@@ -259,8 +259,8 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
     }, [teachers?.length]);
 
     useEffect(() => {
-        if(!skippedTeachers.length && !loading && !skipped) {
-             location.reload();
+        if (!skippedTeachers.length && !loading && !skipped) {
+            location.reload();
         }
     }, [skippedTeachers.length, loading, skipped]); // 0
 
