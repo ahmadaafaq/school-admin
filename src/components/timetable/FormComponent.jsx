@@ -140,7 +140,7 @@ const FormComponent = () => {
         return Promise.all(promises)
             .then(() => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`);
+                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/time-table/listing`, true);
             })
             .catch(err => {
                 setLoading(false);

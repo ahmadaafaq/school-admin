@@ -127,13 +127,12 @@ const ImportComponent = ({ openDialog, setOpenDialog }) => {
 
                     const employeeDob = await excelSerialToDate(employeeDobSerial);
 
-                    if (employee.firstname && employee.email) {
+                    if (employee.firstname) {
                         
                         if (employee.firstname) {
 
                             let condition = {
                                 contact_no : employee.contact_no,
-                                email: employee.email
                             }
                            
                             const { data: emp } = await API.CommonAPI.createOrUpdate({

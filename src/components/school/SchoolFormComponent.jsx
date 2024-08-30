@@ -117,6 +117,8 @@ const SchoolFormComponent = ({
         }
     }, [formik.dirty]);
 
+    console.log("formikdirty",formik.dirty);
+
     useEffect(() => {
         if (updatedValues) {
             const splittedArray = updatedValues.selectedClass.reduce((acc, obj) => {

@@ -177,6 +177,8 @@ function App() {
     verifyToken,
   } = Utility();
 
+  const schoolInfo = getLocalStorage("schoolInfo");
+
   if (splittedPath.length > 0) {
     pathname = splittedPath[1];
   }
@@ -248,6 +250,7 @@ function App() {
                 rolePriority={userRole.priority}
                 isCollapsed={isCollapsed}
                 setIsCollapsed={setIsCollapsed}
+                schoolInfo={schoolInfo}
               />
               <main className="content">
                 <Topbar
@@ -255,6 +258,7 @@ function App() {
                   rolePriority={userRole.priority}
                   isCollapsed={isCollapsed}
                   setIsCollapsed={setIsCollapsed}
+                  schoolInfo={schoolInfo}
                 />
                 <Routes>
                   {userRole.priority === 1 && (
@@ -367,6 +371,7 @@ function App() {
                         element={
                           <StudentListingComponent
                             rolePriority={userRole.priority}
+                            schoolInfo={schoolInfo}
                           />
                         }
                       />

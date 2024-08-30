@@ -72,7 +72,8 @@ const FormComponent = () => {
     getIdsFromObject,
     generateNormalPassword,
     isObjEmpty,
-    toastAndNavigate
+    toastAndNavigate,
+    formateName
   } = Utility();
 
   //after page refresh the id in router state becomes undefined, so getting teacher id from url params
@@ -91,8 +92,8 @@ const FormComponent = () => {
     const paths = [];
     const dataFields = [];
 
-    const username = formData.teacherData.values?.firstname.toLowerCase() +
-      (formData.teacherData.values?.lastname ? `${formData.teacherData.values?.lastname.toLowerCase()}` : "");
+    const username = await formateName(formData.teacherData.values?.firstname.toLowerCase() +
+      (formData.teacherData.values?.lastname ? `${formData.teacherData.values?.lastname.toLowerCase()}` : ""));
 
     try {
       if (formData.teacherData.dirty) {

@@ -119,7 +119,7 @@ const Login = () => {
               designation: response.data.designation,
               username: response.data.username,
               school: response.data.school_name,
-              school_capacity: response.data.school_capacity
+              school_capacity: response.data.school_capacity,
             }
             setLocalStorage("auth", authInfo);
             response.data?.school_info
@@ -251,7 +251,7 @@ const Login = () => {
                         name="email"
                         label="Username"
                         variant="filled"
-                        type="email"
+                        type="text"
                         autoComplete="new-email"
                         onBlur={handleBlur}
                         onChange={handleChange}

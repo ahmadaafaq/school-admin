@@ -11,12 +11,15 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
-import { Box, FormControl, MenuItem, InputLabel, Select, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { Box, FormControl, MenuItem, InputLabel, Select, Typography, useMediaQuery, useTheme, Button } from "@mui/material";
 
 import API from "../../apis";
 // import PaymentModal from "./FormInModalComponent";
 import Search from "../common/Search";
 import ServerPaginationGrid from '../common/Datagrid';
+
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 import { datagridColumns } from "./GenIdCardConfig";
 import { setMenuItem } from "../../redux/actions/NavigationAction";
@@ -56,6 +59,8 @@ const ListingComponent = ({ rolePriority = null }) => {
   const { fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage } = Utility();
   const colors = tokens(theme.palette.mode);
   const reloadBtn = document.getElementById("reload-btn");
+
+  const ENV = import.meta.env;
 
   let classConditionObj = classSectionObj?.class
     ? {
@@ -118,6 +123,41 @@ const ListingComponent = ({ rolePriority = null }) => {
       });
     }
   }, [listData?.rows?.length]);
+
+  const downloadImages = async () => {
+    const schoolName = listData.rows[0]?.school_name || "school_images";
+    const folderName = schoolName.replace(/\s+/g, "_");
+    const zip = new JSZip();
+
+    for (const row of listData.rows) {
+      const imageUrl = row.student_image;
+      const hyphenatedStr = row.school_name.toLowerCase().split(' ').join('-');
+      if (!imageUrl) {
+        console.warn('Skipping row without student_image:', row);
+        continue;
+      }
+      const imageName = imageUrl.split("/").pop();
+      try {
+        const response = await fetch(`${ENV.VITE_BASE_URL}/download?folder=theskolar&file=mobile/${hyphenatedStr}/student/${imageName}`);
+        if (!response.ok) {
+          console.error(`Failed to fetch image: ${imageUrl} - Status: ${response.status}`);
+          continue;
+        }
+        const blob = await response.blob();
+        zip.file(imageName, blob);
+      } catch (error) {
+        console.error(`Failed to fetch image: ${imageUrl}`, error);
+      }
+    }
+
+    zip.generateAsync({ type: "blob" }).then(content => {
+      saveAs(content, `${folderName}.zip`);
+    });
+  };
+
+
+
+  console.log("listdadt", listData.rows);
 
   return (
     <Box m="10px" position="relative"
@@ -238,8 +278,17 @@ const ListingComponent = ({ rolePriority = null }) => {
             reloadBtn={reloadBtn}
             setSearchFlag={setSearchFlag}
           />
+          <Button
+            variant="contained"
+            color="success"
+            onClick={downloadImages}
+            style={{ margin: '0px 5px 0px 5px' }}
+          >
+            Download All Images
+          </Button>
         </Box>
       </Box>
+
       <ServerPaginationGrid
         action={setGenerateIdCard}
         api={API.GenerateIdCardAPI}
@@ -255,6 +304,7 @@ const ListingComponent = ({ rolePriority = null }) => {
         searchFlag={searchFlag}
         setSearchFlag={setSearchFlag}
         checkboxSelection={true}
+        hidePagination={true}
       />
       {/* <PaymentModal openDialog={openDialog} setOpenDialog={setOpenDialog} /> */}
     </Box>

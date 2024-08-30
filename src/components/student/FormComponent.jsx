@@ -74,7 +74,7 @@ const FormComponent = () => {
     const { typography } = themeSettings(theme.palette.mode);
     const { state } = useLocation();
     const { getLocalStorage, getIdsFromObject, generatePassword, findMultipleById, formatImageName, fetchAndSetAll,
-        toastAndNavigate, generateNormalPassword } = Utility();
+        toastAndNavigate, generateNormalPassword, formateName } = Utility();
 
     //after page refresh the id in router state becomes undefined, so getting student id from url params
     let id = state?.id || userParams?.id;
@@ -95,8 +95,8 @@ const FormComponent = () => {
         const selectedMenu = getLocalStorage("menu");
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
-           
-            
+
+
 
     const updateStudentAndAddress = useCallback(async formData => {
         setLoading(true);
@@ -249,17 +249,17 @@ const FormComponent = () => {
             });
     }, [formSubjectsInRedux?.listData]);
 
-    console.log("schol>>",schoolInformation.school_code);
+    console.log("schol>>", schoolInformation.school_code);
 
     const createStudent = useCallback(async formData => {
         let promise1;
         let promise2;
         let promise3;
         setLoading(true);
-        const username = formData.studentData.values?.father_name || formData.studentData.values?.mother_name ||
-            formData.studentData.values?.guardian;
-        const password = await generateNormalPassword(username , schoolInformation.school_code);
-        
+        const username = await formateName(formData.studentData.values?.father_name || formData.studentData.values?.mother_name ||
+            formData.studentData.values?.guardian);
+        const password = await generateNormalPassword(username, schoolInformation.school_code);
+
         formData.studentData.values = {
             ...formData.studentData.values,
             subjects: getIdsFromObject(formData.studentData.values?.subjects)
@@ -342,7 +342,7 @@ const FormComponent = () => {
                             try {
                                 await Promise.all([promise1, promise2, promise3]);
                                 setLoading(false);
-                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo,  `/student/listing/${getLocalStorage('class') || ''}`);
+                                toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/student/listing/${getLocalStorage('class') || ''}`);
                             } catch (err) {
                                 setLoading(false);
                                 toastAndNavigate(dispatch, true, err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
@@ -426,22 +426,22 @@ const FormComponent = () => {
         && iCardDetails.zipcode?.length > 0
         // && iCardDetails.studentCity?.length > 0
         // && iCardDetails.studentState?.length > 0
-    ), previewStudent?.length 
-        , iCardDetails.firstname?.length 
-        , iCardDetails.father_name?.length 
-        , iCardDetails.lastname?.length 
-        , iCardDetails.class 
-        , iCardDetails.section 
-        , iCardDetails.contact_no?.length 
-        , iCardDetails.street?.length 
-        , iCardDetails.landmark?.length 
-        , iCardDetails.zipcode?.length 
-        , iCardDetails.studentCity?.length 
-        , iCardDetails.studentState?.length  
+    ), previewStudent?.length
+        , iCardDetails.firstname?.length
+        , iCardDetails.father_name?.length
+        , iCardDetails.lastname?.length
+        , iCardDetails.class
+        , iCardDetails.section
+        , iCardDetails.contact_no?.length
+        , iCardDetails.street?.length
+        , iCardDetails.landmark?.length
+        , iCardDetails.zipcode?.length
+        , iCardDetails.studentCity?.length
+        , iCardDetails.studentState?.length
     );
 
-    console.log(updatedValues,"updatedvalues");
-   
+    console.log(updatedValues, "updatedvalues");
+
     return (
         <Box m="10px"
             sx={{

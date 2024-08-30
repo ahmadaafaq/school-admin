@@ -38,7 +38,8 @@ const ServerPaginationGrid = ({
     searchFlag,
     setOldPagination,
     imports,
-    checkboxSelection = false
+    checkboxSelection = false,
+    hidePagination = false
 }) => {
     const initialState = {
         page: 0,
@@ -158,7 +159,7 @@ const ServerPaginationGrid = ({
 
                     // ... other components
                 }}
-                pagination
+                hideFooterPagination={hidePagination}
                 ServerPaginationGrid
                 paginationMode="server"
                 paginationModel={paginationModel}

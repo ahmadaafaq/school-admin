@@ -22,9 +22,9 @@ export const Utility = () => {
      * @returns {string|number} - The formatted class representation with the keyword "Class" or the original number if not valid number.
      */
     const addClassKeyword = (num) => {
-        console.log("nummmmm>>>",num);
+        console.log("nummmmm>>>", num);
         return isNaN(num) ? num : `Class ${num}`;
-        
+
     };
 
     /** Appends a suffix to a number or converts specific string values to abbreviations.
@@ -497,7 +497,55 @@ export const Utility = () => {
         return pw;
     };
 
-    const generateNormalPassword = async (name, code) => `${name.toLowerCase()}@${code.toLowerCase()}`;
+    const formateName = async (name) => {
+        // Split the name by spaces
+        let nameParts = name.split(' ');
+
+        // Remove "MR." prefix if it exists
+        if (nameParts[0].toUpperCase() === "MR." ||
+            nameParts[0].toUpperCase() === "MR" ||
+            nameParts[0].toUpperCase() === "DR." ||
+            nameParts[0].toUpperCase() === "DR" ||
+            nameParts[0].toUpperCase() === "MD." ||
+            nameParts[0].toUpperCase() === "MD" ||
+            nameParts[0].toUpperCase() === "MRS." ||
+            nameParts[0].toUpperCase() === "MRS" ||
+            nameParts[0].toUpperCase() === "MOHD." ||
+            nameParts[0].toUpperCase() === "MOHD") {
+            nameParts.shift();
+        }
+
+        // Join the remaining parts back into a single string
+        return nameParts.join(' ');
+    };
+
+    const generateNormalPassword = async (name, code) => {
+        // Split the name by spaces
+        let nameParts = name.split(' ');
+
+        // Remove "MR." prefix if it exists
+        if (nameParts[0].toUpperCase() === "MR." ||
+            nameParts[0].toUpperCase() === "MR" ||
+            nameParts[0].toUpperCase() === "DR." ||
+            nameParts[0].toUpperCase() === "DR" ||
+            nameParts[0].toUpperCase() === "MD." ||
+            nameParts[0].toUpperCase() === "MD" ||
+            nameParts[0].toUpperCase() === "MRS." ||
+            nameParts[0].toUpperCase() === "MRS" ||
+            nameParts[0].toUpperCase() === "MOHD." ||
+            nameParts[0].toUpperCase() === "MOHD"
+        ) {
+            nameParts.shift();
+        }
+
+        // Extract the first name (assume the first name is the first part after "MR.")
+        let firstName = nameParts[0].toLowerCase();
+
+        // Construct the password
+        let password = `${firstName}@${code.toLowerCase()}`;
+
+        return password;
+    };
 
     /** Checks if an object is empty (has no own enumerable properties).
     * @param {Object} obj - The object to be checked for emptiness.
@@ -621,7 +669,7 @@ export const Utility = () => {
             axios(`https://api.postalpincode.in/pincode/${zipcode}`)
                 .then(({ data: res }) => {
                     const dataObj = {
-                        city: res[0].PostOffice[0].Block,
+                        city: res[0].PostOffice[0].Block !== 'NA' ? res[0].PostOffice[0].Block : res[0].PostOffice[1]?.Block,
                         state: res[0].PostOffice[0].State
                     };
                     resolve(dataObj);
@@ -650,6 +698,7 @@ export const Utility = () => {
         findMultipleById,
         formatDate,
         formatImageName,
+        formateName,
         getInitials,
         getNameAndType,
         getLocalStorage,

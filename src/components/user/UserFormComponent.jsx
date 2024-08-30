@@ -214,6 +214,7 @@ const UserFormComponent = ({
             type="text"
             name="username"
             label="Username*"
+            autoComplete={false}
             onBlur={formik.handleBlur}
             onChange={formik.handleChange}
             value={formik.values.username}

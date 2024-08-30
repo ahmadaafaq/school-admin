@@ -57,9 +57,12 @@ import "./index.css";
 import companyImg from "../assets/eden.jpg";
 import dpsImg from "../assets/schoolImg.jpg";
 
-const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
+const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed, schoolInfo }) => {
 
   const [isSubMenuOpen, setIsubMenuOpen] = useState(false);
+  const [schoolId, setSchoolId] = useState(null);
+  const [schoolImg, setSchoolImg] = useState(null);
+
   const selected = useSelector((state) => state.menuItems.selected);
   const schoolClasses = useSelector((state) => state.schoolClasses);
   const allClasses = useSelector((state) => state.allClasses);
@@ -117,6 +120,31 @@ const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
   useEffect(() => {
     setIsCollapsed(isTab);
   }, [isTab]);
+
+  useEffect(() => {
+    if (schoolInfo?.encrypted_id) {
+      API.CommonAPI.decryptText(schoolInfo).then((result) => {
+        if (result.status === "Success") {
+           setSchoolId(parseInt(result?.data));
+        } else if (result.status === "Error") {
+          console.log("Error Encrypting Data");
+        }
+      });
+    }
+  }, [schoolInfo?.encrypted_id]);
+
+
+  useEffect(()=>{
+    if(schoolId !== null){
+       API.ImageAPI.getImage("school", schoolId )
+       .then(res =>{
+          setSchoolImg(res.data[0].image_src);
+       })
+    }
+  },[schoolId]);
+  
+  console.log("dataaaaareschool>>>",schoolImg);
+
 
   const renderNotCollapsedStudents = () => {
     console.log(" classData?.length>>", classData);
@@ -329,7 +357,7 @@ const Sidebar = ({ rolePriority, isCollapsed, setIsCollapsed }) => {
               <Box display="flex" justifyContent="center" alignItems="center" >
                 <img
                   alt="profile-user"
-                  src={rolePriority > 1 ? dpsImg : companyImg}
+                  src={rolePriority > 1 ? schoolImg ? schoolImg : dpsImg : dpsImg}
                   style={{ cursor: "pointer", borderRadius: "50%", width: "60%", filter: 'drop-shadow(1px 1px 5px black)' }}
                 />
               </Box>

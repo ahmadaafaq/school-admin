@@ -112,6 +112,8 @@ const FormComponent = () => {
             // if (responses) {        //due to this if schoolform or address form is dirty, then other forms are also manipulated
             //     updateImageAndClassData(formData);
             // }
+
+            console.log("func pe aaya");
             updateImageAndClassData(formData);
         } catch (err) {
             setLoading(false);
@@ -137,7 +139,11 @@ const FormComponent = () => {
         // }
         let status = null;
 
+        console.log("formdatadirty",formData.schoolData.dirty);
+
         if (formData.schoolData.dirty) {
+
+            console.log("ander ayaa");
             // Delete all class sections from the mapping table
             await API.SchoolAPI.deleteFromMappingTable({ school_id: id });
 
