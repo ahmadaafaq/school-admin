@@ -12,7 +12,6 @@ import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import Search from "../common/Search";
@@ -47,16 +46,8 @@ const ListingComponent = ({ rolePriority = null }) => {
     const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
-
-    const handleReload = () => {
-        // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
-        reloadBtn.style.display = "none";
-        setSearchFlag({
-            search: false,
-            searching: false,
-            oldPagination
-        });
-    };
+    const importBtn = true;
+    const employeeImport = "employee";
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -72,7 +63,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 overflow: "hidden",
                 boxShadow: "1px 1px 10px black",
                 backgroundImage: theme.palette.mode === "light"
-                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
+                    ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
                     : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
@@ -119,30 +110,13 @@ const ListingComponent = ({ rolePriority = null }) => {
                         </Button>)}
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
-                color: colors.grey[100],
-                marginLeft:"14vh"
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setEmployees}
                 api={API.EmployeeAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns(rolePriority)}
+                rolePriority={rolePriority}
+                importBtn={importBtn}
                 rows={listData.rows}
                 count={listData.count}
                 loading={loading}
@@ -151,6 +125,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
+                imports={employeeImport}
             />
         </Box>
     );

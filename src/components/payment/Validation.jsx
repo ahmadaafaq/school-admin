@@ -9,17 +9,18 @@
 import * as yup from "yup";
 
 const checkoutSchema = yup.object().shape({
-    student_id: yup.number()
-        .required("This Field is Required"),
     academic_year: yup.string()
         .min(2, 'Year is Too Short!')
-        .max(10, 'Year is Too Long!')
+        .max(12, 'Year is Too Long!')
+        .required("This Field is Required"),
+    fee: yup.string()
+        .required("This Field is Required"),
+    type: yup.string()
+        .required("This Field is Required"),
+    method: yup.string()
         .required("This Field is Required"),
     amount: yup.number()
-        .required("This Field is Required"),
-    payment_date: yup.date()
-        .required("This Field is Required"),
-    due_date: yup.date(),
+        .required("This Field is Required")
 });
 
 export default checkoutSchema;

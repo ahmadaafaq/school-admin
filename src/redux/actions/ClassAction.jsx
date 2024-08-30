@@ -1,3 +1,6 @@
+
+
+
 /**
  * Copyright © 2023, School CRM Inc. ALL RIGHTS RESERVED.
  *
@@ -18,6 +21,13 @@ export const setListingClasses = (classes) => {
 export const setSchoolClasses = (classes) => {
     return {
         type: ActionTypes.SET_SCHOOL_CLASSES,
+        payload: classes
+    };
+};
+
+export const setTeacherClasses = (classes) => {
+    return {
+        type: ActionTypes.SET_TEACHER_CLASSES,
         payload: classes
     };
 };

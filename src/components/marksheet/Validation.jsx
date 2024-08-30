@@ -9,22 +9,15 @@
 import * as yup from "yup";
 
 const checkoutSchema = yup.object().shape({
-    class: yup.number()
-        .required("This Field is Required"),
-    section: yup.number()
-        .required("This Field is Required"),
-    student: yup.number()
-        .required("This Field is Required"),
-    term: yup.string()
-        .required("This Field is Required"),
-    subjects: yup.number()
-        .required("This Field is Required"),
-    marks_obtained: yup.number()
-        .required("This Field is Required"),
-    total_marks: yup.number()
-        .required("This Field is Required"),
-    grade: yup.string(),
-    status: yup.string()
+    // class: yup.number()
+    //     .required("This Field is Required"),
+    // section: yup.number()
+    //     .required("This Field is Required"),
+    // student: yup.number()
+    //     .required("This Field is Required"),
+    // term: yup.string()
+    //     .required("This Field is Required"),
+    // status: yup.string()
 });
 
 export default checkoutSchema;

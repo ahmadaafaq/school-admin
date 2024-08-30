@@ -54,6 +54,7 @@ const FormComponent = ({ rolePriority }) => {
     const { toastAndNavigate, getLocalStorage } = Utility();
     //after page refresh the id in router state becomes undefined, so getting user id from url params
     let id = state?.id || userParams?.id;
+    const schoolId = getLocalStorage("auth").id
 
     useEffect(() => {
         const selectedMenu = getLocalStorage("menu");
@@ -125,7 +126,7 @@ const FormComponent = ({ rolePriority }) => {
                     })
                         .then(() => {
                             setLoading(false);
-                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/${selected.toLowerCase()}/listing`);
+                            toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/user/listing`);
                         })
                         .catch(err => {
                             setLoading(false);
@@ -193,6 +194,7 @@ const FormComponent = ({ rolePriority }) => {
                 refId={userFormRef}
                 setDirty={setDirty}
                 reset={reset}
+                schoolId={schoolId}
                 setReset={setReset}
                 userId={id}
                 rolePriority={rolePriority}

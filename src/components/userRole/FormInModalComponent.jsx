@@ -31,7 +31,7 @@ import formBg from "../assets/formBg.png";
 const initialValues = {
     name: "",
     priority: 0,
-    status: "inactive"
+    status: "active"
 };
 
 const FormComponent = ({ openDialog, setOpenDialog }) => {

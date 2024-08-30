@@ -17,19 +17,20 @@ import dayjs from "dayjs";
 import API from "../../apis";
 import Loader from "../common/Loader";
 import Toast from "../common/Toast";
-import PaymentFormComponent from "./PaymentFormComponent";
 
 import { setMenuItem } from "../../redux/actions/NavigationAction";
 import { tokens, themeSettings } from "../../theme";
 import { Utility } from "../utility";
 
 import formBg from "../assets/formBg.png";
+import NoticeBoardFormComponent from "./NoticeBoardFormComponent";
 
 const FormComponent = () => {
     const [title, setTitle] = useState("Create");
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        paymentData: { values: null, validated: false }
+        noticeboardData: { values: null, validated: false },
+        imageData: { values: null, validated: true }
     });
     const [updatedValues, setUpdatedValues] = useState(null);
     const [dirty, setDirty] = useState(false);
@@ -38,7 +39,8 @@ const FormComponent = () => {
 
     const selected = useSelector(state => state.menuItems.selected);
     const toastInfo = useSelector(state => state.toastInfo);
-    const paymentFormRef = useRef();
+
+    const noticeboardFormRef = useRef();
 
     const navigateTo = useNavigate();
     const dispatch = useDispatch();
@@ -49,7 +51,7 @@ const FormComponent = () => {
     const { state } = useLocation();
     const { toastAndNavigate, getLocalStorage } = Utility();
 
-    //after page refresh the id in router state becomes undefined, so getting Payment id from url params
+    //after page refresh the id in router state becomes undefined, so getting noticeboard id from url params
     let id = state?.id || userParams?.id;
 
     useEffect(() => {
@@ -57,98 +59,96 @@ const FormComponent = () => {
         dispatch(setMenuItem(selectedMenu.selected));
     }, []);
 
-    const updatePayment = useCallback(formData => {
-        setLoading(true);
-        // eslint-disable-next-line no-unused-vars
-        const { class_id, section, ...modifiedObj } = formData.paymentData.values;
-
-        API.PaymentAPI.updatePayment(modifiedObj)
-            .then(({ data: payment }) => {
-                if (payment.status === 'Success') {
-                    setLoading(false);
-                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, '/payment/listing');
-                }
-            })
-            .catch(err => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log('Error in Updating Payment:', err);
-            });
-    }, [formData]);
-
-    const populatePaymentData = useCallback(id => {
-        const path = [`/get-by-pk/payment/${id}`];
+    const updateNoticeBoard = useCallback(formData => {
+       
+        const dataFields = [
+            { ...formData.noticeboardData.values }
+        ];
+        const paths = ["/update-notice"];
         setLoading(true);
 
-        API.CommonAPI.multipleAPICall("GET", path)
-            .then(res => {
-                const firstApiResponse = res[0].data;
-                if (firstApiResponse.status === 'Success') {
-                    firstApiResponse.data.payment_date = dayjs(firstApiResponse.data.payment_date);
-                    if (firstApiResponse.data.due_date != null) {
-                        firstApiResponse.data.due_date = dayjs(firstApiResponse.data.due_date);
+        API.CommonAPI.multipleAPICall("PATCH", paths, dataFields)
+            .then(responses => {
+                let status = true;
+                responses.forEach(response => {
+                    if (response.data.status !== "Success") {
+                        status = false;
                     }
-                    const studentId = firstApiResponse.data.student_id;
-                    API.StudentAPI.getClassOfStudent(studentId)
-                        .then(result => {
-                            const dataObj = {
-                                ...firstApiResponse.data,
-                                class_id: result.data.class,
-                                section: result.data.section
-                            };
-                            setUpdatedValues(dataObj);
-                            setLoading(false);
-                        })
-                        .catch(error => {
-                            console.log("Error in API calls of populating Payment:", error);
-                        });
-                }
-            })
-            .catch(commonAPIError => {
-                setLoading(false);
-                toastAndNavigate(dispatch, true, "error", commonAPIError ? commonAPIError?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-            });
-    }, [id]);
-
-    const createPayment = useCallback(formData => {
-        setLoading(true);
-        // eslint-disable-next-line no-unused-vars
-        const { class_id, section, ...modifiedObj } = formData.paymentData.values;
-
-        API.PaymentAPI.createPayment(modifiedObj)
-            .then(({ data: payment }) => {
-                if (payment.status === 'Success') {
+                });
+                if (status) {
                     setLoading(false);
-                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, '/payment/listing');
+                    toastAndNavigate(dispatch, true, "info", "Successfully Updated", navigateTo, `/noticeboard/listing/${getLocalStorage('class') || '' }`);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                throw err;
+            });
+    }, [formData]);
+
+    const populateNoticeBoardData = useCallback(id => {
+        setLoading(true);
+        const paths = [`/get-by-pk/noticeboard/${id}`];
+        API.CommonAPI.multipleAPICall("GET", paths)
+            .then(responses => {
+                if (responses[0].data.data) {
+                    // responses[0].data.data.subjects = findMultipleById(responses[0].data.data.subjects, subjectsInRedux?.listData?.rows)
+                    responses[0].data.data.publish_date = dayjs(responses[0].data.data.publish_date);
+                    responses[0].data.data.expiry_date = dayjs(responses[0].data.data.expiry_date);
+                }
+                const dataObj = {
+                    noticeboardData: responses[0].data.data
+                };
+                setUpdatedValues(dataObj);
+                setLoading(false);
+            })
+            .catch(err => {
+                setLoading(false);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                throw err;
+            });
+    },[id]);
+
+    const createNoticeBoard = useCallback(formData => {
+        setLoading(true);
+        API.NoticeBoardAPI.createNoticeBoard({ ...formData.noticeboardData.values })
+            .then(({ data: noticeboard }) => {
+                if (noticeboard?.status === 'Success') {
+                    setLoading(false);
+                    toastAndNavigate(dispatch, true, "success", "Successfully Created", navigateTo, `/noticeboard/listing`);
                 }
             })
             .catch(err => {
                 setLoading(false);
-                toastAndNavigate(dispatch, true, "error", err ? err?.response?.data?.msg : "An Error Occurred", navigateTo, 0);
-                console.log('Error in Creating Payment:', err);
+                toastAndNavigate(dispatch, true, "error", err?.response?.data?.msg);
+                throw err;
             });
-    }, [formData]);
+    },[formData]);
 
-    //Create/Update/Populate Payment
+    //Create/Update/Populate noticeboard
     useEffect(() => {
         if (id && !submitted) {
             setTitle("Update");
-            populatePaymentData(id);
+            populateNoticeBoardData(id);
         }
-        if (formData.paymentData.validated) {
-            formData.paymentData.values?.id ? updatePayment(formData) : createPayment(formData);
+        if (formData.noticeboardData.validated) {
+            formData.noticeboardData.values?.id ? updateNoticeBoard(formData) : createNoticeBoard(formData);
         } else {
             setSubmitted(false);
         }
     }, [id, submitted]);
 
     const handleSubmit = async () => {
-        await paymentFormRef.current.Submit();
+        await noticeboardFormRef.current.Submit();
         setSubmitted(true);
     };
 
     const handleFormChange = (data, form) => {
-        form === 'payment' ? setFormData({ ...formData, paymentData: data }) : null;
+        if (form === 'noticeboard') {
+            setFormData({ ...formData, noticeboardData: data });
+        }
     };
 
     return (
@@ -159,8 +159,7 @@ const FormComponent = () => {
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "start",
                 backgroundSize: "cover",
-                backgroundAttachment: "fixed",
-                height: "100%"
+                backgroundAttachment: "fixed"
             }}
         >
             <Typography
@@ -173,18 +172,19 @@ const FormComponent = () => {
             >
                 {`${title} ${selected}`}
             </Typography>
-            <PaymentFormComponent
+            <NoticeBoardFormComponent
                 onChange={(data) => {
-                    handleFormChange(data, 'payment');
+                    handleFormChange(data, 'noticeboard');
                 }}
-                refId={paymentFormRef}
+                refId={noticeboardFormRef}
                 setDirty={setDirty}
                 reset={reset}
                 setReset={setReset}
-                updatedValues={updatedValues}
+                userId={id}
+                updatedValues={updatedValues?.noticeboardData}
             />
             <Box display="flex" justifyContent="end" m="20px">
-                {   //hide reset button on Payment update
+                {   //hide reset button on noticeboard update
                     title === "Update" ? null :
                         <Button type="reset" color="warning" variant="contained" sx={{ mr: 3 }}
                             disabled={!dirty || submitted}
@@ -198,7 +198,7 @@ const FormComponent = () => {
                         </Button>
                 }
                 <Button color="error" variant="contained" sx={{ mr: 3 }}
-                    onClick={() => navigateTo('/payment/listing')}>
+                    onClick={() => navigateTo(`/noticeboard/listing/${getLocalStorage('class') || ''}`)}>
                     Cancel
                 </Button>
                 <Button type="submit" onClick={() => handleSubmit()} disabled={!dirty}

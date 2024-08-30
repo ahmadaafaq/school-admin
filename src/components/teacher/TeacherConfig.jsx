@@ -32,7 +32,7 @@ export const datagridColumns = (rolePriority = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { appendSuffix, findById, fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage } = Utility();
+    const { fetchAndSetAll, fetchAndSetSchoolData, getLocalStorage, capitalizeEveryWord } = Utility();
 
     const handleActionEdit = (id) => {
         navigateTo(`/teacher/update/${id}`, { state: { id: id } });
@@ -54,38 +54,73 @@ export const datagridColumns = (rolePriority = null) => {
 
     const columns = [
         {
-            field: "fullname",
+            field: "teacherName",
             headerName: "Name",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 120,
             // this function combines the values of firstname and lastname into one string
-            valueGetter: (params) => `${params.row.firstname.charAt(0).toUpperCase() + params.row.firstname.slice(1) || ''} ${params.row.lastname.charAt(0).toUpperCase() + params.row.lastname.slice(1) || ''}`
+            // valueGetter: (params) => `${capitalizeEveryWord(params.row.firstname) || ''}`
         },
         {
-            field: "class",
+            field: "classes",
             headerName: "Class",
             headerAlign: "center",
             align: "center",
             flex: 1,
             minWidth: 100,
-            renderCell: (params) => {
-                let className;
-                let sectionName;
-
-                if (allClasses?.listData?.length || allSections?.listData?.length) {
-                    className = findById(params?.row?.class, allClasses?.listData)?.class_name;
-                    sectionName = findById(params?.row?.section, allSections?.listData)?.section_name;
-                } else if (schoolClasses?.listData?.length || schoolSections?.listData?.length) {
-                    className = findById(params?.row?.class, schoolClasses?.listData)?.class_name;
-                    sectionName = findById(params?.row?.section, schoolSections?.listData)?.section_name;
+            renderCell: ({ row }) => {
+                if (row.is_class_teacher.data[0] === 1 && row.classnames && row.class_section_name) {
+                    const classnamesArray = row.classnames.split(',');
+                    return (
+                        <div>
+                            {classnamesArray.map((classname, index) => {
+                                return (
+                                    <span key={index}
+                                        style={{
+                                            color: classname === row.class_section_name
+                                                ?
+                                                 colors.greenAccent[300]
+                                                :
+                                                colors.whiteAccent[100],
+                                        }}
+                                    >
+                                        {classname}
+                                        {index !== classnamesArray.length - 1 && ', '}
+                                    </span>
+                                )
+                            })}
+                        </div>
+                    );
+                } else {
+                    return (
+                        <div>
+                            {row.classnames
+                                ?
+                                <div>{row.classnames}</div>
+                                :
+                                <p style={{ color: colors.redAccent[700] }}>Add classes fisrt</p>
+                            }
+                        </div>
+                    )
                 }
+            }
+        },
+        {
+            field: "subjects",
+            headerName: "Subjects",
+            headerAlign: "center",
+            align: "center",
+            flex: 1,
+            minWidth: 100,
+            renderCell: (params) => {
+                const subjectsArray = params?.value?.split(',');
                 return (
                     <div>
-                        {className ? appendSuffix(className) : '/'} {sectionName}
+                        {params.value ? subjectsArray.join(", ") : "No subjects found"}
                     </div>
-                );
+                )
             }
         },
         {
@@ -98,7 +133,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -121,7 +156,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
@@ -129,7 +164,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         rolePriority !== 1 && {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

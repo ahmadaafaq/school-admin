@@ -19,8 +19,14 @@ import config from "../config";
 import TimeTableValidation from "./Validation";
 
 import { setSchoolClasses } from "../../redux/actions/ClassAction";
+import { setTeacherClasses } from "../../redux/actions/ClassAction";
+
 import { setSchoolSections } from "../../redux/actions/SectionAction";
+import { setTeacherSections } from "../../redux/actions/SectionAction";
+
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
+import { setTeacherSubjects } from "../../redux/actions/SubjectAction";
+
 import { setSchoolDurations } from "../../redux/actions/SchoolDurationAction";
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
@@ -31,6 +37,7 @@ const initialValues = {
     day: "",
     class: "",
     section: "",
+    batch: "",
     subject: [],
     duration: []
 };
@@ -41,22 +48,28 @@ const TimeTableFormComponent = ({
     setDirty,
     reset,
     setReset,
-    classData,
-    setClassData,
+    classData = null,
+    setClassData = null,
     allSubjects,
     updatedValues = null
 }) => {
 
     const [schoolId, setSchoolId] = useState([]);
+    const [scale, setScale] = useState(1);
     const schoolClasses = useSelector(state => state.schoolClasses);
+    const teacherClasses = useSelector(state => state.teacherClasses);
+
     const schoolSections = useSelector(state => state.schoolSections);
-    const schoolSubjects = useSelector(state => state.schoolSubjects);
+    const teacherSections = useSelector(state => state.teacherSections);
+
+
+    const teacherSubjects = useSelector(state => state.teacherSubjects);
     const schoolDuration = useSelector(state => state.allSchoolDurations);
 
     const dispatch = useDispatch();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const { getPaginatedData } = useCommon();
-    const { fetchAndSetSchoolData, getLocalStorage, findMultipleById } = Utility();
+    const { fetchAndSetSchoolData, getLocalStorage, findMultipleById, fetchAndSetTeacherData } = Utility();
 
     const formik = useFormik({
         initialValues: initialValues,
@@ -82,7 +95,7 @@ const TimeTableFormComponent = ({
         }
     };
 
-    const openingTime = new Date(schoolId?.[0]?.opening_time).toLocaleString('en-US', {
+    const openingTime = new Date(schoolId?.opening_time ? schoolId?.opening_time : schoolId?.eve_opening_time).toLocaleString('en-US', {
         hour: 'numeric',
         minute: 'numeric',
         hour12: true,
@@ -112,7 +125,6 @@ const TimeTableFormComponent = ({
         return new Intl.DateTimeFormat('en-US', options).format(date);
     }
 
-
     const schoolPeriodDuration = (hours = 0, minutes = 0, condition, half_duration) => {
         const timeslots = [];
         const startTime = new Date();
@@ -127,7 +139,7 @@ const TimeTableFormComponent = ({
         return timeslots;
     };
 
-    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 2).replace(':', '').padStart(2, '0'), openingTime.slice(2, 5).replace(':', ''), schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.first_half_period_duration);
+    const firstHalfDuration = schoolPeriodDuration(openingTime.slice(0, 2).replace(':', '').padStart(2, '0'), openingTime.slice(2, 5).replace(':', ''), schoolId?.period / schoolId?.halves, schoolId?.first_half_period_duration);
     let secondHalfDuration = [];
     let totalDuration = [];
 
@@ -136,30 +148,59 @@ const TimeTableFormComponent = ({
         let secondOpeningTimeHr = openingTimes.split('-').splice(1).join('').slice(0, 2).replace(':', '').padStart(2, '0');
         let secondOpeningTimeMi = openingTimes.split('-').splice(1).join('').slice(2, 5).replace(':', '');
 
-        let secondMinTotal = parseInt(secondOpeningTimeMi, 10) + parseInt(schoolId?.[0]?.recess_time, 10);
-        secondHalfDuration = schoolPeriodDuration(secondOpeningTimeHr, secondMinTotal, schoolId?.[0]?.period / schoolId?.[0]?.halves, schoolId?.[0]?.second_half_period_duration);
+        let secondMinTotal = parseInt(secondOpeningTimeMi, 10) + parseInt(schoolId?.recess_time, 10);
+        secondHalfDuration = schoolPeriodDuration(secondOpeningTimeHr, secondMinTotal, schoolId?.period / schoolId?.halves, schoolId?.second_half_period_duration);
         if (secondHalfDuration.length) {
             totalDuration = [...firstHalfDuration, ...secondHalfDuration];
         }
-        console.log("yuguy",secondOpeningTimeHr)
     }
-   
 
     useEffect(() => {
         if (formik.values.class && classData?.length) {
             const classSections = classData?.filter(obj => obj.class_id === formik.values.class) || [];
-            const selectedSections = classSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
-            dispatch(setSchoolSections(selectedSections));
+            const seenSections = new Set();
+            const uniqueSections = classSections.filter(({ section_id }) => {
+                if (seenSections.has(section_id)) {
+                    return false;
+                }
+                seenSections.add(section_id);
+                return true;
+            });
+            const selectedSections = uniqueSections.map(({ section_id, section_name }) => ({ section_id, section_name }));
+            dispatch(setTeacherSections(selectedSections));
         }
     }, [formik.values?.class, classData?.length]);
 
+
     useEffect(() => {
         if (formik.values.section && classData?.length) {
-            const sectionSubjects = classData?.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values.section);
-            const selectedSubjects = sectionSubjects ? findMultipleById(sectionSubjects[0]?.subject_ids, allSubjects) : [];
-            dispatch(setSchoolSubjects(selectedSubjects));
+            // Filter classData to get objects matching the selected class and section
+            const sectionSubjects = classData.filter(obj => obj.class_id === formik.values.class && obj.section_id === formik.values.section);
+            
+            // Collect all subject_ids and split them into individual IDs
+            let allSubjectIds = [];
+            sectionSubjects.forEach(subject => {
+                if (subject.subject_ids) {
+                    allSubjectIds = allSubjectIds.concat(subject.subject_ids.split(','));
+                }
+            });
+    
+            // Remove duplicate subject IDs
+            const uniqueSubjectIds = [...new Set(allSubjectIds)];
+    
+            // Convert the array of unique subject IDs back to a comma-separated string
+            const uniqueSubjectIdsString = uniqueSubjectIds.join(',');
+    
+            // Pass the unique subject IDs string to findMultipleById
+            const selectedSubjects = uniqueSubjectIds.length ? findMultipleById(uniqueSubjectIdsString, allSubjects) : [];
+    
+            // Dispatch the selected subjects
+            dispatch(setTeacherSubjects(selectedSubjects));
         }
     }, [formik.values?.class, formik.values?.section, classData.length, allSubjects]);
+        
+    console.log("classDaata>>", classData);
+
 
     useEffect(() => {
         if (reset) {
@@ -185,12 +226,13 @@ const TimeTableFormComponent = ({
             formik.setFieldValue(`class`, updatedValues[0]?.class_id);
             formik.setFieldValue(`section`, updatedValues[0]?.section_id);
             formik.setFieldValue(`day`, updatedValues[0]?.day);
+            formik.setFieldValue(`batch`, updatedValues[0]?.batch);
         }
     }, [updatedValues]);
 
     useEffect(() => {
-        if (getLocalStorage("schoolInfo") && (!schoolSubjects?.listData?.length || !schoolClasses?.listData?.length || !schoolSections?.listData?.length)) {
-            fetchAndSetSchoolData(dispatch, setSchoolClasses, setSchoolSections, setClassData);
+        if (getLocalStorage("schoolInfo") && (!teacherSubjects?.listData?.length || !teacherClasses?.listData?.length || !teacherSections?.listData?.length)) {
+            fetchAndSetTeacherData(dispatch, setTeacherClasses, setTeacherSections, setClassData);
         }
     }, []);
 
@@ -204,13 +246,26 @@ const TimeTableFormComponent = ({
                 .then(result => {
                     if (result.status === 'Success') {
                         const schoolObj = schoolDuration?.listData?.rows?.filter(obj => `${obj.school_id}` === result.data);
-                        setSchoolId(schoolObj);
+                        if (formik.values.batch == "both") {
+                            setSchoolId(schoolObj[0]);
+                        } else if (schoolObj?.length > 0) {
+
+                            const seniorRow = schoolObj.find(obj => obj.batch === "senior");
+                            const juniorRow = schoolObj.find(obj => obj.batch === "junior");
+
+                            if (formik.values.batch == "senior") {
+                                setSchoolId(seniorRow)
+                            } else {
+                                setSchoolId(juniorRow)
+                            }
+                        }
+
                     } else if (result.status === 'Error') {
                         console.log('Error Decrypting Data');
                     }
                 });
         }
-    }, [schoolDuration?.listData?.rows?.length]);
+    }, [schoolDuration?.listData?.rows?.length, formik.values.batch]);
 
     useEffect(() => {
         if (totalDuration?.length && !formik?.values?.duration?.length) {
@@ -219,11 +274,31 @@ const TimeTableFormComponent = ({
     }, [totalDuration]);
 
     useEffect(() => {
-        if (schoolId?.[0]?.period) {
-            const totalPeriodArray = Array.from({ length: schoolId[0].period }, (_, index) => index + 1);
+        if (schoolId?.period) {
+            const totalPeriodArray = Array.from({ length: schoolId.period }, (_, index) => index + 1);
             formik.setFieldValue('period', totalPeriodArray);
         }
     }, [schoolId]);
+
+    useEffect(() => {
+        let count = 0;
+        const maxCount = 10;
+        const interval = 400; // Interval between scale changes
+
+        const intervalId = setInterval(() => {
+            setScale((prevScale) => (prevScale === 1 ? 1.2 : 1));
+            count += 1;
+            if (count >= maxCount) {
+                clearInterval(intervalId);
+                setScale(1); // Reset scale to 1 at the end
+            }
+        }, interval);
+
+        // Cleanup function to clear the interval if the component unmounts
+        return () => clearInterval(intervalId);
+    }, []);
+
+    console.log("schoolId", schoolId);
 
     return (
         <Box m="20px">
@@ -231,7 +306,7 @@ const TimeTableFormComponent = ({
                 <Box
                     display="grid"
                     gap="30px"
-                    gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
                     sx={{
                         "& > div": { gridColumn: isNonMobile ? undefined : "span 4" }, marginBottom: "50px"
                     }}
@@ -255,8 +330,8 @@ const TimeTableFormComponent = ({
                                 }
                             }}
                         >
-                            {!schoolClasses?.listData?.length ? null :
-                                schoolClasses.listData.map(cls => (
+                            {!teacherClasses?.listData?.length ? null :
+                                teacherClasses.listData.map(cls => (
                                     <MenuItem value={cls.class_id} name={cls.class_name} key={cls.class_id}>
                                         {cls.class_name}
                                     </MenuItem>
@@ -281,8 +356,8 @@ const TimeTableFormComponent = ({
                                 }
                             }}
                         >
-                            {!schoolSections?.listData?.length ? null :
-                                schoolSections.listData.map(section => (
+                            {!teacherSections?.listData?.length ? null :
+                                teacherSections.listData.map(section => (
                                     <MenuItem value={section.section_id} name={section.section_name} key={section.section_id}>
                                         {section.section_name}
                                     </MenuItem>
@@ -310,11 +385,30 @@ const TimeTableFormComponent = ({
                         <FormHelperText>{formik.touched.day && formik.errors.day}</FormHelperText>
                     </FormControl>
 
+                    <FormControl variant="filled" sx={{ minWidth: 120 }}
+                        error={!!formik.touched.batch && !!formik.errors.batch}
+                    >
+                        <InputLabel>Batch</InputLabel>
+                        <Select
+                            name="batch"
+                            value={formik.values.batch || ''}
+                            onChange={event => formik.setFieldValue("batch", event.target.value)}
+                        >
+                            {!schoolDuration?.listData?.rows ? null :
+                                schoolDuration?.listData?.rows?.map(item => (
+                                    <MenuItem value={item.batch} name={item.batch} key={item.id}>
+                                        {item.batch}
+                                    </MenuItem>
+                                ))}
+                        </Select>
+                        <FormHelperText>{formik.touched.batch && formik.errors.batch}</FormHelperText>
+                    </FormControl>
+
                 </Box>
 
-                {schoolId?.[0]?.period > 0 && (
+                {schoolId?.period > 0 && (
                     <>
-                        {[...Array((schoolId[0].period) / 2)].map((_, index) => {
+                        {[...Array((schoolId?.period) / 2)].map((_, index) => {
                             let key = index + 1;
                             return (
                                 <Box key={index} style={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', margin: '0px 100px 20px 100px ', justifyItems: "center", alignItems: "center" }}>
@@ -333,8 +427,8 @@ const TimeTableFormComponent = ({
                                             value={formik.values[`subject${index + 1}`] || null}
                                             onChange={event => formik.setFieldValue(`subject${index + 1}`, event.target.value)}
                                         >
-                                            {!schoolSubjects?.listData?.length ? null :
-                                                schoolSubjects.listData.map(subject => (
+                                            {!teacherSubjects?.listData?.length ? null :
+                                                teacherSubjects.listData.map(subject => (
                                                     <MenuItem value={subject.id} name={subject.name} key={subject.id}>
                                                         {subject.name}
                                                     </MenuItem>
@@ -349,15 +443,29 @@ const TimeTableFormComponent = ({
 
                     </>
                 )}
-                <Divider sx={{ width: '99%', marginBottom: "20px" }}>
-                    <Chip color='info' label={`Recess Time ${schoolId?.[0]?.recess_time} min`}
+
+                {schoolId && <Divider sx={{ width: '99%', marginBottom: "20px" }}>
+                    <Chip color='info' label={`Recess Time ${schoolId?.recess_time} min`}
                         sx={{ fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px' }}
                     />
-                </Divider>
-                {(schoolId?.[0]?.period) / 2 > 0 && (
+                </Divider>}
+                {schoolId?.length === 0 &&
+                    <Divider sx={{ width: '99%', marginBottom: "20px" }}>
+                        <Chip
+                            color='error' label={`CREATE A SCHOOL DURATION FIRST`}
+                            maxWidth={false}
+                            sx={{
+                                fontSize: '13px', fontWeight: '600', letterSpacing: '0.2em', padding: '12px', width: "800px",
+                                transform: `scale(${scale})`,
+                                transition: 'transform 0.6s ease-in-out'
+                            }}
+                        />
+                    </Divider>
+                }
+                {(schoolId?.period) / 2 > 0 && (
                     <>
-                        {[...Array((schoolId[0].period) / 2)].map((_, index) => {
-                            let condition = (schoolId?.[0]?.period) / 2 + 1;
+                        {[...Array((schoolId?.period) / 2)].map((_, index) => {
+                            let condition = (schoolId?.period) / 2 + 1;
 
                             return (
                                 <Box key={index} sx={{ display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', margin: '0px 100px 20px 100px ', justifyItems: "center", alignItems: "center" }}>
@@ -376,8 +484,8 @@ const TimeTableFormComponent = ({
                                             value={formik.values[`subject${index + condition}`] || null}
                                             onChange={event => formik.setFieldValue(`subject${index + condition}`, event.target.value)}
                                         >
-                                            {!schoolSubjects?.listData?.length ? null :
-                                                schoolSubjects.listData.map(subject => (
+                                            {!teacherSubjects?.listData?.length ? null :
+                                                teacherSubjects.listData.map(subject => (
                                                     <MenuItem value={subject.id} name={subject.name} key={subject.id}>
                                                         {subject.name}
                                                     </MenuItem>
@@ -406,7 +514,7 @@ TimeTableFormComponent.propTypes = {
     setDirty: PropTypes.func,
     reset: PropTypes.bool,
     setReset: PropTypes.func,
-    classData: PropTypes.array, 
+    classData: PropTypes.array,
     setClassData: PropTypes.func,
     allSubjects: PropTypes.array,
     updatedValues: PropTypes.object

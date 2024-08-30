@@ -51,7 +51,6 @@ export const TimeTableAPI = {
     /** Update TimeTable in the database
      */
     updateTimeTable: async (fields, cancel = false) => {
-        console.log("timetableapiupadate>>", fields);
         return await api.request({
             url: `/update-time-table`,
             headers: {

@@ -15,6 +15,8 @@ const checkoutSchema = yup.object().shape({
         .required("This Field is Required"),
     section: yup.number()
         .required("This Field is Required"),
+    batch: yup.string()
+        .required("This Field is Required")
 });
 
 export default checkoutSchema;

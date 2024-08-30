@@ -15,10 +15,10 @@ const checkoutSchema = yup.object().shape({
         .required("This Field is Required"),
     color_code: yup.string()
         .required("This Field is Required"),
-    captain: yup.number()
-        .required("This Field is Required"),
-    vice_captain: yup.number()
-        .required("This Field is Required"),
+    // captain: yup.number()
+    //     .required("This Field is Required"),
+    // vice_captain: yup.number()
+    //     .required("This Field is Required"),
     teacher_incharge: yup.number()
         .required("This Field is Required"),
     strength: yup.string()

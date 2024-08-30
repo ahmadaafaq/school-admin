@@ -12,7 +12,7 @@ const checkoutSchema = yup.object({
     street: yup.string()
         .min(4, 'Too Short!')
         .max(80, 'Too Long!')
-        .matches(/[a-z]/, 'Invalid Street Name Detected')
+        .matches(/^[a-zA-Z].*[a-zA-Z.,\-_=+\s]*$/, 'Invalid Street Name Detected')
         .required("This Field is Required"),
     landmark: yup.string()
         .min(4, 'Too Short!')
@@ -22,8 +22,6 @@ const checkoutSchema = yup.object({
         .min(4, 'Too Short!')
         .max(20, 'Too Long!')
         .matches(/[0-9]/, 'Invalid Zipcode Detected')
-        .required("This Field is Required"),
-    country: yup.number()
         .required("This Field is Required"),
     state: yup.number()
         .required("This Field is Required"),

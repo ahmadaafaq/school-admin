@@ -16,6 +16,7 @@ import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select, TextFie
 import './index.css';
 import API from "../../apis";
 import addressValidation from "./Validation";
+import { Utility } from "../utility";
 
 const countryId = import.meta.env.VITE_DEFAULT_COUNTRY_ID;
 const initialValues = {
@@ -43,9 +44,12 @@ const AddressFormComponent = ({
     const [states, setStates] = useState([]);
     const [stateId, setStateId] = useState(null);
     const [cities, setCities] = useState([]);
-    const [_cityId, setCityId] = useState(null);
+    // const [_cityId, setCityId] = useState(null);
+    const [zipcodeCity, setZipcodeCity] = useState(null);
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
+
+    const { getStateCityFromZipCode } = Utility();
 
     const formik = useFormik({
         initialValues: initialState,
@@ -66,10 +70,27 @@ const AddressFormComponent = ({
                 values: formik.values,
                 validated: formik.isSubmitting
                     ? Object.keys(formik.errors).length === 0
-                    : false
+                    : false,
+                dirty: formik.dirty
             });
         }
     };
+
+    const getIdByName = async (attrName, API) => {
+        return new Promise(resolve => {
+            API.getIdByName(attrName)
+                .then(res => {
+                    if (res.status === "Success") {
+                        resolve(res.data);
+                    } else {
+                        resolve(new Error(`API call unsuccessful: ${res.status}`));
+                    }
+                })
+                .catch(error => {
+                    resolve(new Error(`API call failed: ${error.message}`));
+                });
+        });
+    }
 
     useEffect(() => {
         if (reset) {
@@ -115,14 +136,13 @@ const AddressFormComponent = ({
                         if (data?.status === 'Success') {
                             setStates(data.data.list);
                             setCities([]);
-                            if (update) {
-                                getCities();
-                            }
+                            // if (update) {
+                            //     getCities();
+                            // }
                         } else {
                             setStates([]);
                             setCities([]);
                             formik.setFieldValue("state", 0);
-                            formik.setFieldValue("city", 0);
                         }
                     })
                     .catch(err => {
@@ -134,66 +154,67 @@ const AddressFormComponent = ({
     }, [formik.values.country, countryId]);
 
     useEffect(() => {
-        if (stateId) {
-            getCities();
-        }
-    }, [stateId]);
-
-    const getCities = useCallback(() => {
         API.CityAPI.getCities(formik.values.state || stateId)
             .then(cities => {
                 if (cities?.status === 'Success') {
                     setCities(cities.data.list);
+                    if (zipcodeCity) {
+                        setTimeout(() => {
+                            formik.setFieldValue("city", zipcodeCity);
+                        }, 1000);
+                    }
                 } else {
                     setCities([]);
-                    formik.setFieldValue("city", 0);
                 }
             })
             .catch(err => {
                 setCities([]);
-                formik.setFieldValue("city", 0);
-                console.log('Error getting cities', err);
             });
     }, [formik.values.state, stateId]);
 
-    // useEffect(() => {
-    //     if (formik.values.country) {
-    //         const selectedObj = countries.filter(obj => obj.id === formik.values.country) || [];
-    //         console.log(selectedObj, 'db country');
-    //         if (iCardDetails) {
-    //             setICardDetails({
-    //                 ...iCardDetails,
-    //                 studentCountry: selectedObj[0]?.name
-    //             });
-    //         }
-    //     }
-    // }, [formik.values?.country]);
-
     useEffect(() => {
-        if (formik.values.state) {
-            const selectedObj = states.filter(obj => obj.id === formik.values.state) || [];
-            console.log(selectedObj, 'db state');
-            if (iCardDetails) {
+        const { state, city, country, ...restObj } = formik.values;
+        if (formik.values.city && formik.values.state && setICardDetails !== null) {
+            const selectedObj1 = states.filter(obj => obj.id === formik.values.state) || [];
+            const selectedObj2 = cities.filter(obj => obj.id === formik.values.city) || [];
+
+            if (Object.keys(restObj).length > 0) {
                 setICardDetails({
-                    ...iCardDetails,
-                    studentState: selectedObj[0]?.name
+                    studentState: selectedObj1[0]?.name,
+                    studentCity: selectedObj2[0]?.name,
+                    ...restObj,
                 });
             }
         }
-    }, [formik.values?.state]);
+    }, [formik.values, updatedValues]);
+
 
     useEffect(() => {
-        if (formik.values.city) {
-            const selectedObj = cities.filter(obj => obj.id === formik.values.city) || [];
-            console.log(selectedObj, 'db city');
-            if (iCardDetails) {
-                setICardDetails({
-                    ...iCardDetails,
-                    studentCity: selectedObj[0]?.name
-                });
-            }
+        if (cities.length) {
+            formik.setFieldValue("city", updatedValues?.city);
+            // setCityId(updatedValues?.city);
         }
-    }, [formik.values?.city]);
+    }, [cities.length]);
+
+    useEffect(() => {
+        const fetchStateCity = async () => {
+            if (formik.values.zipcode && (formik.values.zipcode.toString().length === 6)) {
+
+                try {
+                    const res = await getStateCityFromZipCode(formik?.values?.zipcode);
+                    const state_id = await getIdByName(res.state, API.StateAPI);
+                    const city_id = await getIdByName(res.city, API.CityAPI);
+
+                    formik.setFieldValue("state", state_id);
+                    setZipcodeCity(city_id);
+                } catch (error) {
+                    console.error("Error fetching state and city", error);
+                }
+            }
+        };
+
+        fetchStateCity();
+    }, [formik?.values?.zipcode]);
 
     return (
         <Box m="20px" marginBottom="60px">
@@ -281,9 +302,9 @@ const AddressFormComponent = ({
                             id="city"
                             name="city"
                             variant="filled"
-                            value={formik.values.city}
+                            value={formik.values.city || updatedValues?.city}
                             onChange={event => {
-                                setCityId(event.target.value);
+                                // setCityId(event.target.value);
                                 formik.setFieldValue("city", event.target.value);
                             }}
                         >

@@ -21,6 +21,7 @@ import {
   FormControlLabel,
   Autocomplete,
   Typography,
+  useTheme
 } from "@mui/material";
 import { Checkbox, Select, TextField, useMediaQuery } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -34,6 +35,8 @@ import { setSchoolClasses } from "../../redux/actions/ClassAction";
 import { setSchoolSections } from "../../redux/actions/SectionAction";
 import { setSchoolSubjects } from "../../redux/actions/SubjectAction";
 import { setBuses } from "../../redux/actions/BusAction";
+import { setListingSchoolHouses } from "../../redux/actions/SchoolHouseAction";
+
 import { Utility } from "../utility";
 import { useCommon } from "../hooks/common";
 
@@ -44,8 +47,15 @@ const initialValues = {
   firstname: "",
   lastname: "",
   mother_name: "",
+  mother_contact_no: "",
+  mother_aadhar: "",
   father_name: "",
-  guardian: "",
+  father_contact_no: "",
+  father_aadhar: "",
+  guardian_name: "",
+  guardian_contact_no: "",
+  guardian_aadhar: "",
+  house:"",
   contact_no: "",
   email: "",
   class: "",
@@ -66,23 +76,25 @@ const initialValues = {
   caste_group: "",
   gender: "",
   head: 0,
-  status: "inactive",
+  status: "active",
   is_fee_waiver: false,
   fee_waiver_type: "",
   waived_fees: "",
 };
 
 const StudentFormComponent = ({
-    onChange,
-    refId,
-    setDirty,
-    reset,
-    setReset,
-    classData,
-    setClassData,
-    allSubjects,
-    userId,
-    updatedValues = null
+  onChange,
+  refId,
+  setDirty,
+  reset,
+  setReset,
+  classData,
+  iCardDetails,
+  setICardDetails,
+  setClassData,
+  allSubjects,
+  userId,
+  updatedValues = null,
 }) => {
   const [initialState, setInitialState] = useState(initialValues);
   const schoolClasses = useSelector((state) => state.schoolClasses);
@@ -90,11 +102,11 @@ const StudentFormComponent = ({
   const schoolSubjects = useSelector((state) => state.schoolSubjects);
   const toastInfo = useSelector((state) => state.toastInfo);
   const allBuses = useSelector((state) => state.allBuses);
-
-  console.log("Bus data", allBuses);
+  const listingSchoolHouses = useSelector((state) => state.listingSchoolHouses);
 
   const dispatch = useDispatch();
   const genderRef = useRef();
+  const theme = useTheme()
   const checkboxLabel = { inputProps: { "aria-label": "Checkboxes" } };
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const isMobile = useMediaQuery("(max-width:480px)");
@@ -129,6 +141,7 @@ const StudentFormComponent = ({
         validated: formik.isSubmitting
           ? Object.keys(formik.errors).length === 0
           : false,
+        dirty: formik.dirty
       });
     }
   };
@@ -198,6 +211,12 @@ const StudentFormComponent = ({
   }, []);
 
   useEffect(() => {
+    if (!listingSchoolHouses?.listData?.rows?.length) {
+      getPaginatedData(0, 40, setListingSchoolHouses, API.SchoolHouseAPI);
+    }
+  }, []);
+
+  useEffect(() => {
     if (
       getLocalStorage("schoolInfo") &&
       (!schoolSubjects?.listData?.length ||
@@ -240,8 +259,6 @@ const StudentFormComponent = ({
       getAndSetSections();
     }
   }, [formik.values?.class, classData?.length]);
-
-  console.log("subjects>>>", formik.values.subjects);
 
   return (
     <Box m="20px">
@@ -301,42 +318,6 @@ const StudentFormComponent = ({
             value={formik.values.lastname}
             error={!!formik.touched.lastname && !!formik.errors.lastname}
             helperText={formik.touched.lastname && formik.errors.lastname}
-          />
-          <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="mother_name"
-            label="Mother's Name*"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.mother_name}
-            error={!!formik.touched.mother_name && !!formik.errors.mother_name}
-            helperText={formik.touched.mother_name && formik.errors.mother_name}
-          />
-          <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="father_name"
-            label="Father's Name*"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.father_name}
-            error={!!formik.touched.father_name && !!formik.errors.father_name}
-            helperText={formik.touched.father_name && formik.errors.father_name}
-          />
-          <TextField
-            fullWidth
-            variant="filled"
-            type="text"
-            name="guardian"
-            label="Guardian If Any"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.guardian}
-            error={!!formik.touched.guardian && !!formik.errors.guardian}
-            helperText={formik.touched.guardian && formik.errors.guardian}
           />
           <TextField
             fullWidth
@@ -423,8 +404,8 @@ const StudentFormComponent = ({
                 {updatedValues?.gender === "male"
                   ? "Head Boy"
                   : updatedValues?.gender === "female"
-                  ? "Head Girl"
-                  : "Select Head of School"}
+                    ? "Head Girl"
+                    : "Select Head of School"}
               </InputLabel>
               <Select
                 variant="filled"
@@ -465,13 +446,24 @@ const StudentFormComponent = ({
               name="dob"
               value={formik.values.dob}
               onChange={(newDob) => formik.setFieldValue("dob", newDob)}
-              slotProps={{
-                textField: {
-                  error: !!formik.touched.dob && !!formik.errors.dob,
-                  helperText: formik.touched.dob && formik.errors.dob,
-                },
-              }}
+              onBlur={() => formik.setFieldTouched('dob', true)}
+              renderInput={(params) => (
+                <>
+                  <TextField
+                    {...params}
+                    error={formik.touched.dob && Boolean(formik.errors.dob)}
+                    helperText={formik.touched.dob && formik.errors.dob}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <FormHelperText>
+                    {formik.touched.dob && formik.errors.dob}
+                  </FormHelperText>
+                </>
+
+              )}
             />
+
             <DatePicker
               format="DD MMMM YYYY"
               views={["day", "month", "year"]}
@@ -481,16 +473,24 @@ const StudentFormComponent = ({
               onChange={(new_admission_date) =>
                 formik.setFieldValue("admission_date", new_admission_date)
               }
-              slotProps={{
-                textField: {
-                  error:
-                    !!formik.touched.admission_date &&
-                    !!formik.errors.admission_date,
-                  helperText:
-                    formik.touched.admission_date &&
-                    formik.errors.admission_date,
-                },
-              }}
+              onBlur={() => formik.setFieldTouched('admission_date', true)}
+              renderInput={(params) => (
+                <>
+                  <TextField
+                    {...params}
+                    error={
+                      formik.touched.admission_date && Boolean(formik.errors.admission_date)
+                    }
+                    helperText={formik.touched.admission_date && formik.errors.admission_date}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <FormHelperText>
+                    {formik.touched.admission_date && formik.errors.admission_date}
+                  </FormHelperText>
+                </>
+              )}
+
             />
           </LocalizationProvider>
           <FormControl
@@ -541,14 +541,14 @@ const StudentFormComponent = ({
               {!schoolClasses?.listData?.length
                 ? null
                 : schoolClasses.listData.map((cls) => (
-                    <MenuItem
-                      value={cls.class_id}
-                      name={cls.class_name}
-                      key={cls.class_id}
-                    >
-                      {cls.class_name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem
+                    value={cls.class_id}
+                    name={cls.class_name}
+                    key={cls.class_id}
+                  >
+                    {cls.class_name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.class && formik.errors.class}
@@ -574,14 +574,14 @@ const StudentFormComponent = ({
               {!schoolSections?.listData?.length
                 ? null
                 : schoolSections.listData.map((section) => (
-                    <MenuItem
-                      value={section.section_id}
-                      name={section.section_name}
-                      key={section.section_id}
-                    >
-                      {section.section_name}
-                    </MenuItem>
-                  ))}
+                  <MenuItem
+                    value={section.section_id}
+                    name={section.section_name}
+                    key={section.section_id}
+                  >
+                    {section.section_name}
+                  </MenuItem>
+                ))}
             </Select>
             <FormHelperText>
               {formik.touched.section && formik.errors.section}
@@ -698,6 +698,31 @@ const StudentFormComponent = ({
               {formik.touched.caste_group && formik.errors.caste_group}
             </FormHelperText>
           </FormControl>
+
+          <FormControl variant="filled" sx={{ minWidth: 120 }}
+            error={!!formik.touched.house && !!formik.errors.house}
+          >
+            <InputLabel id="houseField">Student house</InputLabel>
+            <Select
+              labelId="houseField"
+              name="house"
+              value={formik.values.house || ''}
+              onChange={event => formik.setFieldValue("house", event.target.value)}
+            >
+              {!listingSchoolHouses?.listData?.rows?.length ?  (
+                  <MenuItem>
+                    {'No House Created'}
+                  </MenuItem>
+                ) :
+                listingSchoolHouses.listData.rows.map(item => (
+                  <MenuItem value={item.id} name={item.name} key={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+            </Select>
+            <FormHelperText>{formik.touched.house && formik.errors.house}</FormHelperText>
+          </FormControl>
+
           <FormControl
             variant="filled"
             sx={{ minWidth: 120 }}
@@ -717,7 +742,7 @@ const StudentFormComponent = ({
               {formik.touched.status && formik.errors.status}
             </FormHelperText>
           </FormControl>
-          
+
           <Box
             sx={{
               border: "2px solid #BADFE7",
@@ -728,10 +753,10 @@ const StudentFormComponent = ({
               width: isMobile
                 ? "100%"
                 : formik.values.is_taking_bus
-                ? "215%"
-                : formik.values.is_taking_bus
-                ? "200%"
-                : "290px",
+                  ? "215%"
+                  : formik.values.is_taking_bus
+                    ? "200%"
+                    : "290px",
               padding: "5px",
               gridTemplateColumns: formik.values.is_taking_bus
                 ? "repeat(2, minmax(0, 1fr))"
@@ -771,14 +796,14 @@ const StudentFormComponent = ({
                   {!allBuses?.listData?.rows?.length
                     ? null
                     : allBuses.listData.rows.map((item) => (
-                        <MenuItem
-                          value={item.id}
-                          name={`${item.registration_no}`}
-                          key={item.id}
-                        >
-                          {`${item.registration_no}`}
-                        </MenuItem>
-                      ))}
+                      <MenuItem
+                        value={item.id}
+                        name={`${item.registration_no}`}
+                        key={item.id}
+                      >
+                        {`${item.registration_no}`}
+                      </MenuItem>
+                    ))}
                 </Select>
                 <FormHelperText>
                   {formik.touched.bus && formik.errors.bus}
@@ -797,18 +822,18 @@ const StudentFormComponent = ({
                 ? "100%"
                 : formik.values.fee_waiver_type === "partial" &&
                   formik.values.is_fee_waiver
-                ? "326%"
-                : formik.values.is_fee_waiver
-                ? "200%"
-                : "290px",
+                  ? "326%"
+                  : formik.values.is_fee_waiver
+                    ? "200%"
+                    : "290px",
               padding: "5px",
               gridTemplateColumns:
                 formik.values.fee_waiver_type === "partial" &&
-                formik.values.is_fee_waiver
+                  formik.values.is_fee_waiver
                   ? "repeat(3, minmax(0, 1fr))"
                   : formik.values.is_fee_waiver
-                  ? "repeat(2, minmax(0, 1fr))"
-                  : "1fr",
+                    ? "repeat(2, minmax(0, 1fr))"
+                    : "1fr",
               gridColumnStart: 1,
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
@@ -877,6 +902,188 @@ const StudentFormComponent = ({
                 />
               )}
           </Box>
+
+          <fieldset style={{
+            border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+            borderRadius: "10px",
+            padding: "10px",
+            margin: "5px 0px 5px 0px",
+            gridColumnStart: 1,
+            gridColumn: "span 4"
+          }}>
+            <legend style={{
+              color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+              fontWeight: "bold",
+              padding: "5px",
+              fontSize: "larger"
+            }}>
+              Mother's Details
+            </legend>
+            <Box
+              display='grid'
+              gap="30px"
+              gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                name="mother_name"
+                label="Mother's Name*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.mother_name}
+                error={!!formik.touched.mother_name && !!formik.errors.mother_name}
+                helperText={formik.touched.mother_name && formik.errors.mother_name}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="mother_contact_no"
+                label="Mother Contact Number*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.mother_contact_no}
+                error={!!formik.touched.mother_contact_no && !!formik.errors.mother_contact_no}
+                helperText={formik.touched.mother_contact_no && formik.errors.mother_contact_no}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="mother_aadhar"
+                label="Mother Aadhar*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.mother_aadhar}
+                error={!!formik.touched.mother_aadhar && !!formik.errors.mother_aadhar}
+                helperText={formik.touched.mother_aadhar && formik.errors.mother_aadhar}
+              />
+            </Box>
+          </fieldset>
+
+          <fieldset style={{
+            border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+            borderRadius: "10px",
+            padding: "10px",
+            margin: "5px 0px 5px 0px",
+            gridColumnStart: 1,
+            gridColumn: "span 4"
+          }}>
+            <legend style={{
+              color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+              fontWeight: "bold",
+              padding: "5px",
+              fontSize: "larger"
+            }}>
+              Father's Details
+            </legend>
+            <Box
+              display='grid'
+              gap="30px"
+              gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                name="father_name"
+                label="Father's Name*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.father_name}
+                error={!!formik.touched.father_name && !!formik.errors.father_name}
+                helperText={formik.touched.father_name && formik.errors.father_name}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="father_contact_no"
+                label="Father's Contact Number*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.father_contact_no}
+                error={!!formik.touched.father_contact_no && !!formik.errors.father_contact_no}
+                helperText={formik.touched.father_contact_no && formik.errors.father_contact_no}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="father_aadhar"
+                label="Father's Aadhar*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.father_aadhar}
+                error={!!formik.touched.father_aadhar && !!formik.errors.father_aadhar}
+                helperText={formik.touched.father_aadhar && formik.errors.father_aadhar}
+              />
+            </Box>
+          </fieldset>
+
+          <fieldset style={{
+            border: theme.palette.mode === 'light' ? "2px solid rgb(0 165 201)" : "2px solid #BADFE7",
+            borderRadius: "10px",
+            padding: "10px",
+            margin: "5px 0px 10px 0px",
+            gridColumnStart: 1,
+            gridColumn: "span 4"
+          }}>
+            <legend style={{
+              color: theme.palette.mode === 'light' ? "rgb(0 165 201)" : "#BADFE7",
+              fontWeight: "bold",
+              padding: "5px",
+              fontSize: "larger"
+            }}>
+              Gurdian's Details ( if any )
+            </legend>
+            <Box
+              display='grid'
+              gap="30px"
+              gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            >
+              <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                name="guardian_name"
+                label="Guardian's Name*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.guardian_name}
+                error={!!formik.touched.guardian_name && !!formik.errors.guardian_name}
+                helperText={formik.touched.guardian_name && formik.errors.guardian_name}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="guardian_contact_no"
+                label="Guardian's Contact Number*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.guardian_contact_no}
+                error={!!formik.touched.guardian_contact_no && !!formik.errors.guardian_contact_no}
+                helperText={formik.touched.guardian_contact_no && formik.errors.guardian_contact_no}
+              />
+              <TextField
+                fullWidth
+                variant="filled"
+                type="number"
+                name="guardian_aadhar"
+                label="Guardian's Aadhar*"
+                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
+                value={formik.values.guardian_aadhar}
+                error={!!formik.touched.guardian_aadhar && !!formik.errors.guardian_aadhar}
+                helperText={formik.touched.guardian_aadhar && formik.errors.guardian_aadhar}
+              />
+            </Box>
+          </fieldset>
+
+
         </Box>
       </form>
       <Toast
@@ -898,6 +1105,7 @@ StudentFormComponent.propTypes = {
   setReset: PropTypes.func,
   classData: PropTypes.array,
   setClassData: PropTypes.func,
+  setFormikData: PropTypes.func,
   allSubjects: PropTypes.array,
   userId: PropTypes.number,
   updatedValues: PropTypes.object,

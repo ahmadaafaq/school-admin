@@ -55,6 +55,17 @@ export const SectionAPI = {
       data: fields,
       signal: cancel ? cancelApiObject[this.updateSection.name].handleRequestCancellation().signal : undefined,
     });
+  },
+  getIdByName: async (name, cancel = false) => {
+    const { data: response } = await api.request({
+      url: `/get-section-by-name/${name}`,
+      method: "GET",
+      headers: {
+        "x-access-token": getLocalStorage("auth").token
+      },
+      signal: cancel ? cancelApiObject[this.getClassIds.name].handleRequestCancellation().signal : undefined,
+    });
+    return response;
   }
 };
 

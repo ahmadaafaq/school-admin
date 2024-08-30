@@ -25,6 +25,19 @@ export const DashboardAPI = {
             signal: cancel ? cancelApiObject[this.getCountries.name].handleRequestCancellation().signal : undefined
         });
         return response;
+    },
+    /** Get the student graph data
+     */
+    getStudentGraphData: async ( cancel = false) => {
+        const { data: response } = await api.request({
+            url: `/get-student-graph-data`,
+            method: "GET",
+            headers: {
+                "x-access-token": getLocalStorage("auth").token
+            },
+            signal: cancel ? cancelApiObject[this.getStudentGraphData.name].handleRequestCancellation().signal : undefined
+        });
+        return response;
     }
 };
 

@@ -12,7 +12,6 @@ import { useSelector, useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material";
-import ReplayIcon from '@mui/icons-material/Replay';
 
 import API from "../../apis";
 import Search from "../common/Search";
@@ -47,6 +46,8 @@ const ListingComponent = ({ rolePriority = null }) => {
     const { getLocalStorage } = Utility();
     const colors = tokens(theme.palette.mode);
     const reloadBtn = document.getElementById("reload-btn");
+    const importBtn = true;
+    const teacherImport = "teacher";
 
     const handleReload = () => {
         // getSearchData(oldPagination.page, oldPagination.pageSize, condition);
@@ -64,6 +65,39 @@ const ListingComponent = ({ rolePriority = null }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    //     useEffect(() => {
+    //         let teacherIds = [];
+    //         let updatePromises = [];
+    //         if (listData?.rows) {
+    //             listData.rows.map((item) => {
+    //                 if (item.is_class_teacher === false) {
+    //                     teacherIds.push(item.id);
+    //                 }
+    //             });
+    //             updatePromises = teacherIds.map((id) => {
+    //                 API.TeacherAPI.getTeacherDetail(id)
+    //                     .then((detail) => {
+    //                         if(detail.status === 'Success'){
+    // setTeacherDetail({item.id: })
+    //                         }
+    //                     })
+    //             });
+    //         }
+    //     }, [listData?.rows?.length])
+    // useEffect(() => {
+    //     API.TeacherAPI.getTeacherDetail()
+    //         .then(classes => {
+    //             if (classes?.status == "Success") {
+    //                 setClassesData(classes?.data);
+    //             }
+    //         })
+    //         .catch(err => {
+    //             throw err;
+    //         });
+    // }, []);
+
+    console.log("listdata>>>",listData);
+
     return (
         <Box m="10px" position="relative"
             sx={{
@@ -72,8 +106,8 @@ const ListingComponent = ({ rolePriority = null }) => {
                 overflow: "hidden",
                 boxShadow: "1px 1px 10px black",
                 backgroundImage: theme.palette.mode === "light"
-                    ? `linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url(${listBg})`
-                    : `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${listBg})`,
+                    ? `linear-gradient(rgb(151 203 255 / 80%), rgb(151 203 255 / 80%)), url(${listBg})`
+                    : `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${listBg})`,
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "center",
                 backgroundSize: "cover"
@@ -120,31 +154,14 @@ const ListingComponent = ({ rolePriority = null }) => {
                         </Button>)}
                 </Box>
             </Box>
-            <Button sx={{
-                display: "none",
-                position: "absolute",
-                top: isMobile ? "23vh" : isTab ? "10.5vh" : "16.5vh",
-                left: isMobile ? "80vw" : isTab ? "39.5vw" : "26vw",
-                zIndex: 1,
-                borderRadius: "20%",
-                color: colors.grey[100],
-                marginLeft:"14vh"
-            }}
-                id="reload-btn"
-                type="button"
-                onClick={handleReload}
-            >
-                <span style={{ display: "inherit", marginRight: "5px" }}>
-                    <ReplayIcon />
-                </span>
-                Back
-            </Button>
             <ServerPaginationGrid
                 action={setTeachers}
                 api={API.TeacherAPI}
                 getQuery={getPaginatedData}
                 columns={datagridColumns(rolePriority)}
+                rolePriority={rolePriority}
                 rows={listData.rows}
+                importBtn={importBtn}
                 count={listData.count}
                 loading={loading}
                 selected={selected}
@@ -152,6 +169,7 @@ const ListingComponent = ({ rolePriority = null }) => {
                 setOldPagination={setOldPagination}
                 searchFlag={searchFlag}
                 setSearchFlag={setSearchFlag}
+                imports={teacherImport}
             />
         </Box >
     );

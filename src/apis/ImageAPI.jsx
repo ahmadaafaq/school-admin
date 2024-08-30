@@ -82,6 +82,18 @@ export const ImageAPI = {
             data: data,
             signal: cancel ? cancelApiObject[this.uploadImage.name].handleRequestCancellation().signal : undefined
         });
+    },
+    uploadImageToS3: async (data, cancel = false) => {
+        return await api.request({
+            url: `/upload-image-s3`,
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "x-access-token": getLocalStorage("auth").token
+            },
+            method: "POST",
+            data: data,
+            signal: cancel ? cancelApiObject[this.uploadImage.name].handleRequestCancellation().signal : undefined
+        });
     }
 };
 

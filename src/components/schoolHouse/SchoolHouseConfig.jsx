@@ -13,11 +13,15 @@ import { Box, Button, Typography, useTheme } from '@mui/material';
 import DriveFileRenameOutlineOutlinedIcon from '@mui/icons-material/DriveFileRenameOutlineOutlined';
 
 import { tokens } from "../../theme";
+import { Utility } from "../utility";
+
 
 export const datagridColumns = (rolePriority = null) => {
     const navigateTo = useNavigate();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { capitalizeEveryWord } = Utility();
+
 
     const handleActionEdit = (id) => {
         navigateTo(`/school-house/update/${id}`, { state: { id: id } });
@@ -31,8 +35,9 @@ export const datagridColumns = (rolePriority = null) => {
             align: "center",
             flex: 1,
             // width: 120,
-            valueGetter: (params) => `${params.row.name.charAt(0).toUpperCase() + params.row.name.slice(1) || ''}` 
-            
+            valueGetter: (params) => `${capitalizeEveryWord(params.row.name) || ""}`,
+
+
         },
         {
             field: "captainName",
@@ -42,11 +47,12 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             // minWidth: 100
             valueGetter: (params) => {
-                const nameParts = params.row.captainName.split(' ');
-                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                const nameParts = (params.row.captainName || '').split(' ');
+                const capitalizedParts = nameParts.map(part => capitalizeEveryWord(part));
                 return capitalizedParts.join(' ');
             }
-             
+
+
 
         },
         {
@@ -57,11 +63,11 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             // minWidth: 100
             valueGetter: (params) => {
-                const nameParts = params.row.viceCaptainNname.split(' ');
-                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                const nameParts = (params.row.viceCaptainNname || '').split(' ');
+                const capitalizedParts = nameParts.map(part => capitalizeEveryWord(part));
                 return capitalizedParts.join(' ');
             }
-             
+
 
         },
         {
@@ -72,14 +78,14 @@ export const datagridColumns = (rolePriority = null) => {
             flex: 1,
             minWidth: 100,
             valueGetter: (params) => {
-                const nameParts = params.row.teacherName.split(' ');
-                const capitalizedParts = nameParts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+                const nameParts = (params.row.teacherName || '').split(' ');
+                const capitalizedParts = nameParts.map(part => capitalizeEveryWord(part));
                 return capitalizedParts.join(' ');
             }
         },
         {
             field: "status",
-            headerName: "STATUS",
+            headerName: "Status",
             headerAlign: "center",
             align: "center",
             flex: 1,
@@ -102,7 +108,7 @@ export const datagridColumns = (rolePriority = null) => {
                         borderRadius="4px"
                     >
                         <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
-                        {status.charAt(0).toUpperCase() + status.slice(1) || ''}
+                            {capitalizeEveryWord(status) || ''}
                         </Typography>
                     </Box>
                 );
@@ -110,7 +116,7 @@ export const datagridColumns = (rolePriority = null) => {
         },
         rolePriority !== 1 && {
             field: "action",
-            headerName: "ACTION",
+            headerName: "Action",
             headerAlign: "center",
             align: "center",
             flex: 1,

@@ -22,6 +22,13 @@ export const setSchoolSubjects = (subjects) => {
     };
 };
 
+export const setTeacherSubjects = (subjects) => {
+    return {
+        type: ActionTypes.SET_TEACHER_SUBJECTS,
+        payload: subjects
+    };
+};
+
 export const setAllSubjects = (subjects) => {
     return {
         type: ActionTypes.SET_ALL_SUBJECTS,

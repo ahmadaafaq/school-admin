@@ -37,7 +37,7 @@ const HolidayFormComponent = ({
 }) => {
 
     const [initialState, setInitialState] = useState(initialValues);
-    
+
     const isNonMobile = useMediaQuery("(min-width:600px)");
 
     const formik = useFormik({
@@ -108,7 +108,7 @@ const HolidayFormComponent = ({
                         helperText={formik.touched.title && formik.errors.title}
                     />
 
-<LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                             format="DD MMMM YYYY"            //ex - 25 July 2023
                             views={['day', "month", "year"]}
@@ -179,7 +179,7 @@ HolidayFormComponent.propTypes = {
     onChange: PropTypes.func,
     refId: PropTypes.shape({
         current: PropTypes.any
-    }), 
+    }),
     setDirty: PropTypes.func,
     reset: PropTypes.func,
     setReset: PropTypes.func,
